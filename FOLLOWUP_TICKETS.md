@@ -37,6 +37,17 @@ Von Aeon geliefert (`prompts/08_teil2_observation_dynamics_coupling_for_aeon.md`
 - Alle 8 Kerndokumente inkl. `correspondence/` unverändert; alle 66 bestehenden Prüfungen weiter grün.
 - Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m2-observation-dynamics-coupling` gelöscht.
 
+## F18: Teil 2, Milestone 3 — Closure, Viability (erledigt 2026-09-16)
+
+Von Aeon geliefert (`prompts/09_teil2_closure_viability_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`:
+- `src/scoped_correspondence/closure/core.py`: `is_exact_closure` (PC=CQ), `closure_error`/`propagated_error_bound` (die TV-Fehlerschranke), `reconstruct_from_projection` (Kreisrekonstruktion), `partition_matrix`/`candidate_macro_kernel` (Lumpability-Fälle) — mit einem ehrlichen Kommentar, der bewusst auf Renormierung verzichtet, um bit-identische Legacy-Werte für e06 zu erhalten.
+- `src/scoped_correspondence/viability/core.py`: `has_safe_transfer` (implementiert direkt den Satz aus `context_transformations.md` §8), `shared_budget_conflict` (der gekoppelte-Budget-Gegenfall r10), `coupled_buffer_field`, `unequal_rates_sum_derivatives` (t07).
+- Legacy-Adapter rein additiv erweitert (`exact_closure_PC_CQ`, `safe_transfer_scalar` usw.) — bestehende M1/M2-Funktionen unverändert.
+- 11/11 neue Prüfungen selbst nachgerechnet. Zwei Zahlen von Hand gegengerechnet: `shared_budget_conflict`s Standardfall (a=[0,5;0,5], required=1, standalone_margin=0,25) direkt aus der Formel `a_i=max(0,W_i-r_i(e_i-b_i))` hergeleitet — exakt bestätigt.
+- Alle 8 Kerndokumente sowie `correspondence/`, `observation/`, `dynamics/`, `coupling/` unverändert; alle 66 bestehenden Prüfungen weiter grün.
+- Bewusst nicht Teil dieser Lieferung: `membership` (überlappende Systemzugehörigkeit) und ein allgemeiner Viability-Kernel-Solver — beide eigene, spätere Aufträge.
+- Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m3-closure-viability` gelöscht.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
