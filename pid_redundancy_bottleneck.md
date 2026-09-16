@@ -14,7 +14,7 @@ Definitions and checks: [`verification/verify_pid_rb.py`](verification/verify_pi
 | Redundancy Bottleneck | Kolchinsky, *Partial information decomposition: redundancy as information bottleneck* | [arXiv:2405.07665](https://arxiv.org/abs/2405.07665); Entropy 26(7):546 (2024); **PMC11276267** |
 | Orientation only | Reference implementation ideas | [github.com/artemyk/pid-as-ib](https://github.com/artemyk/pid-as-ib) (rewritten cleanly here; not vendored) |
 
-Rosas et al. (PLOS 2020 / O-information) remain cited in `LITERATURE_CONNECTIONS.md` but are **not** the operational metric of this module.
+Rosas et al.'s two distinct works — *Reconciling emergences* (PLOS 2020) and the O-information (2019, arXiv:1902.11239) — remain cited in `LITERATURE_CONNECTIONS.md` but are **not** the operational metric of this module. (Correction, review 2026-09-16: these are two separate papers by the same first author, not one combined reference.)
 
 ## 2. Formulas
 
@@ -124,6 +124,18 @@ JSON summary printed by the verify script:
 {"count": 7, "passed": 7, "failed": []}
 ```
 
-## 6. Relation to CREP-UTAC-AFET
+## 6. Known measure-dependence: the two-bit-copy case (review 2026-09-16, not yet in `verify_pid_rb.py`)
 
-Use PID when a scalar `EI_q` cannot separate redundant collective prediction from synergistic prediction under a declared micro→macro (or multi-part→task) pair. Keep metric identifiers distinct: `EI_q`, `PID_Red`, `PID_Unq`, `PID_Syn`, `RB0`.
+For independent fair bits \(A,B\) with target \(Y=(A,B)\) (the pair itself, not a redundant copy \(Y=A=B\)):
+
+\[
+I(A;Y)=I(B;Y)=1\text{ bit},\qquad I(A,B;Y)=2\text{ bits}.
+\]
+
+Williams–Beer \(I_{\min}\) gives \((\operatorname{Red},\operatorname{Unq}_A,\operatorname{Unq}_B,\operatorname{Syn})=(1,0,0,1)\) bit — it reports a full bit of "redundancy" between two *independent* sources. Blackwell/Kolchinsky redundancy gives **0** for the same case: no single downstream channel \(Q\) can match both source channels for every value, since \(A\) and \(B\) carry independent information about different halves of \(Y\). This is the well-known **two-bit-copy problem**, one of the motivating examples for alternative PID constructions with an explicit identity axiom. [Harder, Salge & Polani, 2013](https://arxiv.org/abs/1207.2080).
+
+This is not an implementation bug — it shows that "redundancy" is measure-dependent and its value must always be reported together with the measure used (`I_min` vs. Blackwell/RB), not read as a measure-independent fact about the sources. **Not yet in `verify_pid_rb.py`'s seven checks** (as reviewed 2026-09-16): a TWO_BIT_COPY case alongside UNIQUE/XOR/AND/FULL_COPY is recommended as a future addition — see `FOLLOWUP_TICKETS.md`.
+
+## 7. Relation to CREP-UTAC-AFET
+
+Use PID when a scalar `EI_q` cannot separate redundant collective prediction from synergistic prediction under a declared micro→macro (or multi-part→task) pair. Keep metric identifiers distinct: `EI_q`, `PID_Red`, `PID_Unq`, `PID_Syn`, `RB0`. Report which redundancy measure (`I_min` vs. Blackwell/RB) produced a given `Red` value — see §6.

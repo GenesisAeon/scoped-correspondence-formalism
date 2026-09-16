@@ -1,6 +1,6 @@
 {
   "revision": "2",
-  "generated_at": "2026-09-16T17:55:58.666128+00:00",
+  "generated_at": "2026-09-16T18:34:59.892633+00:00",
   "python": "3.11.9",
   "dependencies": "Python standard library only",
   "count": 19,
@@ -373,7 +373,7 @@
       "kind": "model_or_document_check",
       "status": "passed",
       "evidence": {
-        "local_links_checked": 135,
+        "local_links_checked": 138,
         "links_to_this_generated_report": 2,
         "broken_links": [],
         "scope": "current root markdown files; external links and historical files excluded"

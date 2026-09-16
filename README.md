@@ -1,6 +1,6 @@
 # CREP–UTAC–AFET: Information, Systeme und Kopplung
 
-**Revision 3 · 16. September 2026 · methodischer Entwurf mit Literaturanschlüssen und prüfbaren Modellrechnungen**
+**Revision 3.2 · 16. September 2026 · methodischer Entwurf mit Literaturanschlüssen, prüfbaren Modellrechnungen und optionalen F08/F09-Ergänzungen**
 
 Johanns Ausgangsabsicht bleibt die Grundlage: CREP beschreibt Information, UTAC Systeme und deren Dynamik, AFET die Kopplung mit einer ausdrücklich ausgewiesenen thermodynamischen Spezialisierung. Die Revision ersetzt die unzutreffenden Größenidentitäten des Entwurfs vom 15. September durch definierte Schnittstellen und bedingte Modellbeziehungen.
 
@@ -22,8 +22,8 @@ Eine strukturelle Analogie ist ein Ausgangspunkt. Mathematische Selbstähnlichke
 | [worked_example_reconstruction.md](worked_example_reconstruction.md) | Verzögerungskoordinaten, Abtastungsgegenfall und Projektionsgedächtnis |
 | [worked_example_causal_emergence.md](worked_example_causal_emergence.md) | EI, Interventionsensembles, Lumpability und zwei SVD-/Reversibilitätsgegenfälle |
 | [worked_example_viability.md](worked_example_viability.md) | Dauerhafte Belastbarkeit trotz gleicher Erholungsrate |
-| [sheaf_contextuality.md](sheaf_contextuality.md) | Optionales Modul (F08): Contextual Fraction für stochastische Mehrfach-Systemzugehörigkeit, neben VB1 |
-| [pid_redundancy_bottleneck.md](pid_redundancy_bottleneck.md) | Optionales Modul (F09): PID-Zerlegung (Williams–Beer/Kolchinsky-RB) für `EI_q`, Mikro→Makro |
+| [sheaf_contextuality.md](sheaf_contextuality.md) | Optionales Modul (F08): Prüfung globaler Darstellbarkeit deklarierter lokaler Wahrscheinlichkeitsmodelle (Contextual Fraction), neben VB1 |
+| [pid_redundancy_bottleneck.md](pid_redundancy_bottleneck.md) | Optionales Modul (F09): PID-Zerlegung (Williams–Beer/Kolchinsky-RB) einer deklarierten Quellen-Ziel-Verteilung, Mikro→Makro; `EI_q` wird separat berichtet |
 | [DESIGN.md](DESIGN.md) | Entscheidungen und zurückgezogene Schlussfolgerungen |
 | [ROADMAP.md](ROADMAP.md) | Erreichter Paketstand und nächste fachliche Prüfungen |
 | [FOLLOWUP_TICKETS.md](FOLLOWUP_TICKETS.md) | Offene Codefragen und bisherige Reparaturen |

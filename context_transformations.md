@@ -162,3 +162,39 @@ Thermodynamische Spezialmodelle benötigen weiterhin ihre eigenen Bilanz- und En
 Der Arbeitsvertrag für eine konkrete Selbstähnlichkeitsbehauptung enthält Ausgangs- und Zielmodell, Darstellung, Eingangsabbildung, Einheiten, Zeitbezug, veränderliche Parameter beziehungsweise Regeln, Geltungsgebiet und das erhaltene Muster. Hinzu kommen Fehler und unabhängige Prüffälle. Die Abbildungen werden nicht nach jedem Gegenbefund beliebig neu gewählt.
 
 Das [gekoppelte Pufferbeispiel](worked_example_viability.md) führt diese Erweiterung vollständig durch: eine Einheit als intern teilbares System, überlappende Aufgaben, gemeinsame Ressourcen, geschlossene Summendynamik und ein zusätzlich benötigter Verteilungszustand. Die [Prüfübersicht](TRANSFORMATION_VERIFICATION.md) trennt Herleitungen, numerische Kontrollen und noch offene empirische Anwendungen.
+
+## 8. Erhaltung ausführbarer Eingriffe (Vertiefung von VB3–VB5, Review 16. September 2026)
+
+Eine Transformation kann eine Vorhersage erhalten und trotzdem eine Entscheidung unmöglich machen. Für ein konkretes Modell \(z_{n+1}\in F(z_n,u_n)\), \(u_n\in U(z_n)\), einen sicheren Bereich K und eine Projektion \(y=\pi(z)\) mit abstraktem Modell \(y_{n+1}\in\widehat F(y_n,v_n)\) und Eingriffsschnittstelle \(u=\iota(v,y)\):
+
+**Hinreichende Bedingung.** Gilt für jedes \(y\in\widehat K\), jedes zulässige \(v\in\widehat U(y)\) und **jeden** konkreten Zustand z mit \(\pi(z)=y\):
+
+\[
+\begin{aligned}
+\text{Ausführbarkeit:}\quad&\iota(v,y)\in U(z),\ F(z,\iota(v,y))\ne\varnothing,\\
+\text{Nachfolgerverträglichkeit:}\quad&\pi(F(z,\iota(v,y)))\subseteq\widehat F(y,v),\\
+\text{Sichere Darstellung:}\quad&\pi^{-1}(\widehat K)\subseteq K,
+\end{aligned}
+\]
+
+und existiert eine Makropolitik \(\widehat\mu\) mit \(\widehat F(y,\widehat\mu(y))\subseteq\widehat K\) für alle \(y\in\widehat K\), dann hält \(u_n=\iota(\widehat\mu(\pi(z_n)),\pi(z_n))\) jeden Start \(z_0\in\pi^{-1}(\widehat K)\) im konkreten sicheren Bereich (Beweis durch Induktion: Ausführbarkeit + Nachfolgerverträglichkeit + sichere Darstellung übertragen sich Schritt für Schritt).
+
+**Warum der Quantor entscheidend ist:**
+
+\[
+\forall z\in\pi^{-1}(y)\;\exists u:\text{ sicher}
+\quad\not\Rightarrow\quad
+\exists u\;\forall z\in\pi^{-1}(y):\text{ sicher}.
+\]
+
+Ein Controller, der nur y sieht, braucht die rechte, stärkere Aussage — ein für jeden möglichen Mikrozustand einzeln sicherer Eingriff genügt nicht, wenn er sich je nach Mikrozustand unterscheiden müsste.
+
+### Drei durchgerechnete Gegenfälle (verifiziert, siehe unten)
+
+1. **Perfekte gemittelte Geschlossenheit reicht nicht** (r09): drei Mikrozustände L, R, D (D absorbierend/unsicher); zwei Aktionen a, b mit L→L/R→D unter a und L→D/R→R unter b. Bei gleichverteiltem Zufallseingriff ist die gemittelte Makrodynamik exakt PC=CQ-geschlossen (selbst nachgerechnet: exakte Übereinstimmung). Mit Mikroinformation bleibt man für immer sicher (in L stets a, in R stets b). Ein Controller, der nur den Makrozustand {L,R} sieht, hat **keinen** gemeinsam sicheren Eingriff — Geschlossenheit unter einer gemittelten Politik erhält nicht die Handlungsmöglichkeiten eines zustandsabhängigen Controllers.
+2. **Gekoppelte Puffer, gemeinsames Budget** (r10): zwei Bestände mit Austausch und Störung, Eingriffsbudget \(u_1+u_2\le0{,}6\). An den Zuständen (0,1) und (1,0) zeigt die Summenbeobachtung jeweils s=1 — nicht unterscheidbar. Der jeweils nötige Eingriff ist einzeln erfüllbar (\(u_1\ge0{,}4\) bzw. \(u_2\ge0{,}4\)), gemeinsam aber nicht (\(u_1+u_2\ge0{,}8>0{,}6\)) — selbst nachgerechnet: exakte Übereinstimmung. Die Summe hat eine geschlossene Gleichung, für lokale Sicherheit fehlt aber die Verteilung des Bestands.
+3. **Offene Wärmebilanz mit Randflüssen** (r11): zwei gekoppelte Wärmespeicher, \(\dot S=\sigma_{int}\ge0\) plus Randterme \(p_i/T_i\) — die Entropierate des offenen Teilsystems kann negativ sein, obwohl die interne Produktion nichtnegativ bleibt. Zeigt, dass Komposition die inneren Flüsse aus der äußeren Bilanz herausfallen lässt, während die interne Entropieproduktion sichtbar bleibt.
+
+**Konsequenz für die drei Schichten:** CREP klärt, welche Zustandsunterschiede die verfügbare Information überhaupt auflösen kann; UTAC, welche dieser Unterschiede Dynamik, Sicherheitsgrenzen oder Eingriffsbedarf verändern; AFET, welche Eingriffe angesichts Kopplungen, Ressourcen und gemeinsamer Beschränkungen tatsächlich ausführbar sind. PID (F09) kann untersuchen, wie mehrere Beobachtungen zu diesen Unterscheidungen beitragen — daraus folgt keine Gleichheit von PID-Synergie, Viabilitätsgewinn und thermodynamischer Entropieproduktion; sie werden am selben Fall mit je eigener Definition berichtet.
+
+Vollständige Herleitung, Beweis und alle elf zugehörigen Prüfungen: [reviews/formalism-review-f08-f09/NEXT_EXTENSIONS_ACTION_AND_OPEN_SYSTEMS.md](reviews/formalism-review-f08-f09/NEXT_EXTENSIONS_ACTION_AND_OPEN_SYSTEMS.md) und [reviews/formalism-review-f08-f09/verification/verify_review_examples.py](reviews/formalism-review-f08-f09/verification/verify_review_examples.py) (11/11, von Claude unabhängig nachgerechnet). Dies ist ein Erweiterungsvorschlag, noch nicht Teil der Kern-Verifikationssuite.

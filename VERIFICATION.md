@@ -46,7 +46,7 @@ Der tatsächliche Ausführungsstatus, Python-Version und alle Messwerte stehen i
 
 19 Basisprüfungen plus 16 Ergänzungen ergeben 35 benannte Prüfungen. Die JSON-Berichte zeigen, welche davon beim jeweiligen Lauf bestehen. Ein einzelner benannter Test kann mehrere Parameterfälle enthalten. Der Zufallsvergleich nutzt einen festen Seed, die SVD-Rangprüfung eine offengelegte numerische Toleranz.
 
-Die Checks beweisen keine allgemeine Takens-Garantie, keine RG-Universalität und keine empirische Individuation. Sie kontrollieren konkrete Ableitungen, Fehlergrenzen und Gegenbeispiele. NIS+, PID-Schätzer und vollständige Literaturdatensätze wurden nicht ausgeführt. Die verwendete NumPy-Version wird im Ergänzungsbericht protokolliert.
+Die Checks beweisen keine allgemeine Takens-Garantie, keine RG-Universalität und keine empirische Individuation. Sie kontrollieren konkrete Ableitungen, Fehlergrenzen und Gegenbeispiele. Historischer Stand Revision 3 (dieser Abschnitt): NIS+, PID-Schätzer und vollständige Literaturdatensätze wurden nicht ausgeführt. Die verwendete NumPy-Version wird im Ergänzungsbericht protokolliert. PID-Schätzer sind seit F09 separat implementiert und ausgeführt — siehe Abschnitt „Optionale Module F08/F09" unten; NIS+ (Training) bleibt weiterhin nicht ausgeführt.
 
 ## Optionale Module F08/F09 (16. September 2026, nicht Teil des Kerns)
 

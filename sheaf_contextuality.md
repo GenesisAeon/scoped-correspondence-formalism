@@ -99,8 +99,14 @@ JSON summary printed by the verify script:
 {"count": 6, "passed": 6, "failed": []}
 ```
 
-## 6. Relation to CREP-UTAC-AFET
+## 6. Scope condition: the shared-state case is not contextual by construction (review 2026-09-16)
 
-Use CF when several stochastic views of overlapping quantities are margin-compatible yet admit no joint explanation. Do **not** silently rewrite VB1: if stocks are deterministic and contradictory, keep the VB1 empty-assignment reading; optionally run the sheaf smoke test for analogy.
+`FORMALISM.md` §13 writes views as \(y_\alpha=\pi_\alpha(z,c,t)\) — each view a function of one common underlying state \(z\). **If the "same" observable across contexts really is the same deterministic function of this one shared \(z\), a joint distribution always exists trivially as the pushforward measure of \(z\)'s own distribution.** A positive CF cannot legitimately arise from exactly this model with unchanged observable identities — computing it there would be a modelling error, not a finding.
+
+CF is meaningful only when the per-context empirical models \(e_C\) are the primitives — genuinely separate measurement tables, not all derived as projections of one presumed common \(z\) (the standard setting in Bell/Kochen–Specker-style contextuality, [Abramsky & Brandenburger 2011](https://arxiv.org/abs/1102.0264)). Before running the sheaf module on a GenesisAeon case: state explicitly whether the "same" quantity across contexts is (a) a function of one common state (→ use VB1, not CF) or (b) an independently specified per-context model where no common state is assumed (→ CF is the right tool). Stochasticity or multi-system membership alone do not create contextuality; the empirical models must be the given data, not a derived consequence of a shared-state assumption.
+
+## 7. Relation to CREP-UTAC-AFET
+
+Use CF when several stochastic views of overlapping quantities are margin-compatible yet admit no joint explanation **and are specified as independent per-context empirical models, not as projections of one shared state** (see §6). Do **not** silently rewrite VB1: if stocks are deterministic and contradictory, keep the VB1 empty-assignment reading; optionally run the sheaf smoke test for analogy.
 
 First toy may be unphysical (PR-box) to harden CF infrastructure against known values before GenesisAeon cases.
