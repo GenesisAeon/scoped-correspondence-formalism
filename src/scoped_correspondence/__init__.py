@@ -1,12 +1,13 @@
-"""Scoped Correspondence Formalism - review package (Milestones 1-3).
+"""Scoped Correspondence Formalism - review package (Milestones 1-4).
 
 Milestone 1: typed Correspondence contract.
 Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
 Milestone 3: Closure / Reconstruction + Viability / Safe transfer.
+Milestone 4: Membership / Shared resources (M_eα, T5).
 
 This package does not replace FORMALISM.md or the layer documents; it is a
 software adjunct for review. Correspondence / Observation / Dynamics /
-Coupling are unchanged from M1-M2.
+Coupling / Closure / Viability are unchanged from M1-M3.
 """
 
 from scoped_correspondence.correspondence import (
@@ -61,6 +62,13 @@ from scoped_correspondence.viability import (
     shared_budget_conflict,
     unequal_rates_sum_derivatives,
 )
+from scoped_correspondence.membership import (
+    MembershipMatrix,
+    double_count_stocks,
+    joint_control_set,
+    t10_via_membership,
+    view,
+)
 
 __all__ = [
     # M1 correspondence
@@ -110,6 +118,12 @@ __all__ = [
     "scalar_solution",
     "shared_budget_conflict",
     "unequal_rates_sum_derivatives",
+    # M4 membership
+    "MembershipMatrix",
+    "double_count_stocks",
+    "joint_control_set",
+    "t10_via_membership",
+    "view",
 ]
 
-__version__ = "0.3.0a1"
+__version__ = "0.4.0a1"
