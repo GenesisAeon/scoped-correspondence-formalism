@@ -1,0 +1,62 @@
+{
+  "milestone": "M3_viability_core",
+  "kind": "MIG equivalence (legacy transformations vs Viability API)",
+  "generated_at_utc": "2026-09-16T20:08:44.663616+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 4,
+  "passed": 4,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-VIA-t05_scalar_boundary_and_hitting",
+      "status": "passed",
+      "evidence": {
+        "general_hitting_time": 0.9672005213415366,
+        "original_hitting_time": 1.0986122886681098,
+        "legacy_id": "t05_scalar_boundary_and_hitting",
+        "legacy_alias": "VER-VIA-t05_scalar_boundary_and_hitting",
+        "safe_transfer_ok_W0.5": true,
+        "safe_transfer_ok_W1.5": false
+      }
+    },
+    {
+      "id": "MIG-VIA-t09_orthant_boundary_conditions",
+      "status": "passed",
+      "evidence": {
+        "parameter_sets": 100,
+        "boundary_evaluations": 600,
+        "min_boundary_derivative": -8.881784197001252e-16,
+        "infeasible_budget_cases": 95,
+        "legacy_id": "t09_orthant_boundary_conditions",
+        "legacy_alias": "VER-VIA-t09_orthant_boundary_conditions"
+      }
+    },
+    {
+      "id": "MIG-VIA-t10_shared_budget_conflict",
+      "status": "passed",
+      "evidence": {
+        "standalone_margin": 0.25,
+        "required_joint_budget": 1,
+        "available_budget": 0.75,
+        "legacy_id": "t10_shared_budget_conflict",
+        "legacy_alias": "VER-VIA-t10_shared_budget_conflict",
+        "conflict": true
+      }
+    },
+    {
+      "id": "MIG-VIA-t07_unequal_rates_crosscheck",
+      "status": "passed",
+      "evidence": {
+        "same_sum": 1.0,
+        "two_derivatives": [
+          -1.0,
+          -2.0
+        ],
+        "legacy_id": "t07_unequal_rates_break_closure",
+        "legacy_alias": "VER-VIA-t07_unequal_rates_break_closure"
+      }
+    }
+  ]
+}

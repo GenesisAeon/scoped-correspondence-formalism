@@ -1,0 +1,112 @@
+{
+  "milestone": "M3_closure_core",
+  "kind": "MIG equivalence (legacy extensions/transformations vs Closure API)",
+  "generated_at_utc": "2026-09-16T20:08:43.940328+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 7,
+  "passed": 7,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-CL-e01_circle_reconstruction",
+      "status": "passed",
+      "evidence": {
+        "intrinsic_dimension": 1,
+        "sufficient_coordinates_in_this_model": 2,
+        "max_angle_error": 4.440892098500626e-16,
+        "legacy_id": "e01_circle_reconstruction",
+        "legacy_alias": "VER-CL-e01_circle_reconstruction"
+      }
+    },
+    {
+      "id": "MIG-CL-e03_projected_memory",
+      "status": "passed",
+      "evidence": {
+        "max_memory_residual": 5.5884002286843426e-11,
+        "same_observation_distinct_drifts": [
+          1,
+          -1
+        ],
+        "legacy_id": "e03_projected_memory",
+        "legacy_alias": "VER-CL-e03_projected_memory"
+      }
+    },
+    {
+      "id": "MIG-CL-e04_exact_lumpability",
+      "status": "passed",
+      "evidence": {
+        "macro_kernel": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "horizons_checked": 11,
+        "lift_independent": true,
+        "legacy_id": "e04_exact_lumpability",
+        "legacy_alias": "VER-CL-e04_exact_lumpability"
+      }
+    },
+    {
+      "id": "MIG-CL-e05_nonclosed_aggregation",
+      "status": "passed",
+      "evidence": {
+        "same_macro_distinct_next_rows": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "two_step_error": 0.6666666666666667,
+        "legacy_id": "e05_nonclosed_aggregation",
+        "legacy_alias": "VER-CL-e05_nonclosed_aggregation"
+      }
+    },
+    {
+      "id": "MIG-CL-e06_approximate_error_bound",
+      "status": "passed",
+      "evidence": {
+        "delta": 0.026666666666666644,
+        "max_error": 0.026666666666666644,
+        "horizons": 21,
+        "all_pure_initial_states_checked": true,
+        "legacy_id": "e06_approximate_error_bound",
+        "legacy_alias": "VER-CL-e06_approximate_error_bound"
+      }
+    },
+    {
+      "id": "MIG-CL-t07_unequal_rates_break_closure",
+      "status": "passed",
+      "evidence": {
+        "same_sum": 1,
+        "two_derivatives": [
+          -1.0,
+          -2.0
+        ],
+        "legacy_id": "t07_unequal_rates_break_closure",
+        "legacy_alias": "VER-CL-t07_unequal_rates_break_closure"
+      }
+    },
+    {
+      "id": "MIG-CL-t15_changing_partition_exact_closure",
+      "status": "passed",
+      "evidence": {
+        "exact_error": 0,
+        "wrong_old_partition_error": 1.0,
+        "steps": 7,
+        "legacy_id": "t15_changing_partition_exact_closure",
+        "legacy_alias": "VER-CL-t15_changing_partition_exact_closure"
+      }
+    }
+  ]
+}
