@@ -48,6 +48,10 @@ Von Aeon geliefert (`prompts/09_teil2_closure_viability_for_aeon.md`) direkt als
 - Bewusst nicht Teil dieser Lieferung: `membership` (überlappende Systemzugehörigkeit) und ein allgemeiner Viability-Kernel-Solver — beide eigene, spätere Aufträge.
 - Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m3-closure-viability` gelöscht.
 
+## F19: Teil 2, Milestone 4 — Membership & Shared Resources (Prompt gesendet 2026-09-16, noch offen)
+
+Prompt an Aeon: [prompts/10_teil2_membership_for_aeon.md](prompts/10_teil2_membership_for_aeon.md). Anders als M1–M3 gibt es hierfür **keine bestehende Legacy-Prüfung** — `M_eα` (`context_transformations.md` §1) und die gemeinsame Eingriffsmenge T5 (§6, `U_joint = U_physical ∩ ⋂_α U_α`) wurden im ursprünglichen 66er-Prüfkorpus nie einzeln getestet, nur implizit über den festverdrahteten Zwei-Puffer-Fall in `t10_shared_budget_conflict`. Der Auftrag verlangt daher frische, von Hand nachrechenbare Beispiele statt eines reinen Legacy-Abgleichs, plus eine Kreuzprobe gegen `t10`/`shared_budget_conflict` als einzigen vorhandenen Ankerpunkt. Noch nicht geliefert — Status wird bei Aeons Rückmeldung aktualisiert.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
