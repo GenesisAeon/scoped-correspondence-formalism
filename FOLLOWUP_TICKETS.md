@@ -58,6 +58,10 @@ Von Aeon geliefert (`prompts/10_teil2_membership_for_aeon.md`) direkt als GitHub
 - Alle 8 Kerndokumente sowie `correspondence/`, `observation/`, `dynamics/`, `coupling/`, `closure/`, `viability/`, `legacy/adapters.py` unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m4-membership` gelöscht.
 
+## F20: Teil 2, Milestone 5 — Identifiability & Baseline Metrics (Prompt gesendet 2026-09-16, noch offen)
+
+Prompt an Aeon: [prompts/11_teil2_identifiability_baselines_for_aeon.md](prompts/11_teil2_identifiability_baselines_for_aeon.md). Erste Hälfte von ARCHITECTURE_ROADMAP.md's "Uncertainty & Validation"-Meilenstein — die bereits formal durchgerechneten Teile (Konditionierung `e02`, Identifizierbarkeit `e12`, SVD-vs-EI-Entkopplung `e09`, Data-Processing-Inequality `e08`, EI-Baseline-Abhängigkeit `e07`) als Code, mit exakten Legacy-Ankern wie bei M1-M3. **Bewusst nicht Teil davon:** Dataset Manifest, Train/Holdout-Split und der eigentliche reale Datenpilot — das braucht zuerst Johanns Domänen-/Datensatzentscheidung (`ROADMAP.md` §3), kein Code-Auftrag. Noch nicht geliefert — Status wird bei Aeons Rückmeldung aktualisiert.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
