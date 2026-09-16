@@ -74,12 +74,21 @@ korrekt einordnen kann, statt am Ende alles neu zu sortieren.
    Lieferung ist ein Vorschlag zur Prüfung, kein bereits akzeptiertes
    Ergebnis.
 
-## Lieferformat
+## Lieferformat (aktualisiert: GitHub-Branch statt ZIP)
 
-ZIP mit `apply_manifest.json` (Pfad, Aktion add/replace_after_base_check,
-SHA-256, ggf. bekannte Ausgangsprüfsumme) — exakt wie bei den
-vorherigen F08/F09- und Revisions-Paketen, damit Claude es sicher
-gegen den aktuellen Stand einspielen kann. Neue Dateien voraussichtlich:
+Das Repo ist jetzt auf GitHub (privat): `GenesisAeon/scoped-correspondence-formalism`,
+Branch `master`. Falls dein GitHub-Konnektor Repo-Zugriff hat: bitte
+einen eigenen Branch anlegen (z.B. `aeon/correspondence-core`), dort
+committen und pushen — kein ZIP/`apply_manifest.json` mehr nötig, das
+war nur ein Workaround für den fehlenden direkten Zugriff. Claude
+reviewed dann direkt per `git fetch`/`git diff` gegen `master`, läuft
+die Skripte selbst und prüft mindestens einen Äquivalenzfall von Hand,
+bevor gemergt wird. Falls kein Repo-Zugriff besteht: ZIP mit
+`apply_manifest.json` (Pfad, Aktion add/replace_after_base_check,
+SHA-256, ggf. bekannte Ausgangsprüfsumme) bleibt der Fallback, exakt
+wie bei den vorherigen F08/F09- und Revisions-Paketen.
+
+Neue Dateien voraussichtlich:
 `src/scoped_correspondence/correspondence/contract.py`,
 `docs/correspondence_core.md` (Kurzdokumentation + Mapping-Tabelle),
 `verification/verify_correspondence_core.py`,
@@ -87,7 +96,7 @@ gegen den aktuellen Stand einspielen kann. Neue Dateien voraussichtlich:
 `verification/test_id_namespace.md` (die Alias-Tabelle für die 66
 bestehenden Prüfungen).
 
-Claude reviewed anschließend wie gewohnt (Checksummen, Skript selbst
-nachrechnen, mindestens einen Äquivalenzfall von Hand gegenprüfen)
-bevor irgendetwas als "Kern" gilt oder in README.md/GLOSSARY.md
-verlinkt wird.
+Kein Push/Merge direkt nach `master` — nur auf einen eigenen Branch,
+den Claude/Johann dann reviewen und mergen. Bevor irgendetwas als
+"Kern" gilt oder in README.md/GLOSSARY.md verlinkt wird, ist Johanns
+OK nötig (siehe Abnahmebedingung 6 oben).
