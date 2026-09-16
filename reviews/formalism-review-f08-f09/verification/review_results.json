@@ -1,0 +1,176 @@
+{
+  "scope": "independent review examples; not a reproduction of F08/F09",
+  "timestamp_utc": "2026-09-16T18:06:56.747157+00:00",
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "passed": 11,
+  "total": 11,
+  "results": [
+    {
+      "id": "r01_pid_canonical_cases",
+      "status": "passed",
+      "evidence": {
+        "atom_order": [
+          "redundancy",
+          "unique1",
+          "unique2",
+          "synergy"
+        ],
+        "atoms": {
+          "UNIQUE": [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          "XOR": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "AND": [
+            0.3112781244591328,
+            5.551115123125783e-17,
+            5.551115123125783e-17,
+            0.49999999999999994
+          ],
+          "REDUNDANT_COPY": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "id": "r02_two_bit_copy",
+      "status": "passed",
+      "evidence": {
+        "I_min_atoms": [
+          1.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "total_bits": 2.0,
+        "Blackwell_redundancy_bits": 0,
+        "common_channel_nullity": 1
+      }
+    },
+    {
+      "id": "r03_gemini_rb_formula_and_countercase",
+      "status": "passed",
+      "evidence": {
+        "AND_Blackwell_bits": 0.31127812445913283,
+        "Gemini_common_sample_constraint_bits": 0,
+        "scope": "counterexample to the Gemini formula, not a test of unavailable F09"
+      }
+    },
+    {
+      "id": "r04_rb_not_generic_convex_maximization",
+      "status": "passed",
+      "evidence": {
+        "endpoint_objectives": [
+          1.0,
+          1.0
+        ],
+        "mixture_objective": 0.0,
+        "scope": "identical sources, feasible RB(0) channels; no universal LP guarantee"
+      }
+    },
+    {
+      "id": "r05_cf_reference_tables",
+      "status": "passed",
+      "evidence": {
+        "PR_visibility_to_CF": {
+          "0": 0.0,
+          "0.25": 0.0,
+          "0.5": 0.0,
+          "0.625": 0.25,
+          "0.75": 0.5,
+          "1.0": 1.0
+        },
+        "global_distribution_CF": 2.220446049250313e-16,
+        "note": "CF=.25 is one declared toy table, not the unavailable project's CHSH table"
+      }
+    },
+    {
+      "id": "r06_inconsistent_marginals_rejected",
+      "status": "passed",
+      "evidence": {
+        "rejected": true,
+        "reason": "same A0 has different marginals across B contexts"
+      }
+    },
+    {
+      "id": "r07_controllability_and_viability",
+      "status": "passed",
+      "evidence": {
+        "full_rank_min_outward_drift": 0.75,
+        "rank_zero_safe_solution": "x(t)=x(0)*exp(-t), |x(0)|<=1"
+      }
+    },
+    {
+      "id": "r08_topology_not_control_cost",
+      "status": "passed",
+      "evidence": {
+        "same_zero_pattern_min_integral_u_squared": {
+          "1.0": 1.0,
+          "0.1": 100.0
+        },
+        "physical_energy_claimed": false
+      }
+    },
+    {
+      "id": "r09_information_and_common_action",
+      "status": "passed",
+      "evidence": {
+        "policy_averaged_closure_error": 0.0,
+        "micro_safe_actions": [
+          [
+            0
+          ],
+          [
+            1
+          ]
+        ],
+        "coarse_common_safe_actions": []
+      }
+    },
+    {
+      "id": "r10_shared_budget_partial_observation",
+      "status": "passed",
+      "evidence": {
+        "statewise_boundary_demands": [
+          [
+            0.3999999999999999,
+            0.0
+          ],
+          [
+            0.0,
+            0.3999999999999999
+          ]
+        ],
+        "common_requirement": [
+          0.3999999999999999,
+          0.3999999999999999
+        ],
+        "available": 0.6,
+        "scope": "instantaneous boundary feasibility, not an entire viability kernel"
+      }
+    },
+    {
+      "id": "r11_open_heat_balance",
+      "status": "passed",
+      "evidence": {
+        "energy_rate_W": -200.0,
+        "system_entropy_rate_W_per_K": -0.6548387096774194,
+        "internal_entropy_production_W_per_K": 0.001075268817204301,
+        "combined_entropy_rate_W_per_K": 0.3451612903225806
+      }
+    }
+  ]
+}

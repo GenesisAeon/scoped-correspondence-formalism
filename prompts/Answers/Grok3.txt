@@ -1,0 +1,19 @@
+Phase-2 an afet-tensions: unabhängiger Fit von GAMMA_DOMAIN und kappa aus den gebündelten H0/S8-Daten — kein Versions-Bump, kein Push.
+
+Fit-Skript und Konstanten-Update laufen — melde mich mit den echten Fit-Zahlen und pytest-Ergebnis.
+
+Phase-2 an afet-tensions ist fertig — Fit-Zahlen treffen das Ticket exakt (1e-6), uncommitted, kein Versions-Bump.
+
+Fit
+
+GAMMA_DOMAIN = 0.6403419953108261 (chi²/dof ≈ 1.40)
+kappa = 0.00042269029427273555 (chi²/dof ≈ 0.168)
+Dateien
+
+neu: scripts/fit_gamma_domain_and_kappa.py
+constants.py, crep_redshift.py (Default-kappa), tests/test_afet_tensions.py, benchmark.py, README.md (+ Kalibrierung)
+Tests: 63 passed
+
+Hinweis: CHANGELOG.md war schon vorher dirty (nicht Teil dieses Tickets) — bitte beim Review getrennt lassen.
+
+Drei Phase-2-Pakete warten jetzt auf Claude: resilience-core, scope-resilience, afet-tensions.

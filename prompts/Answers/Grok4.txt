@@ -1,0 +1,15 @@
+Nächster Job — lese die Datei.
+
+Phase-2 Prompt 4: Fremd-test_cli.py in resilience-core / scope-resilience / afet-tensions bereinigen — kein Versions-Bump, kein Push.
+
+Läuft über alle drei Repos — melde mich mit den einzelnen pytest-Zahlen.
+
+Phase-2 Prompt 4 ist durch — nur tests/test_cli.py, uncommitted, kein diamond-setup-Anfassen.
+
+resilience-core: Datei gelöscht (keine eigene CLI). pytest 95 passed.
+
+scope-resilience: ersetzt durch echte _cli-Tests. pytest 138 passed. fastmcp nicht installiert → serve exit 1 mit Hinweis, kein Hang.
+
+afet-tensions: ersetzt durch echte cli-Tests. pytest 55 passed. Benchmark-Exit-Code konsistent mit run_benchmark() (aktuell alles True → 0).
+
+Kein Fremdimport von diamond_setup mehr in den drei Dateien. Bereit für Claude-Review.

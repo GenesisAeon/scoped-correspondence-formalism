@@ -1,0 +1,12 @@
+Phase-2 an scope-resilience: Fixpunkt-Claim im Docstring ehrlich machen — nur Doku, kein Laufzeit-Verhalten, kein Push.
+
+Läuft — Docstring-Korrektur in semantic_utac.py, danach pytest-Gegenprobe. Melde mich gleich.
+
+Phase-2 an scope-resilience ist fertig — nur Docstrings, uncommitted, kein Push.
+
+Datei: src/scope_resilience/semantic_utac.py (+17/−2), sonst nichts.
+Inhalt: falscher Fixpunkt-Claim raus; H*_sem jetzt als Regime-Referenz/Schwelle; ODE als Illustration; attractor() bleibt algebraisch.
+Laufzeit: Funktionskörper unverändert (Hash-Check im Lauf).
+Tests: vorher und nachher 145 passed.
+
+Bereit für Claude-Review. Resilience-core Phase-1/2 und das hier warten beide ohne Commit.

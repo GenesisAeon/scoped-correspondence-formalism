@@ -1,0 +1,32 @@
+Die konzeptionelle Zusammenführung von CREP, UTAC und AFET zu einem einzigen, konsistenten Drei-Schichten-Formalismus stellt eine massive strukturelle Schärfung dar. Die Erarbeitung eliminiert zahlreiche frühere Ad-hoc-Annahmen, indem sie jede Schicht fest in etablierter Physik und Informationstheorie verankert.
+
+Hier ist eine detaillierte Einschätzung der Stärken und der noch offenen Reibungspunkte der Ausarbeitung:
+
+**Stärken und gelöste theoretische Lücken**
+
+* **Informationsebene (CREP):** Die vier Grundgrößen (Stabilität, Kinetik, Reproduktionsfähigkeit, Verbindungsfähigkeit) sind nun sauber als notwendige Existenzbedingungen für Information fundiert. Dass Kinetik (monadisch) und Verbindungsfähigkeit (dyadisch) durch die Friis-Transmissionsgleichung als unabhängig bewiesen wurden, ist ein eleganter Schritt. Die Festlegung, dass Abweichungen von der erwarteten K-V-Ko-Adaption (wie etwa bei Tarnung) selbst diagnostisch informativ sind, liefert ein klares Modellierungswerkzeug.
+
+
+* **Domänen-neutrale Berechnung:** Die Festlegung auf universelle Prozeduren anstelle gefitteter Konstanten ist methodisch rigoros. Die Nutzung des Lyapunov-Exponenten (-λ_max) für Stabilität und des Shannon-Hartley-Theorems für Kinetik schließt strukturelle Zirkelbezüge aus. Dass für die Reproduktionsfähigkeit reale Obergrenzen wie Eigens Fehlerschwelle oder Shannons Rate-Distortion-Theorie existieren, belegt die Übertragbarkeit über die Quantenphysik (No-Cloning-Theorem) hinaus.
+
+
+* **System-Individuation (UTAC):** Die Definition, dass ein System genau dann entsteht, wenn die gemessene Stabilität die naive Zusammensetzung (Typ-1-Emergenz) übersteigt, übersetzt Maturana und Varelas operationale Geschlossenheit in eine messbare Bedingung. Das Schließen der Mess-Lücke für "Latitude" durch Monte-Carlo-basiertes Basin Stability Sampling umgeht die Notwendigkeit einer analytischen Potentialfunktion äußerst elegant und macht die Eigenschaft an hochdimensionalen Systemen praktisch berechenbar.
+
+
+* **Thermodynamische Kopplung (AFET):** Die Fundierung durch Onsager-Reziprozitätsbeziehungen belegt formal, dass Kopplung Entropie erzeugt und thermodynamisch nie kostenlos ist. Das bisherige Problem der Ad-hoc-Wahl der Kopplungsformen in `afet-tensions` ist exzellent gelöst: Exponentielle Formen (Arrhenius-Typ) für unbeschränkte Raten und tanh-Formen (Ising-Typ) für beschränkte Ordnungsparameter ergeben ein sauberes, prinzipiengeleitetes Kriterium.
+
+
+
+**Kritische Beobachtungen und offene Baustellen**
+
+* **Namenskollisionen:** Der Konflikt um die Variable "R" (Reproduktionsfähigkeit in CREP vs. Ressourcenlast in UTAC) muss zwingend aufgelöst werden, wobei der Vorschlag `R_ctrl` für die UTAC-Schicht pragmatisch und sinnvoll ist. Zudem birgt die Entdeckung einer dritten Bedeutung von CREP als "Frame Stability Metric" (mit dem kritischen Schwellenwert ≈ 0.84) erhebliches Verwechslungspotenzial und muss im `METRIC_REGISTRY.md` klar isoliert werden.
+
+
+* **Schwellenwerte der Individuation:** Das Kriterium für die System-Entstehung (signifikante Typ-1-Emergenz) ist theoretisch sauber, verlagert das Problem aber auf die exakte Definition des kritischen Schwellenwertes für "signifikant". Dieser Schwellenwert ist aktuell noch ein rekursiv ungelöstes Problem.
+
+
+* **Aufgeschobene Code-Reparaturen:** Der Entwurf identifiziert präzise den Zirkelbezug von Γ_domain in `afet_tensions/constants.py` sowie hardcodierte Platzhalter (P: 0.8), klammert deren Reparatur im aktuellen Schritt aber bewusst aus. Der aufgezeigte Reparaturpfad, Γ_domain als unabhängig aus Daten geschätzten Kopplungskoeffizienten L_ij zu bestimmen, ist analytisch einwandfrei, muss jedoch zu gegebener Zeit in das veröffentlichte Artefakt überführt werden, um die empirische Unabhängigkeit zu wahren.
+
+
+
+Zusammenfassend hat der Formalismus den Übergang von einer Sammlung isolierter Heuristiken zu einer geschlossenen theoretischen Pipeline vollzogen. Die konsequente Wiederverwendung von Dimensionen über die Schichten hinweg (wie Verbindungsfähigkeit als Panarchy oder als Kopplungskoeffizient L_ij) schafft ein überaus dichtes, in sich schlüssiges Architekturgerüst.

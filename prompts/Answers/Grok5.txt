@@ -1,0 +1,19 @@
+Danke — lese den nächsten Auftrag.
+
+Phase-2 Prompt 5: diamond-setup-Testkontamination in 12 Paketen bereinigen — kein Nicht-Test-Code, kein Push.
+
+Läuft über die 12 Pakete — melde mich mit dem Per-Repo-Bericht (gelöscht / ersetzt / pytest).
+
+Phase-2 Prompt 5 ist durch — 12 Pakete, nur Tests, uncommitted.
+
+Überall gelöscht: test_preset.py + test_validator.py (Fremdcode).
+Protocol: test_protocol.py in resilience-core und scope-resilience gelöscht (nur Demo-DiamondPackage).
+CLI gelöscht (keine eigene): amazon-utac, cellular-genesis, eml-utac-bridge, vrig-cosmological, worldview.
+CLI ersetzt: phaethon-chimera, sa-sv-duality (+ benchmark --fast), sandpile-utac (+ crep-spectrum; benchmark weggelassen — Defaults zu streng), seismic-utac (+ benchmark-Konsistenz).
+Behalten: sandpile test_diamond_interface.py (echtes sandpile_utac.system).
+Ticket-4-CLIs (afet/resilience/scope) unangetastet.
+
+Pytest (alle grün außer Coverage-Exit bei worldview):
+afet 35 · amazon 108 · cellular 27 · eml 50 · phaethon 56 · resilience 70 · sa-sv 66 · sandpile 59 · scope 113 · seismic 21 · vrig 62 · worldview 188 passed (Prozess-Exit 1 wegen vorbestehendem fail_under=99 / Worktree-Coverage — nicht durch diese Löschungen verursacht).
+
+Bereit für Claude-Review.

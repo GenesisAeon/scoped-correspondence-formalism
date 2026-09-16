@@ -1,0 +1,147 @@
+{
+  "module": "F09_pid_redundancy_bottleneck",
+  "revision_package": "F08_F09_2026-09-16",
+  "generated_at_utc": "2026-09-16T17:49:02.998038+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "scipy": "1.15.3",
+  "count": 7,
+  "passed": 7,
+  "failed": 0,
+  "measure_basis": "Williams-Beer I_min",
+  "redundancy_modern": "Kolchinsky RB / Blackwell I_cap (RB(0))",
+  "not_main_metric": "Rosas O-information",
+  "canonical_sources_target": "micro->macro",
+  "arxiv": {
+    "williams_beer": "https://arxiv.org/abs/1004.2515",
+    "kolchinsky_rb": "https://arxiv.org/abs/2405.07665"
+  },
+  "checks": [
+    {
+      "id": "p01_unique_gate",
+      "status": "passed",
+      "evidence": {
+        "Red": 6.8441265877387875e-06,
+        "Unq1": 0.9999469891396513,
+        "Unq2": -1.6113700678681633e-16,
+        "Syn": 2.239961688355052e-16,
+        "I_joint": 0.9999538332662391,
+        "I_R1": 0.999953833266239,
+        "I_R2": 6.8441265875776505e-06,
+        "measure": "williams_beer_I_min"
+      }
+    },
+    {
+      "id": "p02_xor_synergy",
+      "status": "passed",
+      "evidence": {
+        "Red": 7.093703074960862e-05,
+        "Unq1": -8.131516293641283e-19,
+        "Unq2": 0.00013634352150854444,
+        "Syn": 0.9997746856845897,
+        "I_joint": 0.9999819662368479,
+        "I_R1": 7.09370307496078e-05,
+        "I_R2": 0.00020728055225815306,
+        "measure": "williams_beer_I_min"
+      }
+    },
+    {
+      "id": "p03_and_and_full_redundancy",
+      "status": "passed",
+      "evidence": {
+        "AND": {
+          "Red": 0.3112781244591328,
+          "Unq1": 0.0,
+          "Unq2": 0.0,
+          "Syn": 0.49999999999999994,
+          "I_joint": 0.8112781244591327,
+          "I_R1": 0.3112781244591328,
+          "I_R2": 0.3112781244591328,
+          "measure": "williams_beer_I_min"
+        },
+        "FULL_COPY_RED": {
+          "Red": 1.0,
+          "Unq1": 0.0,
+          "Unq2": 0.0,
+          "Syn": 0.0,
+          "I_joint": 1.0,
+          "I_R1": 1.0,
+          "I_R2": 1.0,
+          "measure": "williams_beer_I_min"
+        }
+      }
+    },
+    {
+      "id": "p04_nonnegative_atoms",
+      "status": "passed",
+      "evidence": {
+        "gates_checked": 4,
+        "atoms": [
+          {
+            "Red": 6.8441265877387875e-06,
+            "Unq1": 0.9999469891396513,
+            "Unq2": -1.6113700678681633e-16,
+            "Syn": 2.239961688355052e-16
+          },
+          {
+            "Red": 7.093703074960862e-05,
+            "Unq1": -8.131516293641283e-19,
+            "Unq2": 0.00013634352150854444,
+            "Syn": 0.9997746856845897
+          },
+          {
+            "Red": 0.3112781244591328,
+            "Unq1": 0.0,
+            "Unq2": 0.0,
+            "Syn": 0.49999999999999994
+          },
+          {
+            "Red": 1.0,
+            "Unq1": 0.0,
+            "Unq2": 0.0,
+            "Syn": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "p05_rb0_blackwell",
+      "status": "passed",
+      "evidence": {
+        "UNIQUE_RB0": 5.836036449768933e-05,
+        "XOR_RB0": 5.1519697520041596e-05,
+        "AND_RB0": 0.31127812445913283,
+        "AND_RB0_exact_ref": 0.31127812445913283,
+        "FULL_COPY_RB0": 1.0,
+        "note": "RB(0)=Blackwell I_cap; I_min Red reported separately in other tests",
+        "arxiv": "https://arxiv.org/abs/2405.07665"
+      }
+    },
+    {
+      "id": "p06_ei_q_beside_pid_smoke",
+      "status": "passed",
+      "evidence": {
+        "EI_q": 1.0,
+        "pid_summary": {
+          "Red": 3.394775073970459e-06,
+          "Unq1": -4.127930365149107e-17,
+          "Unq2": 0.0001190257729162468,
+          "Syn": 0.9997556682870883,
+          "I_joint": 0.9998780888350784
+        },
+        "claim": "EI_q reported beside PID; Syn is not identified with EI_q",
+        "canonical_pair": "micro->macro (worked_example_causal_emergence.md style channel for EI_q)",
+        "pid_on": "XOR synergy gate (separate toy; atoms not equated to EI_q)"
+      }
+    },
+    {
+      "id": "p07_arxiv_links",
+      "status": "passed",
+      "evidence": {
+        "arxiv_wb": "https://arxiv.org/abs/1004.2515",
+        "arxiv_rb": "https://arxiv.org/abs/2405.07665",
+        "ref_impl": "github.com/artemyk/pid-as-ib"
+      }
+    }
+  ]
+}

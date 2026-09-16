@@ -1,0 +1,19 @@
+Cloud Agents sind auf dem aktuellen Plan nicht verfügbar — ich setze den Fix deshalb direkt in D:\mandala\resilience-core um (wie bei den anderen Paketen). Kein Versions-Bump, kein Push ohne Review.
+
+Arbeit läuft lokal — melde mich, sobald pytest grün ist und die drei Skripte dem AMOC-Muster folgen.
+
+Phase-2 an resilience-core ist fertig — uncommitted auf main, kein Push, kein Versions-Bump.
+
+Geändert
+
+arctic_calibration.py / sandpile_calibration.py — AMOC-Ehrlichkeit (WITH_DEFAULT_R, ATLAS_TARGET, OPEN)
+constants.py — Known-Issue-Kommentar über GAMMA_MAX (Wert weiter 0.920)
+tests/test_calibration_scripts.py neu — ruft alle drei Runner auf, prüft nur calibration_status
+Werte
+
+Sandpile R_REQUIRED_FOR_TARGET = 3.37
+Arctic: kein r_required_for_target; Status nennt den strukturellen Null-Margin
+Sandpile-Status: offen, bis echte SOC-Kopplungsdaten da sind
+Tests: volle Suite zuvor 108 passed; Kalibrierungs-Datei gerade nochmal 4 passed.
+
+Bereit für Claude-Review. Soll ich danach committen/pushen, oder wartest du auf Grünes Licht?

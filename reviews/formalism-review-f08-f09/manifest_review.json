@@ -1,0 +1,74 @@
+{
+  "kind": "independent_review_no_apply",
+  "date": "2026-09-16",
+  "originals_modified": false,
+  "project_module_runs_reproduced": false,
+  "independent_checks": {
+    "passed": 11,
+    "total": 11
+  },
+  "reviewed_inputs": [
+    {
+      "name": "FORMALISM(1).md",
+      "bytes": 24242,
+      "sha256": "22022fce699a502f0b1db1f3e1e66ba8310b4213c9894a6bccf5eb7b970e4717"
+    },
+    {
+      "name": "README(1).md",
+      "bytes": 7586,
+      "sha256": "b39022892a36851a376f9f71e7bdb52ae23b3361b302fd2e03a7d43d7e07cb5c"
+    },
+    {
+      "name": "LITERATURE_CONNECTIONS.md",
+      "bytes": 11925,
+      "sha256": "0afb469f55c115d2882e331eed1d0a789756207d1c0924614b8c91284dbb1ff7"
+    },
+    {
+      "name": "VERIFICATION.md",
+      "bytes": 7092,
+      "sha256": "dfd95b3307a66876b9360890c7becec169fffbc1ceec308a1513ab79aebc24af"
+    },
+    {
+      "name": "apply_manifest_F08_F09.json",
+      "bytes": 2219,
+      "sha256": "2e3b3f3214ab8f594a0d6c573e8ee02faa20b5f51faed40f6eb75a2ef7b83503"
+    },
+    {
+      "name": "Analyse und Erweiterung von CREP-UTAC-AFET.md",
+      "bytes": 103750,
+      "sha256": "29f3e3762e8b8e11103c8b97137c2d502d951cbb6fc5f40d3725781702191466"
+    }
+  ],
+  "package_files": [
+    {
+      "path": "NEXT_EXTENSIONS_ACTION_AND_OPEN_SYSTEMS.md",
+      "bytes": 15124,
+      "sha256": "afa06674cfb368155579496a75f5e2861fbdbb881d7313d361562e53879f6afc"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1247,
+      "sha256": "7628fc9b4d581ee809cde9d66c309827f7be477e5357f664e6677013e8cc8a57"
+    },
+    {
+      "path": "REVIEW_F08_F09_UND_GEMINI.md",
+      "bytes": 14919,
+      "sha256": "038749f011c1ccaff6956add1a8605c1f9b16ebd0ca297e1b177df12c88fa950"
+    },
+    {
+      "path": "verification/requirements_review.txt",
+      "bytes": 84,
+      "sha256": "924d95c4870274df7524b0ea8d2e74b2d4ab3e54ab07834b2687c607c00e8f0a"
+    },
+    {
+      "path": "verification/review_results.json",
+      "bytes": 4217,
+      "sha256": "b0ec673dca602836181014066095b388c44860ef1fc02f2dad5505ab0e3204df"
+    },
+    {
+      "path": "verification/verify_review_examples.py",
+      "bytes": 10049,
+      "sha256": "5fca6bcd0d502f9286d35b7a5d25ee5cd37573cd13c7e5711b3e88add1ce5972"
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "revision": "3",
+  "generated_at": "2026-09-16T17:55:59.635860+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 16,
+  "passed": 16,
+  "failed": 0,
+  "empirical_validation": false,
+  "production_package_tests_run": false,
+  "full_literature_reproductions_run": false,
+  "checks": [
+    {
+      "name": "e01_circle_reconstruction",
+      "status": "passed",
+      "evidence": {
+        "intrinsic_dimension": 1,
+        "sufficient_coordinates_in_this_model": 2,
+        "max_angle_error": 4.440892098500626e-16
+      }
+    },
+    {
+      "name": "e02_sampling_alias_and_conditioning",
+      "status": "passed",
+      "evidence": {
+        "indistinguishable_delay_vectors": [
+          0.7648421872844885,
+          -0.7648421872844883,
+          0.7648421872844882,
+          -0.7648421872844886,
+          0.7648421872844886,
+          -0.7648421872844885,
+          0.7648421872844884,
+          -0.7648421872844883
+        ],
+        "inverse_sine_factors": {
+          "0.7": 1.552270326957104,
+          "0.01": 100.00166668611132
+        }
+      }
+    },
+    {
+      "name": "e03_projected_memory",
+      "status": "passed",
+      "evidence": {
+        "max_memory_residual": 5.5884002286843426e-11,
+        "same_observation_distinct_drifts": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "name": "e04_exact_lumpability",
+      "status": "passed",
+      "evidence": {
+        "macro_kernel": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "horizons_checked": 11,
+        "lift_independent": true
+      }
+    },
+    {
+      "name": "e05_nonclosed_aggregation",
+      "status": "passed",
+      "evidence": {
+        "same_macro_distinct_next_rows": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "two_step_error": 0.6666666666666667
+      }
+    },
+    {
+      "name": "e06_approximate_error_bound",
+      "status": "passed",
+      "evidence": {
+        "delta": 0.026666666666666644,
+        "max_error": 0.026666666666666644,
+        "horizons": 21,
+        "all_pure_initial_states_checked": true
+      }
+    },
+    {
+      "name": "e07_effective_information_ensembles",
+      "status": "passed",
+      "evidence": {
+        "EI_uniform_micro": 0.8112781244591327,
+        "EI_uniform_macro": 1.0,
+        "delta_EI": 0.18872187554086728,
+        "EI_matched_micro": 1.0,
+        "lifted_preparation": [
+          0.16666666666666666,
+          0.16666666666666666,
+          0.16666666666666666,
+          0.5
+        ]
+      }
+    },
+    {
+      "name": "e08_fixed_ensemble_data_processing",
+      "status": "passed",
+      "evidence": {
+        "random_seed": 1977,
+        "fixed_ensemble_comparisons": 150
+      }
+    },
+    {
+      "name": "e09_svd_does_not_imply_ei",
+      "status": "passed",
+      "evidence": {
+        "rank": 1,
+        "singular_values": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "delta_svd": 0.75,
+        "EI": 0,
+        "all_partitions_checked": 15,
+        "spectral_rank_tolerance": 1e-12
+      }
+    },
+    {
+      "name": "e10_inverse_is_not_detailed_balance",
+      "status": "passed",
+      "evidence": {
+        "stochastic_inverse": true,
+        "detailed_balance": false,
+        "forward_flow": 0.3333333333333333,
+        "reverse_flow": 0.0
+      }
+    },
+    {
+      "name": "e11_topological_conjugacy_rates",
+      "status": "passed",
+      "evidence": {
+        "time_factor": 1,
+        "local_rates": [
+          1,
+          2
+        ],
+        "transformation": "sign(x)*abs(x)**2; inverse not differentiable at zero"
+      }
+    },
+    {
+      "name": "e12_parameter_scaling_nonidentifiability",
+      "status": "passed",
+      "evidence": {
+        "max_response_error": 1.1102230246251565e-16,
+        "response_jacobian_rank": 1,
+        "identified_combination": "sigma*a"
+      }
+    },
+    {
+      "name": "e13_generic_heat_structure",
+      "status": "passed",
+      "evidence": {
+        "parameter_combinations": 32,
+        "gradient_and_balance_checks": true,
+        "poisson_operator": "identically zero; Jacobi identity trivial"
+      }
+    },
+    {
+      "name": "e14_viability_at_fixed_recovery_rate",
+      "status": "passed",
+      "evidence": {
+        "recovery_rates": [
+          1,
+          1
+        ],
+        "equilibria": [
+          0.5,
+          -0.5
+        ],
+        "first_boundary_time": 1.0986122886681098,
+        "safe_region": "z >= 0"
+      }
+    },
+    {
+      "name": "e15_predictive_states",
+      "status": "passed",
+      "evidence": {
+        "persistent_binary_chain_predictive_states": 2,
+        "iid_predictive_states": 1,
+        "joint_paths_enumerated": 128,
+        "max_conditioning_error": 0.0,
+        "scope": "exact finite-state examples, not a learned epsilon-machine"
+      }
+    },
+    {
+      "name": "e16_current_document_links",
+      "status": "passed",
+      "evidence": {
+        "local_links_checked": 136
+      }
+    }
+  ]
+}

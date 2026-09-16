@@ -1,0 +1,250 @@
+{
+  "revision": "2",
+  "date": "2026-09-16",
+  "scope": "documents and bounded verification only",
+  "principle": "self-similarity with explicit mappings, not identity of quantities",
+  "files": [
+    {
+      "path": "DESIGN.md",
+      "bytes": 5334,
+      "sha256": "72bac772371cc178d8e8508bbcaa4fd7190b262badf770a134d29401bd99bc3d",
+      "kind": "current"
+    },
+    {
+      "path": "FOLLOWUP_TICKETS(1).md",
+      "bytes": 16611,
+      "sha256": "8747761a4fb6f6358d36fcafc6779a26fb33695af0e54b6d15251968cb00e98c",
+      "kind": "current"
+    },
+    {
+      "path": "FOLLOWUP_TICKETS.md",
+      "bytes": 16611,
+      "sha256": "8747761a4fb6f6358d36fcafc6779a26fb33695af0e54b6d15251968cb00e98c",
+      "kind": "current"
+    },
+    {
+      "path": "FORMALISM.md",
+      "bytes": 10587,
+      "sha256": "6a3339ee42e1a0d7af616a2e80e4b01bbdaddf7718e4ad8fdf62d879aae3588c",
+      "kind": "current"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4487,
+      "sha256": "55bd0654fb3a285757003b64ed27eeb740d58271c9513b58984501d8cacbe752",
+      "kind": "current"
+    },
+    {
+      "path": "REVISION_2026-09-16.md",
+      "bytes": 4573,
+      "sha256": "a9ad231f5fad1168419cf501aae2d6381083537514fb7524db2b978471ecff90",
+      "kind": "current"
+    },
+    {
+      "path": "ROADMAP.md",
+      "bytes": 7327,
+      "sha256": "26801c7b777bc2a69727c4ae43f560a03f3b221e7a54c258c24e54efe8ad20f7",
+      "kind": "current"
+    },
+    {
+      "path": "VERIFICATION.md",
+      "bytes": 2826,
+      "sha256": "9172a300c8c5c86303ddcc2ebf916b9ec5e5a97575bc0a2b72c39161c330419b",
+      "kind": "current"
+    },
+    {
+      "path": "archive/2026-09-15/DESIGN.md",
+      "bytes": 21334,
+      "sha256": "68940a59b911a8fb26fd6f8d1c77a7ea6950305d90c21104ce94d1b187a5f995",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/FOLLOWUP_TICKETS(1).md",
+      "bytes": 14654,
+      "sha256": "54be1d210bd12bafecd56a5c5d4fd2a1d6202653199a7c4021fd36328423e176",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/FOLLOWUP_TICKETS.md",
+      "bytes": 14654,
+      "sha256": "54be1d210bd12bafecd56a5c5d4fd2a1d6202653199a7c4021fd36328423e176",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/FORMALISM.md",
+      "bytes": 9732,
+      "sha256": "3cfbf87ad684404bcb9eabddb3672f10470b27d68e4bc825253034efb50c6a49",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/README.md",
+      "bytes": 4035,
+      "sha256": "4d22245786d41d347a163f6f8063819b02f8abab10c42cce6a92438914099f93",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/ROADMAP.md",
+      "bytes": 24343,
+      "sha256": "e409e8a32f645fc10b06b92d3c11e290f3ac9323e3404f6a9a0563de85dc048b",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/coupling_layer_afet.md",
+      "bytes": 5370,
+      "sha256": "a50718b8b8818c67d27f3b60ecde03b1a72dcc371e12bcfe0bc5340ad3d2f9f5",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/information_layer_crep.md",
+      "bytes": 20328,
+      "sha256": "02810259fafba24144f9768feb9f6a7cc811754d74ca0b23be8e865780fccd35",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/system_layer_utac.md",
+      "bytes": 20073,
+      "sha256": "50226b77a6a60017cb7397149ea49598e6850a770aeca1c3458552f670b6d353",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_afet_tensions.md",
+      "bytes": 4997,
+      "sha256": "1ec78e6a3bbd0ceac69702feddc236f58b9bda8ca88f3682719e04b561071cda",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_amoc_utac.md",
+      "bytes": 14051,
+      "sha256": "2f49f18186811e2551768dff664d8b7fe963eb63d4091d5b7d01b65380a14abb",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_arctic_climate_utac.md",
+      "bytes": 4013,
+      "sha256": "990f102b866562f1a4172a71d021716bb8fcdae22fcd0247cb6b5cb22ff63294",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_cygnus_jet_utac.md",
+      "bytes": 14232,
+      "sha256": "dae29736fbe5b43131ab98df5a377a7f9188f78cb3f78409a26a8bd8c1aeb183",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_neural_avalanche_utac.md",
+      "bytes": 13433,
+      "sha256": "de47a5578c974f320cdd35ae6756d3c295a2b8a97796fcd233aa7bbcdc673286",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_resilience_core.md",
+      "bytes": 5617,
+      "sha256": "b95f7ba3934ea48498c181efcf120cefd8643e727b099587145ef3605c7f879f",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_scope_resilience.md",
+      "bytes": 4584,
+      "sha256": "8c8fdeb052039d16a7c8ec84c1464d5a23e2aca8ef8de256e1757b8c853c350d",
+      "kind": "historical_original"
+    },
+    {
+      "path": "archive/2026-09-15/worked_example_solar_flare_utac.md",
+      "bytes": 12162,
+      "sha256": "33843c21eb02033021709b4addf6abfe16ec84b09da9757e82128619a4dd8ac5",
+      "kind": "historical_original"
+    },
+    {
+      "path": "coupling_layer_afet.md",
+      "bytes": 7144,
+      "sha256": "7fb35f73d3487ad9162bd2711e0876989f237df6d9a50ce4189d6368640c2a7b",
+      "kind": "current"
+    },
+    {
+      "path": "information_layer_crep.md",
+      "bytes": 7545,
+      "sha256": "a873816ddab5f9d30a39db1dbbd470d2b1b05e18145bb905bf62826d9b0d9a43",
+      "kind": "current"
+    },
+    {
+      "path": "system_layer_utac.md",
+      "bytes": 9673,
+      "sha256": "1fe732ba523dfb2be96b7ab408b3771700953909b7ece7d9a9327dd410e5bf00",
+      "kind": "current"
+    },
+    {
+      "path": "verification/verification_results.json",
+      "bytes": 9221,
+      "sha256": "8b6274f949fb829b2098eeaa4a39267583b0f5d2e7af16dbf5403a331e728c41",
+      "kind": "current"
+    },
+    {
+      "path": "verification/verify_formalism.py",
+      "bytes": 14577,
+      "sha256": "43e7bf91eb9996483eba2aca94363029d979fe2ff3aa33631363f710f502ea05",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_afet_tensions.md",
+      "bytes": 3002,
+      "sha256": "df98f3d6c1669e7bd3dc0ba41ec4bbb7d3eca2e12d6ce9f78f107257acfca1b1",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_amoc_utac.md",
+      "bytes": 3014,
+      "sha256": "8f4106153672f2aebe45f81645d314a4ebff9e98d79368fcb695cc05e5248013",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_arctic_climate_utac.md",
+      "bytes": 2447,
+      "sha256": "a78c22a1c205c46b6f04e32849d3583413098133f7be14d45a0c4e0ce998e584",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_cygnus_jet_utac.md",
+      "bytes": 2898,
+      "sha256": "1dffc879b0ed66ba08f5873daa5a9b522cb4bbd709c0bd715b2ee9a08d6f8d99",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_heat_exchange.md",
+      "bytes": 4312,
+      "sha256": "cf60015b2de729f829e87b49884f0806fcdbb7aade109f10d41c36fc56cff5a9",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_neural_avalanche_utac.md",
+      "bytes": 3135,
+      "sha256": "5a4afb0d7a3ba031498b4836a64935c077d8d0a49bccac7091a9af0f0295816f",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_resilience_core.md",
+      "bytes": 3026,
+      "sha256": "ba5f34ddaf8e1e079c27c10c9e91acb5354b2400e7f0f5015ee46a6764b89ef1",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_scope_resilience.md",
+      "bytes": 2563,
+      "sha256": "de967f1f7dc4b6e25a027a95ef0d9b88e5484655aae3b330e154c6e18677e5ae",
+      "kind": "current"
+    },
+    {
+      "path": "worked_example_solar_flare_utac.md",
+      "bytes": 3675,
+      "sha256": "a4cf61337b1d71f3ad9408abd3653a6e3b8c7604d23f54822836eaa130c77717",
+      "kind": "current"
+    }
+  ],
+  "verification": {
+    "checks": 19,
+    "passed": 19,
+    "failed": 0,
+    "empirical_validation": false,
+    "production_package_tests_run": false
+  },
+  "self_hash_excluded": true
+}

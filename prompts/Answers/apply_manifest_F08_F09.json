@@ -1,0 +1,71 @@
+{
+  "revision": "F08_F09",
+  "kind": "bounded_additive_update",
+  "date": "2026-09-16",
+  "automatically_applied": false,
+  "requires_existing_formalism_directory": true,
+  "no_delete_operations": true,
+  "scope": "F08 sheaf contextuality + F09 PID/RB optional modules; FORMALISM.md and REVISION_3_2.md untouched",
+  "johann_decisions": {
+    "VB1": "unchanged; sheaf separate optional module",
+    "PID": "Williams-Beer I_min basis + Kolchinsky RB; not Rosas O-info as main",
+    "canonical_pair": "micro->macro",
+    "first_sheaf_toy": "PR-box allowed"
+  },
+  "files": [
+    {
+      "path": "sheaf_contextuality.md",
+      "action": "add",
+      "sha256": "14cfbd4f5cf7fc870e98aae669881a0ded493e8f78cadcbf9343808179db50b3",
+      "bytes": 5155
+    },
+    {
+      "path": "pid_redundancy_bottleneck.md",
+      "action": "add",
+      "sha256": "412e05706099ae29c8905256fa1103c75bc3f1694f576fe53eea6835a9a7e7bf",
+      "bytes": 5381
+    },
+    {
+      "path": "verification/verify_sheaf_contextuality.py",
+      "action": "add",
+      "sha256": "84152812ec5bf28990f65f22c3f11932b0db178448092fea0fba000daca755c5",
+      "bytes": 16833
+    },
+    {
+      "path": "verification/verify_sheaf_contextuality_results.json",
+      "action": "add",
+      "sha256": "76e8a407c6cfadb2be86465204268e4d0e97005a7867bc6b80a3eca3dbcb31fe",
+      "bytes": 2286
+    },
+    {
+      "path": "verification/verify_pid_rb.py",
+      "action": "add",
+      "sha256": "e02735aa5dd8359715ea85d1dec25aad13807a1e3973a372f47c4f23920d1972",
+      "bytes": 17311
+    },
+    {
+      "path": "verification/verify_pid_rb_results.json",
+      "action": "add",
+      "sha256": "b7caa9ee229e62a73a38011ed18d63b69e73c5d96e97c73d4934bd25999c50cd",
+      "bytes": 4380
+    },
+    {
+      "path": "verification/requirements_sheaf_pid.txt",
+      "action": "add",
+      "sha256": "89da961f008ae34af11748f69863cbb33a4569d304c97c71f29382eb62b0ec39",
+      "bytes": 26
+    }
+  ],
+  "verify": {
+    "verify_sheaf_contextuality.py": {
+      "count": 6,
+      "passed": 6,
+      "exit_code": 0
+    },
+    "verify_pid_rb.py": {
+      "count": 7,
+      "passed": 7,
+      "exit_code": 0
+    }
+  }
+}

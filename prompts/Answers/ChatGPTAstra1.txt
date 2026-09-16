@@ -1,0 +1,28 @@
+Revision 3 ist fertig und geprüft. Ich habe die Literaturanschlüsse eingeordnet und den Formalismus damit weiterentwickelt. Selbstähnlichkeit bleibt die Leitidee; die jeweils erhaltene Struktur und ihre Abbildung werden ausdrücklich benannt.
+
+Der stärkste zusätzliche Anschluss ist dynamische Geschlossenheit: Wann besitzt eine zusammengefasste Beschreibung tatsächlich eine eigene Dynamik? Für endliche Markov-Modelle lässt sich das konkret durch \(PC=CQ\) prüfen. Dazu enthält die Revision eine hergeleitete Fehlerschranke und durchgerechnete Beispiele.
+
+Neu eingearbeitet sind:
+
+Ansatz	Konkreter Nutzen
+Lumpability und Mori–Zwanzig	Prüfen, ob eine Makrobeschreibung geschlossen ist oder zusätzliche Zustände beziehungsweise Gedächtnis benötigt.
+Computational Mechanics	Zustandskandidaten danach unterscheiden, welche Vergangenheit für Vorhersagen relevant bleibt.
+GENERIC	Energieerhaltung und Entropieproduktion als überprüfbare Bedingungen der Kopplung formulieren; am Wärmebeispiel vollständig ausgerechnet.
+Viabilität	Pufferfähigkeit anhand zulässiger Zustände, dauerhafter Belastungen und verfügbarer Eingriffe untersuchen.
+Informationsgeometrie	Prüfen, welche Parameter überhaupt unterscheidbar und identifizierbar sind.
+
+Bei deinen drei Vorschlägen waren wichtige Präzisierungen nötig:
+
+Takens: \(2d+1\) ist eine hinreichende generische Rekonstruktionsgarantie. Eine notwendige universelle Dimensionsschwelle folgt daraus nicht. Das neue Kreisbeispiel kommt mit zwei Koordinaten aus. Theoremfassung.
+Causal Emergence: Die Verfahren liefern unterschiedliche Kriterien. Mein nachgerechneter Grenzfall ergibt beim SVD-Maß 0,75, obwohl die Effective Information null beträgt. Ein positiver spektraler Wert genügt deshalb nicht als Individuationsnachweis. Ausgangspunkt der geprüften Definition.
+RG und σ: Eine gemeinsame Steilheit braucht eine begründete Normierung. Schon \(\Gamma'=k\Gamma,\ \sigma'=\sigma/k\) lässt \(\tanh(\sigma\Gamma)\) unverändert. Identische Zahlenwerte allein tragen die Universalitätsbehauptung somit nicht.
+
+Alle 35 Prüfungen bestehen: die bisherigen 19 plus 16 neue. Sie prüfen konkrete Modellrechnungen und Gegenbeispiele; die empirischen Untersuchungen sind als nächste Arbeitsschritte ausgearbeitet.
+
+Zum Einstieg: 
+LITERATURE_CONNECTIONS.md · 
+FORMALISM.md
+
+Das vollständige Paket enthält Quellen, Prüfskripte, archivierte Fassungen und ein Änderungsinventar für den Abgleich mit euren lokalen Ergänzungen:
+
+CREP-UTAC-AFET_Revision_3_2026-09-16.zip

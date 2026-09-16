@@ -1,0 +1,90 @@
+{
+  "revision": "3.2",
+  "kind": "bounded_additive_update",
+  "automatically_applied": false,
+  "requires_existing_formalism_directory": true,
+  "no_delete_operations": true,
+  "files": [
+    {
+      "path": "FORMALISM.md",
+      "action": "replace_after_base_check",
+      "sha256": "19398ed4ccbb7d1336e3b841b1ef555c692026f380c2c2d559499fc527756174",
+      "known_base_variants": [
+        {
+          "source": "read_baseline",
+          "sha256": "e091ba1cd9ecc6b327010224a302343d4b09b3e02f8a70ceec248fc2f1a46045"
+        }
+      ]
+    },
+    {
+      "path": "context_transformations.md",
+      "action": "add",
+      "sha256": "854b870a95f2b1fe228603450a63cbe08e43da9030c8406527773770117461e7"
+    },
+    {
+      "path": "emergence_and_closure.md",
+      "action": "replace_after_base_check",
+      "sha256": "abbf32c4fb1fdc60c4bec47dbdb32a493846b93a9b16e114355bd310876b5f5b",
+      "known_base_variants": [
+        {
+          "source": "read_baseline",
+          "sha256": "2f3f73603a059e0cb22be5fe42d6e6d0909849d23ccf5677aabef09d794d4c94"
+        },
+        {
+          "source": "previous_workspace_revision_3_1",
+          "sha256": "d6b08bf83716717cfc17b77dfa6f93fee2b886e911c2ac2a5bd09317cda3dcde"
+        }
+      ]
+    },
+    {
+      "path": "worked_example_viability.md",
+      "action": "replace_after_base_check",
+      "sha256": "52c7e62f16a57c96af8ba63e33b716e8620c44f736caf7180da5b36d9ecc86a6",
+      "known_base_variants": [
+        {
+          "source": "read_baseline",
+          "sha256": "10a034660b7ea8d032f3e6f1d5b3182e47ff9fce609d5ff9c2f5be75021956aa"
+        }
+      ]
+    },
+    {
+      "path": "REVISION_3_2.md",
+      "action": "add",
+      "sha256": "1e58f35b3282ef14ec155c7920566aad4d101f450ce44de8400e15408bca43cb"
+    },
+    {
+      "path": "TRANSFORMATION_VERIFICATION.md",
+      "action": "add",
+      "sha256": "33fbad56fea9859732ef22c6e2098ce54e61f0bf53fc96c9669991c6cece891c"
+    },
+    {
+      "path": "verification/verify_transformations.py",
+      "action": "add",
+      "sha256": "732a9dd0fc16e6245c214dc804168dfe5f8e263ffa0464f3c155123fd276d483"
+    },
+    {
+      "path": "verification/requirements_transformations.txt",
+      "action": "add",
+      "sha256": "bb260e03cdea3a1ab25a889a9edc62ced108f38d1fc09ddc7a67c718b12e5958"
+    },
+    {
+      "path": "verification/transformation_results.json",
+      "action": "add",
+      "sha256": "5ed8b6fba606ed4c9c087c2ceadcf13fb74370139a87f56e6b934895488ac5a6"
+    }
+  ],
+  "baseline_snapshots": [
+    {
+      "path": "baseline/FORMALISM.md",
+      "sha256": "e091ba1cd9ecc6b327010224a302343d4b09b3e02f8a70ceec248fc2f1a46045"
+    },
+    {
+      "path": "baseline/emergence_and_closure.md",
+      "sha256": "2f3f73603a059e0cb22be5fe42d6e6d0909849d23ccf5677aabef09d794d4c94"
+    },
+    {
+      "path": "baseline/worked_example_viability.md",
+      "sha256": "10a034660b7ea8d032f3e6f1d5b3182e47ff9fce609d5ff9c2f5be75021956aa"
+    }
+  ]
+}
