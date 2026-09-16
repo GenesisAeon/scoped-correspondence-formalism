@@ -1,5 +1,21 @@
 # Folgetickets — Revision 3, 16. September 2026
 
+## F15: Umbenennung CREP/UTAC/AFET → Scoped Correspondence Formalism (Teil 1, erledigt 2026-09-16)
+
+Johanns Entscheidung nach Rücksprache: das Drei-Buchstaben-Akronym-Vokabular hat wiederholt zu falschen Cross-Layer-Identitäten verleitet (β=S, V=Panarchy=L, geteiltes σ=2,2). Neuer Name und neues Vokabular sollen diese Versuchung strukturell reduzieren, ohne die bereits veröffentlichten ~60 Ökosystempakete rückwirkend umzubenennen (zu teuer/riskant für ein reines Vokabular-Problem).
+
+Basiert auf einem eigenständigen, unabhängig konvergierenden Vorschlag von Astra ([prompts/Answers/ChatGPTAstra2.md](prompts/Answers/ChatGPTAstra2.md)), der mit realen Vorbildern begründet (Mathlib-Naturalität, Sheaf-Theorie lokal/global, Williams-Beer/Kolchinsky-Trennung, equation-free restrict/lift, Sandia Verification-vs-Validation, PEP8, SemVer).
+
+**Umgesetzt (Teil 1):**
+- GitHub-Repo umbenannt: `GenesisAeon/crep-utac-afet-formalism` → `GenesisAeon/scoped-correspondence-formalism` (privat, bleibt privat).
+- Lokales Verzeichnis umbenannt (Kopie+Verifikation+Löschen, da `mv`/`Rename-Item` durch einen transienten Windows-Lock blockiert waren — Dateizahl und Diff vor dem Löschen der alten Kopie bestätigt: 296/296 identisch).
+- Dual-License ergänzt (fehlte bisher komplett): GPLv3-or-later für Code (`verification/*.py`), CC BY 4.0 für Dokumentation — Konvention aus `implosive-origin-utac` übernommen.
+- [GLOSSARY.md](GLOSSARY.md): vollständige Begriffszuordnung (CREP→Observation, UTAC→Dynamics, AFET→Coupling, Selbstähnlichkeit→Correspondence, F08→Contextuality, F09→Information Decomposition, `verify_*`→Verification, künftige Realdatenprüfung→Validation) und Begründung, was NICHT umbenannt wird.
+- [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md): grobe Sicherung von Astras vollständigem Softwarebibliotheks-Vorschlag (Teil 2, 10 Module, 16-20 Wochen, 2-4 Entwickler:innen) — **nicht beauftragt**, nur damit nichts verloren geht.
+- `README.md` Titel/Badges aktualisiert, auf Glossar verwiesen.
+
+**Bewusst NICHT umgesetzt in dieser Runde:** vollständige Migration der Formalismus-Inhalte selbst (`FORMALISM.md` §-Inhalte, Layer-Dokumente, Dateinamen wie `sheaf_contextuality.md`) auf die neuen Begriffe — das ist Teil der "Core Extraction"-Phase in `ARCHITECTURE_ROADMAP.md`, eine eigene, noch nicht getroffene Entscheidung (Umfang, Ausführung selbst/Delegation/Team).
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.

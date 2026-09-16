@@ -1,8 +1,11 @@
-# CREP–UTAC–AFET: Information, Systeme und Kopplung
+# Scoped Correspondence Formalism
 
-**Revision 3.2 · 16. September 2026 · methodischer Entwurf mit Literaturanschlüssen, prüfbaren Modellrechnungen und optionalen F08/F09-Ergänzungen**
+[![License](https://img.shields.io/badge/code-GPLv3--or--later-blue)](LICENSE)
+[![Docs License](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-Johanns Ausgangsabsicht bleibt die Grundlage: CREP beschreibt Information, UTAC Systeme und deren Dynamik, AFET die Kopplung mit einer ausdrücklich ausgewiesenen thermodynamischen Spezialisierung. Die Revision ersetzt die unzutreffenden Größenidentitäten des Entwurfs vom 15. September durch definierte Schnittstellen und bedingte Modellbeziehungen.
+**Revision 3.2 · 16. September 2026 · methodischer Entwurf mit Literaturanschlüssen, prüfbaren Modellrechnungen und optionalen F08/F09-Ergänzungen. Umbenannt von "CREP–UTAC–AFET" am 16. September 2026 — siehe [GLOSSARY.md](GLOSSARY.md) für die vollständige Begriffszuordnung und Begründung.**
+
+Johanns Ausgangsabsicht bleibt die Grundlage: **Observation** (vormals CREP) beschreibt Information, **Dynamics** (vormals UTAC) Systeme und deren Dynamik, **Coupling** (vormals AFET) die Kopplung mit einer ausdrücklich ausgewiesenen thermodynamischen Spezialisierung (**Thermodynamics**). Die zentrale Beziehung zwischen Beschreibungsebenen heißt **Correspondence** (vormals „Selbstähnlichkeit" als Gesamtanspruch) — bewusst schwächer als „Äquivalenz" oder „Identität", weil eine Korrespondenz exakt, näherungsweise, projektiv, kontextabhängig oder empirisch widerlegt sein kann. Die Revision ersetzte bereits die unzutreffenden Größenidentitäten des Entwurfs vom 15. September durch definierte Schnittstellen und bedingte Modellbeziehungen; die neue Namensgebung macht diesen Verzicht auf Universalitätsanspruch jetzt auch im Namen sichtbar statt nur im Text.
 
 Der gemeinsame Rahmen beschreibt, **was an einem System gemessen wird, wie es sich entwickelt und wie andere Systeme darauf wirken**. Seine Leitidee ist die von Johann am 16. September nochmals klargestellte **Selbstähnlichkeit**: wiederkehrende Strukturen mit unterschiedlichen Größen, Parametern und Skalen. Die zuvor eingeschlichenen Gleichsetzungen waren Fehler der Ausarbeitung, nicht die beabsichtigte Ausgangsthese.
 
@@ -12,6 +15,8 @@ Eine strukturelle Analogie ist ein Ausgangspunkt. Mathematische Selbstähnlichke
 
 | Datei | Inhalt |
 |---|---|
+| [GLOSSARY.md](GLOSSARY.md) | Neues Vokabular (Observation/Dynamics/Coupling/Correspondence), Legacy-Mapping, Begründung der Umbenennung |
+| [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) | Grobe, noch nicht beauftragte Roadmap für eine echte Softwarebibliothek (Teil 2) |
 | [FORMALISM.md](FORMALISM.md) | Zusammenhängende Übersicht und verbindliche Notation |
 | [LITERATURE_CONNECTIONS.md](LITERATURE_CONNECTIONS.md) | Geprüfte Literaturanschlüsse, Voraussetzungen und Übernahmeentscheidungen |
 | [emergence_and_closure.md](emergence_and_closure.md) | Rekonstruktion, Makro-Geschlossenheit, EI und konkreter Individuations-Prüfvertrag |
@@ -73,3 +78,10 @@ Nicht im Paket enthaltene lokale Dateien bleiben bestehen. Der von Johann bereit
 ## Status
 
 Die Drei-Schichten-Architektur ist ein expliziter Forschungs- und Beschreibungsrahmen. Die aufgeführten Standardmodelle sind unter ihren Voraussetzungen mathematisch prüfbar. Die universelle Anwendbarkeit, ein universeller Individuationsschwellenwert und universelle Zahlenwerte wie 0,84 oder 1/16 sind dadurch nicht nachgewiesen.
+
+## License
+
+This repository is **dual-licensed**:
+
+- **Source code** (`verification/*.py`) — [GNU General Public License v3.0 or later (GPLv3+)](LICENSE).
+- **Documentation** (all Markdown/prose content) — [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-DOCS).

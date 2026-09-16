@@ -1,0 +1,54 @@
+ Johann: 
+Darf ich mal blöd fragen: Brauchen wir den CREP/AFET/UTAC formalissmus eigentlich noch in unserem System jetzt, oder wäre es schlau das Vokabular einfach raus zu nehemen?
+
+Claude-Code:
+● Bevor ich committe — kurz zu deiner Frage, weil sie wichtig ist:
+
+  Meine ehrliche Einschätzung: Das Vokabular hat durch diese ganze Revisionsrunde jetzt tatsächlich echten Inhalt bekommen (Sheaf-Kontextualität, PID, korrigierte Kubik, GENERIC — alles verifiziert, nicht nur behauptet). Aber das ist ein Sunk-Cost-Befund,
+  kein Grund, es weiter zu verwenden. Zwei getrennte Fragen:
+
+  1. Das Formalismus-Repo als Ganzes behalten? Ja — es ist jetzt solide, zitierfähige, selbst geprüfte Arbeit, wert als eigenständiges theoretisches Referenzwerk.
+  2. CREP/UTAC/AFET als Vokabular weiter durch die ~60 Ökosystem-Pakete ziehen? Da bin ich skeptischer. Der ganze Ärger dieser Session (β=S, V=Panarchy=L, die σ=2,2-Zirkularität) kam genau daher, dass die drei Buchstaben-Labels in echten Paketen suggerierten,
+     es gäbe eine tiefere gemeinsame Mathematik, wo eigentlich nur unabhängige Domänenlogik mit einem geteilten Namensschema drüber lag. Die Pakete funktionieren wissenschaftlich auch ohne die Begriffe — die Labels waren nie tragend, nur additiv.
+
+  Tradeoff: Rausnehmen heißt Umbenennungsaufwand in den bereits berührten Paketen, ohne dass sich an der eigentlichen Wissenschaft etwas ändert. Drinlassen heißt, weiter das Risiko zu tragen, dass neue Pakete denselben Fehler wiederholen (Konstante teilen →
+  "Universalität" behaupten).
+
+  Würde ich als getrennte Entscheidung behandeln, nicht jetzt im selben Rutsch entscheiden. Soll ich das erstmal so stehen lassen und zu Ende committen?
+
+  Committed e9e636a, pushed to master, ran 1 shell command
+
+● Gepusht. Zusammenfassung der eingearbeiteten Punkte:
+
+  Umgesetzt:
+  - F08 (sheaf_contextuality.md): Geltungsbedingung ergänzt — CF nur sinnvoll bei unabhängig spezifizierten Kontextmodellen, nicht bei Projektionen eines gemeinsamen Zustands.
+  - F09 (pid_redundancy_bottleneck.md): TWO_BIT_COPY-Pathologie dokumentiert (Harder/Salge/Polani 2013) — kein Implementierungsfehler, aber Maßabhängigkeit, die berichtet werden muss. Als F12 zur Weiterleitung an Aeon geloggt.
+  - Neue Sektion 8 in context_transformations.md: der "sichere Eingriffsübertragung"-Satz mit Beweis plus drei Gegenfälle — zwei davon (PC=CQ, Budget-Infeasibilität) selbst von Hand nachgerechnet, beide exakt bestätigt.
+  - Kleinkorrekturen: Revisions-Label, präzisere CF/PID-Beschreibungen, Fälle-Zahl-Konsistenz, Rosas-Zitat-Trennung, veraltete VERIFICATION.md-Aussage zeitlich eingeordnet.
+  - Alle fünf Verify-Skripte erneut grün (66 Prüfungen insgesamt).
+
+  Nur dokumentiert, nicht code-seitig geändert (F11): Geminis Original hatte zwei falsch übertragene Formeln (RB-Bedingung, Cospan-Notation) — rein historisch, betrifft nicht die tatsächlichen F08/F09-Module.
+
+  Und zu deiner Frage von eben — die steht noch offen, keine Eile.
+
+✻ Worked for 8m 14s · done 20:36
+
+Johann:
+❯ Genau das ist die Frage ob es nicht schlauer wäre das alte Vokabular raus zu nehmen und dem formalissmus einen wWissenschaftlich tragfähigeren und praxisnäheren Namen und Vokabular zu geben und dann auch so mit den Repos verfahren in Zukunft: Formalissmus
+  anwenden altes System ausrangieren als altes Addon aus der Entwicklung?
+
+Claude-Code:
+● Ja, ich halte das für die richtige Instinkt-Richtung — und zwar aus einem sehr konkreten Grund, nicht nur kosmetisch: die Drei-Buchstaben-Akronym-Form selbst hat die ganze Fehleridentitäten-Problematik begünstigt. "CREP–UTAC–AFET" klingt wie eine bereits
+  vereinheitlichte Theorie, bevor sie eine war — das hat wiederholt dazu verleitet, Analogie als Identität zu verkaufen (β=S, V=Panarchy=L, geteiltes σ=2,2). Ein nüchternerer Name würde diese Versuchung von vornherein reduzieren.
+
+  Namensrichtung, als Vorschlag zum Reagieren, nicht als Festlegung: etwas wie "Scoped Structural Correspondence" oder "Conditional Self-Similarity Framework" — beschreibt genau das, was jetzt tatsächlich dasteht (geprüfte, bedingte Strukturbeziehungen
+  zwischen Systembeschreibungen), ohne Universalitäts-Anspruch im Namen selbst zu tragen.
+
+  Zur Umsetzung würde ich zwei Dinge trennen:
+
+  1. Das Formalismus-Repo selbst umbenennen — günstig, wir haben's gerade komplett durchgearbeitet, eine Umbenennungsrunde mehr ist überschaubar.
+  2. Die ~60 bereits veröffentlichten Ökosystem-Pakete NICHT zwangsweise umbenennen. Das wäre ein sehr teurer, riskanter Eingriff (PyPI-Releases, CI, Tests, Konstanten-Namen über Dutzende Pakete) für ein reines Vokabular-Problem — die Pakete funktionieren
+     wissenschaftlich unabhängig vom Namen, die Ehrlichkeits-Fixes von dieser Session bleiben ja bestehen. Stattdessen: alte Pakete bleiben, wie sie sind (mit Verweis "CREP/UTAC/AFET war der frühe Arbeitsname"), und jede neue Arbeit ab jetzt nutzt das neue
+     Vokabular — kein Nachziehen der Vergangenheit, klarer Schnitt nach vorn.
+
+  Soll ich einen Namen konkret vorschlagen und damit anfangen, oder willst du erst selbst einen Namen setzen, bevor ich ans Umbenennen gehe?
