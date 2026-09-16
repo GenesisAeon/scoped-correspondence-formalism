@@ -8,6 +8,27 @@ Aktuell ist dieses Repository reine Dokumentation plus eigenständige Verify-Skr
 
 **Zeit-/Aufwandsschätzung aus dem Vorschlag** (Annahme: 2–4 Entwickler:innen, mindestens einer mit mathematisch-wissenschaftlichem Schwerpunkt): **16–20 Wochen** bis zu einer ersten stabilen Major-Version.
 
+## Verbindung zum Architektur-Planungsprojekt (unabhängig entstanden, gleicher Zielpunkt)
+
+Johanns Beobachtung (16.9.): `D:\mandala\Architektur--Planungsprojekt\` verfolgt unabhängig denselben Zielpunkt — den Übergang von Unified-Mandala (explorativem Labor) zu einer kanonisierten Referenzarchitektur ("Genesis Core / UTAC Core"), dort aber top-down über einen strengen Planungsprozess statt bottom-up aus einer Formalismus-Korrekturrunde. Beide sollen **nicht automatisch verschmolzen werden** — der Formalismus bleibt hier führend, das Planungsprojekt bekommt einen angepassten Vorschlag, nicht umgekehrt.
+
+**Wie das Planungsprojekt tatsächlich funktioniert** (aus `README.md`/`AGENTS.md`/`ENTRY.yaml` dort):
+
+- Jede Wissenseinheit liegt als **Trylayer-Tripel** vor: `<slug>.yaml` (Metadaten), `<slug>.ai.json` (maschinenlesbarer Volltext), `<slug>.md` (Prosa für Menschen) — Schema in `contracts/trylayer.schema.yaml`.
+- Externe Systeme reichen keine rohen Trylayer-Dateien ein, sondern ein einfaches Markdown mit Kopf (`quelle_system`, `datum`) und den Abschnitten `## Problem`, `## Vorschlag`, `## Erwartetes Ergebnis`, `## Alternativen betrachtet` — eine KI-Schnittstelle (hier: Claude) baut daraus das Trylayer-Tripel.
+- Ordner nach Reifegrad: `01_Ideen/` (roh, `status: idea`/`draft`) → `02_Plaene/` → `03_Architektur/` (braucht ADR) → `04_Programme/` (braucht ADR + Blindtest). `epistemic_status` muss ehrlich sein — die meisten neuen Vorschläge sind `hypothesis`, nicht `validated`.
+- **Genesis-Blindtest** (Regel 6) vor jedem Vorschlag für `architektur`/`programm`: Würde eine Person ganz ohne GenesisAeon-Kontext dieses Modul in einem völlig anderen Kontext installieren wollen und in 5 Minuten ein sinnvolles Ergebnis sehen? Wenn nein: gehört nach `01_Ideen/`, nicht höher.
+- `status: accepted`/`core`/`kategorie: adr` bleibt Johanns/einer klar begründeten KI-Entscheidung vorbehalten (Regel 12) — eine KI darf nach `adr/adr-003` fallweise selbst hochstufen, aber mit Begründung im Trylayer-Eintrag UND in der Commit-Message, damit alles per Diff nachvollzieh- und revertierbar bleibt.
+
+**Konkreter, angepasster Vorschlag für den Formalismus (nicht umgekehrt):**
+
+1. **Zuerst nur die Methodik einreichen, nicht die volle Softwarebibliothek.** Ein `01_Ideen/claude/`-Trylayer-Tripel, das die Kernlektion des Scoped Correspondence Formalism zusammenfasst — Rollen statt Akronym-Identität, Scope als First-Class Concept, Verification-vs-Validation-Trennung, `VAL-SPLIT`-artige Disziplin gegen Kalibrierung-als-Bestätigung — als eigenständiger, GenesisAeon-unabhängiger Denkbaustein. Das würde den Genesis-Blindtest ehrlich bestehen: die Methodik selbst ist domänenneutral, unabhängig von CREP/UTAC/AFET-Historie verständlich.
+2. **F08/F09 (Contextuality, Information Decomposition) und die zehn Astra-Module bleiben vorerst in `01_Ideen/`, nicht `03_Architektur/`.** Sie sind noch nicht empirisch validiert (siehe `VERIFICATION.md`: 66 grüne Prüfungen sind synthetisch, keine reale Datenprüfung) — `epistemic_status: hypothesis`, ehrlich so gekennzeichnet, keine Selbsthochstufung auf `core`.
+3. **Die Formalismus-Inhalte selbst (`FORMALISM.md` etc.) wandern NICHT eins-zu-eins in Trylayer-Dateien.** Das Planungsprojekt bekommt eine verdichtete Zusammenfassung plus Link zurück auf dieses Repo als Quelle der Wahrheit — keine Duplizierung der 66 Prüfungen oder der Revisionshistorie dort.
+4. **Reihenfolge:** Diese Einreichung ist unabhängig von und deutlich billiger als die 16-20-Wochen-Softwarebibliothek oben — kann parallel oder vorher passieren, ohne auf eine Entscheidung über Teil 2 zu warten.
+
+**Noch nicht ausgeführt** — nur in dieser Roadmap vorgemerkt. Nächster Schritt bei Freigabe: Rohformat-Markdown nach `AGENTS.md`-Vorlage entwerfen, Johann zur Durchsicht vorlegen, dann als Trylayer-Tripel unter `01_Ideen/claude/` im Planungsprojekt anlegen und `python scripts/validate_trylayer.py` dort laufen lassen.
+
 ## Grobe Meilensteine (aus Astras Vorschlag, ungekürzt in der Quelldatei)
 
 | Meilenstein | Zeitraum | Inhalt | Exit-Kriterium |
@@ -52,5 +73,5 @@ Keine Ausführung ohne separate Entscheidung. Offene Fragen für dieses Gespräc
 
 1. Wird das überhaupt verfolgt, oder bleibt das Repo bei "Dokumentation + Verify-Skripte"?
 2. Falls ja: selbst umsetzen, an Aeon/GrokBot delegieren, oder Team-Aufbau wie in der Schätzung angenommen?
-3. Passt das in ein bereits geplantes Monorepo/Architektur-Repo (siehe Johanns Hinweis vom 16.9.) — falls ja, sollte diese Datei dorthin verweisen statt eigenständig zu bleiben?
-4. Falls verfolgt: in welcher Reihenfolge — wie oben vorgeschlagen (Correspondence Core zuerst), oder anders priorisiert?
+3. Soll die Methodik-Einreichung ins `Architektur--Planungsprojekt` (siehe oben) jetzt vorbereitet werden, unabhängig von einer Entscheidung über Teil 2 — oder erst nach mehr Erfahrung mit dem neuen Vokabular?
+4. Falls Teil 2 verfolgt wird: in welcher Reihenfolge — wie oben vorgeschlagen (Correspondence Core zuerst), oder anders priorisiert?
