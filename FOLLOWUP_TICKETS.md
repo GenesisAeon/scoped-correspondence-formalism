@@ -48,9 +48,15 @@ Von Aeon geliefert (`prompts/09_teil2_closure_viability_for_aeon.md`) direkt als
 - Bewusst nicht Teil dieser Lieferung: `membership` (überlappende Systemzugehörigkeit) und ein allgemeiner Viability-Kernel-Solver — beide eigene, spätere Aufträge.
 - Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m3-closure-viability` gelöscht.
 
-## F19: Teil 2, Milestone 4 — Membership & Shared Resources (Prompt gesendet 2026-09-16, noch offen)
+## F19: Teil 2, Milestone 4 — Membership & Shared Resources (erledigt 2026-09-16)
 
-Prompt an Aeon: [prompts/10_teil2_membership_for_aeon.md](prompts/10_teil2_membership_for_aeon.md). Anders als M1–M3 gibt es hierfür **keine bestehende Legacy-Prüfung** — `M_eα` (`context_transformations.md` §1) und die gemeinsame Eingriffsmenge T5 (§6, `U_joint = U_physical ∩ ⋂_α U_α`) wurden im ursprünglichen 66er-Prüfkorpus nie einzeln getestet, nur implizit über den festverdrahteten Zwei-Puffer-Fall in `t10_shared_budget_conflict`. Der Auftrag verlangt daher frische, von Hand nachrechenbare Beispiele statt eines reinen Legacy-Abgleichs, plus eine Kreuzprobe gegen `t10`/`shared_budget_conflict` als einzigen vorhandenen Ankerpunkt. Noch nicht geliefert — Status wird bei Aeons Rückmeldung aktualisiert.
+Von Aeon geliefert (`prompts/10_teil2_membership_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`:
+- `src/scoped_correspondence/membership/core.py`: `MembershipMatrix` (binäres `M_eα`, mehrere Einsen pro Zeile erlaubt, gewichtete Einträge lösen `ScopeViolationError` aus), `double_count_stocks` (naive vs. korrekte Bestandssumme bei überlappender Zugehörigkeit), `joint_control_set` (T5: `U_joint = U_physical ∩ ⋂_α U_α` für Intervalle/Boxen, leerer Schnitt → `conflict: bool` statt Exception — bewusste Design-Entscheidung, dokumentiert), `t10_via_membership` (Kreuzprobe, ruft `viability.shared_budget_conflict` unverändert auf statt es neu zu implementieren), `view` (reiner Aufrufmechanismus für `y_α=π_α(z,c,t)`, keine neue Physik).
+- Anders als M1–M3: keine bestehende Legacy-Prüfung für `M_eα`/T5 — die vier Prüfungen sind frische, von Hand nachrechenbare Beispiele, plus die geforderte Kreuzprobe gegen `t10_shared_budget_conflict`.
+- 4/4 neue Prüfungen selbst nachgerechnet (eigener Skriptlauf, JSON bis auf Zeitstempel bit-identisch mit Aeons Bericht). Zwei Zahlen von Hand gegengerechnet: Doppelzählung (`M.T@x=[30,40]`, Summe 70 vs. `sum(x)=60`, Differenz 10) und leerer T5-Schnitt (`lo=max(0,0,0.5)=0.5 > hi=min(1,0.3,1)=0.3`) — beide exakt bestätigt.
+- `MembershipMatrix` bewusst getrennt von `closure.partition_matrix` (keine gemeinsame Basis/Cast) — gleiche Disziplin wie `AijInfluence`/`LijTransport`.
+- Alle 8 Kerndokumente sowie `correspondence/`, `observation/`, `dynamics/`, `coupling/`, `closure/`, `viability/`, `legacy/adapters.py` unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m4-membership` gelöscht.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
