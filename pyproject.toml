@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scoped-correspondence"
+version = "0.1.0a1"
+description = "Minimal Correspondence core for the Scoped Correspondence Formalism (Milestone 1 review package)"
+readme = "docs/correspondence_core.md"
+requires-python = ">=3.10"
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
