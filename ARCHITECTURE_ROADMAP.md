@@ -33,7 +33,7 @@ Johanns Beobachtung (16.9.): `D:\mandala\Architektur--Planungsprojekt\` verfolgt
 
 | Meilenstein | Zeitraum | Inhalt | Exit-Kriterium |
 |---|---|---|---|
-| **Naming & Contract Freeze** | Woche 1–2 | Glossar (✅ bereits erledigt als Teil 1), Kerninterfaces, Test-ID-Schema, ADR zur Migration | eindeutige öffentliche Terminologie; kein CREP/UTAC/AFET in neuen Kern-APIs |
+| **Naming & Contract Freeze** | Woche 1–2 | Glossar ✅, Test-ID-Namespace ✅ (`verification/test_id_namespace.md`), `Correspondence`-Kern ✅ (`src/scoped_correspondence/correspondence/`, 5/5 verifiziert gegen Legacy-Fälle e11/T01–T04, gemergt 2026-09-16 via `prompts/07_teil2_correspondence_core_for_aeon.md`) | eindeutige öffentliche Terminologie; kein CREP/UTAC/AFET in neuen Kern-APIs — **erledigt** |
 | **Core Extraction** | Woche 3–5 | `observation`, `dynamics`, `coupling`, `correspondence` als echte Module; Legacy-Adapter; bestehende Formeln portieren | 19 Basis- + relevante Transformations-Tests laufen gegen neuen Kern |
 | **Closure & Viability** | Woche 6–8 | Closure/Reconstruction, Lift/Restrict, Viability, Membership/Shared Resources | bestehende Rekonstruktions-, Closure-, Viability-Fälle portiert |
 | **Uncertainty & Validation** | Woche 9–12 | Messmodell, Unsicherheit, Identifizierbarkeit, Dataset Manifest, Train/Holdout, Baselines; **ein echter Pilot mit realen Daten** | erste reale Studie erzeugt reproduzierbaren `ValidationReport` |

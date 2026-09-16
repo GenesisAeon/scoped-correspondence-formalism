@@ -16,6 +16,16 @@ Basiert auf einem eigenständigen, unabhängig konvergierenden Vorschlag von Ast
 
 **Bewusst NICHT umgesetzt in dieser Runde:** vollständige Migration der Formalismus-Inhalte selbst (`FORMALISM.md` §-Inhalte, Layer-Dokumente, Dateinamen wie `sheaf_contextuality.md`) auf die neuen Begriffe — das ist Teil der "Core Extraction"-Phase in `ARCHITECTURE_ROADMAP.md`, eine eigene, noch nicht getroffene Entscheidung (Umfang, Ausführung selbst/Delegation/Team).
 
+## F16: Teil 2, Milestone 1 — Correspondence-Kern (erledigt 2026-09-16)
+
+Von Aeon geliefert (`prompts/07_teil2_correspondence_core_for_aeon.md`), per Claude-Review gemergt nach `master`:
+- `verification/test_id_namespace.md`: Alias-Tabelle für alle 66 bestehenden Prüfungen (Provenienz erhalten, keine Neunummerierung).
+- `src/scoped_correspondence/correspondence/contract.py`: typisierter `Correspondence`-Kern (`ModelRef`, `StateMap`, `TimeMap`, `Scope`, `ErrorMetric`, `Residual`, `CorrespondenceReport`), implementiert FORMALISM.md §1 (Konjugations-/Semikonjugationsschema) und `context_transformations.md` T1–T4.
+- Verifiziert gegen 5 Legacy-Fälle (e11, T01–T04), Zahlen exakt reproduziert. Ein erster Prüflauf zeigte 0/5 wegen eines isolierten Testordners ohne die bestehenden Vergleichsdateien — kein echter Bug, aus dem echten Repo heraus 5/5 bestätigt.
+- T01 von Hand gegen das Original-Beispiel in `context_transformations.md` §3 nachgerechnet (y′=−2/(1+t)² bei t=0 → −2): exakt bestätigt.
+- Alle 8 Kerndokumente (FORMALISM.md + sieben Layer-/Erweiterungsdokumente) vor und nach dem Merge byte-identisch — unberührt wie zugesagt.
+- Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m1-correspondence-core` gelöscht.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
