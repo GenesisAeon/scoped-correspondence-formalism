@@ -1,0 +1,57 @@
+{
+  "milestone": "M2_observation_core",
+  "kind": "MIG equivalence (legacy verify_formalism vs Observation API)",
+  "generated_at_utc": "2026-09-16T19:50:26.664333+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 3,
+  "passed": 3,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-OBS-p03_information_channel",
+      "status": "passed",
+      "evidence": {
+        "channel": "memoryless binary symmetric",
+        "capacity_bits_per_second": 53.10044064107188,
+        "receiver_information_rate": 17.325362750738215,
+        "eta_info": 0.32627531036602125,
+        "R_info_per_use": 0.17325362750738216,
+        "legacy_id": "p03_information_channel",
+        "legacy_alias": "VER-OBS-p03_information_channel"
+      }
+    },
+    {
+      "id": "MIG-OBS-c06_information_window",
+      "status": "passed",
+      "evidence": {
+        "raw_seconds": [
+          0.1,
+          1.0
+        ],
+        "dimensionless_fractions": [
+          0.1,
+          0.1
+        ],
+        "legacy_id": "c06_information_window",
+        "legacy_alias": "VER-OBS-c06_information_window",
+        "scope_violation_on_absolute_bits": true
+      }
+    },
+    {
+      "id": "MIG-OBS-shannon_hartley_and_scope",
+      "status": "passed",
+      "evidence": {
+        "K_info_B3000_SNR1000": 29901.67877650798,
+        "K_info_B1_SNR1": 1.0,
+        "scope_violations_checked": 4,
+        "formalism_rows": [
+          "K_info",
+          "R_info",
+          "eta_info"
+        ]
+      }
+    }
+  ]
+}

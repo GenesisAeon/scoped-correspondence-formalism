@@ -1,0 +1,122 @@
+{
+  "milestone": "M2_dynamics_core",
+  "kind": "MIG equivalence (legacy verify_formalism vs Dynamics API)",
+  "generated_at_utc": "2026-09-16T19:50:27.343973+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 3,
+  "passed": 3,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-DYN-p02_cusp_region",
+      "status": "passed",
+      "evidence": {
+        "records": [
+          {
+            "a": 1.0,
+            "b": 0.0,
+            "discriminant": 4.0,
+            "roots": [
+              -1.0,
+              -2.1211504774498136e-16,
+              1.0
+            ]
+          },
+          {
+            "a": 1.0,
+            "b": 0.2,
+            "discriminant": 2.92,
+            "roots": [
+              -0.8788850662499729,
+              -0.2091488484413168,
+              1.0880339146912894
+            ]
+          },
+          {
+            "a": 1.0,
+            "b": 1.0,
+            "discriminant": -23.0,
+            "roots": [
+              1.3247179572447458
+            ]
+          },
+          {
+            "a": -1.0,
+            "b": 0.3,
+            "discriminant": -6.43,
+            "roots": [
+              0.2784179903218099
+            ]
+          },
+          {
+            "a": 0.0,
+            "b": 0.0,
+            "discriminant": 0.0,
+            "roots": [
+              0.0
+            ]
+          },
+          {
+            "a": 3.0,
+            "b": 2.0,
+            "discriminant": 0.0,
+            "roots": [
+              -1.0,
+              2.0
+            ]
+          }
+        ],
+        "legacy_id": "p02_cusp_region",
+        "legacy_alias": "VER-DYN-p02_cusp_region"
+      }
+    },
+    {
+      "id": "MIG-DYN-p01_cusp_branches_and_time",
+      "status": "passed",
+      "evidence": {
+        "equilibria_checked": 27,
+        "examples": [
+          {
+            "a": 0.25,
+            "tau": 1.0,
+            "x": -0.5,
+            "recovery": 0.5000000000997262
+          },
+          {
+            "a": 0.25,
+            "tau": 1.0,
+            "x": 0.0,
+            "recovery": -0.24999999990000002
+          },
+          {
+            "a": 0.25,
+            "tau": 1.0,
+            "x": 0.5,
+            "recovery": 0.5000000000997262
+          }
+        ],
+        "legacy_id": "p01_cusp_branches_and_time",
+        "legacy_alias": "VER-DYN-p01_cusp_branches_and_time"
+      }
+    },
+    {
+      "id": "MIG-DYN-sigmoid_srec_independence",
+      "status": "passed",
+      "evidence": {
+        "beta": 4.0,
+        "midpoint_slope": 0.9999999998677732,
+        "recovery_rates": [
+          1.0,
+          0.1
+        ],
+        "s_rec_independent_of_beta_response": true,
+        "formalism_rows": [
+          "beta_response",
+          "S_rec"
+        ]
+      }
+    }
+  ]
+}
