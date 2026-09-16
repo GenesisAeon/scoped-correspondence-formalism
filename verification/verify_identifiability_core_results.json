@@ -1,0 +1,111 @@
+{
+  "milestone": "M5_identifiability_core",
+  "kind": "Legacy equivalence: e02/e07/e08/e09/e12 (+ optional e15) via identifiability.core",
+  "generated_at_utc": "2026-09-16T21:18:21.775922+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-ID-e02_sampling_alias_and_conditioning",
+      "status": "passed",
+      "evidence": {
+        "indistinguishable_delay_vectors": [
+          0.7648421872844885,
+          -0.7648421872844883,
+          0.7648421872844882,
+          -0.7648421872844886,
+          0.7648421872844886,
+          -0.7648421872844885,
+          0.7648421872844884,
+          -0.7648421872844883
+        ],
+        "inverse_sine_factors": {
+          "0.7": 1.552270326957104,
+          "0.01": 100.00166668611132
+        },
+        "legacy_id": "e02_sampling_alias_and_conditioning",
+        "legacy_alias": "VER-REC-e02_sampling_alias_and_conditioning",
+        "source": "identifiability.delay_*  <->  e02"
+      }
+    },
+    {
+      "id": "MIG-ID-e07_effective_information_ensembles",
+      "status": "passed",
+      "evidence": {
+        "EI_uniform_micro": 0.8112781244591327,
+        "EI_uniform_macro": 1.0,
+        "delta_EI": 0.18872187554086728,
+        "EI_matched_micro": 1.0,
+        "lifted_preparation": [
+          0.16666666666666666,
+          0.16666666666666666,
+          0.16666666666666666,
+          0.5
+        ],
+        "legacy_id": "e07_effective_information_ensembles",
+        "legacy_alias": "VER-INF-EI-e07_effective_information_ensembles",
+        "source": "identifiability.effective_information_baseline  <->  e07"
+      }
+    },
+    {
+      "id": "MIG-ID-e08_fixed_ensemble_data_processing",
+      "status": "passed",
+      "evidence": {
+        "random_seed": 1977,
+        "fixed_ensemble_comparisons": 150,
+        "max_micro_minus_macro": 0.3932074579847659,
+        "legacy_id": "e08_fixed_ensemble_data_processing",
+        "legacy_alias": "VER-INF-EI-e08_fixed_ensemble_data_processing",
+        "source": "identifiability.fixed_ensemble_data_processing  <->  e08"
+      }
+    },
+    {
+      "id": "MIG-ID-e09_svd_does_not_imply_ei",
+      "status": "passed",
+      "evidence": {
+        "rank": 1,
+        "singular_values": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "delta_svd": 0.75,
+        "EI": 0.0,
+        "all_partitions_checked": 15,
+        "legacy_id": "e09_svd_does_not_imply_ei",
+        "legacy_alias": "VER-DIAG-SVD-e09_svd_does_not_imply_ei",
+        "source": "identifiability.svd_emergence_vs_ei  <->  e09 / FORMALISM section 10"
+      }
+    },
+    {
+      "id": "MIG-ID-e12_parameter_scaling_nonidentifiability",
+      "status": "passed",
+      "evidence": {
+        "max_response_error": 1.1102230246251565e-16,
+        "response_jacobian_rank": 1,
+        "identified_combination": "sigma*a",
+        "legacy_id": "e12_parameter_scaling_nonidentifiability",
+        "legacy_alias": "VER-COR-e12_parameter_scaling_nonidentifiability",
+        "source": "identifiability.parameter_scaling_*  <->  e12 / FORMALISM section 12"
+      }
+    },
+    {
+      "id": "MIG-ID-e15_predictive_states",
+      "status": "passed",
+      "evidence": {
+        "persistent_binary_chain_predictive_states": 2,
+        "iid_predictive_states": 1,
+        "joint_paths_enumerated": 128,
+        "max_conditioning_error": 0.0,
+        "legacy_id": "e15_predictive_states",
+        "legacy_alias": "VER-CLS-PRED-e15_predictive_states",
+        "source": "identifiability.predictive_states  <->  e15"
+      }
+    }
+  ]
+}
