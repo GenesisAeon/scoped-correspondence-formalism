@@ -26,6 +26,17 @@ Von Aeon geliefert (`prompts/07_teil2_correspondence_core_for_aeon.md`), per Cla
 - Alle 8 Kerndokumente (FORMALISM.md + sieben Layer-/Erweiterungsdokumente) vor und nach dem Merge byte-identisch — unberührt wie zugesagt.
 - Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m1-correspondence-core` gelöscht.
 
+## F17: Teil 2, Milestone 2 — Observation, Dynamics, Coupling (erledigt 2026-09-16)
+
+Von Aeon geliefert (`prompts/08_teil2_observation_dynamics_coupling_for_aeon.md`), diesmal direkt als GitHub-Branch (kein ZIP mehr nötig), per Claude-Review gemergt nach `master`:
+- `src/scoped_correspondence/observation/core.py`: `channel_capacity` (Shannon-Hartley), `retention` (mit `ScopeViolationError` bei kontinuierlichen Variablen), `realized_rate` (mit Einheiten-Guard gegen absolute-vs-Raten-Verwechslung).
+- `src/scoped_correspondence/dynamics/core.py`: `sigmoid_response`, `recovery_rate_from_relaxation` (explizit unabhängig von `beta_response`, Docstring zitiert Befund A), `CubicNormalForm` mit Fixpunkten/Diskriminante/`S_rec`.
+- `src/scoped_correspondence/coupling/core.py`: `PairwiseCoupling`, `AijInfluence`/`LijTransport` als komplett getrennte Dataclasses ohne gemeinsame Basis, `check_generic_structure` als reiner Strukturtest mit explizitem "das behauptet nicht GENERIC"-Disclaimer.
+- `src/scoped_correspondence/legacy/adapters.py`: dünne Namensbrücke (`shannon_hartley_K`, `utac_sigmoid`, `onsager_L` usw.) — dokumentiert selbst ehrlich, dass sie "keine Wissenschaft neu definiert".
+- 13/13 neue Prüfungen selbst nachgerechnet, exakt gegen Legacy-Werte (u.a. `p02_cusp_region`s Wurzel 1,3247179572447458 bei a=1,b=1 von Hand bestätigt — identisch zu einem früheren eigenen Nachrechnen).
+- Alle 8 Kerndokumente inkl. `correspondence/` unverändert; alle 66 bestehenden Prüfungen weiter grün.
+- Gemergt auf `master` nach Johanns Freigabe; Review-Branch `aeon/m2-observation-dynamics-coupling` gelöscht.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
