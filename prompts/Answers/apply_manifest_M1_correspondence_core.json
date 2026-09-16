@@ -1,0 +1,126 @@
+{
+  "revision": "M1_correspondence_core",
+  "kind": "bounded_additive_update",
+  "date": "2026-09-16",
+  "automatically_applied": false,
+  "requires_existing_formalism_directory": true,
+  "no_delete_operations": true,
+  "scope": "Milestone 1: test-ID namespace + Correspondence core package + MIG equivalence vs e11/T01-T04; FORMALISM.md and seven layer/extension docs untouched",
+  "untouched_sha256": {
+    "FORMALISM.md": "00c6fc320b6d44201ed90d9b04346b7f2ed92b45c4a0f1e3f68f8356e3bf2a12",
+    "context_transformations.md": "221e0715d0a5b98a01978a12c58dd5a0f636c9106b89059b561b7af0e95a3242",
+    "emergence_and_closure.md": "abbf32c4fb1fdc60c4bec47dbdb32a493846b93a9b16e114355bd310876b5f5b",
+    "information_layer_crep.md": "a4385ba7e15a5ed7a799751b45ba8bfe93c18900662dea226af78dad245cb1d3",
+    "system_layer_utac.md": "f335c352e1e970f10157ff1fa935f3975f60edd70cdc7e5d115b254e2bffc5e9",
+    "coupling_layer_afet.md": "bb9677742b24501e66b0ba0c9df154387b7959f5a67d38e3d4f214816b0aec4c",
+    "sheaf_contextuality.md": "3a9e8622bcad8eae09140422455de2187ba5046866deff67bbefcd38d2371eb9",
+    "pid_redundancy_bottleneck.md": "697c4e4deeaaf2e8d6b7080e8746c5fe7a4f1601054ef51f0ee2a7450573601c"
+  },
+  "files": [
+    {
+      "path": "pyproject.toml",
+      "action": "add",
+      "sha256": "1fa97a2706dc728aa4dc5cdc9f85e790369e017d8b237eb28f943eb26eb8e6d1",
+      "bytes": 400
+    },
+    {
+      "path": "src/scoped_correspondence/__init__.py",
+      "action": "add",
+      "sha256": "0c39ecce5bda96c8209aa7fd54e58a8141a1224c33860c6efa62a9bb3ad3adfb",
+      "bytes": 598
+    },
+    {
+      "path": "src/scoped_correspondence/correspondence/__init__.py",
+      "action": "add",
+      "sha256": "039628f8d953ca1d1786f77c278c2a046724f263fb171dfc2bd7eb3c12aa4a6e",
+      "bytes": 430
+    },
+    {
+      "path": "src/scoped_correspondence/correspondence/contract.py",
+      "action": "add",
+      "sha256": "9cbe43ea08811cced12a81956d7c3693a4621394fa6f90014adf5da3acd85ac7",
+      "bytes": 9120
+    },
+    {
+      "path": "docs/correspondence_core.md",
+      "action": "add",
+      "sha256": "19f4eb0ccf281426ce001a9252e8d98cedf199d43a7970f225538a463f242e50",
+      "bytes": 2768
+    },
+    {
+      "path": "verification/test_id_namespace.md",
+      "action": "add",
+      "sha256": "54046cc5c0c81d716c217099d18b1ff0ea4f3fbe7d5ca21742f2aad879932e83",
+      "bytes": 10583
+    },
+    {
+      "path": "verification/verify_correspondence_core.py",
+      "action": "add",
+      "sha256": "2138b5d254606b2a2cc70fa095d40d7bd0fd51ec73d0220c62d9bb648aa7c369",
+      "bytes": 12327
+    },
+    {
+      "path": "verification/verify_correspondence_core_results.json",
+      "action": "add",
+      "sha256": "69d1e08c477f9e00680df029542efdae9d184f319f74de4728b2fdf332717b5a",
+      "bytes": 2113
+    }
+  ],
+  "verify": {
+    "verify_correspondence_core.py": {
+      "count": 5,
+      "passed": 5,
+      "failed": 0,
+      "exit_code": 0,
+      "equivalence_cases": [
+        {
+          "mig_id": "MIG-COR-e11_topological_conjugacy_rates",
+          "legacy_id": "e11_topological_conjugacy_rates",
+          "alias": "VER-COR-e11_topological_conjugacy_rates",
+          "matched": {
+            "time_factor": 1,
+            "local_rates": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "mig_id": "MIG-COR-T01_context_derivatives",
+          "legacy_id": "t01_context_derivatives",
+          "alias": "VER-COR-T01",
+          "matched": {
+            "max_derivative_error": 3.471689602463357e-10,
+            "fixed_stock_reserve_derivative_at_0": -2
+          }
+        },
+        {
+          "mig_id": "MIG-COR-T02_state_dependent_time",
+          "legacy_id": "t02_state_dependent_time",
+          "alias": "VER-COR-T02",
+          "matched": {
+            "max_derivative_error": 1.0547118733938987e-10,
+            "transformed_horizon": 1
+          }
+        },
+        {
+          "mig_id": "MIG-COR-T03_parameter_chain_rule",
+          "legacy_id": "t03_parameter_chain_rule",
+          "alias": "VER-COR-T03",
+          "matched": {
+            "full_derivative_at_1": -4,
+            "frozen_derivative_at_1": -2
+          }
+        },
+        {
+          "mig_id": "MIG-COR-T04_composed_transformations",
+          "legacy_id": "t04_composed_transformations",
+          "alias": "VER-COR-T04",
+          "matched": {
+            "max_composition_error": 9.834799641339487e-12
+          }
+        }
+      ]
+    }
+  }
+}

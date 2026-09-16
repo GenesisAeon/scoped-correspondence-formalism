@@ -1,0 +1,69 @@
+{
+  "milestone": "M1_correspondence_core",
+  "kind": "MIG equivalence (legacy evidence vs Correspondence API)",
+  "generated_at_utc": "2026-09-16T19:34:32.534913+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 5,
+  "passed": 5,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-COR-e11_topological_conjugacy_rates",
+      "status": "passed",
+      "evidence": {
+        "time_factor": 1,
+        "local_rates": [
+          1,
+          2
+        ],
+        "transformation": "sign(x)*abs(x)**2; inverse not differentiable at zero",
+        "max_conjugacy_residual": 1.7763568394002505e-15,
+        "legacy_alias": "VER-COR-e11_topological_conjugacy_rates",
+        "legacy_id": "e11_topological_conjugacy_rates"
+      }
+    },
+    {
+      "id": "MIG-COR-T01_context_derivatives",
+      "status": "passed",
+      "evidence": {
+        "max_derivative_error": 3.471689602463357e-10,
+        "fixed_stock_reserve_derivative_at_0": -2,
+        "legacy_alias": "VER-COR-T01",
+        "legacy_id": "t01_context_derivatives"
+      }
+    },
+    {
+      "id": "MIG-COR-T02_state_dependent_time",
+      "status": "passed",
+      "evidence": {
+        "physical_horizon": "infinite",
+        "transformed_horizon": 1,
+        "max_derivative_error": 1.0547118733938987e-10,
+        "legacy_alias": "VER-COR-T02",
+        "legacy_id": "t02_state_dependent_time"
+      }
+    },
+    {
+      "id": "MIG-COR-T03_parameter_chain_rule",
+      "status": "passed",
+      "evidence": {
+        "full_derivative_at_1": -4,
+        "frozen_derivative_at_1": -2,
+        "legacy_alias": "VER-COR-T03",
+        "legacy_id": "t03_parameter_chain_rule",
+        "note": "parameter chain rule on Df; T3 field-compat API used in T04 path"
+      }
+    },
+    {
+      "id": "MIG-COR-T04_composed_transformations",
+      "status": "passed",
+      "evidence": {
+        "max_composition_error": 9.834799641339487e-12,
+        "legacy_alias": "VER-COR-T04",
+        "legacy_id": "t04_composed_transformations"
+      }
+    }
+  ]
+}
