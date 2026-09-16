@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scoped-correspondence"
-version = "0.2.0a1"
-description = "Correspondence + Observation/Dynamics/Coupling cores for the Scoped Correspondence Formalism (M1-M2 review package)"
+version = "0.3.0a1"
+description = "Correspondence + Observation/Dynamics/Coupling + Closure/Viability cores (M1-M3 review package)"
 readme = "docs/correspondence_core.md"
 requires-python = ">=3.10"
 dependencies = ["numpy"]

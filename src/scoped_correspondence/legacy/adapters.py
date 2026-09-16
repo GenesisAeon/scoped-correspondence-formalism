@@ -1,4 +1,4 @@
-"""Map old symbol / function names from layer docs onto Milestone-2 APIs."""
+"""Map old symbol / function names from layer docs onto Milestone-2/3 APIs."""
 
 from __future__ import annotations
 
@@ -121,6 +121,61 @@ def generic_structure_check(J, M, grad_E, grad_S, *, tol: float = 1e-10) -> dict
     return check_generic_structure(J, M, grad_E, grad_S, tol=tol)
 
 
+
+from scoped_correspondence.closure import (
+    closure_error,
+    is_exact_closure,
+    propagated_error_bound,
+    reconstruct_from_projection,
+)
+from scoped_correspondence.viability import (
+    coupled_buffer_field,
+    has_safe_transfer,
+    shared_budget_conflict,
+)
+
+
+# --- Closure / Emergence ------------------------------------------------
+
+
+def exact_closure_PC_CQ(P, C, Q, tol: float = 1e-10) -> bool:
+    """Legacy name for ``is_exact_closure`` (FORMALISM.md section 9)."""
+    return is_exact_closure(P, C, Q, tol=tol)
+
+
+def delta_cl(P, C, Q) -> float:
+    """Legacy name for ``closure_error`` (emergence_and_closure.md section 3)."""
+    return closure_error(P, C, Q)
+
+
+def tv_horizon_bound(delta: float, k: int) -> float:
+    """Legacy name for ``propagated_error_bound``."""
+    return propagated_error_bound(delta, k)
+
+
+def circle_reconstruct(observed, delayed, alpha: float):
+    """Legacy name for ``reconstruct_from_projection`` (circle case only)."""
+    return reconstruct_from_projection(observed, delayed, alpha)
+
+
+# --- Viability / Safe control -------------------------------------------
+
+
+def safe_transfer_scalar(r, z_eq, b, U, W, z0=None):
+    """Legacy name for ``has_safe_transfer`` (context_transformations.md section 8)."""
+    return has_safe_transfer(r, z_eq, b, U, W, z0=z0)
+
+
+def buffer_field(x, r, e, u, w, k):
+    """Legacy name for ``coupled_buffer_field`` (worked_example_viability.md V2)."""
+    return coupled_buffer_field(x, r, e, u, w, k)
+
+
+def budget_conflict(r, e, W, k, U, b=(0.0, 0.0)):
+    """Legacy name for ``shared_budget_conflict`` (r10 / t10)."""
+    return shared_budget_conflict(r, e, W, k, U, b=b)
+
+
 __all__ = [
     "afet_pairwise_coupling",
     "cubic_normal_form",
@@ -134,4 +189,12 @@ __all__ = [
     "shannon_hartley_K",
     "utac_recovery_rate",
     "utac_sigmoid",
+    # M3 closure / viability
+    "buffer_field",
+    "budget_conflict",
+    "circle_reconstruct",
+    "delta_cl",
+    "exact_closure_PC_CQ",
+    "safe_transfer_scalar",
+    "tv_horizon_bound",
 ]
