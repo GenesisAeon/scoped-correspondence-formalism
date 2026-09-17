@@ -68,6 +68,10 @@ Von Aeon geliefert (`prompts/11_teil2_identifiability_baselines_for_aeon.md`, na
 - Bewusst nicht Teil dieser Lieferung: Dataset Manifest, Train/Holdout-Split, realer Datenpilot — bleibt Johanns Domänenentscheidung (`ROADMAP.md` §3), eigener späterer Auftrag.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m5-identifiability-baselines` gelöscht.
 
+## F21: Domänen-Survey für den realen Validierungspilot (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/12_teil2_validation_domain_survey_for_aeon.md](prompts/12_teil2_validation_domain_survey_for_aeon.md). Kein Code-Auftrag — reine Faktensammlung (Datenherkunft real/simuliert, Makrovariable, Datenmenge für Kalibrierung/Holdout, bestehende Formelanknüpfung, Zugriffsaufwand) für 4-6 Kandidaten aus dem Ökosystem, mit explizitem Verbot des Kriteriums "passt wahrscheinlich gut zur Formel". Bezieht sich direkt auf F06/F07 (bisher unbearbeitet: Beobachtungs-/Simulationspfade dokumentieren, §3-Vergleich durchführen). Ergebnis ist eine Faktentabelle ohne Ranking — Domänenentscheidung bleibt bei Johann. Noch nicht geliefert.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
