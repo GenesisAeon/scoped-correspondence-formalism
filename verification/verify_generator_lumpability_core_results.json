@@ -1,0 +1,73 @@
+{
+  "count": 4,
+  "passed": 4,
+  "failed": 0,
+  "report": [
+    {
+      "name": "exact_lumpable_error_0",
+      "ok": true,
+      "detail": {
+        "error": 0.0,
+        "is_exact": true,
+        "Q_macro": [
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            2.0,
+            -2.0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "non_lumpable_error_1",
+      "ok": true,
+      "detail": {
+        "error": 1.0,
+        "is_exact": false,
+        "residual_row1": [
+          -1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "name": "generator_validation",
+      "ok": true,
+      "detail": {
+        "bad_row_sum_raises": true,
+        "bad_off_diag_raises": true
+      }
+    },
+    {
+      "name": "docstring_not_tv",
+      "ok": true,
+      "detail": {
+        "doc_mentions_not_tv": true
+      }
+    }
+  ],
+  "core_py_git_blob_sha": "326c102c132ee1b635dcbbbabf777f8f3922ef52",
+  "expected_master_core_blob_sha": "dc3367eddeb8dce099d5fff4fe9c97e2b25b7756",
+  "partition_matrix_source": "scoped_correspondence.closure.core.partition_matrix",
+  "sources": {
+    "buchholz_1994": {
+      "title": "Exact and ordinary lumpability in finite Markov chains",
+      "doi": "10.1017/S0021900200107338"
+    },
+    "michel_siegle_2024": {
+      "title": "Formal error bounds for the state space reduction of Markov chains",
+      "doi": "10.1016/j.peva.2024.102464",
+      "arxiv": "2403.07618"
+    }
+  },
+  "meta": {
+    "timestamp": "2026-09-17T13:11:00+02:00",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "numpy": "2.2.6",
+    "milestone": 11
+  }
+}
