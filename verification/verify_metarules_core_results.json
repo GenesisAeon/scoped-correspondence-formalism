@@ -1,0 +1,143 @@
+{
+  "milestone": "M9_metarules_core",
+  "kind": "Hand-checkable metarules checks: MetaRuleUpdate variants, priority T5 wrap, unobserved-m A/B closure",
+  "generated_at_utc": "2026-09-17T09:51:14.650834+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 5,
+  "passed": 5,
+  "failed": 0,
+  "empirical_validation": false,
+  "checks": [
+    {
+      "id": "MIG-MR-meta_rule_update_variants",
+      "status": "passed",
+      "evidence": {
+        "descriptive_only": {
+          "variant": "descriptive_only",
+          "affects_observation_first": true,
+          "can_change_interventions_and_trajectory": false
+        },
+        "enforced_rule": {
+          "variant": "enforced_rule",
+          "affects_observation_first": false,
+          "can_change_interventions_and_trajectory": true
+        },
+        "named_variants": [
+          "descriptive_only",
+          "enforced_rule"
+        ],
+        "source": "context_transformations.md §6 MetaRuleUpdate variants"
+      }
+    },
+    {
+      "id": "MIG-MR-priority_empty_cut_nonempty",
+      "status": "passed",
+      "evidence": {
+        "U_physical": [
+          0.0,
+          1.0
+        ],
+        "U_alphas": [
+          [
+            0.0,
+            0.3
+          ],
+          [
+            0.5,
+            1.0
+          ]
+        ],
+        "raw_conflict": true,
+        "raw_U_joint": null,
+        "U_joint_after_priority": [
+          0.5,
+          1.0
+        ],
+        "dropped_requirement_index": 0,
+        "dropped_requirement_name": "alpha0_low",
+        "both_requirements_satisfied_simultaneously": false,
+        "legacy_parallel": "MIG-MEM-t5_empty_conflict",
+        "source": "context_transformations.md §6 T5 priority"
+      }
+    },
+    {
+      "id": "MIG-MR-priority_nonempty_identical",
+      "status": "passed",
+      "evidence": {
+        "U_physical": [
+          0.0,
+          1.0
+        ],
+        "U_alphas": [
+          [
+            0.0,
+            0.8
+          ],
+          [
+            0.2,
+            1.0
+          ]
+        ],
+        "raw_U_joint": [
+          0.2,
+          0.8
+        ],
+        "priority_U_joint": [
+          0.2,
+          0.8
+        ],
+        "identical_to_joint_control_set": true,
+        "priority_applied": false,
+        "source": "context_transformations.md §6 T5 nonempty identity"
+      }
+    },
+    {
+      "id": "MIG-MR-unobserved_case_A_exact",
+      "status": "passed",
+      "evidence": {
+        "is_exact_closure": true,
+        "closure_error": 0.0,
+        "Q": [
+          [
+            0.7,
+            0.3
+          ],
+          [
+            0.3,
+            0.7
+          ]
+        ],
+        "frame": "unobserved m equals z — projection to z is closed",
+        "apis_called": [
+          "closure.partition_matrix",
+          "closure.candidate_macro_kernel",
+          "closure.is_exact_closure",
+          "closure.closure_error"
+        ],
+        "source": "context_transformations.md §6 + closure e04-style APIs"
+      }
+    },
+    {
+      "id": "MIG-MR-unobserved_case_B_breaks",
+      "status": "passed",
+      "evidence": {
+        "is_exact_closure": false,
+        "closure_error": 0.5,
+        "Q": [
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ],
+        "frame": "unobserved m — same-z microstates disagree on next macro; breaks closure",
+        "concrete_error_number": 0.5,
+        "source": "context_transformations.md §6 + closure e05-style APIs"
+      }
+    }
+  ]
+}

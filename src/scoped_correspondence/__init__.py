@@ -1,4 +1,4 @@
-"""Scoped Correspondence Formalism - review package (Milestones 1-8).
+"""Scoped Correspondence Formalism - review package (Milestones 1-9).
 
 Milestone 1: typed Correspondence contract.
 Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
@@ -8,11 +8,13 @@ Milestone 5: Identifiability / Baseline metrics (conditioning, EI, SVD).
 Milestone 6: Validation / Cygnus jet_pa_deg real-data pilot.
 Milestone 7: Optional modules hardening (contextuality F08/F13, information_decomposition F09/F12).
 Milestone 8: Thermodynamics / GENERIC memory (heat e13, stochastic inverse e10, projection §9).
+Milestone 9: Metarules (discrete m′=H, priority T5 wrap, unobserved-m closure A/B).
 
 This package does not replace FORMALISM.md or the layer documents; it is a
 software adjunct for review. Correspondence / Observation / Dynamics /
 Coupling / Closure / Viability / Membership are unchanged from M1-M4.
-coupling/core.py and closure/core.py are not mutated by M8 — only called.
+membership/core.py and closure/core.py are not mutated by M9 — only
+wrapped / called.
 """
 
 from scoped_correspondence.correspondence import (
@@ -117,6 +119,13 @@ from scoped_correspondence.thermo import (
     project_generic_structure,
     stochastic_inverse_not_detailed_balance,
 )
+from scoped_correspondence.metarules import (
+    DESCRIPTIVE_ONLY,
+    ENFORCED_RULE,
+    MetaRuleUpdate,
+    priority_joint_control_set,
+    unobserved_metarule_breaks_closure,
+)
 
 __all__ = [
     # M1 correspondence
@@ -210,6 +219,12 @@ __all__ = [
     "heat_generic_example",
     "project_generic_structure",
     "stochastic_inverse_not_detailed_balance",
+    # M9 metarules
+    "DESCRIPTIVE_ONLY",
+    "ENFORCED_RULE",
+    "MetaRuleUpdate",
+    "priority_joint_control_set",
+    "unobserved_metarule_breaks_closure",
 ]
 
-__version__ = "0.8.0a1"
+__version__ = "0.9.0a1"
