@@ -100,9 +100,13 @@ Von Aeon geliefert (`prompts/15_teil2_m8_thermo_memory_for_aeon.md`) direkt als 
 - `coupling/core.py`, `closure/core.py`, alle 8 Kerndokumente (inkl. `coupling_layer_afet.md`) sowie alle anderen Module unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m8-thermo-memory` gelöscht.
 
-## F25: Teil 2, Milestone 9 — Metaregeln (Prompt gesendet 2026-09-17, noch offen)
+## F25: Teil 2, Milestone 9 — Metaregeln (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/17_teil2_m9_metarules_for_aeon.md](prompts/17_teil2_m9_metarules_for_aeon.md). Erste von mehreren geplanten "Ast verbreitern"-Erweiterungen (Johanns Wunsch, natürliche mathematische Anschlüsse an den Ist-Stand zu prüfen; parallel läuft ein DeepResearch-Auftrag für weitere Kandidaten, siehe `prompts/16_deepresearch_natural_extensions.md`). Implementiert die bisher fehlende Metaregel-Dimension `m` aus `context_transformations.md` §6 (`m′=H(m,z,c,u,t)`, T5 mit `m`-Argument, Prioritätsregel gibt explizit eine Anforderung auf, unbeobachtetes `m` bricht Geschlossenheit). Ruft `membership.joint_control_set` und `closure.is_exact_closure`/`closure_error` unverändert auf, keine Änderung an M3/M4. Keine bestehende Legacy-Prüfung — frische Beispiele wie bei F19 (Membership). Noch nicht geliefert.
+Von Aeon geliefert (`prompts/17_teil2_m9_metarules_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Erste von mehreren "Ast verbreitern"-Erweiterungen (Johanns Wunsch, natürliche mathematische Anschlüsse an den Ist-Stand zu prüfen):
+- `src/scoped_correspondence/metarules/core.py`: `MetaRuleUpdate` (typisierter Wrapper für `m′=H(m,z,c,u,t)`, diskret/Event, mit benannten Varianten `descriptive_only`/`enforced_rule`), `priority_joint_control_set` (wrappt `membership.joint_control_set` unverändert, greift nur bei leerem Schnitt ein und gibt die aufgegebene Anforderung explizit namentlich aus), `unobserved_metarule_breaks_closure` (konkretes A/B-Paar über die bereits gemergten `closure`-APIs: `m=z` synchron → exakte Geschlossenheit, unabhängige Münze moduliert `m` → bricht Geschlossenheit).
+- 5/5 neue Prüfungen selbst nachgerechnet (eigener Skriptlauf, JSON bis auf Zeitstempel bit-identisch). Fall B von Hand aus erster Prinzip hergeleitet, unabhängig vom Skript: die beiden `z=0`-Mikrozustände sagen unterschiedliche Makro-Folgezustände voraus (`[1,0]` vs. `[0,1]`), daraus folgt exakt `closure_error=0,5` — bestätigt. Prioritätsregel-Fälle (leerer Schnitt löst Drop von Index 0 aus, nichtleerer Schnitt bleibt identisch zu `joint_control_set`) ebenfalls von Hand bestätigt.
+- `membership/core.py`, `closure/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m9-metarules` gelöscht.
 
 ## F26: DeepResearch-Antwort ChatGPTAstra3.md geprüft (erledigt 2026-09-17)
 
