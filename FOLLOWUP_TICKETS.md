@@ -72,9 +72,15 @@ Von Aeon geliefert (`prompts/11_teil2_identifiability_baselines_for_aeon.md`, na
 
 Von Aeon geliefert (`prompts/Answers/M6_domain_pilot_candidates_2026-09-17.md`): Faktentabelle für 5 Kandidaten (afet-tensions, amoc-utac, cygnus-jet-utac, neural-avalanche-utac, solar-flare-utac), kein Ranking, kein Fit-Kriterium. Von Claude stichprobenartig gegen die lokalen Paket-Dateien geprüft: `data/hubble_tension_data.yaml` (5 H₀-Werte) und `data/cygnus_x1_radio_epochs.yaml` (18 Epochen, 4 Richtungswechsel) exakt bestätigt, alle referenzierten Dateien existieren lokal wie angegeben. Johann hat **cygnus-jet-utac** (Makrovariable `jet_pa_deg`) gewählt — vollständige 18-Punkte-Zeitreihe bereits im Repo, echter Zeit-Split möglich, kein externer Download nötig. Folgeauftrag: F22.
 
-## F22: Teil 2, Milestone 6 — erster echter Datenpilot cygnus-jet-utac (Prompt gesendet 2026-09-17, noch offen)
+## F22: Teil 2, Milestone 6 — erster echter Datenpilot cygnus-jet-utac (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/13_teil2_m6_cygnus_pilot_for_aeon.md](prompts/13_teil2_m6_cygnus_pilot_for_aeon.md). Erster Auftrag auf echten, gemessenen Daten (nicht Legacy-Formel, nicht synthetisch). Vorab fixiert: Split 9 Kalibrierungs-/9 Holdout-Epochen (zeitlich, nicht nachträglich änderbar), Persistenz-Baseline, RMSE-Vergleich. Explizites Verbot, bestehende σ/Γ_jet-Werte aus `cygnus-jet-utac` zu übernehmen (dort bereits dokumentierte Zirkularität, siehe `worked_example_cygnus_jet_utac.md`). „Modell schlägt Baseline nicht" ist ein gültiges, vollständiges Ergebnis — kein Fehler. Noch nicht geliefert.
+Von Aeon geliefert (`prompts/13_teil2_m6_cygnus_pilot_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. **Erster Auftrag auf echten Messdaten, nicht auf Legacy-Formel oder synthetischen Beispielen:**
+- `src/scoped_correspondence/validation/core.py`: `DatasetManifest` sperrt den zeitlichen 9-Kalibrierung/9-Holdout-Split VOR jedem Fit; `split_epochs` wirft `ScopeViolationError` bei jedem anderen Split (Anti-Data-Snooping — von Claude verifiziert, dass es tatsächlich auslöst); `fit_relaxation_pa` bekommt nur Kalibrierungsdaten (verify-Skript inspiziert sogar den Quelltext der Funktion, um sicherzustellen, dass „holdout" darin nicht vorkommt); kein σ/Γ_jet-Reuse aus `cygnus-jet-utac`.
+- Ergebnis: `model_rmse_holdout=3,0710` vs. `baseline_rmse_holdout=3,7045` (Persistenz), `model_beats_baseline=True`. Fit ist schwach identifiziert (`r=0,00015`, `pa_eq≈8416`) — faktisch eine lineare Drift, keine sinnvolle Relaxations-Gleichgewichtslage — ehrlich berichtet statt verschwiegen.
+- 6/6 neue Prüfungen selbst nachgerechnet. Beide RMSE-Zahlen von Hand aus den Roh-Epochenwerten nachgerechnet (unabhängig vom gelieferten Code) — exakt bestätigt. Datendatei-Inhalt bit-identisch mit dem lokalen `cygnus-jet-utac`-Paket bestätigt (Git-Blob-Hash unterscheidet sich nur durch CRLF/LF; Laufzeit-SHA-256 im Skript stimmt mit der lokalen Datei überein).
+- Alle 8 Kerndokumente sowie alle bestehenden Module unverändert; `worked_example_cygnus_jet_utac.md` (kein Kerndokument) erhielt einen additiven Hinweis auf den Anti-Zirkularitäts-Ausschluss.
+- **Einordnung:** ein plausibles, bescheidenes erstes Ergebnis (linearer Trend schlägt Persistenz um ~17% RMSE) — keine Bestätigung der Relaxationsformel als solcher, siehe Identifizierbarkeits-Caveat oben.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m6-cygnus-pilot` gelöscht.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
