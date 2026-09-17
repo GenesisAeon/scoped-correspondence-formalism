@@ -100,6 +100,10 @@ Von Aeon geliefert (`prompts/15_teil2_m8_thermo_memory_for_aeon.md`) direkt als 
 - `coupling/core.py`, `closure/core.py`, alle 8 Kerndokumente (inkl. `coupling_layer_afet.md`) sowie alle anderen Module unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m8-thermo-memory` gelöscht.
 
+## F25: Teil 2, Milestone 9 — Metaregeln (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/17_teil2_m9_metarules_for_aeon.md](prompts/17_teil2_m9_metarules_for_aeon.md). Erste von mehreren geplanten "Ast verbreitern"-Erweiterungen (Johanns Wunsch, natürliche mathematische Anschlüsse an den Ist-Stand zu prüfen; parallel läuft ein DeepResearch-Auftrag für weitere Kandidaten, siehe `prompts/16_deepresearch_natural_extensions.md`). Implementiert die bisher fehlende Metaregel-Dimension `m` aus `context_transformations.md` §6 (`m′=H(m,z,c,u,t)`, T5 mit `m`-Argument, Prioritätsregel gibt explizit eine Anforderung auf, unbeobachtetes `m` bricht Geschlossenheit). Ruft `membership.joint_control_set` und `closure.is_exact_closure`/`closure_error` unverändert auf, keine Änderung an M3/M4. Keine bestehende Legacy-Prüfung — frische Beispiele wie bei F19 (Membership). Noch nicht geliefert.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
