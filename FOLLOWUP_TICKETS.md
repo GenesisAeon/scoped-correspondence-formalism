@@ -68,9 +68,13 @@ Von Aeon geliefert (`prompts/11_teil2_identifiability_baselines_for_aeon.md`, na
 - Bewusst nicht Teil dieser Lieferung: Dataset Manifest, Train/Holdout-Split, realer Datenpilot — bleibt Johanns Domänenentscheidung (`ROADMAP.md` §3), eigener späterer Auftrag.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m5-identifiability-baselines` gelöscht.
 
-## F21: Domänen-Survey für den realen Validierungspilot (Prompt gesendet 2026-09-17, noch offen)
+## F21: Domänen-Survey für den realen Validierungspilot (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/12_teil2_validation_domain_survey_for_aeon.md](prompts/12_teil2_validation_domain_survey_for_aeon.md). Kein Code-Auftrag — reine Faktensammlung (Datenherkunft real/simuliert, Makrovariable, Datenmenge für Kalibrierung/Holdout, bestehende Formelanknüpfung, Zugriffsaufwand) für 4-6 Kandidaten aus dem Ökosystem, mit explizitem Verbot des Kriteriums "passt wahrscheinlich gut zur Formel". Bezieht sich direkt auf F06/F07 (bisher unbearbeitet: Beobachtungs-/Simulationspfade dokumentieren, §3-Vergleich durchführen). Ergebnis ist eine Faktentabelle ohne Ranking — Domänenentscheidung bleibt bei Johann. Noch nicht geliefert.
+Von Aeon geliefert (`prompts/Answers/M6_domain_pilot_candidates_2026-09-17.md`): Faktentabelle für 5 Kandidaten (afet-tensions, amoc-utac, cygnus-jet-utac, neural-avalanche-utac, solar-flare-utac), kein Ranking, kein Fit-Kriterium. Von Claude stichprobenartig gegen die lokalen Paket-Dateien geprüft: `data/hubble_tension_data.yaml` (5 H₀-Werte) und `data/cygnus_x1_radio_epochs.yaml` (18 Epochen, 4 Richtungswechsel) exakt bestätigt, alle referenzierten Dateien existieren lokal wie angegeben. Johann hat **cygnus-jet-utac** (Makrovariable `jet_pa_deg`) gewählt — vollständige 18-Punkte-Zeitreihe bereits im Repo, echter Zeit-Split möglich, kein externer Download nötig. Folgeauftrag: F22.
+
+## F22: Teil 2, Milestone 6 — erster echter Datenpilot cygnus-jet-utac (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/13_teil2_m6_cygnus_pilot_for_aeon.md](prompts/13_teil2_m6_cygnus_pilot_for_aeon.md). Erster Auftrag auf echten, gemessenen Daten (nicht Legacy-Formel, nicht synthetisch). Vorab fixiert: Split 9 Kalibrierungs-/9 Holdout-Epochen (zeitlich, nicht nachträglich änderbar), Persistenz-Baseline, RMSE-Vergleich. Explizites Verbot, bestehende σ/Γ_jet-Werte aus `cygnus-jet-utac` zu übernehmen (dort bereits dokumentierte Zirkularität, siehe `worked_example_cygnus_jet_utac.md`). „Modell schlägt Baseline nicht" ist ein gültiges, vollständiges Ergebnis — kein Fehler. Noch nicht geliefert.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
