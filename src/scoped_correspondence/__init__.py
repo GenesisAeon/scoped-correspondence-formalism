@@ -1,4 +1,4 @@
-"""Scoped Correspondence Formalism - review package (Milestones 1-9).
+"""Scoped Correspondence Formalism - review package (Milestones 1-10).
 
 Milestone 1: typed Correspondence contract.
 Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
@@ -9,23 +9,28 @@ Milestone 6: Validation / Cygnus jet_pa_deg real-data pilot.
 Milestone 7: Optional modules hardening (contextuality F08/F13, information_decomposition F09/F12).
 Milestone 8: Thermodynamics / GENERIC memory (heat e13, stochastic inverse e10, projection §9).
 Milestone 9: Metarules (discrete m′=H, priority T5 wrap, unobserved-m closure A/B).
+Milestone 10: Approximation Certificates (fixed StateMap T specialty; Girard & Pappas 2007).
 
 This package does not replace FORMALISM.md or the layer documents; it is a
 software adjunct for review. Correspondence / Observation / Dynamics /
 Coupling / Closure / Viability / Membership are unchanged from M1-M4.
 membership/core.py and closure/core.py are not mutated by M9 — only
-wrapped / called.
+wrapped / called. correspondence/contract.py is not mutated by M10 —
+only called for conjugacy residuals interpreted against an ε budget.
 """
 
 from scoped_correspondence.correspondence import (
+    ApproximationCertificate,
     Correspondence,
     CorrespondenceReport,
     ErrorMetric,
+    FIXED_MAP_BOUND,
     ModelRef,
     Residual,
     Scope,
     StateMap,
     TimeMap,
+    verify_approximate_simulation,
 )
 from scoped_correspondence.errors import ScopeViolationError
 from scoped_correspondence.observation import (
@@ -137,6 +142,10 @@ __all__ = [
     "Scope",
     "StateMap",
     "TimeMap",
+    # M10 approximation certificates (fixed StateMap specialty)
+    "ApproximationCertificate",
+    "FIXED_MAP_BOUND",
+    "verify_approximate_simulation",
     # errors
     "ScopeViolationError",
     # M2 observation
@@ -227,4 +236,4 @@ __all__ = [
     "unobserved_metarule_breaks_closure",
 ]
 
-__version__ = "0.9.0a1"
+__version__ = "0.10.0a1"
