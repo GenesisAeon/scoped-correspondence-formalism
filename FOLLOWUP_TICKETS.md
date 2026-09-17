@@ -120,6 +120,24 @@ Von Aeon geliefert (`prompts/18_teil2_m10_approximation_certificates_for_aeon.md
 - `correspondence/contract.py` und alle 8 Kerndokumente unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m10-approximation-certificates` gelöscht.
 
+## F28: DeepResearch-Antwort "Mathematische Erweiterungen Scoped Correspondence.docx" geprüft (erledigt 2026-09-17)
+
+Zweite unabhängige DeepResearch-Antwort (vermutlich Gemini, Formeln als 186 PNG-Bilder im Export statt Text). 7 Erweiterungsvorschläge, je an genau einen Baustein: observation (Directed Information, Massey 1990/Permuter-Weissman-Goldsmith 2009), dynamics (Fenichel-Theorem/GSPT, Fenichel 1979/Kuehn 2015), coupling (Dirac-Struktur-Komposition, Cervera/van der Schaft/Baños 2007), closure (CTMC-Generator-Lumpability, Buchholz 1994/Michel & Siegle), viability (Control Barrier Functions, Ames et al. 2019 — bestätigt als echtes, eigenständiges Survey-Paper, keine Verwechslung mit dem bereits bekannten Ames et al. 2017), identifiability (Fisher-Information-Sloppiness, Transtrum/Machta/Sethna 2011, Raju et al. 2018), contextuality (CSW-Grapheninvarianten, Cabello/Severini/Winter 2014). Von Claude verifiziert: 3 Formel-Bilder stichprobenartig angesehen (korrekte Standard-GSPT-Formeln), alle 11 Zitate per Fork gegen DOI/arXiv geprüft — keine Fabrikation, eine kleine Ungenauigkeit (Permuter et al. als "zeitkontinuierlich" bezeichnet, ist tatsächlich zeitdiskret mit Rückkopplung). Bewusst keine Vorschläge für correspondence, membership, validation, information_decomposition, thermo (mit Begründung).
+
+**Wichtiger Gegenbefund:** `ChatGPTAstra4.md` (parallel von Johann eingereicht, Ergebnis einer Weiterverarbeitung von Geminis Text durch ChatGPT) ist **unbrauchbar und verworfen** — erkennbar halluziniert (Formulierungen wie "offenbar", "vermutlich", "hypothetisches Theorem"; explizites Eingeständnis fehlenden Source-Code-Zugriffs; erfundene Dateistruktur `core/formalism.py`/`algorithms/`/`proofs/`, die nicht existiert). Keine Verwendung als Grundlage für irgendeinen Auftrag.
+
+## F29: Teil 2, Milestone 11 — Continuous-Time Generator Lumpability (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/19_teil2_m11_generator_lumpability_for_aeon.md](prompts/19_teil2_m11_generator_lumpability_for_aeon.md). Aus F28 — überträgt `PC=CQ` auf CTMC-Generatoren (`QC=CQ_macro`), Buchholz 1994/Michel & Siegle. Ruft `closure.partition_matrix` unverändert auf. Kann parallel zu M12/M13 bearbeitet werden.
+
+## F30: Teil 2, Milestone 12 — Dirac Structure Composition (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/20_teil2_m12_dirac_composition_for_aeon.md](prompts/20_teil2_m12_dirac_composition_for_aeon.md). Aus F28 — Komposition zweier antisymmetrischer Kopplungsmatrizen über leistungserhaltende Interkonnektion bleibt schiefsymmetrisch, Cervera/van der Schaft/Baños 2007. Ruft `coupling.check_generic_structure` unverändert auf. Kann parallel zu M11/M13 bearbeitet werden.
+
+## F31: Teil 2, Milestone 13 — Split Conformal Prediction (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/21_teil2_m13_conformal_prediction_for_aeon.md](prompts/21_teil2_m13_conformal_prediction_for_aeon.md). Aus F26 (Astra3) — verteilungsfreie Vorhersageintervalle mit endlicher Coverage-Garantie, Lei et al. 2018. Neues separates Modul `validation/conformal.py`, Cygnus-Pilot-Code unangetastet. Kann parallel zu M11/M12 bearbeitet werden.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.

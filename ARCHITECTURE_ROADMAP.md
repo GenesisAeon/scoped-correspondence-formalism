@@ -43,6 +43,8 @@ Johanns Beobachtung (16.9.): `D:\mandala\Architektur--Planungsprojekt\` verfolgt
 
 **Wichtigste Priorität laut Vorschlag:** Nicht F08/F09 oder neue Theorie sind der Engpass, sondern die **Empirical Validation Pipeline** (Woche 9–12) — die bestehende Theorie an echte Daten anschließen. Das deckt sich mit der bisherigen Roadmap dieses Repos ([ROADMAP.md](ROADMAP.md)).
 
+Alle acht ursprünglichen Meilensteine (Naming & Contract Freeze bis Thermo & Memory) sind inzwischen erledigt. **Formal Hooks & Stable Release** bleibt der letzte ursprüngliche Meilenstein. Parallel dazu läuft seit M9 eine zweite Linie — "Ast verbreitern": natürliche, einzeln zitierfähige mathematische Erweiterungen bestehender Bausteine, aus zwei unabhängig verifizierten DeepResearch-Antworten. Vollständige Liste mit Quellen und Status: [EXTENSIONS_ROADMAP.md](EXTENSIONS_ROADMAP.md).
+
 ## Zehn vorgeschlagene Module (Kurzfassung — volle API-Skizzen in der Quelldatei)
 
 | Modul | Aufgabe | Priorität | Aufwand |
