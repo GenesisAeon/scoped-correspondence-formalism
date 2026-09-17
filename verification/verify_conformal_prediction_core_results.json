@@ -1,0 +1,99 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "VAL-CONF-LEAK-001": {
+        "detail": {
+          "disjoint_ok": true,
+          "message_tag": "VAL-CONF-LEAK-001",
+          "overlap_indices_example": {
+            "calib": [
+              0,
+              1,
+              2
+            ],
+            "holdout": [
+              2,
+              3,
+              4
+            ]
+          },
+          "overlap_raises": true,
+          "test_id": "VAL-CONF-LEAK-001",
+          "via_make_report": true
+        },
+        "status": "passed"
+      },
+      "coverage_kind_marginal_exchangeable": {
+        "detail": {
+          "canonical": "marginal_exchangeable",
+          "rejected_exact": true,
+          "rejected_guaranteed": true
+        },
+        "status": "passed"
+      },
+      "example_a_q3_interval_7_13": {
+        "detail": {
+          "alpha": 0.2,
+          "coverage_kind": "marginal_exchangeable",
+          "interval": [
+            7.0,
+            13.0
+          ],
+          "k": 4,
+          "n": 4,
+          "q": 3.0,
+          "residuals": [
+            1.0,
+            1.0,
+            2.0,
+            3.0
+          ],
+          "source": "Lei, G'Sell, Rinaldo, Tibshirani & Wasserman 2018, Distribution-Free Predictive Inference for Regression, JASA; DOI 10.1080/01621459.2017.1307116",
+          "y_hat": 10.0
+        },
+        "status": "passed"
+      },
+      "example_b_q4_interval_6_14": {
+        "detail": {
+          "alpha": 0.25,
+          "interval": [
+            6.0,
+            14.0
+          ],
+          "k": 5,
+          "n": 5,
+          "naive_k_without_plus1": 4,
+          "naive_q_without_plus1": 2.0,
+          "note": "naive empirical quantile undercovers vs (n+1) ceiling rule",
+          "q": 4.0,
+          "residuals": [
+            0.5,
+            1.0,
+            1.5,
+            2.0,
+            4.0
+          ],
+          "y_hat": 10.0
+        },
+        "status": "passed"
+      }
+    },
+    "coverage_kind": "marginal_exchangeable",
+    "disclaimer": "Coverage is marginal under exchangeability \u2014 NOT guaranteed/exact/conditional. Finite-sample +1/ceiling order statistic required; naive empirical quantile can undercover (Lei et al. 2018).",
+    "milestone": "M13 Split Conformal Prediction",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source_doi": "10.1080/01621459.2017.1307116",
+    "timestamp": "2026-09-17T13:10:32+02:00",
+    "untouched": [
+      "src/scoped_correspondence/validation/core.py",
+      "FORMALISM.md",
+      "Cygnus data application",
+      "weighted/adaptive conformal"
+    ]
+  }
+}
