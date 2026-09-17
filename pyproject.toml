@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scoped-correspondence"
-version = "0.12.0a1"
-description = "Correspondence + Observation/Dynamics/Coupling + Closure/Viability + Membership + Identifiability + Validation Cygnus pilot + Contextuality/InformationDecomposition + Thermo/GENERIC + Metarules + Approximation Certificates + Dirac Structure Composition (M1-M12 review package)"
+version = "0.13.0a1"
+description = "Correspondence + Observation/Dynamics/Coupling + Closure/Viability + Membership + Identifiability + Validation Cygnus pilot + Contextuality/InformationDecomposition + Thermo/GENERIC + Metarules + Approximation Certificates + Generator Lumpability + Dirac Structure Composition + Split Conformal Prediction (M1-M13 review package)"
 readme = "docs/correspondence_core.md"
 requires-python = ">=3.10"
 dependencies = ["numpy", "scipy"]
