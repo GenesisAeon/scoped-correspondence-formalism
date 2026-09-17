@@ -92,9 +92,13 @@ Von Aeon geliefert (`prompts/14_teil2_m7_optional_modules_hardening_for_aeon.md`
 - Legacy-Skripte (`verify_sheaf_contextuality.py`, `verify_pid_rb.py`) und alle 8 Kerndokumente (inkl. `sheaf_contextuality.md`, `pid_redundancy_bottleneck.md`) unverändert; `scipy` neu als echte Paketabhängigkeit aufgenommen.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m7-optional-modules-hardening` gelöscht.
 
-## F24: Teil 2, Milestone 8 — Thermo & Memory (Prompt gesendet 2026-09-17, noch offen)
+## F24: Teil 2, Milestone 8 — Thermo & Memory (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/15_teil2_m8_thermo_memory_for_aeon.md](prompts/15_teil2_m8_thermo_memory_for_aeon.md). Kapselt zwei bisher ungenutzte Legacy-Prüfungen (`e13_generic_heat_structure`, `e10_inverse_is_not_detailed_balance`) als `thermo`-Modul und ergänzt eine neue Projektionsprüfung (`project_generic_structure`) für `coupling_layer_afet.md` §9 ("Skalenwechsel bewahrt Thermodynamik nicht automatisch") — rein algebraisch (Kongruenztransformation von J/M unter einer Projektion Π), ohne neue Physik zu erfinden. Nutzt die bereits gemergten `coupling.check_generic_structure` und `closure.memory_solution` nur per Aufruf, keine Änderung. Explizit keine Mutation von `coupling_layer_afet.md`. Noch nicht geliefert.
+Von Aeon geliefert (`prompts/15_teil2_m8_thermo_memory_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`:
+- `src/scoped_correspondence/thermo/core.py`: `heat_generic_example` (F13-Port, ruft `coupling.check_generic_structure` unverändert auf statt es neu zu implementieren), `stochastic_inverse_not_detailed_balance` (e10-Port, Drei-Zyklus-Gegenbeispiel), `project_generic_structure` (neu — Kongruenztransformation `J'=Π J Πᵀ`, `M'=Π M Πᵀ`, verlangt explizite `grad_E_prime`/`grad_S_prime` ohne stillen `Π@grad`-Default, mit Pflicht-Disclaimer, dass algebraischer Strukturerhalt kein gültiges reduziertes GENERIC-System belegt).
+- 6/6 neue Prüfungen selbst nachgerechnet (eigener Skriptlauf, JSON bis auf Zeitstempel bit-identisch mit Aeons Bericht). Skript prüft nachweislich gegen die echte, unveränderte `extension_results.json`. Drei Zahlen von Hand gegengerechnet: Entropieproduktion beim ersten Parametersatz (`0,1*10²/(250*260)=0,000153846...`), Summen-Projektion `M'=0` (folgt aus dem bereits verifizierten `M@[1,1]=0`), Einzel-Projektion `M'=G*ta*tb=6500` — alle exakt bestätigt.
+- `coupling/core.py`, `closure/core.py`, alle 8 Kerndokumente (inkl. `coupling_layer_afet.md`) sowie alle anderen Module unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m8-thermo-memory` gelöscht.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
