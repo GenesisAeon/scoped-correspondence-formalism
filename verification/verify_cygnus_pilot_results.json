@@ -1,0 +1,283 @@
+{
+  "milestone": "M6_cygnus_pilot",
+  "kind": "real-data validation pilot (honesty over beauty)",
+  "generated_at_utc": "2026-09-17T06:07:00.577881+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\cygnus_x1_radio_epochs.yaml",
+  "data_sha256": "0e25441290434421adda63cb4c961a974630f87c47b91f113e7360aa75d5ecb6",
+  "data_bytes": 2519,
+  "source_package": "GenesisAeon/cygnus-jet-utac",
+  "citations": [
+    "Stirling et al. 2001",
+    "Rushton et al. 2011",
+    "Miller-Jones et al. 2021",
+    "Prabu et al. 2026"
+  ],
+  "manifest": {
+    "source_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\cygnus_x1_radio_epochs.yaml",
+    "source_package": "GenesisAeon/cygnus-jet-utac",
+    "citations": [
+      "Stirling et al. 2001",
+      "Rushton et al. 2011",
+      "Miller-Jones et al. 2021",
+      "Prabu et al. 2026"
+    ],
+    "macro": "jet_pa_deg",
+    "macro_unit": "deg",
+    "n_epochs": 18,
+    "calib_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "holdout_indices": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "exclusions": [],
+    "license_note": "Literature-compiled VLBI epochs; cite Stirling 2001, Rushton 2011, Miller-Jones 2021, Prabu 2026 as in YAML header. Copied 1:1 from cygnus-jet-utac; numbers not invented.",
+    "circularity_note": "Do NOT reuse cygnus-jet-utac σ / Γ_jet / efficiency. Free parameters (pa_eq, r) are estimated only on calib epochs. Prior Γ_jet inversion from fixed efficiency (worked_example_cygnus_jet_utac.md) is excluded."
+  },
+  "validation_report": {
+    "domain": "cygnus-jet-utac",
+    "macro": "jet_pa_deg",
+    "split": {
+      "calib_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "holdout_indices": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "calib_years": [
+        2006.2,
+        2007.0,
+        2008.1,
+        2009.3,
+        2010.0,
+        2011.4,
+        2012.2,
+        2013.1,
+        2014.0
+      ],
+      "holdout_years": [
+        2015.2,
+        2016.1,
+        2017.3,
+        2018.1,
+        2019.2,
+        2020.0,
+        2021.3,
+        2022.2,
+        2023.8
+      ],
+      "rule": "temporal first-9 / last-9; locked in DatasetManifest before fit"
+    },
+    "model_rmse_holdout": 3.0710033393836396,
+    "baseline_rmse_holdout": 3.704501765869917,
+    "model_beats_baseline": true,
+    "fitted_parameters": {
+      "pa_eq": 8416.303430278667,
+      "r": 0.00015000000000000001,
+      "t_ref": 2006.2,
+      "pa0": 24.8,
+      "tau": 6666.666666666666,
+      "s_rec_from_dynamics": 0.00015000000000000001,
+      "n_calib": 9,
+      "note": "fitted_parameters estimated exclusively on calibration epochs"
+    },
+    "source_citation": "Stirling et al. 2001; Rushton et al. 2011; Miller-Jones et al. 2021; Prabu et al. 2026",
+    "baseline_value": 38.8,
+    "n_holdout": 9,
+    "notes": [
+      "Do NOT reuse cygnus-jet-utac σ / Γ_jet / efficiency. Free parameters (pa_eq, r) are estimated only on calib epochs. Prior Γ_jet inversion from fixed efficiency (worked_example_cygnus_jet_utac.md) is excluded.",
+      "False model_beats_baseline is a VALID complete result — no retune.",
+      "fit_relaxation_pa receives only calib epochs; holdout used solely for RMSE.",
+      "recovery_rate_from_relaxation used when r>0 (tau=1/r); recovery_rate_at_equilibrium not applicable to this PA ODE."
+    ]
+  },
+  "protocol": {
+    "macro": "jet_pa_deg",
+    "split": "first 9 calib / last 9 holdout (indices 0-8 / 9-17)",
+    "baseline": "persistence = last calib jet_pa_deg constant",
+    "metric": "RMSE on 9 holdout epochs",
+    "no_gamma_jet_sigma_reuse": true,
+    "retune_after_holdout": false
+  },
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "empirical_validation": true,
+  "checks": [
+    {
+      "id": "MIG-M6-fit_no_holdout_reference",
+      "status": "passed",
+      "evidence": {
+        "fit_function": "fit_relaxation_pa",
+        "holdout_tokens_in_body": [],
+        "note": "fit_relaxation_pa receives only calib epochs; holdout is used solely for RMSE after the fit returns."
+      }
+    },
+    {
+      "id": "MIG-M6-fixed_split_indices",
+      "status": "passed",
+      "evidence": {
+        "calib_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "holdout_indices": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "calib_years": [
+          2006.2,
+          2007.0,
+          2008.1,
+          2009.3,
+          2010.0,
+          2011.4,
+          2012.2,
+          2013.1,
+          2014.0
+        ],
+        "holdout_years": [
+          2015.2,
+          2016.1,
+          2017.3,
+          2018.1,
+          2019.2,
+          2020.0,
+          2021.3,
+          2022.2,
+          2023.8
+        ],
+        "year_label_note": "Johann protocol: first 9 / last 9 by index. Actual years calib 2006.2-2014.0, holdout 2015.2-2023.8 (prompt parenthetical 2006.2-2015.2 / 2016.1-2023.8 was approximate)."
+      }
+    },
+    {
+      "id": "MIG-M6-scope_violation_on_wrong_split",
+      "status": "passed",
+      "evidence": {
+        "raised_on_wrong_calib": true,
+        "raised_on_wrong_holdout": true
+      }
+    },
+    {
+      "id": "MIG-M6-persistence_baseline_last_calib",
+      "status": "passed",
+      "evidence": {
+        "baseline_value": 38.8,
+        "last_calib_year": 2014.0,
+        "last_calib_jet_pa_deg": 38.8
+      }
+    },
+    {
+      "id": "MIG-M6-pilot_run",
+      "status": "passed",
+      "evidence": {
+        "model_rmse_holdout": 3.0710033393836396,
+        "baseline_rmse_holdout": 3.704501765869917,
+        "model_beats_baseline": true,
+        "fitted_parameters": {
+          "pa_eq": 8416.303430278667,
+          "r": 0.00015000000000000001,
+          "t_ref": 2006.2,
+          "pa0": 24.8,
+          "tau": 6666.666666666666,
+          "s_rec_from_dynamics": 0.00015000000000000001,
+          "n_calib": 9,
+          "note": "fitted_parameters estimated exclusively on calibration epochs"
+        },
+        "baseline_value": 38.8,
+        "no_gamma_jet_reuse": true,
+        "macro": "jet_pa_deg",
+        "domain": "cygnus-jet-utac"
+      }
+    },
+    {
+      "id": "MIG-M6-rmse_hand_recompute",
+      "status": "passed",
+      "evidence": {
+        "hand_model_rmse": 3.0710033393836396,
+        "hand_baseline_rmse": 3.704501765869917,
+        "holdout_observed_pa": [
+          34.2,
+          31.7,
+          36.9,
+          40.1,
+          37.5,
+          39.8,
+          42.3,
+          40.7,
+          44.1
+        ],
+        "model_predicted_pa": [
+          36.12088631325423,
+          37.25213459571205,
+          38.76022809644928,
+          39.76547296481294,
+          41.14748770841652,
+          42.15244612281458,
+          43.78524636152724,
+          44.91546002521682,
+          46.92435206139089
+        ],
+        "baseline_predicted_pa": [
+          38.8,
+          38.8,
+          38.8,
+          38.8,
+          38.8,
+          38.8,
+          38.8,
+          38.8,
+          38.8
+        ]
+      }
+    }
+  ]
+}

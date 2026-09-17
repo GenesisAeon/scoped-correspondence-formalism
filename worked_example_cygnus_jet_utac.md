@@ -23,3 +23,10 @@ Die Folgearbeit hat diese Einschränkungen bereits dokumentiert und die Behauptu
 Die lokale Relaxationsform lässt sich mit anderen Modellen vergleichen. Die Normierung muss ausdrücklich angegeben werden; gemeinsame Parameterwerte aus einem Ökosystem-Default liefern keinen zusätzlichen Nachweis. Für eine astrophysikalische Bewährung braucht es unabhängige Daten und Vorhersagen, die nicht schon die Eingaben des Modells sind.
 
 Die mathematische Modellstruktur bleibt nutzbar. Eine thermodynamische Identifikation erfordert zusätzlich Flüsse, Kräfte und eine Bilanz. Ausführliche ursprüngliche Auflistung der Komponenten und Benchmarks: [Archiv](archive/2026-09-15/worked_example_cygnus_jet_utac.md).
+
+## M6 pilot note (2026-09-17)
+
+The M6 Cygnus `jet_pa_deg` pilot **does not reuse** this package's σ / Γ_jet /
+efficiency inversion. Free parameters are estimated only on the locked
+calibration split of `data/cygnus_x1_radio_epochs.yaml` inside
+`scoped-correspondence-formalism`. See `docs/cygnus_pilot.md`.

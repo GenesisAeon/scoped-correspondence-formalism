@@ -5,6 +5,7 @@ Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
 Milestone 3: Closure / Reconstruction + Viability / Safe transfer.
 Milestone 4: Membership / Shared resources (M_ea, T5).
 Milestone 5: Identifiability / Baseline metrics (conditioning, EI, SVD).
+Milestone 6: Validation / Cygnus jet_pa_deg real-data pilot.
 
 This package does not replace FORMALISM.md or the layer documents; it is a
 software adjunct for review. Correspondence / Observation / Dynamics /
@@ -146,6 +147,24 @@ __all__ = [
     "parameter_scaling_invariance",
     "predictive_states",
     "svd_emergence_vs_ei",
+    # M6 validation
+    "DatasetManifest",
+    "ValidationReport",
+    "fit_relaxation_pa",
+    "load_cygnus_epochs",
+    "persistence_baseline",
+    "run_cygnus_pilot",
+    "split_epochs",
 ]
 
-__version__ = "0.5.0a1"
+from scoped_correspondence.validation import (
+    DatasetManifest,
+    ValidationReport,
+    fit_relaxation_pa,
+    load_cygnus_epochs,
+    persistence_baseline,
+    run_cygnus_pilot,
+    split_epochs,
+)
+
+__version__ = "0.6.0a1"
