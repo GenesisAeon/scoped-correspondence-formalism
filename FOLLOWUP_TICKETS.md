@@ -82,6 +82,10 @@ Von Aeon geliefert (`prompts/13_teil2_m6_cygnus_pilot_for_aeon.md`) direkt als G
 - **Einordnung:** ein plausibles, bescheidenes erstes Ergebnis (linearer Trend schlägt Persistenz um ~17% RMSE) — keine Bestätigung der Relaxationsformel als solcher, siehe Identifizierbarkeits-Caveat oben.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m6-cygnus-pilot` gelöscht.
 
+## F23: Teil 2, Milestone 7 — Optional Modules Hardening (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/14_teil2_m7_optional_modules_hardening_for_aeon.md](prompts/14_teil2_m7_optional_modules_hardening_for_aeon.md). Kapselt F08 (`contextuality`) und F09 (`information_decomposition`) erstmals als typisierte Module in `src/scoped_correspondence/` — bisher nur eigenständige Review-Skripte. Schließt zwei bereits dokumentierte Lücken: F12 (TWO_BIT_COPY-Regressionstest, braucht eine LP-basierte Verallgemeinerung von `rb0_blackwell` auf nicht-binäres Y) und F13 (Pflichtparameter `assumes_independent_contexts` erzwingt die bisher nur in Prosa dokumentierte Scope-Bedingung als Code-Guard). Bestehende Legacy-Skripte (`verify_sheaf_contextuality.py`, `verify_pid_rb.py`) bleiben unverändert; neue Module werden gegen deren Ergebnisse kreuzgeprüft. Explizit keine Mutation von `sheaf_contextuality.md`/`pid_redundancy_bottleneck.md`. Noch nicht geliefert.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
