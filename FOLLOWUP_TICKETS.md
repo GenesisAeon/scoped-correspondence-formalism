@@ -126,17 +126,26 @@ Zweite unabhängige DeepResearch-Antwort (vermutlich Gemini, Formeln als 186 PNG
 
 **Wichtiger Gegenbefund:** `ChatGPTAstra4.md` (parallel von Johann eingereicht, Ergebnis einer Weiterverarbeitung von Geminis Text durch ChatGPT) ist **unbrauchbar und verworfen** — erkennbar halluziniert (Formulierungen wie "offenbar", "vermutlich", "hypothetisches Theorem"; explizites Eingeständnis fehlenden Source-Code-Zugriffs; erfundene Dateistruktur `core/formalism.py`/`algorithms/`/`proofs/`, die nicht existiert). Keine Verwendung als Grundlage für irgendeinen Auftrag.
 
-## F29: Teil 2, Milestone 11 — Continuous-Time Generator Lumpability (Prompt gesendet 2026-09-17, noch offen)
+## F29: Teil 2, Milestone 11 — Continuous-Time Generator Lumpability (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/19_teil2_m11_generator_lumpability_for_aeon.md](prompts/19_teil2_m11_generator_lumpability_for_aeon.md). Aus F28 — überträgt `PC=CQ` auf CTMC-Generatoren (`QC=CQ_macro`), Buchholz 1994/Michel & Siegle. Ruft `closure.partition_matrix` unverändert auf. Kann parallel zu M12/M13 bearbeitet werden.
+Von Aeon geliefert (`prompts/19_teil2_m11_generator_lumpability_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F28 — überträgt `PC=CQ` auf CTMC-Generatoren: `src/scoped_correspondence/closure/generator_lumpability.py` mit `is_exact_generator_lumpability`/`generator_closure_error` (`QC=CQ_macro`, Buchholz 1994/Michel & Siegle), bewusst mit ∞-Norm statt TV (Generator-Residuen sind vorzeichenbehaftete Raten mit Zeilensumme 0, keine Wahrscheinlichkeitsmasse — im Docstring begründet). Ruft `closure.partition_matrix` unverändert auf.
+- 4/4 neue Prüfungen selbst nachgerechnet, JSON bis auf Zeitstempel identisch. Beide Fälle von Hand aus den rohen Matrizen hergeleitet: exakt-lumpable Fall `QC=CQ_macro` exakt (`error=0`), nicht-lumpable Variante Residuum-Zeile `[-1,1]` → `error=1,0` — beide exakt bestätigt.
+- `closure/core.py` und alle 8 Kerndokumente unverändert. Berührt bewusst nicht `src/scoped_correspondence/__init__.py` (Konfliktvermeidung mit M12/M13).
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m11-generator-lumpability` gelöscht.
 
-## F30: Teil 2, Milestone 12 — Dirac Structure Composition (Prompt gesendet 2026-09-17, noch offen)
+## F30: Teil 2, Milestone 12 — Dirac Structure Composition (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/20_teil2_m12_dirac_composition_for_aeon.md](prompts/20_teil2_m12_dirac_composition_for_aeon.md). Aus F28 — Komposition zweier antisymmetrischer Kopplungsmatrizen über leistungserhaltende Interkonnektion bleibt schiefsymmetrisch, Cervera/van der Schaft/Baños 2007. Ruft `coupling.check_generic_structure` unverändert auf. Kann parallel zu M11/M13 bearbeitet werden.
+Von Aeon geliefert (`prompts/20_teil2_m12_dirac_composition_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F28 — `src/scoped_correspondence/coupling/dirac_composition.py` mit `compose_skew_symmetric`: Komposition zweier antisymmetrischer Kopplungsmatrizen über leistungserhaltende Feedback-Interkonnektion (`u1=-y2, u2=y1`) bleibt schiefsymmetrisch (Cervera/van der Schaft/Baños 2007). Ruft `coupling.check_generic_structure` unverändert auf.
+- 3/3 neue Prüfungen selbst nachgerechnet. Kompositionsformel algebraisch von Hand bestätigt: `J_total^T=-J_total` gilt für BELIEBIGE konforme `g1,g2` (nicht nur Identität) — allgemeiner als im Auftrag verlangt. Schnittstellenleistung `y1·(-y2)+y2·y1=0` exakt bestätigt (`[0.0,0.0,0.0]` im Skriptlauf).
+- `coupling/core.py` und alle 8 Kerndokumente unverändert. Berührt bewusst nicht `src/scoped_correspondence/__init__.py` (im eigenen Moduldoc explizit als Konfliktvermeidung mit M11/M13 begründet).
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m12-dirac-composition` gelöscht.
 
-## F31: Teil 2, Milestone 13 — Split Conformal Prediction (Prompt gesendet 2026-09-17, noch offen)
+## F31: Teil 2, Milestone 13 — Split Conformal Prediction (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/21_teil2_m13_conformal_prediction_for_aeon.md](prompts/21_teil2_m13_conformal_prediction_for_aeon.md). Aus F26 (Astra3) — verteilungsfreie Vorhersageintervalle mit endlicher Coverage-Garantie, Lei et al. 2018. Neues separates Modul `validation/conformal.py`, Cygnus-Pilot-Code unangetastet. Kann parallel zu M11/M12 bearbeitet werden.
+Von Aeon geliefert (`prompts/21_teil2_m13_conformal_prediction_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F26 (Astra3) — `src/scoped_correspondence/validation/conformal.py` mit `calibrate_split_conformal` (Finite-Sample-`(n+1)`/Ceiling-Quantil, explizit NICHT das naive empirische Quantil), `predict_interval`, `SplitConformalReport` (`coverage_kind` in `__post_init__` hart auf `"marginal_exchangeable"` erzwungen), plus Pflicht-Anti-Leck-Guard `VAL-CONF-LEAK-001`. Neues separates Modul, Cygnus-Pilot-Code (`validation/core.py`) unangetastet.
+- 4/4 neue Prüfungen selbst nachgerechnet. Beide Beispiele von Hand bestätigt: `R=(1,1,2,3), α=0,2` → `k=⌈5·0,8⌉=4` → `q=3` → `[7,13]`; zweites Beispiel (5 Residuen, `α=0,25`) → `k=⌈6·0,75⌉=5` → `q=4` → `[6,14]`, inklusive der im Skript mitgelieferten Gegenprobe, dass das naive Quantil fälschlich `q=2` ergäbe.
+- `validation/core.py` und alle 8 Kerndokumente unverändert. Berührt bewusst nicht `src/scoped_correspondence/__init__.py`.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m13-conformal-prediction` gelöscht. **Einziger echter Merge-Konflikt der drei** (trivial): alle drei Branches bumpten unabhängig `pyproject.toml`s Versionsnummer/Beschreibung ausgehend vom selben Basis-Commit — von Hand zu `0.13.0a1` mit vollständiger Beschreibung (alle drei M11-M13-Inhalte genannt) aufgelöst.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
