@@ -10,6 +10,11 @@ from scoped_correspondence.correspondence.contract import (
     StateMap,
     TimeMap,
 )
+from scoped_correspondence.correspondence.approximation import (
+    FIXED_MAP_BOUND,
+    ApproximationCertificate,
+    verify_approximate_simulation,
+)
 
 __all__ = [
     "Correspondence",
@@ -20,4 +25,8 @@ __all__ = [
     "Scope",
     "StateMap",
     "TimeMap",
+    # M10 approximation certificates (fixed StateMap specialty)
+    "FIXED_MAP_BOUND",
+    "ApproximationCertificate",
+    "verify_approximate_simulation",
 ]
