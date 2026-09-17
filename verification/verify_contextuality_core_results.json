@@ -1,0 +1,89 @@
+{
+  "milestone": "M7_contextuality_core",
+  "kind": "Legacy equivalence s01–s06 + F13 ScopeViolationError guard",
+  "generated_at_utc": "2026-09-17T06:39:10.955751+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "scipy": "1.15.3",
+  "count": 7,
+  "passed": 7,
+  "failed": 0,
+  "legacy_results": "verification/verify_sheaf_contextuality_results.json",
+  "arxiv": {
+    "abramsky_brandenburger": "https://arxiv.org/abs/1102.0264",
+    "contextual_fraction": "https://arxiv.org/abs/1705.07918"
+  },
+  "checks": [
+    {
+      "id": "s01_margin_compatibility_222",
+      "status": "passed",
+      "evidence": {
+        "scenario": "(2,2,2)",
+        "classical_compatible": true,
+        "pr_compatible": true,
+        "chsh_table_i_compatible": true
+      }
+    },
+    {
+      "id": "s02_classical_global_section",
+      "status": "passed",
+      "evidence": {
+        "CF": 0.0,
+        "NCF": 1.0,
+        "has_global_section": true
+      }
+    },
+    {
+      "id": "s03_pr_box_cf_one",
+      "status": "passed",
+      "evidence": {
+        "CF": 1.0,
+        "NCF": 0.0,
+        "source": "arXiv:1705.07918 Table I (PR)"
+      }
+    },
+    {
+      "id": "s04_chsh_table_i_partial_cf",
+      "status": "passed",
+      "evidence": {
+        "CF": 0.25,
+        "NCF": 0.75,
+        "source": "arXiv:1705.07918 Table I CHSH (angles 0, pi/3 on |Phi+>)",
+        "literature_CF": 0.25,
+        "chsh_value": 2.5
+      }
+    },
+    {
+      "id": "s05_vb1_deterministic_contradiction",
+      "status": "passed",
+      "evidence": {
+        "global_assignments_consistent_with_support": 0,
+        "n_global_checked": 27,
+        "has_global_section": false,
+        "analogy": "context_transformations.md §2: x=y, y=z, z=x+1",
+        "note": "VB1 unchanged for deterministic stocks; sheaf module is separate. CF-LP skipped because pairwise deterministic constraints are already jointly empty (not a no-signalling empirical model)."
+      }
+    },
+    {
+      "id": "s06_arxiv_links_documented",
+      "status": "passed",
+      "evidence": {
+        "arxiv_ab": "https://arxiv.org/abs/1102.0264",
+        "arxiv_cf": "https://arxiv.org/abs/1705.07918",
+        "documented_in_script": true
+      }
+    },
+    {
+      "id": "s07_f13_scope_guard",
+      "status": "passed",
+      "evidence": {
+        "false_raises_ScopeViolationError": true,
+        "missing_raises_ScopeViolationError": true,
+        "true_allows_CF": true,
+        "risk_text_contains_y_alpha": true,
+        "risk_text_contains_trivial_joint": true,
+        "mapping": "sheaf_contextuality.md §6 / F13"
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Scoped Correspondence Formalism - review package (Milestones 1-5).
+"""Scoped Correspondence Formalism - review package (Milestones 1-7).
 
 Milestone 1: typed Correspondence contract.
 Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
@@ -6,6 +6,7 @@ Milestone 3: Closure / Reconstruction + Viability / Safe transfer.
 Milestone 4: Membership / Shared resources (M_ea, T5).
 Milestone 5: Identifiability / Baseline metrics (conditioning, EI, SVD).
 Milestone 6: Validation / Cygnus jet_pa_deg real-data pilot.
+Milestone 7: Optional modules hardening (contextuality F08/F13, information_decomposition F09/F12).
 
 This package does not replace FORMALISM.md or the layer documents; it is a
 software adjunct for review. Correspondence / Observation / Dynamics /
@@ -82,6 +83,33 @@ from scoped_correspondence.identifiability import (
     predictive_states,
     svd_emergence_vs_ei,
 )
+from scoped_correspondence.validation import (
+    DatasetManifest,
+    ValidationReport,
+    fit_relaxation_pa,
+    load_cygnus_epochs,
+    persistence_baseline,
+    run_cygnus_pilot,
+    split_epochs,
+)
+from scoped_correspondence.contextuality import (
+    EmpiricalModel,
+    SheafScenario,
+    bell_222_scenario,
+    chsh_table_i_model,
+    classical_factorizable_model,
+    contextual_fraction,
+    has_global_section,
+    pr_box_model,
+)
+from scoped_correspondence.information_decomposition import (
+    blackwell_redundancy_binary_y,
+    ei_q_channel,
+    i_min_two_sources,
+    pid_atoms_williams_beer,
+    rb0_blackwell,
+    two_bit_copy_report,
+)
 
 __all__ = [
     # M1 correspondence
@@ -155,16 +183,22 @@ __all__ = [
     "persistence_baseline",
     "run_cygnus_pilot",
     "split_epochs",
+    # M7 contextuality (F08 + F13)
+    "EmpiricalModel",
+    "SheafScenario",
+    "bell_222_scenario",
+    "chsh_table_i_model",
+    "classical_factorizable_model",
+    "contextual_fraction",
+    "has_global_section",
+    "pr_box_model",
+    # M7 information_decomposition (F09 + F12)
+    "blackwell_redundancy_binary_y",
+    "ei_q_channel",
+    "i_min_two_sources",
+    "pid_atoms_williams_beer",
+    "rb0_blackwell",
+    "two_bit_copy_report",
 ]
 
-from scoped_correspondence.validation import (
-    DatasetManifest,
-    ValidationReport,
-    fit_relaxation_pa,
-    load_cygnus_epochs,
-    persistence_baseline,
-    run_cygnus_pilot,
-    split_epochs,
-)
-
-__version__ = "0.6.0a1"
+__version__ = "0.7.0a1"

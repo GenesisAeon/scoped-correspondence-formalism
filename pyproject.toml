@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scoped-correspondence"
-version = "0.6.0a1"
-description = "Correspondence + Observation/Dynamics/Coupling + Closure/Viability + Membership + Identifiability + Validation Cygnus pilot (M1-M6 review package)"
+version = "0.7.0a1"
+description = "Correspondence + Observation/Dynamics/Coupling + Closure/Viability + Membership + Identifiability + Validation Cygnus pilot + Contextuality/InformationDecomposition (M1-M7 review package)"
 readme = "docs/correspondence_core.md"
 requires-python = ">=3.10"
-dependencies = ["numpy"]
+dependencies = ["numpy", "scipy"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
