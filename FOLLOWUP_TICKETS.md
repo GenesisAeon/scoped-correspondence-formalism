@@ -58,9 +58,15 @@ Von Aeon geliefert (`prompts/10_teil2_membership_for_aeon.md`) direkt als GitHub
 - Alle 8 Kerndokumente sowie `correspondence/`, `observation/`, `dynamics/`, `coupling/`, `closure/`, `viability/`, `legacy/adapters.py` unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m4-membership` gelöscht.
 
-## F20: Teil 2, Milestone 5 — Identifiability & Baseline Metrics (Prompt gesendet 2026-09-16, noch offen)
+## F20: Teil 2, Milestone 5 — Identifiability & Baseline Metrics (erledigt 2026-09-17)
 
-Prompt an Aeon: [prompts/11_teil2_identifiability_baselines_for_aeon.md](prompts/11_teil2_identifiability_baselines_for_aeon.md). Erste Hälfte von ARCHITECTURE_ROADMAP.md's "Uncertainty & Validation"-Meilenstein — die bereits formal durchgerechneten Teile (Konditionierung `e02`, Identifizierbarkeit `e12`, SVD-vs-EI-Entkopplung `e09`, Data-Processing-Inequality `e08`, EI-Baseline-Abhängigkeit `e07`) als Code, mit exakten Legacy-Ankern wie bei M1-M3. **Bewusst nicht Teil davon:** Dataset Manifest, Train/Holdout-Split und der eigentliche reale Datenpilot — das braucht zuerst Johanns Domänen-/Datensatzentscheidung (`ROADMAP.md` §3), kein Code-Auftrag. Noch nicht geliefert — Status wird bei Aeons Rückmeldung aktualisiert.
+Von Aeon geliefert (`prompts/11_teil2_identifiability_baselines_for_aeon.md`, nach einem ersten unvollständigen Lauf ohne `core.py`/Push selbst nachgezogen) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`:
+- `src/scoped_correspondence/identifiability/core.py`: `delay_amplification`/`delay_conditioning_report`/`indistinguishable_delay_vectors` (e02, Konditionierungsfaktor `1/|sin α|`), `parameter_scaling_invariance`/`identifiability_jacobian_rank` (e12, `tanh(σΓ)`-Invarianz + Jacobian-Rang 1), `svd_emergence_vs_ei` (e09, `delta_svd=0.75` bei `EI=0`), `fixed_ensemble_data_processing` (e08, 150 DPI-Vergleiche bei Seed 1977), `effective_information_baseline` (e07, EI unter benannten Baselines), plus Bonus `predictive_states` (e15).
+- Stärker als M1-M4: `verify_identifiability_core.py` lädt die echte, unangetastete `verification/extension_results.json` zur Laufzeit und prüft direkt dagegen, statt nur hartkodierte Erwartungswerte zu verwenden — von Claude verifiziert, dass die Datei unverändert ist und alle sechs referenzierten Prüfungen dort tatsächlich als „passed“ stehen.
+- 6/6 neue Prüfungen selbst nachgerechnet (eigener Skriptlauf, JSON bis auf Zeitstempel bit-identisch mit Aeons Bericht). Zwei Zahlen von Hand gegengerechnet: `delta_svd=1*(1/1-1/4)=0,75` und die Jacobian-Kollinearität (`col1/a == col2/σ`) — beide exakt bestätigt.
+- Alle 8 Kerndokumente, `ROADMAP.md` sowie `correspondence/`, `observation/`, `dynamics/`, `coupling/`, `closure/`, `viability/`, `membership/`, `legacy/adapters.py` unverändert.
+- Bewusst nicht Teil dieser Lieferung: Dataset Manifest, Train/Holdout-Split, realer Datenpilot — bleibt Johanns Domänenentscheidung (`ROADMAP.md` §3), eigener späterer Auftrag.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m5-identifiability-baselines` gelöscht.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
