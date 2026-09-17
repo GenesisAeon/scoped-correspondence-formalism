@@ -1,13 +1,14 @@
-"""Scoped Correspondence Formalism - review package (Milestones 1-4).
+"""Scoped Correspondence Formalism - review package (Milestones 1-5).
 
 Milestone 1: typed Correspondence contract.
 Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
 Milestone 3: Closure / Reconstruction + Viability / Safe transfer.
-Milestone 4: Membership / Shared resources (M_eα, T5).
+Milestone 4: Membership / Shared resources (M_ea, T5).
+Milestone 5: Identifiability / Baseline metrics (conditioning, EI, SVD).
 
 This package does not replace FORMALISM.md or the layer documents; it is a
 software adjunct for review. Correspondence / Observation / Dynamics /
-Coupling / Closure / Viability are unchanged from M1-M3.
+Coupling / Closure / Viability / Membership are unchanged from M1-M4.
 """
 
 from scoped_correspondence.correspondence import (
@@ -69,6 +70,17 @@ from scoped_correspondence.membership import (
     t10_via_membership,
     view,
 )
+from scoped_correspondence.identifiability import (
+    delay_amplification,
+    delay_conditioning_report,
+    effective_information_baseline,
+    fixed_ensemble_data_processing,
+    identifiability_jacobian_rank,
+    indistinguishable_delay_vectors,
+    parameter_scaling_invariance,
+    predictive_states,
+    svd_emergence_vs_ei,
+)
 
 __all__ = [
     # M1 correspondence
@@ -124,6 +136,16 @@ __all__ = [
     "joint_control_set",
     "t10_via_membership",
     "view",
+    # M5 identifiability
+    "delay_amplification",
+    "delay_conditioning_report",
+    "effective_information_baseline",
+    "fixed_ensemble_data_processing",
+    "identifiability_jacobian_rank",
+    "indistinguishable_delay_vectors",
+    "parameter_scaling_invariance",
+    "predictive_states",
+    "svd_emergence_vs_ei",
 ]
 
-__version__ = "0.4.0a1"
+__version__ = "0.5.0a1"
