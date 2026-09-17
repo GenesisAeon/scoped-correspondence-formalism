@@ -92,6 +92,10 @@ Von Aeon geliefert (`prompts/14_teil2_m7_optional_modules_hardening_for_aeon.md`
 - Legacy-Skripte (`verify_sheaf_contextuality.py`, `verify_pid_rb.py`) und alle 8 Kerndokumente (inkl. `sheaf_contextuality.md`, `pid_redundancy_bottleneck.md`) unverändert; `scipy` neu als echte Paketabhängigkeit aufgenommen.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m7-optional-modules-hardening` gelöscht.
 
+## F24: Teil 2, Milestone 8 — Thermo & Memory (Prompt gesendet 2026-09-17, noch offen)
+
+Prompt an Aeon: [prompts/15_teil2_m8_thermo_memory_for_aeon.md](prompts/15_teil2_m8_thermo_memory_for_aeon.md). Kapselt zwei bisher ungenutzte Legacy-Prüfungen (`e13_generic_heat_structure`, `e10_inverse_is_not_detailed_balance`) als `thermo`-Modul und ergänzt eine neue Projektionsprüfung (`project_generic_structure`) für `coupling_layer_afet.md` §9 ("Skalenwechsel bewahrt Thermodynamik nicht automatisch") — rein algebraisch (Kongruenztransformation von J/M unter einer Projektion Π), ohne neue Physik zu erfinden. Nutzt die bereits gemergten `coupling.check_generic_structure` und `closure.memory_solution` nur per Aufruf, keine Änderung. Explizit keine Mutation von `coupling_layer_afet.md`. Noch nicht geliefert.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
