@@ -1,0 +1,119 @@
+{
+  "milestone": "M8_thermo_core",
+  "kind": "Legacy equivalence e10/e13 + projection §9 cases",
+  "generated_at_utc": "2026-09-17T07:00:16.936183+00:00",
+  "python": "3.11.9",
+  "numpy": "2.2.6",
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "legacy_results": "verification/extension_results.json",
+  "checks": [
+    {
+      "id": "t01_e13_all_param_combos",
+      "status": "passed",
+      "evidence": {
+        "parameter_combinations": 32,
+        "gradient_and_balance_checks": true,
+        "poisson_operator": "identically zero; Jacobi identity trivial",
+        "generic_structure_ok_all": true,
+        "first_combo_entropy_production": 0.00015384615384615372,
+        "legacy_match": {
+          "parameter_combinations": 32,
+          "gradient_and_balance_checks": true,
+          "poisson_operator": "identically zero; Jacobi identity trivial"
+        }
+      }
+    },
+    {
+      "id": "t02_e10_stochastic_inverse_not_db",
+      "status": "passed",
+      "evidence": {
+        "stochastic_inverse": true,
+        "detailed_balance": false,
+        "forward_flow": 0.3333333333333333,
+        "reverse_flow": 0.0,
+        "mapping": "coupling_layer_afet.md §9 / e10_inverse_is_not_detailed_balance"
+      }
+    },
+    {
+      "id": "t03_projection_sum_wipes_dissipation",
+      "status": "passed",
+      "evidence": {
+        "Pi": [
+          [
+            1.0,
+            1.0
+          ]
+        ],
+        "M_prime": [
+          [
+            0.0
+          ]
+        ],
+        "J_prime": [
+          [
+            0.0
+          ]
+        ],
+        "generic_structure_ok": true,
+        "dissipation_wiped": true,
+        "valid_reduced_GENERIC": false,
+        "disclaimer": "Only checks algebraic structure under congruence; does NOT claim (grad_E', grad_S') are valid reduced energy/entropy potentials (coupling_layer_afet.md §9).",
+        "note": "Structure may pass with wiped dissipation; NOT a claim of valid reduce (§9)."
+      }
+    },
+    {
+      "id": "t04_projection_single_reservoir_not_valid_reduce",
+      "status": "passed",
+      "evidence": {
+        "Pi": [
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "M_prime": [
+          [
+            6500.0
+          ]
+        ],
+        "M_prime_00": 6500.0,
+        "expected_G_ta_tb": 6500.0,
+        "grad_E_prime": [
+          0.0
+        ],
+        "grad_S_prime": [
+          0.004
+        ],
+        "generic_structure_ok": true,
+        "valid_reduced_GENERIC": false,
+        "disclaimer": "Only checks algebraic structure under congruence; does NOT claim (grad_E', grad_S') are valid reduced energy/entropy potentials (coupling_layer_afet.md §9).",
+        "note": "Algebraically OK (M'=G*ta*tb) but MUST note: NOT a valid reduced GENERIC system (coupling_layer_afet.md §9)."
+      }
+    },
+    {
+      "id": "t05_project_signature_no_silent_grad_default",
+      "status": "passed",
+      "evidence": {
+        "grad_E_prime_required": true,
+        "grad_S_prime_required": true,
+        "omitting_primes_raises_TypeError": true,
+        "docstring_has_section9_disclaimer": true
+      }
+    },
+    {
+      "id": "t06_heat_calls_check_generic_structure",
+      "status": "passed",
+      "evidence": {
+        "direct_ok": true,
+        "heat_ok": true,
+        "grad_E": [
+          1.0,
+          1.0
+        ],
+        "entropy_production": 0.00015384615384615372
+      }
+    }
+  ]
+}
