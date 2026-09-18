@@ -1,0 +1,86 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "example_a_a_neg1_rate_1": {
+        "detail": {
+          "a": -1.0,
+          "fp0_finite_diff": -1.0000000000009999,
+          "is_globally_contracting": true,
+          "max_estimated_fprime": -1.0000000000009999,
+          "n_samples": 7,
+          "rate": 1.0,
+          "source": "Lohmiller & Slotine 1998, On Contraction Analysis for Non-linear Systems, Automatica; DOI 10.1016/S0005-1098(98)00019-3",
+          "sup_fprime_analytical": -1.0,
+          "tau": 1.0
+        },
+        "status": "passed"
+      },
+      "example_b_a_pos1_rate_none_bistability": {
+        "detail": {
+          "a": 1.0,
+          "is_globally_contracting": false,
+          "max_estimated_fprime": 0.999999999999,
+          "note": "bistability / non-contraction scope \u2014 not an error",
+          "raised": false,
+          "rate": null,
+          "sup_fprime_analytical": 1.0,
+          "tau": 1.0
+        },
+        "status": "passed"
+      },
+      "example_c_a_neg2_tau2_rate_1": {
+        "detail": {
+          "a": -2.0,
+          "is_globally_contracting": true,
+          "max_estimated_fprime": -1.0000000000005,
+          "rate": 1.0,
+          "sup_fprime_analytical": -1.0,
+          "tau": 2.0
+        },
+        "status": "passed"
+      },
+      "source_lohmiller_slotine_sup_identity": {
+        "detail": {
+          "a0_rate_is_none": true,
+          "cases": [
+            {
+              "a": -0.5,
+              "fp0": -0.500000000001,
+              "rate": 0.5,
+              "tau": 1.0
+            },
+            {
+              "a": -3.0,
+              "fp0": -2.0000000000006666,
+              "rate": 2.0,
+              "tau": 1.5
+            },
+            {
+              "a": -1.0,
+              "fp0": -2.0000000000019997,
+              "rate": 2.0,
+              "tau": 0.5
+            }
+          ],
+          "doi": "10.1016/S0005-1098(98)00019-3",
+          "metric": "euclidean_1d",
+          "source": "Lohmiller & Slotine 1998, On Contraction Analysis for Non-linear Systems, Automatica; DOI 10.1016/S0005-1098(98)00019-3",
+          "tau0_raises": true
+        },
+        "status": "passed"
+      }
+    },
+    "meta": {
+      "milestone": "M14",
+      "platform": "Windows-10-10.0.19045-SP0",
+      "python": "3.11.9",
+      "source": "Lohmiller & Slotine 1998, On Contraction Analysis for Non-linear Systems, Automatica; DOI 10.1016/S0005-1098(98)00019-3",
+      "timestamp_utc": "2026-09-18T09:35:07.706604Z",
+      "title": "Contraction Analysis"
+    }
+  }
+}
