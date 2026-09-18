@@ -196,6 +196,22 @@ Von Aeon geliefert (`prompts/28_teil2_m20_profile_likelihood_for_aeon.md`) direk
 - `identifiability/core.py` und alle 8 Kerndokumente unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m20-profile-likelihood` gelöscht.
 
+## F39: Teil 2, Milestone 21 — Formal Reduction Error Bounds (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/29_teil2_m21_formal_reduction_error_bounds_for_aeon.md](prompts/29_teil2_m21_formal_reduction_error_bounds_for_aeon.md). Aus F26 (Astra3) — Michel & Siegle, dieselbe Quelle wie M11 aber andere Aussage (allgemeine Fehlerschranken statt exakter Lumpability). Aeon muss die genaue Formel/Theorem-Stelle aus der Primärquelle entnehmen, nicht erfinden. Pflicht-Vergleich gegen bestehende `propagated_error_bound`. Kann parallel zu M22/M23/M24 bearbeitet werden.
+
+## F40: Teil 2, Milestone 22 — Directed Information (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/30_teil2_m22_directed_information_for_aeon.md](prompts/30_teil2_m22_directed_information_for_aeon.md). Aus F28 (docx) — Massey 1990/Permuter et al. 2009. `I(X^n→Y^n)=Σ I(X^i;Y_i|Y^{i-1})` für `observation`, BSC-mit-Rückkopplung-Beispiel plus Pflicht-Kontrollfall ohne Rückkopplung (exakte Gleichheit mit Standard-Transinformation). Kann parallel zu M21/M23/M24 bearbeitet werden.
+
+## F41: Teil 2, Milestone 23 — Fisher-Information-Sloppiness (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/31_teil2_m23_fisher_sloppiness_for_aeon.md](prompts/31_teil2_m23_fisher_sloppiness_for_aeon.md). Aus F28 (docx) — Transtrum/Machta/Sethna 2011, Raju et al. 2018. FIM-Spektralzerfall (stiff/sloppy Eigenvektoren) für `identifiability`, algebraisch durchgerechnetes Zwei-Parameter-Modell plus Pflicht-Kontrollfall (isotrope FIM, Anisotropie=1). Kann parallel zu M21/M22/M24 bearbeitet werden.
+
+## F42: Teil 2, Milestone 24 — Čech-Cohomology-Witness (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/32_teil2_m24_cech_cohomology_witness_for_aeon.md](prompts/32_teil2_m24_cech_cohomology_witness_for_aeon.md). Aus F26 (Astra3) — Abramsky/Mansfield/Barbosa 2012. Dritte Kontextualitäts-Charakterisierung, über die bereits gemergten `bell_222_scenario`/`classical_factorizable_model`/`pr_box_model` (M7). Pflicht-Negativtest: verschwindende Obstruktion beweist NICHT Nichtkontextualität. Letzter der 17 ursprünglich identifizierten Kandidaten. Kann parallel zu M21/M22/M23 bearbeitet werden.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.

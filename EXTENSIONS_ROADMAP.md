@@ -20,19 +20,19 @@ DOI/arXiv-Quelle, nach Möglichkeit von Hand nachrechenbares Beispiel.
 | Baustein | Kandidat | Quelle | Status |
 |---|---|---|---|
 | `correspondence` | Approximation Certificates (fixed-map-Spezialfall) | Girard & Pappas 2007, DOI 10.1109/TAC.2007.895849 | ✅ **M10, gemergt** |
-| `observation` | Directed Information (Rückkopplungskapazität) | Massey 1990; Permuter, Weissman, Goldsmith 2009 | offen |
+| `observation` | Directed Information (Rückkopplungskapazität) | Massey 1990; Permuter, Weissman, Goldsmith 2009 | 🔄 **M22, Prompt gesendet** |
 | `dynamics` | Fenichels Theorem / GSPT (langsame invariante Mannigfaltigkeit) | Fenichel 1979, DOI 10.1016/0022-0396(79)90152-9; Kuehn 2015, DOI 10.1007/978-3-319-12316-5 | offen |
 | `dynamics` | Contraction Analysis | Lohmiller & Slotine 1998, DOI 10.1016/S0005-1098(98)00019-3 | ✅ **M14, gemergt** |
 | `coupling` | Dirac-Struktur-Komposition | Cervera, van der Schaft & Baños 2007, DOI 10.1016/j.automatica.2006.08.014 | ✅ **M12, gemergt** |
 | `coupling` | Dissipativity / Supply Rates | Willems 1972, DOI 10.1007/BF00276493 | ✅ **M15, gemergt** |
 | `closure` | CTMC-Generator-Lumpability (`QC=CQ_macro`) | Buchholz 1994, DOI 10.1017/S0021900200107338; Michel & Siegle, DOI 10.1016/j.peva.2024.102464 | ✅ **M11, gemergt** |
-| `closure` | Formal Reduction Error Bounds (allgemeine Fehlerschranken) | Michel & Siegle 2025 (dieselbe Quelle, andere Aussage) | offen |
+| `closure` | Formal Reduction Error Bounds (allgemeine Fehlerschranken) | Michel & Siegle 2025 (dieselbe Quelle, andere Aussage) | 🔄 **M21, Prompt gesendet** |
 | `viability` | Control Barrier Functions | Ames et al. 2017, DOI 10.1109/TAC.2016.2638961; Ames et al. 2019, DOI 10.23919/ECC.2019.8796030 — **von beiden Recherchen unabhängig vorgeschlagen** | ✅ **M16, gemergt** |
 | `membership` | — | (gewichtete/kontinuierliche Zugehörigkeit bewusst zurückgestellt, Semantik unklar) | kein Kandidat |
 | `identifiability` | Profile Likelihood | Raue et al. 2009, DOI 10.1093/bioinformatics/btp358 | ✅ **M20, gemergt** |
-| `identifiability` | Fisher-Information-Sloppiness | Transtrum, Machta & Sethna 2011, DOI 10.1103/PhysRevE.83.036701; Raju et al. 2018 | offen |
+| `identifiability` | Fisher-Information-Sloppiness | Transtrum, Machta & Sethna 2011, DOI 10.1103/PhysRevE.83.036701; Raju et al. 2018 | 🔄 **M23, Prompt gesendet** |
 | `validation` | Split Conformal Prediction | Lei, G'Sell, Rinaldo, Tibshirani, Wasserman 2018, DOI 10.1080/01621459.2017.1307116 | ✅ **M13, gemergt** |
-| `contextuality` | Čech-Cohomology-Witness | Abramsky, Mansfield & Barbosa 2012, arXiv 1111.3620 | offen |
+| `contextuality` | Čech-Cohomology-Witness | Abramsky, Mansfield & Barbosa 2012, arXiv 1111.3620 | 🔄 **M24, Prompt gesendet** |
 | `contextuality` | CSW-Grapheninvarianten | Cabello, Severini & Winter 2014, DOI-bestätigt (PRL 112, 040401) | ✅ **M19, gemergt** |
 | `information_decomposition` | BROJA bivariate Unique Information | Bertschinger, Rauh, Olbrich, Jost & Ay 2014, DOI 10.3390/e16042161 | ✅ **M17, gemergt** |
 | `thermo` | Schnakenberg Network Thermodynamics | Schnakenberg 1976, DOI 10.1103/RevModPhys.48.571 | ✅ **M18, gemergt** |
