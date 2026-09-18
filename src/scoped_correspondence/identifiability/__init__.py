@@ -2,9 +2,10 @@
 
 FORMALISM.md sections 10 and 12; legacy e02, e07, e08, e09, e12 (optional e15).
 
-Milestone 20 (Profile Likelihood) is exported here as a **submodule-local**
-addition; package-root ``scoped_correspondence.__init__`` is intentionally
-left untouched. ``identifiability.core`` is not edited.
+Milestone 20 (Profile Likelihood) and Milestone 23 (Fisher-Information
+Sloppiness) are exported here as **submodule-local** additions; package-root
+``scoped_correspondence.__init__`` is intentionally left untouched.
+``identifiability.core`` and ``profile_likelihood`` are not edited by M23.
 """
 
 from scoped_correspondence.identifiability.core import (
@@ -24,6 +25,14 @@ from scoped_correspondence.identifiability.profile_likelihood import (
     likelihood_interval,
     profile_parameter,
 )
+from scoped_correspondence.identifiability.fim_sloppiness import (
+    SOURCE as FIM_SLOPPINESS_SOURCE,
+    PRL_DOI as FIM_TRANSTRUM_DOI,
+    RAJU_DOI as FIM_RAJU_DOI,
+    eigenspectrum_report,
+    exponential_decay_jacobian,
+    fisher_information_matrix,
+)
 from scoped_correspondence.errors import ScopeViolationError
 
 __all__ = [
@@ -42,4 +51,11 @@ __all__ = [
     "classify_identifiability",
     "likelihood_interval",
     "profile_parameter",
+    # M23 Fisher-information sloppiness (submodule-local; core/PL untouched)
+    "FIM_SLOPPINESS_SOURCE",
+    "FIM_TRANSTRUM_DOI",
+    "FIM_RAJU_DOI",
+    "eigenspectrum_report",
+    "exponential_decay_jacobian",
+    "fisher_information_matrix",
 ]
