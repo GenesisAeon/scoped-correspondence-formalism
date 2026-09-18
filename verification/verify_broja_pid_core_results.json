@@ -1,0 +1,74 @@
+{
+  "count": 4,
+  "failed": [],
+  "milestone": 17,
+  "n_failed": 0,
+  "n_passed": 4,
+  "ok": true,
+  "passed": [
+    "two_bit_copy_side_by_side",
+    "xor_pure_synergy",
+    "redundant_copy",
+    "scope_and_doi"
+  ],
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.11.9",
+  "results": {
+    "redundant_copy": {
+      "I_joint": 1.0,
+      "redundancy": 1.0,
+      "synergy": 0.0,
+      "unique_source_1": 0.0,
+      "unique_source_2": 0.0
+    },
+    "scope_and_doi": {
+      "doi": "10.3390/e16042161",
+      "huge_alphabet": "refused",
+      "n_starts_lt_3": "refused",
+      "source": "Bertschinger, Rauh, Olbrich, Jost & Ay 2014, Quantifying Unique Information, Entropy 16(4):2161\u20132183; DOI 10.3390/e16042161"
+    },
+    "two_bit_copy_side_by_side": {
+      "blackwell_rb0": 0.0,
+      "broja": {
+        "I_joint": 2.0,
+        "redundancy": 4.016399435258222e-10,
+        "synergy": 4.016399435258222e-10,
+        "unique_source_1": 0.9999999995983597,
+        "unique_source_2": 0.9999999995983604,
+        "unq1_optima": [
+          1.0,
+          1.0,
+          0.9999999995983597,
+          1.0,
+          1.0
+        ],
+        "unq2_optima": [
+          1.0,
+          1.0,
+          0.9999999995983604,
+          1.0,
+          1.0
+        ]
+      },
+      "claim": "TWO_BIT_COPY: Williams-Beer I_min Red=1 is misleading; Blackwell RB(0)=0 and BROJA Red\u22480, Unq\u22481 each, Syn\u22480 agree on unique bits (Bertschinger et al. 2014 DOI 10.3390/e16042161).",
+      "doi": "10.3390/e16042161",
+      "williams_beer": {
+        "I_joint": 2.0,
+        "Red": 1.0,
+        "Syn": 1.0,
+        "Unq1": 0.0,
+        "Unq2": 0.0,
+        "measure": "williams_beer_I_min"
+      }
+    },
+    "xor_pure_synergy": {
+      "I_joint": 1.0,
+      "redundancy": 0.0,
+      "synergy": 1.0,
+      "unique_source_1": 0.0,
+      "unique_source_2": 0.0
+    }
+  },
+  "timestamp": "2026-09-18T23:15:53+02:00",
+  "title": "BROJA bivariate unique information"
+}
