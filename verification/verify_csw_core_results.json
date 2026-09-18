@@ -1,0 +1,79 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "c5_targets": {
+      "alpha": 2,
+      "alpha_star": 2.5,
+      "theta": "sqrt(5)"
+    },
+    "checks": {
+      "c5_invariants_alpha_theta_alpha_star": {
+        "detail": {
+          "THETA_TOL": 1e-10,
+          "alpha": 2,
+          "alpha_star": 2.5,
+          "hierarchy_ok": true,
+          "theta": 2.23606797749979,
+          "theta_residual": 0.0,
+          "theta_sqrt5": 2.23606797749979
+        },
+        "status": "passed"
+      },
+      "scope_separation_no_cf_lp": {
+        "detail": {
+          "c3_alpha": 1,
+          "csw_imports_core": false,
+          "docstring_separates_from_cf_lp": true,
+          "doi_present": true,
+          "lovasz_theta_c3_raises": true,
+          "no_general_sdp_lib": true
+        },
+        "status": "passed"
+      },
+      "symmetric_c5_p0p44_witness": {
+        "detail": {
+          "classical_bound": 2.0,
+          "classical_violated": true,
+          "general_probabilistic_bound": 2.5,
+          "gpt_held": true,
+          "observed_sum": 2.2,
+          "p": 0.44,
+          "p_eq_0.4_classical_violated": false,
+          "quantum_bound": 2.23606797749979,
+          "quantum_held": true,
+          "source": "Cabello, Severini & Winter 2014, Graph-Theoretic Approach to Quantum Correlations, Phys. Rev. Lett. 112, 040401; DOI 10.1103/PhysRevLett.112.040401"
+        },
+        "status": "passed"
+      },
+      "umbrella_derivation_sqrt5": {
+        "detail": {
+          "doi": "10.1103/PhysRevLett.112.040401",
+          "residual_vs_sqrt5": 0.0,
+          "source_has_doi": true,
+          "tan2_alpha": 1.2360679774997898,
+          "tan2_exact_algebraic": 1.2360679774997896,
+          "theta_umbrella": 2.23606797749979,
+          "tolerance": 1e-10
+        },
+        "status": "passed"
+      }
+    },
+    "disclaimer": "C5 umbrella \u03b8 only; no general SDP; fractional packing LP \u2260 contextual_fraction LP; contextuality/core.py untouched.",
+    "milestone": "M19 CSW Graph Invariants",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source_doi": "10.1103/PhysRevLett.112.040401",
+    "timestamp": "2026-09-18T23:15:24+02:00",
+    "untouched": [
+      "src/scoped_correspondence/contextuality/core.py",
+      "src/scoped_correspondence/__init__.py",
+      "FORMALISM.md",
+      "sheaf_contextuality.md",
+      "general SDP library",
+      "contextual_fraction LP identification"
+    ]
+  }
+}
