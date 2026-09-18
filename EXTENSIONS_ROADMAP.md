@@ -22,12 +22,12 @@ DOI/arXiv-Quelle, nach Möglichkeit von Hand nachrechenbares Beispiel.
 | `correspondence` | Approximation Certificates (fixed-map-Spezialfall) | Girard & Pappas 2007, DOI 10.1109/TAC.2007.895849 | ✅ **M10, gemergt** |
 | `observation` | Directed Information (Rückkopplungskapazität) | Massey 1990; Permuter, Weissman, Goldsmith 2009 | offen |
 | `dynamics` | Fenichels Theorem / GSPT (langsame invariante Mannigfaltigkeit) | Fenichel 1979, DOI 10.1016/0022-0396(79)90152-9; Kuehn 2015, DOI 10.1007/978-3-319-12316-5 | offen |
-| `dynamics` | Contraction Analysis | Lohmiller & Slotine 1998, DOI 10.1016/S0005-1098(98)00019-3 | offen |
+| `dynamics` | Contraction Analysis | Lohmiller & Slotine 1998, DOI 10.1016/S0005-1098(98)00019-3 | 🔄 **M14, Prompt gesendet** |
 | `coupling` | Dirac-Struktur-Komposition | Cervera, van der Schaft & Baños 2007, DOI 10.1016/j.automatica.2006.08.014 | ✅ **M12, gemergt** |
-| `coupling` | Dissipativity / Supply Rates | Willems 1972, DOI 10.1007/BF00276493 | offen |
+| `coupling` | Dissipativity / Supply Rates | Willems 1972, DOI 10.1007/BF00276493 | 🔄 **M15, Prompt gesendet** |
 | `closure` | CTMC-Generator-Lumpability (`QC=CQ_macro`) | Buchholz 1994, DOI 10.1017/S0021900200107338; Michel & Siegle, DOI 10.1016/j.peva.2024.102464 | ✅ **M11, gemergt** |
 | `closure` | Formal Reduction Error Bounds (allgemeine Fehlerschranken) | Michel & Siegle 2025 (dieselbe Quelle, andere Aussage) | offen |
-| `viability` | Control Barrier Functions | Ames et al. 2017, DOI 10.1109/TAC.2016.2638961; Ames et al. 2019 (Survey) — **von beiden Recherchen unabhängig vorgeschlagen** | offen |
+| `viability` | Control Barrier Functions | Ames et al. 2017, DOI 10.1109/TAC.2016.2638961; Ames et al. 2019 (Survey) — **von beiden Recherchen unabhängig vorgeschlagen** | 🔄 **M16, Prompt gesendet** |
 | `membership` | — | (gewichtete/kontinuierliche Zugehörigkeit bewusst zurückgestellt, Semantik unklar) | kein Kandidat |
 | `identifiability` | Profile Likelihood | Raue et al. 2009, DOI 10.1093/bioinformatics/btp358 | offen |
 | `identifiability` | Fisher-Information-Sloppiness | Transtrum, Machta & Sethna 2011, DOI 10.1103/PhysRevE.83.036701; Raju et al. 2018 | offen |

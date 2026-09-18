@@ -147,6 +147,18 @@ Von Aeon geliefert (`prompts/21_teil2_m13_conformal_prediction_for_aeon.md`) dir
 - `validation/core.py` und alle 8 Kerndokumente unverändert. Berührt bewusst nicht `src/scoped_correspondence/__init__.py`.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m13-conformal-prediction` gelöscht. **Einziger echter Merge-Konflikt der drei** (trivial): alle drei Branches bumpten unabhängig `pyproject.toml`s Versionsnummer/Beschreibung ausgehend vom selben Basis-Commit — von Hand zu `0.13.0a1` mit vollständiger Beschreibung (alle drei M11-M13-Inhalte genannt) aufgelöst.
 
+## F32: Teil 2, Milestone 14 — Contraction Analysis (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/22_teil2_m14_contraction_analysis_for_aeon.md](prompts/22_teil2_m14_contraction_analysis_for_aeon.md). Aus F26 (Astra3) — Lohmiller & Slotine 1998. Exakte globale Kontraktionsbedingung für `dynamics.cusp_field` (`sup_x f'(x)=a/tau` bei `x=0`): `a<0` → global kontrahierend mit Rate `-a/tau`; `a>=0` → nicht kontrahierend (Scope-Gegenfall zur Bistabilität). Ruft `cusp_field` unverändert auf. Kann parallel zu M15/M16 bearbeitet werden.
+
+## F33: Teil 2, Milestone 15 — Dissipativity / Supply Rates (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/23_teil2_m15_dissipativity_for_aeon.md](prompts/23_teil2_m15_dissipativity_for_aeon.md). Aus F26 (Astra3) — Willems 1972. Allgemeiner Speicherfunktions-/Supply-Rate-Vertrag `V̇≤w(u,y)` für `coupling`, ausdrücklich KEINE thermodynamische Identität. Beispiel (bereits von Hand bestätigt): neutrale Interkonnektion, `V̇_total=-5` bei `x1=1,x2=2`. Kann parallel zu M14/M16 bearbeitet werden.
+
+## F34: Teil 2, Milestone 16 — Control Barrier Functions (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/24_teil2_m16_control_barrier_functions_for_aeon.md](prompts/24_teil2_m16_control_barrier_functions_for_aeon.md). Aus F26 (Astra3) + F28 (docx) — Ames et al. 2017/2019, von beiden Recherchen unabhängig vorgeschlagen. Zeroing-CBF-Bedingung für `viability`, skalarer Fall mit linearem `α(h)=h`. Beispiel (bereits von Hand bestätigt): `x=0.2`, `u=-0.1` sicher, `u=-0.3` unsicher. Kann parallel zu M14/M15 bearbeitet werden.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
