@@ -1,0 +1,75 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "admissible_controls_x0p2": {
+        "detail": {
+          "L_f_h": 0.0,
+          "L_g_h": 1.0,
+          "boundary_margin": 0.0,
+          "boundary_safe": true,
+          "constraint": "u + x >= 0",
+          "u_min": -0.2,
+          "x": 0.2
+        },
+        "status": "passed"
+      },
+      "example_a_x0p2_margins": {
+        "detail": {
+          "constraint": "u + x >= 0",
+          "margin_safe": 0.1,
+          "margin_unsafe": -0.1,
+          "safe": true,
+          "source": "Ames, Xu, Grizzle & Tabuada 2017, Control Barrier Function Based Quadratic Programs for Safety Critical Systems, IEEE TAC; DOI 10.1109/TAC.2016.2638961; survey: Ames, Coogan, Egerstedt, Notomista, Sreenath & Tabuada 2019, Control Barrier Functions: Theory and Applications, ECC; DOI 10.23919/ECC.2019.8796030",
+          "u_safe": -0.1,
+          "u_unsafe": -0.3,
+          "unsafe_flag": false,
+          "x": 0.2
+        },
+        "status": "passed"
+      },
+      "example_b_x0p5_crosscheck": {
+        "detail": {
+          "constraint": "u + x >= 0",
+          "margin_safe": 0.3,
+          "margin_unsafe": -0.1,
+          "safe": true,
+          "u_min": -0.5,
+          "u_safe": -0.2,
+          "u_unsafe": -0.6,
+          "unsafe_flag": false,
+          "x": 0.5
+        },
+        "status": "passed"
+      },
+      "nonlinear_alpha_and_scope": {
+        "detail": {
+          "alpha_kind_canonical": "linear",
+          "alpha_kind_cubic_raises": true,
+          "non_identity_h_raises": true,
+          "nonlinear_alpha_raises": true,
+          "source_has_2017_doi": true,
+          "source_has_2019_doi": true
+        },
+        "status": "passed"
+      }
+    },
+    "disclaimer": "Scalar zeroing CBF only (x_dot=u, h(x)=x, alpha(r)=r). No QP, no multi-D, no nonlinear alpha. Does not call or redefine has_safe_transfer (viability/core.py untouched).",
+    "milestone": "M16 Control Barrier Functions",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source_doi_2017": "10.1109/TAC.2016.2638961",
+    "source_doi_2019": "10.23919/ECC.2019.8796030",
+    "timestamp": "2026-09-18T11:35:14+02:00",
+    "untouched": [
+      "src/scoped_correspondence/viability/core.py",
+      "src/scoped_correspondence/__init__.py",
+      "FORMALISM.md",
+      "has_safe_transfer linkage",
+      "multi-D / nonlinear alpha / QP solver"
+    ]
+  }
+}
