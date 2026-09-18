@@ -1,0 +1,64 @@
+{
+  "checks": {
+    "compatibility_core_call": {
+      "data": {
+        "SOURCE": "Michel & Siegle, Formal Error Bounds for the State Space Reduction of Markov Chains, Performance Evaluation 2024; DOI 10.1016/j.peva.2024.102464; arXiv:2403.07618",
+        "exact_closure_error": 0.0,
+        "exact_michel_bound": 0.0,
+        "paper_compare": {
+          "michel_l1": 1.0,
+          "michel_tv": 0.5,
+          "michel_tv_leq_propagated": true,
+          "note": "Michel\u2013Siegle: L1 on full-state error, residual ||\u03a0A\u2212AP||_\u221e (Thm 4). propagated_error_bound: TV on projected distributions, defect delta_cl = max_i TV((PC)_i,(CQ)_i). Different residuals/spaces; equality-to-zero when both residuals vanish (exact/dynamic-exact aggregation). Inequality michel_tv \u2264 propagated is NOT guaranteed in general.",
+          "propagated_error_bound_tv": 1.0
+        },
+        "zero_compare": {
+          "michel_l1": 0.0,
+          "michel_tv": 0.0,
+          "michel_tv_leq_propagated": true,
+          "note": "Michel\u2013Siegle: L1 on full-state error, residual ||\u03a0A\u2212AP||_\u221e (Thm 4). propagated_error_bound: TV on projected distributions, defect delta_cl = max_i TV((PC)_i,(CQ)_i). Different residuals/spaces; equality-to-zero when both residuals vanish (exact/dynamic-exact aggregation). Inequality michel_tv \u2264 propagated is NOT guaranteed in general.",
+          "propagated_error_bound_tv": 0.0
+        }
+      },
+      "ok": true
+    },
+    "ctmc_thm5_exact": {
+      "data": {
+        "exact_bound": 0.0,
+        "inexact_bound_t2": 4.0,
+        "theorem_ref_exact": "Theorem 5 (item 3) [arXiv:2403.07618]: ||e_t||_1 \u2264 ||\u03c00\u1d40A\u2212p0\u1d40||_1 + t\u00b7||\u0398A\u2212AQ||_\u221e"
+      },
+      "ok": true
+    },
+    "paper_dtmc_thm4": {
+      "data": {
+        "bound_exact_L1": 0.0,
+        "bound_k0_L1": 0.0,
+        "bound_k4_L1": 1.0,
+        "bound_k4_TV": 0.5,
+        "residual_inf": 0.25,
+        "theorem_ref": "Theorem 4 (item 3) [arXiv:2403.07618]: ||e_k||_1 \u2264 ||\u03c00\u1d40A\u2212p0\u1d40||_1 + k\u00b7||\u03a0A\u2212AP||_\u221e"
+      },
+      "ok": true
+    },
+    "stationary_cor10": {
+      "data": {
+        "bound_L1": 0.25,
+        "pi": [
+          0.6666666666666666,
+          0.3333333333333333
+        ],
+        "theorem_ref": "Corollary 10 (stochastic A, probability \u03c0) [arXiv:2403.07618]: ||\u03c0\u1d40AP\u2212\u03c0\u1d40A||_1 \u2264 ||\u03a0A\u2212AP||_\u221e + ||\u03c0\u1d40\u03a0\u2212\u03c0\u1d40||_1"
+      },
+      "ok": true
+    }
+  },
+  "count": 4,
+  "failed": 0,
+  "milestone": "M21",
+  "passed": 4,
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.11.9",
+  "timestamp": "2026-09-18T23:51:41",
+  "title": "Formal Reduction Error Bounds"
+}
