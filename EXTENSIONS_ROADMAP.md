@@ -29,13 +29,13 @@ DOI/arXiv-Quelle, nach Möglichkeit von Hand nachrechenbares Beispiel.
 | `closure` | Formal Reduction Error Bounds (allgemeine Fehlerschranken) | Michel & Siegle 2025 (dieselbe Quelle, andere Aussage) | offen |
 | `viability` | Control Barrier Functions | Ames et al. 2017, DOI 10.1109/TAC.2016.2638961; Ames et al. 2019, DOI 10.23919/ECC.2019.8796030 — **von beiden Recherchen unabhängig vorgeschlagen** | ✅ **M16, gemergt** |
 | `membership` | — | (gewichtete/kontinuierliche Zugehörigkeit bewusst zurückgestellt, Semantik unklar) | kein Kandidat |
-| `identifiability` | Profile Likelihood | Raue et al. 2009, DOI 10.1093/bioinformatics/btp358 | offen |
+| `identifiability` | Profile Likelihood | Raue et al. 2009, DOI 10.1093/bioinformatics/btp358 | 🔄 **M20, Prompt gesendet** |
 | `identifiability` | Fisher-Information-Sloppiness | Transtrum, Machta & Sethna 2011, DOI 10.1103/PhysRevE.83.036701; Raju et al. 2018 | offen |
 | `validation` | Split Conformal Prediction | Lei, G'Sell, Rinaldo, Tibshirani, Wasserman 2018, DOI 10.1080/01621459.2017.1307116 | ✅ **M13, gemergt** |
 | `contextuality` | Čech-Cohomology-Witness | Abramsky, Mansfield & Barbosa 2012, arXiv 1111.3620 | offen |
-| `contextuality` | CSW-Grapheninvarianten | Cabello, Severini & Winter 2014, DOI-bestätigt (PRL 112, 040401) | offen |
-| `information_decomposition` | BROJA bivariate Unique Information | Bertschinger, Rauh, Olbrich, Jost & Ay 2014, DOI 10.3390/e16042161 | offen |
-| `thermo` | Schnakenberg Network Thermodynamics | Schnakenberg 1976, DOI 10.1103/RevModPhys.48.571 | offen |
+| `contextuality` | CSW-Grapheninvarianten | Cabello, Severini & Winter 2014, DOI-bestätigt (PRL 112, 040401) | 🔄 **M19, Prompt gesendet** |
+| `information_decomposition` | BROJA bivariate Unique Information | Bertschinger, Rauh, Olbrich, Jost & Ay 2014, DOI 10.3390/e16042161 | 🔄 **M17, Prompt gesendet** |
+| `thermo` | Schnakenberg Network Thermodynamics | Schnakenberg 1976, DOI 10.1103/RevModPhys.48.571 | 🔄 **M18, Prompt gesendet** |
 | `metarules` (kein Originalbaustein, F25) | — | context_transformations.md §6 | ✅ **M9, gemergt** |
 
 **Bewusst kein Kandidat identifiziert (mit Begründung):** `validation`

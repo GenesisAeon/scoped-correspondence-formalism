@@ -168,6 +168,22 @@ Von Aeon geliefert (`prompts/24_teil2_m16_control_barrier_functions_for_aeon.md`
 - `viability/core.py` und alle 8 Kerndokumente unverändert. Berührt bewusst nicht `src/scoped_correspondence/__init__.py`.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m16-control-barrier-functions` gelöscht.
 
+## F35: Teil 2, Milestone 17 — BROJA Bivariate Unique Information (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/25_teil2_m17_broja_pid_for_aeon.md](prompts/25_teil2_m17_broja_pid_for_aeon.md). Aus F26 (Astra3) — Bertschinger et al. 2014, drittes PID-Maß neben Williams-Beer/Blackwell-RB. Pflicht-Kreuzprobe gegen TWO_BIT_COPY (`information_decomposition.two_bit_copy_joint`, M7, unverändert aufgerufen), erwartet `Red≈0, Unq1≈1, Unq2≈1, Syn≈0`. Kann parallel zu M18/M19/M20 bearbeitet werden.
+
+## F36: Teil 2, Milestone 18 — Schnakenberg Network Thermodynamics (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/26_teil2_m18_schnakenberg_thermodynamics_for_aeon.md](prompts/26_teil2_m18_schnakenberg_thermodynamics_for_aeon.md). Aus F26 (Astra3) — Schnakenberg 1976. Ströme/Affinitäten/Entropieproduktion für stochastische Kreisläufe, getrennt vom bestehenden deterministischen Drei-Zyklus (M8). Beispiel (bereits von Hand bestätigt): symmetrischer Drei-Zyklus, `Ṡ_prod=ln2≈0,6931`. Kann parallel zu M17/M19/M20 bearbeitet werden.
+
+## F37: Teil 2, Milestone 19 — CSW-Grapheninvarianten (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/27_teil2_m19_csw_graph_invariants_for_aeon.md](prompts/27_teil2_m19_csw_graph_invariants_for_aeon.md). Aus F28 (docx) — Cabello/Severini/Winter 2014. Zweite, graphentheoretische Kontextualitäts-Charakterisierung neben der bestehenden Sheaf-CF, für das KCBS-Szenario (`C5`: `α=2, ϑ=√5, α*=5/2`, Werte müssen im Skript tatsächlich berechnet, nicht nur zitiert werden). Kann parallel zu M17/M18/M20 bearbeitet werden.
+
+## F38: Teil 2, Milestone 20 — Profile Likelihood (Prompt gesendet 2026-09-18, noch offen)
+
+Prompt an Aeon: [prompts/28_teil2_m20_profile_likelihood_for_aeon.md](prompts/28_teil2_m20_profile_likelihood_for_aeon.md). Aus F26 (Astra3) — Raue et al. 2009. Praktische Ergänzung zur bestehenden SVD-Diagnostik, `θ1·θ2=6`-Fall (flaches Profil) plus Pflicht-Kontrollfall (identifizierbares Modell). Kann parallel zu M17/M18/M19 bearbeitet werden.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
