@@ -1,0 +1,66 @@
+{
+  "milestone": "M15",
+  "title": "Dissipativity / Supply Rates",
+  "count": 4,
+  "passed": 4,
+  "failed": 0,
+  "failed_names": [],
+  "report": [
+    {
+      "name": "worked_example_x1_1_x2_2",
+      "x1": 1.0,
+      "x2": 2.0,
+      "u1": -2.0,
+      "u2": 1.0,
+      "supply": 0.0,
+      "V_dot_1": -3.0,
+      "V_dot_2": -2.0,
+      "V_dot_total": -5.0,
+      "expected_V_dot_total": -5.0,
+      "cert_ok": true,
+      "source": "Willems 1972, DOI 10.1007/BF00276493",
+      "tol": 1e-10,
+      "status": "passed"
+    },
+    {
+      "name": "second_state_pair_0p5_1p5",
+      "x1": 0.5,
+      "x2": 1.5,
+      "supply": 0.0,
+      "V_dot_total": -2.5,
+      "expected_V_dot_total": -2.5,
+      "cert_ok": true,
+      "status": "passed"
+    },
+    {
+      "name": "intentional_violate",
+      "V_dot": 1.0,
+      "w": 0.0,
+      "check_ok": false,
+      "cert_ok": false,
+      "status": "passed"
+    },
+    {
+      "name": "source_and_exports",
+      "SOURCE": "Willems 1972, DOI 10.1007/BF00276493",
+      "DISSIPATIVITY_SOURCE": "Willems 1972, DOI 10.1007/BF00276493",
+      "doi": "10.1007/BF00276493",
+      "status": "passed"
+    }
+  ],
+  "source": "Willems 1972, DOI 10.1007/BF00276493",
+  "doi": "10.1007/BF00276493",
+  "platform": "Linux-6.12.94+-x86_64-with-glibc2.41",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "timestamp_local": "2026-09-18T11:36:52.934250+02:00",
+  "forbidden_untouched_by_design": [
+    "src/scoped_correspondence/coupling/core.py",
+    "src/scoped_correspondence/coupling/dirac_composition.py",
+    "src/scoped_correspondence/__init__.py",
+    "FORMALISM.md",
+    "coupling_layer_afet.md",
+    "closure/",
+    "validation/"
+  ],
+  "key_number_V_dot_total_at_1_2": -5.0
+}
