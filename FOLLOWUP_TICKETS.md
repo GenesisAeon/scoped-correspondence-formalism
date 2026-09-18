@@ -168,21 +168,33 @@ Von Aeon geliefert (`prompts/24_teil2_m16_control_barrier_functions_for_aeon.md`
 - `viability/core.py` und alle 8 Kerndokumente unverändert. Berührt bewusst nicht `src/scoped_correspondence/__init__.py`.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m16-control-barrier-functions` gelöscht.
 
-## F35: Teil 2, Milestone 17 — BROJA Bivariate Unique Information (Prompt gesendet 2026-09-18, noch offen)
+## F35: Teil 2, Milestone 17 — BROJA Bivariate Unique Information (erledigt 2026-09-18)
 
-Prompt an Aeon: [prompts/25_teil2_m17_broja_pid_for_aeon.md](prompts/25_teil2_m17_broja_pid_for_aeon.md). Aus F26 (Astra3) — Bertschinger et al. 2014, drittes PID-Maß neben Williams-Beer/Blackwell-RB. Pflicht-Kreuzprobe gegen TWO_BIT_COPY (`information_decomposition.two_bit_copy_joint`, M7, unverändert aufgerufen), erwartet `Red≈0, Unq1≈1, Unq2≈1, Syn≈0`. Kann parallel zu M18/M19/M20 bearbeitet werden.
+Von Aeon geliefert (`prompts/25_teil2_m17_broja_pid_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F26 (Astra3) — Bertschinger et al. 2014, drittes PID-Maß neben Williams-Beer/Blackwell-RB. `information_decomposition/broja.py`: `broja_pid_bivariate` löst die Optimierung über die Transportpolytop-Parametrisierung von `Δ_P` per SLSQP aus ≥5 unabhängigen Startpunkten mit Konvergenz- und Redundanz-Konsistenzprüfung (`I(y;r1)-Unq1==I(y;r2)-Unq2`).
+- 4/4 neue Prüfungen selbst nachgerechnet, sogar in den Rauschziffern bit-identisch (deterministisch, fester Seed). TWO_BIT_COPY-Kreuzprobe: `Unq1≈Unq2≈1,0, Red≈Syn≈0` — exakt wie theoretisch erwartet, im Gegensatz zu Williams-Beers irreführendem `Red=1`. Zwei zusätzliche, selbst hinzugefügte Testfälle (XOR→reine Synergie, redundante Kopie→volle Redundanz) matchen unabhängig bekannte Lehrbuch-PID-Werte.
+- `information_decomposition/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m17-broja-pid` gelöscht.
 
-## F36: Teil 2, Milestone 18 — Schnakenberg Network Thermodynamics (Prompt gesendet 2026-09-18, noch offen)
+## F36: Teil 2, Milestone 18 — Schnakenberg Network Thermodynamics (erledigt 2026-09-18)
 
-Prompt an Aeon: [prompts/26_teil2_m18_schnakenberg_thermodynamics_for_aeon.md](prompts/26_teil2_m18_schnakenberg_thermodynamics_for_aeon.md). Aus F26 (Astra3) — Schnakenberg 1976. Ströme/Affinitäten/Entropieproduktion für stochastische Kreisläufe, getrennt vom bestehenden deterministischen Drei-Zyklus (M8). Beispiel (bereits von Hand bestätigt): symmetrischer Drei-Zyklus, `Ṡ_prod=ln2≈0,6931`. Kann parallel zu M17/M19/M20 bearbeitet werden.
+Von Aeon geliefert (`prompts/26_teil2_m18_schnakenberg_thermodynamics_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F26 (Astra3) — Schnakenberg 1976. `thermo/schnakenberg.py` mit `stationary_currents`, `cycle_affinity`, `entropy_production_rate` (mit Pflicht-Nichtnegativitätsprüfung), getrennt vom bestehenden deterministischen Drei-Zyklus (M8).
+- 4/4 neue Prüfungen selbst nachgerechnet. Beide Beispiele von Hand bestätigt: symmetrischer Drei-Zyklus (Raten 2/1) → `J=1/3, A=ln2, Ṡ_prod=ln2` exakt; zweiter Fall (Raten 3/1) → `J=2/3, A=ln3, Ṡ_prod=2·ln3≈2,197` exakt. Skript flaggt selbst proaktiv, dass die zufällige Nähe zu `σ≈2,2` KEIN echter Bezug ist.
+- `thermo/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m18-schnakenberg-thermodynamics` gelöscht.
 
-## F37: Teil 2, Milestone 19 — CSW-Grapheninvarianten (Prompt gesendet 2026-09-18, noch offen)
+## F37: Teil 2, Milestone 19 — CSW-Grapheninvarianten (erledigt 2026-09-18)
 
-Prompt an Aeon: [prompts/27_teil2_m19_csw_graph_invariants_for_aeon.md](prompts/27_teil2_m19_csw_graph_invariants_for_aeon.md). Aus F28 (docx) — Cabello/Severini/Winter 2014. Zweite, graphentheoretische Kontextualitäts-Charakterisierung neben der bestehenden Sheaf-CF, für das KCBS-Szenario (`C5`: `α=2, ϑ=√5, α*=5/2`, Werte müssen im Skript tatsächlich berechnet, nicht nur zitiert werden). Kann parallel zu M17/M18/M20 bearbeitet werden.
+Von Aeon geliefert (`prompts/27_teil2_m19_csw_graph_invariants_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F28 (docx) — Cabello/Severini/Winter 2014. `contextuality/csw.py`: zweite, graphentheoretische Kontextualitäts-Charakterisierung neben der bestehenden Sheaf-CF-LP. `lovasz_theta` für `C5` über die Lovász-Regenschirm-Konstruktion HERGELEITET (nicht hartkodiert).
+- 4/4 neue Prüfungen selbst nachgerechnet. Regenschirm-Algebra von Hand nachvollzogen: `cos(4π/5)=-(1+√5)/4 → tan²α=√5-1 → ϑ=√5` — Skript-Residuum exakt `0,0`. `α(C5)=2, ϑ=√5≈2,236, α*=5/2` alle bestätigt; Beispiel `p=0,44→Summe=2,2` verletzt die klassische Schranke, hält Quanten-/GPT-Schranke ein. Modul testet aktiv, dass `lovasz_theta` bei Nicht-C5-Graphen verweigert und `contextuality/core.py` nie importiert wird.
+- `contextuality/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m19-csw-graph-invariants` gelöscht.
 
-## F38: Teil 2, Milestone 20 — Profile Likelihood (Prompt gesendet 2026-09-18, noch offen)
+## F38: Teil 2, Milestone 20 — Profile Likelihood (erledigt 2026-09-18)
 
-Prompt an Aeon: [prompts/28_teil2_m20_profile_likelihood_for_aeon.md](prompts/28_teil2_m20_profile_likelihood_for_aeon.md). Aus F26 (Astra3) — Raue et al. 2009. Praktische Ergänzung zur bestehenden SVD-Diagnostik, `θ1·θ2=6`-Fall (flaches Profil) plus Pflicht-Kontrollfall (identifizierbares Modell). Kann parallel zu M17/M18/M19 bearbeitet werden.
+Von Aeon geliefert (`prompts/28_teil2_m20_profile_likelihood_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F26 (Astra3) — Raue et al. 2009. `identifiability/profile_likelihood.py`: `profile_parameter` (1D-Grid + Golden-Section, verweigert ≥2 freie Parameter), `classify_identifiability` ("flat"/"identifiable"), `likelihood_interval` (meldet unbeschränkte Intervalle explizit mit Grund statt still abzuschneiden).
+- 4/4 neue Prüfungen selbst nachgerechnet. Beide Fälle von Hand bestätigt: `θ1·θ2=6` → `chi2≈0` für alle getesteten `θ1` (Rauschen ~1e-17), korrekt "flat", unbeschränktes Intervall; Kontrollfall `χ²=(θ-3)²` → exakte Parabel, bei Schwelle 1 Intervall `[2,4]` — exakt `|θ-3|≤1`.
+- `identifiability/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m20-profile-likelihood` gelöscht.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
