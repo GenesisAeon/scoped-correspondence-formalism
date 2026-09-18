@@ -1,0 +1,71 @@
+{
+  "milestone": 18,
+  "title": "Schnakenberg Network Thermodynamics",
+  "count": 4,
+  "passed": 4,
+  "failed": 0,
+  "report": [
+    {
+      "name": "three_cycle_ln2",
+      "ok": true,
+      "detail": {
+        "cw": 2.0,
+        "ccw": 1.0,
+        "p": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "p_k_residual_max_abs": 1.1102230246251565e-16,
+        "J_01": 0.3333333333333333,
+        "J_12": 0.3333333333333333,
+        "J_20": 0.3333333333333333,
+        "A_01": 0.6931471805599453,
+        "S_prod": 0.6931471805599453,
+        "S_prod_expected_ln2": 0.6931471805599453,
+        "no_ecosystem_sigma_link": "NO link between Schnakenberg S_prod=ln2 and ecosystem \u03c3\u22482.2",
+        "ecosystem_sigma_approx_refused": 2.2
+      }
+    },
+    {
+      "name": "second_off_equilibrium",
+      "ok": true,
+      "detail": {
+        "cw": 3.0,
+        "ccw": 1.0,
+        "J_01": 0.6666666666666667,
+        "A_01": 1.0986122886681098,
+        "S_prod": 2.1972245773362196,
+        "S_prod_expected_2ln3": 2.1972245773362196,
+        "note": "S_prod=2*ln3\u22482.197 is numerically near 2.2 by coincidence; NO link to ecosystem \u03c3=2.2"
+      }
+    },
+    {
+      "name": "source_onsager_note",
+      "ok": true,
+      "detail": {
+        "doi": "10.1103/RevModPhys.48.571",
+        "source_has_doi": true,
+        "onsager_near_eq_only": true,
+        "diagonal_affinity_refused": true
+      }
+    },
+    {
+      "name": "negative_scope_refused",
+      "ok": true,
+      "detail": {
+        "one_way_nonzero_current_refused": true
+      }
+    }
+  ],
+  "meta": {
+    "generated_at": "2026-09-18T23:14:02+02:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "source_doi": "10.1103/RevModPhys.48.571",
+    "S_prod_ln2": 0.6931471805599453,
+    "no_ecosystem_sigma_link": true,
+    "thermo_core_untouched": true,
+    "package_root_init_untouched": true
+  }
+}
