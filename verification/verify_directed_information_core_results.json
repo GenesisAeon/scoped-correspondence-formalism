@@ -1,0 +1,89 @@
+{
+  "milestone": 22,
+  "name": "directed_information",
+  "timestamp_local": "2026-09-18T23:50:37",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.11.9",
+  "checks": [
+    {
+      "name": "binary_entropy_H_1_4",
+      "ok": true,
+      "detail": {
+        "H_1_4": 0.8112781244591328,
+        "H_1_4_analytic": 0.8112781244591329
+      }
+    },
+    {
+      "name": "bsc_feedback_n2_strict_inequality",
+      "ok": true,
+      "detail": {
+        "p": 0.25,
+        "H_p": 0.8112781244591328,
+        "I_directed": 0.1887218755408675,
+        "I_mutual": 1.0000000000000004,
+        "summands": [
+          0.18872187554086706,
+          4.440892098500626e-16
+        ],
+        "gap": 0.8112781244591329
+      }
+    },
+    {
+      "name": "bsc_no_feedback_equality",
+      "ok": true,
+      "detail": {
+        "n2": {
+          "I_directed": 0.3774437510817332,
+          "I_mutual": 0.37744375108173367,
+          "summands": [
+            0.18872187554086706,
+            0.18872187554086617
+          ],
+          "analytic": 0.37744375108173434,
+          "abs_gap_dir_vs_mut": 4.440892098500626e-16
+        },
+        "n3": {
+          "I_directed": 0.5661656266226007,
+          "I_mutual": 0.5661656266225998,
+          "summands": [
+            0.18872187554086706,
+            0.18872187554086617,
+            0.1887218755408675
+          ],
+          "analytic": 0.5661656266226015,
+          "abs_gap_dir_vs_mut": 8.881784197001252e-16
+        }
+      }
+    },
+    {
+      "name": "sources_scope_forbidden",
+      "ok": true,
+      "detail": {
+        "SOURCE": "Massey, J. L. (1990). Causality, feedback and directed information. Proc. ISITA, pp. 303\u2013305. | Permuter, H. H., Weissman, T. & Goldsmith, A. J. (2009). Finite state channels with time-invariant deterministic feedback. IEEE Trans. Inf. Theory 55(2):644\u2013662.",
+        "side_by_side_I_dir_feedback": 0.1887218755408675,
+        "side_by_side_I_mut_feedback": 1.0000000000000004,
+        "side_by_side_I_dir_nofb": 0.3774437510817332,
+        "side_by_side_I_mut_nofb": 0.37744375108173367,
+        "apply_guards_checked": false
+      }
+    }
+  ],
+  "count": 4,
+  "passed": 4,
+  "failed": 0,
+  "key_numbers": {
+    "H_1_4": 0.8112781244591328,
+    "feedback_n2_I_directed": 0.1887218755408675,
+    "feedback_n2_I_mutual": 1.0000000000000004,
+    "feedback_n2_summands": [
+      0.18872187554086706,
+      4.440892098500626e-16
+    ],
+    "nofeedback_n2_I_directed": 0.3774437510817332,
+    "nofeedback_n2_I_mutual": 0.37744375108173367,
+    "nofeedback_n2_summands": [
+      0.18872187554086706,
+      0.18872187554086617
+    ]
+  }
+}
