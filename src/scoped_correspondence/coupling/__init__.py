@@ -7,9 +7,10 @@ A_ij and L_ij are intentionally separate types with no shared base class —
 FORMALISM.md §6: there is no general identity between eta_info, Panarchy,
 A_ij and L_ij.
 
-Milestone 12 (Dirac structure composition) is exported here as a
-**submodule-local** addition; package-root ``scoped_correspondence.__init__``
-is intentionally left untouched to avoid fighting parallel M11/M13 branches.
+Milestone 12 (Dirac structure composition) and Milestone 15 (Dissipativity /
+supply rates) are exported here as **submodule-local** additions; package-root
+``scoped_correspondence.__init__`` is intentionally left untouched to avoid
+fighting parallel M14/M16 branches.
 """
 
 from scoped_correspondence.coupling.core import (
@@ -28,6 +29,14 @@ from scoped_correspondence.coupling.dirac_composition import (
     interface_power,
     interface_power_under_feedback,
 )
+from scoped_correspondence.coupling.dissipativity import (
+    STORAGE_INEQUALITY_TOL,
+    SOURCE as DISSIPATIVITY_SOURCE,
+    DissipativityCertificate,
+    check_storage_inequality,
+    make_dissipativity_certificate,
+    neutral_interconnection_supply,
+)
 
 __all__ = [
     "AijInfluence",
@@ -43,4 +52,11 @@ __all__ = [
     "compose_skew_symmetric",
     "interface_power",
     "interface_power_under_feedback",
+    # M15 Dissipativity / supply rates (submodule-local; avoid M14/M16 fights)
+    "STORAGE_INEQUALITY_TOL",
+    "DISSIPATIVITY_SOURCE",
+    "DissipativityCertificate",
+    "check_storage_inequality",
+    "make_dissipativity_certificate",
+    "neutral_interconnection_supply",
 ]
