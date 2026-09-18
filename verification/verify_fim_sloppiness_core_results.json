@@ -1,0 +1,129 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "meta": {
+    "doi_raju": "10.1103/PhysRevE.98.052112",
+    "doi_transtrum": "10.1103/PhysRevE.83.036701",
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.41",
+    "python": "3.13.5",
+    "source": "Transtrum, Machta & Sethna 2011, Geometry of nonlinear least squares with applications to sloppy models and optimization, Phys. Rev. E 83, 036701; DOI 10.1103/PhysRevE.83.036701. Raju, Marks, Kreutz, et al. / Raju et al. 2018, Information geometry and the renormalization group, Phys. Rev. E 98, 052112 (sloppy / stiff eigendirection language).",
+    "timestamp_local": "2026-09-18T23:53:04"
+  },
+  "milestone": 23,
+  "name": "fisher_information_sloppiness",
+  "passed": 4,
+  "report": {
+    "exponential_decay_sloppy": {
+      "anisotropy": 50.91996781536404,
+      "eigenvalues": [
+        0.35527170033386374,
+        0.006977060583032574
+      ],
+      "fim": [
+        [
+          0.1536509221253469,
+          -0.17196656101408106
+        ],
+        [
+          -0.17196656101408106,
+          0.20859783879154942
+        ]
+      ],
+      "formula": "g = J.T @ J / sigma**2",
+      "jacobian": [
+        [
+          0.36787944117144233,
+          -0.36787944117144233
+        ],
+        [
+          0.1353352832366127,
+          -0.2706705664732254
+        ]
+      ],
+      "jacobian_hand": [
+        [
+          0.36787944117144233,
+          -0.36787944117144233
+        ],
+        [
+          0.1353352832366127,
+          -0.2706705664732254
+        ]
+      ],
+      "lambda_max": 0.35527170033386374,
+      "lambda_min": 0.006977060583032574,
+      "model": "f=theta1*exp(-theta2*t)",
+      "note": "NOT equated to identifiability_jacobian_rank (SVD rank of J)",
+      "sigma": 1.0,
+      "sloppy_direction": [
+        -0.7608415961245486,
+        -0.6489376438508166
+      ],
+      "stiff_direction": [
+        -0.6489376438508166,
+        0.7608415961245486
+      ],
+      "theta": [
+        1.0,
+        1.0
+      ],
+      "times": [
+        1.0,
+        2.0
+      ]
+    },
+    "isotropic_identity": {
+      "anisotropy": 1.0,
+      "eigenvalues": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "fim": "identity_3x3",
+      "lambda_max": 1.0,
+      "lambda_min": 1.0
+    },
+    "not_jacobian_rank_formula": {
+      "contrast": "jacobian_rank reports numerical rank of J (structural); fim anisotropy reports lambda_max/lambda_min of g=J.T@J/sigma^2 (metric). Same J, different formulas -- not equated.",
+      "fim_anisotropy": 50.91996781536404,
+      "jacobian_rank": 2,
+      "source_has_raju_doi": true,
+      "source_has_transtrum_doi": true
+    },
+    "scope_guards": {
+      "cases": [
+        {
+          "label": "sigma_nonpositive",
+          "msg": "sigma must be finite and > 0; got 0.0",
+          "raised": "ScopeViolationError"
+        },
+        {
+          "label": "sigma_negative",
+          "msg": "sigma must be finite and > 0; got -1.0",
+          "raised": "ScopeViolationError"
+        },
+        {
+          "label": "empty_jacobian",
+          "msg": "jacobian must be 2-D; got shape (0,)",
+          "raised": "ScopeViolationError"
+        },
+        {
+          "label": "non_square_g",
+          "msg": "g must be square (n_paramsxn_params); got shape (3, 2)",
+          "raised": "ScopeViolationError"
+        },
+        {
+          "label": "singular_fim",
+          "msg": "lambda_min must be > 0 for anisotropy; got lambda_min=0.0 (singular / indefinite FIM out of scope for this helper)",
+          "raised": "ScopeViolationError"
+        },
+        {
+          "label": "bad_theta_len",
+          "msg": "exponential_decay_jacobian expects theta=(theta1,theta2); got len=1",
+          "raised": "ScopeViolationError"
+        }
+      ]
+    }
+  }
+}
