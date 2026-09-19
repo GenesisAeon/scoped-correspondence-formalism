@@ -1,0 +1,235 @@
+{
+  "INDEPENDENCE_WARNING": "Independent of M14 contraction and M29 Landau.",
+  "count": 5,
+  "failed": 0,
+  "passed": 5,
+  "report": {
+    "INDEPENDENCE_WARNING": "Independent of M14 contraction and M29 Landau.",
+    "S_identities": {
+      "-1.0": {
+        "S": 0.6666666666666667,
+        "S_expected": 0.6666666666666666
+      },
+      "0.0": {
+        "S": 0.0,
+        "S_expected": 0.0
+      },
+      "1.0": {
+        "S": -0.6666666666666667,
+        "S_expected": -0.6666666666666666
+      },
+      "2.0": {
+        "S": 0.6666666666666665,
+        "S_expected": 0.6666666666666666
+      },
+      "3.0": {
+        "S": 6.0,
+        "S_expected": 6.0
+      },
+      "S_prime_at_folds": {
+        "minus_1": 0.0,
+        "plus_1": 0.0
+      }
+    },
+    "fold_points_exact": {
+      "S_at_minus_1": 0.6666666666666667,
+      "S_at_plus_1": -0.6666666666666667,
+      "expected_S_minus": 0.6666666666666666,
+      "expected_S_plus": -0.6666666666666666,
+      "fold_minus": {
+        "s": 0.6666666666666666,
+        "x": -1.0
+      },
+      "fold_plus": {
+        "s": -0.6666666666666666,
+        "x": 1.0
+      }
+    },
+    "meta": {
+      "INDEPENDENCE_WARNING": "Independent of M14 contraction and M29 Landau.",
+      "forbidden_untouched": [
+        "src/scoped_correspondence/dynamics/core.py",
+        "src/scoped_correspondence/__init__.py",
+        "FORMALISM.md"
+      ],
+      "milestone": 33,
+      "platform": "Windows-10-10.0.19045-SP0",
+      "python": "3.11.9",
+      "source": "Fenichel 1979 DOI 10.1016/0022-0396(79)90152-9; Kuehn 2015 DOI 10.1007/978-3-319-12316-5",
+      "title": "Fenichel / GSPT Critical Manifold",
+      "utc": "2026-09-19T17:54:45.339741+00:00"
+    },
+    "normally_hyperbolic_example": {
+      "false_cases": {
+        "-1.0": {
+          "S_prime": 0.0,
+          "is_normally_hyperbolic": false,
+          "x": -1.0
+        },
+        "1.0": {
+          "S_prime": 0.0,
+          "is_normally_hyperbolic": false,
+          "x": 1.0
+        }
+      },
+      "true_cases": {
+        "0.0": {
+          "S_prime": -1.0,
+          "S_prime_expected": -1.0,
+          "is_normally_hyperbolic": true,
+          "x": 0.0
+        },
+        "1.5": {
+          "S_prime": 1.25,
+          "S_prime_expected": 1.25,
+          "is_normally_hyperbolic": true,
+          "x": 1.5
+        },
+        "2.0": {
+          "S_prime": 3.0,
+          "S_prime_expected": 3.0,
+          "is_normally_hyperbolic": true,
+          "x": 2.0
+        }
+      }
+    },
+    "slow_manifold_distance_bound": {
+      "bound": 0.01,
+      "bound_equals_abs_epsilon": true,
+      "epsilon": 0.01,
+      "epsilon_le_0_raises": true,
+      "epsilon_neg_raises": true,
+      "fold_minus_raises": true,
+      "fold_plus_raises": true,
+      "order_estimate_only": true,
+      "x_nh": 2.0
+    },
+    "sources_and_independence": {
+      "INDEPENDENCE_WARNING": "Independent of M14 contraction and M29 Landau.",
+      "SOURCE": "Fenichel 1979 DOI 10.1016/0022-0396(79)90152-9; Kuehn 2015 DOI 10.1007/978-3-319-12316-5",
+      "cites_fenichel": true,
+      "cites_kuehn": true,
+      "independence_in_api_docs": true,
+      "independence_in_module_doc": true,
+      "no_contraction_import": true,
+      "no_landau_import": true
+    }
+  },
+  "results": [
+    {
+      "detail": {
+        "S_at_minus_1": 0.6666666666666667,
+        "S_at_plus_1": -0.6666666666666667,
+        "expected_S_minus": 0.6666666666666666,
+        "expected_S_plus": -0.6666666666666666,
+        "fold_minus": {
+          "s": 0.6666666666666666,
+          "x": -1.0
+        },
+        "fold_plus": {
+          "s": -0.6666666666666666,
+          "x": 1.0
+        }
+      },
+      "name": "fold_points_exact",
+      "ok": true
+    },
+    {
+      "detail": {
+        "false_cases": {
+          "-1.0": {
+            "S_prime": 0.0,
+            "is_normally_hyperbolic": false,
+            "x": -1.0
+          },
+          "1.0": {
+            "S_prime": 0.0,
+            "is_normally_hyperbolic": false,
+            "x": 1.0
+          }
+        },
+        "true_cases": {
+          "0.0": {
+            "S_prime": -1.0,
+            "S_prime_expected": -1.0,
+            "is_normally_hyperbolic": true,
+            "x": 0.0
+          },
+          "1.5": {
+            "S_prime": 1.25,
+            "S_prime_expected": 1.25,
+            "is_normally_hyperbolic": true,
+            "x": 1.5
+          },
+          "2.0": {
+            "S_prime": 3.0,
+            "S_prime_expected": 3.0,
+            "is_normally_hyperbolic": true,
+            "x": 2.0
+          }
+        }
+      },
+      "name": "normally_hyperbolic_example",
+      "ok": true
+    },
+    {
+      "detail": {
+        "-1.0": {
+          "S": 0.6666666666666667,
+          "S_expected": 0.6666666666666666
+        },
+        "0.0": {
+          "S": 0.0,
+          "S_expected": 0.0
+        },
+        "1.0": {
+          "S": -0.6666666666666667,
+          "S_expected": -0.6666666666666666
+        },
+        "2.0": {
+          "S": 0.6666666666666665,
+          "S_expected": 0.6666666666666666
+        },
+        "3.0": {
+          "S": 6.0,
+          "S_expected": 6.0
+        },
+        "S_prime_at_folds": {
+          "minus_1": 0.0,
+          "plus_1": 0.0
+        }
+      },
+      "name": "S_identities",
+      "ok": true
+    },
+    {
+      "detail": {
+        "bound": 0.01,
+        "bound_equals_abs_epsilon": true,
+        "epsilon": 0.01,
+        "epsilon_le_0_raises": true,
+        "epsilon_neg_raises": true,
+        "fold_minus_raises": true,
+        "fold_plus_raises": true,
+        "order_estimate_only": true,
+        "x_nh": 2.0
+      },
+      "name": "slow_manifold_distance_bound",
+      "ok": true
+    },
+    {
+      "detail": {
+        "INDEPENDENCE_WARNING": "Independent of M14 contraction and M29 Landau.",
+        "SOURCE": "Fenichel 1979 DOI 10.1016/0022-0396(79)90152-9; Kuehn 2015 DOI 10.1007/978-3-319-12316-5",
+        "cites_fenichel": true,
+        "cites_kuehn": true,
+        "independence_in_api_docs": true,
+        "independence_in_module_doc": true,
+        "no_contraction_import": true,
+        "no_landau_import": true
+      },
+      "name": "sources_and_independence",
+      "ok": true
+    }
+  ]
+}
