@@ -16,6 +16,11 @@ M14 contraction and M29 Landau; ``dynamics/core.py`` untouched.
 Milestone 34 (Floquet Multipliers) is exported submodule-locally; given 2×2
 monodromy only — no ODE integrator; **not** M14 contraction;
 ``dynamics/core.py`` and package-root ``__init__`` untouched.
+
+Milestone 35 (Panarchy / Adaptive-Cycle as Cusp extension) is likewise
+exported submodule-locally; ``dynamics/core.py`` is CALLED only
+(``fixed_points`` + ``CubicNormalForm.discriminant``); does NOT revive
+V≡Panarchy≡Onsager-L.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -64,6 +69,15 @@ from scoped_correspondence.dynamics.floquet import (
     floquet_multipliers,
     monodromy_from_trace_det,
 )
+from scoped_correspondence.dynamics.panarchy_cusp import (
+    PANARCHY_V_ONSAGER_WARNING,
+    SOURCE as PANARCHY_SOURCE,
+    HysteresisSample,
+    HysteresisSweepResult,
+    control_path_no_fold_crossing,
+    fold_thresholds,
+    hysteresis_sweep,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -106,4 +120,12 @@ __all__ = [
     "floquet_multipliers",
     "classify_orbital_stability",
     "monodromy_from_trace_det",
+    # M35 Panarchy / Adaptive-Cycle as Cusp extension
+    "PANARCHY_V_ONSAGER_WARNING",
+    "PANARCHY_SOURCE",
+    "HysteresisSample",
+    "HysteresisSweepResult",
+    "fold_thresholds",
+    "hysteresis_sweep",
+    "control_path_no_fold_crossing",
 ]
