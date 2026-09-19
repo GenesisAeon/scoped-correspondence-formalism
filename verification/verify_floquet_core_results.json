@@ -1,0 +1,245 @@
+{
+  "count": 5,
+  "errors": [],
+  "failed": 0,
+  "passed": 5,
+  "report": {
+    "NOT_M14": true,
+    "SOURCE": "Floquet 1883, Sur les \u00e9quations diff\u00e9rentielles lin\u00e9aires \u00e0 coefficients p\u00e9riodiques, Ann. sci. \u00c9c. Norm. Sup. 12, 47\u201388; DOI 10.24033/asens.220",
+    "SOURCE_OPTIONAL": "Castelli & Lessard 2013, Rigorous Numerics in Floquet Theory, SIAM J. Appl. Dyn. Syst.; DOI 10.1137/120873960",
+    "checks": {
+      "charpoly_vs_numpy_eigvals": {
+        "detail": {
+          "cases": [
+            {
+              "classification": "neutral",
+              "det": 1.0,
+              "eigvals_agree": true,
+              "mu": [
+                {
+                  "abs": 1.0,
+                  "imag": -0.6614378277661477,
+                  "real": 0.75
+                },
+                {
+                  "abs": 1.0,
+                  "imag": 0.6614378277661477,
+                  "real": 0.75
+                }
+              ],
+              "tr": 1.5
+            },
+            {
+              "classification": "unstable",
+              "det": 1.0,
+              "eigvals_agree": true,
+              "mu": [
+                {
+                  "abs": 0.5,
+                  "imag": 0.0,
+                  "real": 0.5
+                },
+                {
+                  "abs": 2.0,
+                  "imag": 0.0,
+                  "real": 2.0
+                }
+              ],
+              "tr": 2.5
+            },
+            {
+              "classification": "neutral",
+              "det": 1.0,
+              "eigvals_agree": true,
+              "mu": [
+                {
+                  "abs": 1.0,
+                  "imag": 0.0,
+                  "real": 1.0
+                },
+                {
+                  "abs": 1.0,
+                  "imag": 0.0,
+                  "real": 1.0
+                }
+              ],
+              "tr": 2.0
+            },
+            {
+              "classification": "neutral",
+              "det": 1.0,
+              "eigvals_agree": true,
+              "mu": [
+                {
+                  "abs": 1.0,
+                  "imag": -1.0,
+                  "real": 0.0
+                },
+                {
+                  "abs": 1.0,
+                  "imag": 1.0,
+                  "real": 0.0
+                }
+              ],
+              "tr": 0.0
+            },
+            {
+              "classification": "stable",
+              "det": 0.5,
+              "eigvals_agree": true,
+              "mu": [
+                {
+                  "abs": 0.7071067811865476,
+                  "imag": -0.5,
+                  "real": -0.5
+                },
+                {
+                  "abs": 0.7071067811865476,
+                  "imag": 0.5,
+                  "real": -0.5
+                }
+              ],
+              "tr": -1.0
+            },
+            {
+              "classification": "stable",
+              "det": 0.1,
+              "eigvals_agree": true,
+              "mu": [
+                {
+                  "abs": 0.31622776601683794,
+                  "imag": -0.19364916731037085,
+                  "real": 0.25
+                },
+                {
+                  "abs": 0.31622776601683794,
+                  "imag": 0.19364916731037085,
+                  "real": 0.25
+                }
+              ],
+              "tr": 0.5
+            }
+          ],
+          "stable_example_tr_det": [
+            0.5,
+            0.1
+          ]
+        },
+        "status": "passed"
+      },
+      "edge_double_mu_one_not_stable": {
+        "detail": {
+          "M": [
+            [
+              0.0,
+              -1.0
+            ],
+            [
+              1.0,
+              2.0
+            ]
+          ],
+          "classification": "neutral",
+          "det": 1.0,
+          "direct_ones_classification": "neutral",
+          "multipliers": [
+            1.0,
+            1.0
+          ],
+          "not_stable": true,
+          "tr": 2.0
+        },
+        "status": "passed"
+      },
+      "example_a_neutral_tr15_det1": {
+        "detail": {
+          "M": [
+            [
+              0.0,
+              -1.0
+            ],
+            [
+              1.0,
+              1.5
+            ]
+          ],
+          "abs_all_one": true,
+          "classification": "neutral",
+          "det": 1.0,
+          "hand_disc": -1.75,
+          "hand_sqrt_1_75": 1.3228756555322954,
+          "multipliers": [
+            {
+              "abs": 1.0,
+              "imag": -0.6614378277661477,
+              "real": 0.75
+            },
+            {
+              "abs": 1.0,
+              "imag": 0.6614378277661477,
+              "real": 0.75
+            }
+          ],
+          "tr": 1.5
+        },
+        "status": "passed"
+      },
+      "example_b_unstable_tr25_det1": {
+        "detail": {
+          "M": [
+            [
+              0.0,
+              -1.0
+            ],
+            [
+              1.0,
+              2.5
+            ]
+          ],
+          "classification": "unstable",
+          "det": 1.0,
+          "expected": [
+            0.5,
+            2.0
+          ],
+          "multipliers": [
+            {
+              "abs": 0.5,
+              "imag": 0.0,
+              "real": 0.5
+            },
+            {
+              "abs": 2.0,
+              "imag": 0.0,
+              "real": 2.0
+            }
+          ],
+          "tr": 2.5
+        },
+        "status": "passed"
+      },
+      "source_not_m14_and_scope": {
+        "detail": {
+          "SOURCE": "Floquet 1883, Sur les \u00e9quations diff\u00e9rentielles lin\u00e9aires \u00e0 coefficients p\u00e9riodiques, Ann. sci. \u00c9c. Norm. Sup. 12, 47\u201388; DOI 10.24033/asens.220",
+          "SOURCE_OPTIONAL": "Castelli & Lessard 2013, Rigorous Numerics in Floquet Theory, SIAM J. Appl. Dyn. Syst.; DOI 10.1137/120873960",
+          "STABILITY_LABELS": [
+            "stable",
+            "unstable",
+            "neutral"
+          ],
+          "doc_mentions_not_m14": true,
+          "empty_raises": true,
+          "scope_1x1_raises": true,
+          "scope_3x3_raises": true
+        },
+        "status": "passed"
+      }
+    },
+    "milestone": "M34",
+    "no_ode_integrator": true,
+    "numpy_version": "2.2.6",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "timestamp_local": "2026-09-19T19:54:52",
+    "title": "Floquet Multipliers (given 2\u00d72 monodromy)"
+  }
+}

@@ -12,6 +12,10 @@ exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
 
 Milestone 33 (Fenichel / GSPT) is exported submodule-locally; independent of
 M14 contraction and M29 Landau; ``dynamics/core.py`` untouched.
+
+Milestone 34 (Floquet Multipliers) is exported submodule-locally; given 2×2
+monodromy only — no ODE integrator; **not** M14 contraction;
+``dynamics/core.py`` and package-root ``__init__`` untouched.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -50,6 +54,16 @@ from scoped_correspondence.dynamics.gspt import (
     is_normally_hyperbolic,
     slow_manifold_distance_bound,
 )
+from scoped_correspondence.dynamics.floquet import (
+    SOURCE as FLOQUET_SOURCE,
+    SOURCE_OPTIONAL as FLOQUET_SOURCE_OPTIONAL,
+    STABILITY_NEUTRAL,
+    STABILITY_STABLE,
+    STABILITY_UNSTABLE,
+    classify_orbital_stability,
+    floquet_multipliers,
+    monodromy_from_trace_det,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -83,4 +97,13 @@ __all__ = [
     "critical_manifold_fold_points",
     "is_normally_hyperbolic",
     "slow_manifold_distance_bound",
+    # M34 Floquet multipliers (given 2×2 monodromy; not M14)
+    "FLOQUET_SOURCE",
+    "FLOQUET_SOURCE_OPTIONAL",
+    "STABILITY_STABLE",
+    "STABILITY_UNSTABLE",
+    "STABILITY_NEUTRAL",
+    "floquet_multipliers",
+    "classify_orbital_stability",
+    "monodromy_from_trace_det",
 ]
