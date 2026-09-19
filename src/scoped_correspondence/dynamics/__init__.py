@@ -9,6 +9,9 @@ left untouched to avoid fighting parallel M15/M16 branches.
 
 Milestone 29 (Landau Exponent Comparison / Self-Falsification) is likewise
 exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
+
+Milestone 33 (Fenichel / GSPT) is exported submodule-locally; independent of
+M14 contraction and M29 Landau; ``dynamics/core.py`` untouched.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -37,6 +40,16 @@ from scoped_correspondence.dynamics.landau import (
     mean_field_order_parameter,
     onsager_critical_ratio,
 )
+from scoped_correspondence.dynamics.gspt import (
+    INDEPENDENCE_WARNING as GSPT_INDEPENDENCE_WARNING,
+    SOURCE as GSPT_SOURCE,
+    FoldPoint,
+    critical_manifold_S,
+    critical_manifold_S_prime,
+    critical_manifold_fold_points,
+    is_normally_hyperbolic,
+    slow_manifold_distance_bound,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -61,4 +74,13 @@ __all__ = [
     "mean_field_order_parameter",
     "onsager_critical_ratio",
     "compare_scaling_exponents",
+    # M33 Fenichel / GSPT (submodule-local; independent of M14/M29)
+    "GSPT_SOURCE",
+    "GSPT_INDEPENDENCE_WARNING",
+    "FoldPoint",
+    "critical_manifold_S",
+    "critical_manifold_S_prime",
+    "critical_manifold_fold_points",
+    "is_normally_hyperbolic",
+    "slow_manifold_distance_bound",
 ]
