@@ -69,7 +69,9 @@ from scoped_correspondence.dynamics.floquet import (
     STABILITY_STABLE,
     STABILITY_UNSTABLE,
     classify_orbital_stability,
+    classify_orbital_stability_matrix,
     floquet_multipliers,
+    has_nontrivial_jordan_block,
     monodromy_from_trace_det,
 )
 from scoped_correspondence.dynamics.panarchy_cusp import (
@@ -131,6 +133,8 @@ __all__ = [
     "STABILITY_NEUTRAL",
     "floquet_multipliers",
     "classify_orbital_stability",
+    "classify_orbital_stability_matrix",
+    "has_nontrivial_jordan_block",
     "monodromy_from_trace_det",
     # M35 Panarchy / Adaptive-Cycle as Cusp extension
     "PANARCHY_V_ONSAGER_WARNING",

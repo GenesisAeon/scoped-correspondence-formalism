@@ -150,8 +150,9 @@ def classify_orbital_stability(
     multipliers: Sequence[complex],
     *,
     atol: float = 1e-9,
+    has_known_phase_mode: bool = False,
 ) -> str:
-    """Classify orbital stability from Floquet-multiplier moduli.
+    """Classify orbital stability from Floquet-multiplier moduli alone.
 
     Rules (strict; the double-``μ=1`` edge is **neutral**, never ``stable``):
 
@@ -161,28 +162,120 @@ def classify_orbital_stability(
       including the area-preserving unit-circle case and the double root
       ``μ = 1`` when ``tr = 2``, ``det = 1``)
 
+    Audit finding A08 (multipliers-only limitation): given only the
+    multipliers (no matrix), this function **cannot** distinguish a
+    diagonalizable repeated unit eigenvalue (bounded) from a non-trivial
+    Jordan block (unbounded polynomial growth, e.g.
+    ``M=[[1,1],[0,1]]``, both ``μ=1``, yet ``M^n`` has an unbounded
+    off-diagonal entry) — that requires the actual matrix, see
+    ``classify_orbital_stability_matrix``. This function alone therefore
+    stays conservative and reports ``"neutral"`` for ANY unit-modulus
+    multiplier; it never claims ``"stable"`` in that case, so it cannot
+    silently certify the Jordan-block example as bounded.
+
+    Audit finding A08 (autonomous phase mode): for an autonomous
+    system's periodic orbit, exactly one multiplier is always trivially
+    ``μ=1`` (the flow direction) and carries no information about
+    transverse stability. Passing ``has_known_phase_mode=True`` tells
+    this function that EXACTLY ONE multiplier equal to ``+1`` (not just
+    ``|μ|=1`` generally) is that known trivial mode, and classification
+    is then based on the REMAINING multipliers only. Without this flag
+    (the default), a ``μ=1`` is treated the conservative way, as an
+    unannotated unit-modulus multiplier — i.e. ``"neutral"``, not
+    ``"stable"``, exactly as before.
+
     Parameters
     ----------
     multipliers :
         Iterable of complex Floquet multipliers.
     atol :
         Absolute tolerance for the unit-circle boundary.
+    has_known_phase_mode :
+        If ``True``, exactly one multiplier must equal ``+1`` (within
+        ``atol``) and is excluded from the unit-circle check as the
+        known autonomous phase direction; raises ``ScopeViolationError``
+        if zero or more than one multiplier qualifies (ambiguous — this
+        function will not guess which one is "the" phase mode).
 
     Returns
     -------
     str
         One of ``"stable"``, ``"unstable"``, ``"neutral"``.
     """
-    mods = [abs(complex(m)) for m in multipliers]
-    if not mods:
+    mults = [complex(m) for m in multipliers]
+    if not mults:
         raise ScopeViolationError(
             "classify_orbital_stability: empty multipliers"
         )
+    if has_known_phase_mode:
+        phase_idx = [
+            i for i, m in enumerate(mults)
+            if abs(m.imag) <= atol and abs(m.real - 1.0) <= atol
+        ]
+        if len(phase_idx) != 1:
+            raise ScopeViolationError(
+                "classify_orbital_stability: has_known_phase_mode=True "
+                f"requires exactly one multiplier == +1 (within atol); "
+                f"found {len(phase_idx)} candidates in {mults!r}"
+            )
+        mults = [m for i, m in enumerate(mults) if i != phase_idx[0]]
+        if not mults:
+            # Only the trivial phase mode existed (e.g. a 1x1 case) —
+            # nothing transverse left to be unstable in.
+            return STABILITY_STABLE
+
+    mods = [abs(m) for m in mults]
     if any(r > 1.0 + atol for r in mods):
         return STABILITY_UNSTABLE
     if all(r < 1.0 - atol for r in mods):
         return STABILITY_STABLE
     return STABILITY_NEUTRAL
+
+
+def has_nontrivial_jordan_block(M: ArrayLike, atol: float = 1e-9) -> bool:
+    """True iff the 2×2 ``M`` has a repeated eigenvalue but is NOT diagonal-
+    izable there (a genuine Jordan block, causing unbounded polynomial
+    growth of ``M**n`` even though ``|μ|=1`` exactly for that eigenvalue).
+
+    For a 2×2 matrix with a repeated eigenvalue ``λ`` (``tr=2λ``,
+    ``det=λ²``), ``M`` is diagonalizable there iff ``M == λI`` exactly;
+    any other ``M`` with that trace/det is a non-trivial Jordan block
+    (audit example: ``M=[[1,1],[0,1]]``, ``λ=1``, ``M != I``).
+    """
+    A = _as_2x2(M)
+    tr, det = characteristic_polynomial_coeffs(A)
+    disc = tr * tr - 4.0 * det
+    if abs(disc) > atol:
+        return False  # distinct eigenvalues — no repeated root, no Jordan block
+    lam = tr / 2.0
+    return bool(np.max(np.abs(A - lam * np.eye(2))) > atol)
+
+
+def classify_orbital_stability_matrix(
+    M: ArrayLike,
+    *,
+    atol: float = 1e-9,
+    has_known_phase_mode: bool = False,
+) -> str:
+    """Matrix-aware orbital-stability classification (recommended over the
+    multipliers-only ``classify_orbital_stability`` whenever ``M`` itself
+    is available).
+
+    Computes multipliers via ``floquet_multipliers(M)`` and additionally
+    checks for a non-trivial Jordan block at a repeated unit-modulus
+    eigenvalue (``has_nontrivial_jordan_block``) — audit finding A08: a
+    repeated ``μ=1`` alone is NOT sufficient evidence of bounded/neutral
+    behaviour if the matrix is not actually diagonalizable there, since
+    ``M**n`` then grows polynomially without bound. Such a case is
+    reported ``"unstable"``, never ``"neutral"``.
+    """
+    A = _as_2x2(M)
+    mu = floquet_multipliers(A)
+    tr, det = characteristic_polynomial_coeffs(A)
+    disc = tr * tr - 4.0 * det
+    if abs(disc) <= atol and abs(abs(tr / 2.0) - 1.0) <= atol and has_nontrivial_jordan_block(A, atol=atol):
+        return STABILITY_UNSTABLE
+    return classify_orbital_stability(mu, atol=atol, has_known_phase_mode=has_known_phase_mode)
 
 
 def monodromy_from_trace_det(tr: float, det: float) -> np.ndarray:

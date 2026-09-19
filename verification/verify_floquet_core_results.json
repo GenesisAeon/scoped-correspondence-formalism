@@ -1,13 +1,47 @@
 {
-  "count": 5,
+  "count": 7,
   "errors": [],
   "failed": 0,
-  "passed": 5,
+  "passed": 7,
   "report": {
     "NOT_M14": true,
     "SOURCE": "Floquet 1883, Sur les \u00e9quations diff\u00e9rentielles lin\u00e9aires \u00e0 coefficients p\u00e9riodiques, Ann. sci. \u00c9c. Norm. Sup. 12, 47\u201388; DOI 10.24033/asens.220",
     "SOURCE_OPTIONAL": "Castelli & Lessard 2013, Rigorous Numerics in Floquet Theory, SIAM J. Appl. Dyn. Syst.; DOI 10.1137/120873960",
     "checks": {
+      "audit_a08_autonomous_phase_mode": {
+        "detail": {
+          "ambiguous_candidates_raise": true,
+          "default_classification": "neutral",
+          "multipliers": [
+            1.0,
+            0.5
+          ],
+          "no_candidate_raises": true,
+          "phase_mode_classification": "stable"
+        },
+        "status": "passed"
+      },
+      "audit_a08_jordan_block": {
+        "detail": {
+          "M": [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "M_power_100_offdiag": 100.0,
+          "identity_case_classification": "neutral",
+          "identity_case_is_jordan_block": false,
+          "is_jordan_block": true,
+          "matrix_aware_classification": "unstable",
+          "multipliers_only_classification": "neutral"
+        },
+        "status": "passed"
+      },
       "charpoly_vs_numpy_eigvals": {
         "detail": {
           "cases": [
@@ -239,7 +273,7 @@
     "no_ode_integrator": true,
     "numpy_version": "2.2.6",
     "platform": "Windows-10-10.0.19045-SP0",
-    "timestamp_local": "2026-09-19T19:54:52",
+    "timestamp_local": "2026-09-20T00:11:03",
     "title": "Floquet Multipliers (given 2\u00d72 monodromy)"
   }
 }

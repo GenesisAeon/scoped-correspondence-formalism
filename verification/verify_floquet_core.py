@@ -36,7 +36,9 @@ from scoped_correspondence.dynamics.floquet import (  # noqa: E402
     STABILITY_STABLE,
     STABILITY_UNSTABLE,
     classify_orbital_stability,
+    classify_orbital_stability_matrix,
     floquet_multipliers,
+    has_nontrivial_jordan_block,
     monodromy_from_trace_det,
     multipliers_from_trace_det,
 )
@@ -236,12 +238,84 @@ def check_source_not_m14_and_scope():
     }
 
 
+def check_audit_a08_jordan_block():
+    """Audit A08: M=[[1,1],[0,1]] has both mu=1 (repeated, unit modulus) but
+    is a non-trivial Jordan block -- M^n grows without bound (M^100 has a
+    100 off-diagonal), contradicting the "neutral"/bounded reading of a
+    multipliers-only classification. classify_orbital_stability_matrix
+    must catch this via has_nontrivial_jordan_block and report unstable;
+    the plain multipliers-only classify_orbital_stability is unchanged
+    (still conservatively "neutral", since it cannot see M at all).
+    """
+    M = [[1.0, 1.0], [0.0, 1.0]]
+    mu = floquet_multipliers(M)
+    for z in mu:
+        cnear(z, 1.0 + 0j, atol=1e-9)
+    old_label = classify_orbital_stability(mu)
+    require(old_label == STABILITY_NEUTRAL, f"multipliers-only stays neutral, got {old_label!r}")
+    require(has_nontrivial_jordan_block(M), "M=[[1,1],[0,1]] must be flagged as a Jordan block")
+    new_label = classify_orbital_stability_matrix(M)
+    require(new_label == STABILITY_UNSTABLE, f"matrix-aware must be unstable, got {new_label!r}")
+    M100 = np.linalg.matrix_power(np.asarray(M), 100)
+    near(M100[0, 1], 100.0, atol=1e-6)
+    # A genuinely diagonalizable repeated eigenvalue (M=I) must NOT be flagged.
+    require(not has_nontrivial_jordan_block([[1.0, 0.0], [0.0, 1.0]]), "identity is diagonalizable, not a Jordan block")
+    identity_label = classify_orbital_stability_matrix([[1.0, 0.0], [0.0, 1.0]])
+    require(identity_label == STABILITY_NEUTRAL, f"M=I stays neutral, got {identity_label!r}")
+    return {
+        "M": M,
+        "multipliers_only_classification": old_label,
+        "is_jordan_block": True,
+        "matrix_aware_classification": new_label,
+        "M_power_100_offdiag": M100[0, 1],
+        "identity_case_is_jordan_block": False,
+        "identity_case_classification": identity_label,
+    }
+
+
+def check_audit_a08_autonomous_phase_mode():
+    """Audit A08: multipliers [1, 0.5] classify neutral by default (the mu=1
+    is not annotated as anything special). With has_known_phase_mode=True,
+    the trivial mu=1 (autonomous flow direction) is excluded and the
+    remaining transverse multiplier (0.5) alone determines stability ->
+    stable. Ambiguous or missing phase-mode candidates must raise.
+    """
+    default_label = classify_orbital_stability([1.0, 0.5])
+    require(default_label == STABILITY_NEUTRAL, f"default stays neutral, got {default_label!r}")
+    phase_label = classify_orbital_stability([1.0, 0.5], has_known_phase_mode=True)
+    require(phase_label == STABILITY_STABLE, f"transverse-only must be stable, got {phase_label!r}")
+
+    raised_none = False
+    try:
+        classify_orbital_stability([2.0, 0.5], has_known_phase_mode=True)
+    except ScopeViolationError:
+        raised_none = True
+    require(raised_none, "no mu==1 candidate must raise under has_known_phase_mode=True")
+
+    raised_ambiguous = False
+    try:
+        classify_orbital_stability([1.0, 1.0, 0.5], has_known_phase_mode=True)
+    except ScopeViolationError:
+        raised_ambiguous = True
+    require(raised_ambiguous, "two mu==1 candidates must raise as ambiguous")
+
+    return {
+        "multipliers": [1.0, 0.5],
+        "default_classification": default_label,
+        "phase_mode_classification": phase_label,
+        "no_candidate_raises": raised_none,
+        "ambiguous_candidates_raise": raised_ambiguous,
+    }
+
+
 CHECKS = [
     ("example_a_neutral_tr15_det1", check_example_a_neutral),
     ("example_b_unstable_tr25_det1", check_example_b_unstable),
     ("edge_double_mu_one_not_stable", check_edge_double_mu_one_not_stable),
     ("charpoly_vs_numpy_eigvals", check_charpoly_vs_eigvals),
     ("source_not_m14_and_scope", check_source_not_m14_and_scope),
+    ("audit_a08_jordan_block", check_audit_a08_jordan_block),
+    ("audit_a08_autonomous_phase_mode", check_audit_a08_autonomous_phase_mode),
 ]
 
 
