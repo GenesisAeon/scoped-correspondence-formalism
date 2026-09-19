@@ -8,8 +8,9 @@ FORMALISM.md §6: there is no general identity between eta_info, Panarchy,
 A_ij and L_ij.
 
 Milestone 12 (Dirac structure composition), Milestone 15 (Dissipativity /
-supply rates), Milestone 26 (Lie–Poisson / Casimir invariants), and
-Milestone 38 (GENERIC ↔ Navier–Stokes viscous dissipation) are
+supply rates), Milestone 26 (Lie–Poisson / Casimir invariants),
+Milestone 38 (GENERIC ↔ Navier–Stokes viscous dissipation), and
+Milestone 39 (Pecora–Carroll generalized / drive–response sync) are
 exported here as **submodule-local** additions; package-root
 ``scoped_correspondence.__init__`` is intentionally left untouched.
 """
@@ -64,6 +65,17 @@ from scoped_correspondence.coupling.generic_navier_stokes import (
     two_cell_viscous_example,
 )
 
+from scoped_correspondence.coupling.generalized_sync import (
+    BRIDGE_NOTE as GENERALIZED_SYNC_BRIDGE_NOTE,
+    DOI as GENERALIZED_SYNC_DOI,
+    LUHMANN_DISCLAIMER,
+    SOURCE as GENERALIZED_SYNC_SOURCE,
+    LinearDriveResponseResult,
+    conditional_lyapunov_linear,
+    linear_drive_response_map,
+    sync_criterion_cle_negative,
+)
+
 __all__ = [
     "AijInfluence",
     "GENERIC_STRUCTURE_TOL",
@@ -108,4 +120,13 @@ __all__ = [
     "GENERIC_NS_SOURCE",
     "generic_ns_as_report",
     "two_cell_viscous_example",
+    # M39 Pecora–Carroll generalized sync (submodule-local; core.py untouched)
+    "GENERALIZED_SYNC_BRIDGE_NOTE",
+    "GENERALIZED_SYNC_DOI",
+    "LUHMANN_DISCLAIMER",
+    "GENERALIZED_SYNC_SOURCE",
+    "LinearDriveResponseResult",
+    "conditional_lyapunov_linear",
+    "linear_drive_response_map",
+    "sync_criterion_cle_negative",
 ]

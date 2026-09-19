@@ -1,0 +1,77 @@
+{
+  "milestone": "M39",
+  "title": "Pecora–Carroll Generalized / Drive–Response Synchronisation",
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "failed_names": [],
+  "report": [
+    {
+      "name": "bridge_note_verbatim",
+      "BRIDGE_NOTE": "Das CLE<0-Kriterium hier ähnelt strukturell der bereits gemergten\nKontraktionsanalyse (M14, `dynamics/contraction.py`, Lohmiller &\nSlotine 1998) — beide sind Vorzeichenkriterien an einer\nVariationsgleichung. Das ist KEINE Identität: M14 prüft globale\nmetrische Kontraktion EINES Systems, dieses Modul prüft\nDrive-Response-Synchronisation ZWISCHEN zwei gekoppelten Systemen in\n`coupling`. Eine mögliche künftige `correspondence`-Brücke zwischen\nden beiden Kriterien ist denkbar, aber HIER NICHT behauptet oder\nimplementiert — offener, unbewiesener Kandidat, analog zum\ndokumentierten Turing↔dynamics-Brückenkandidaten in\n`pattern_formation/core.py`.",
+      "occurrences_in_module": 2,
+      "status": "passed"
+    },
+    {
+      "name": "conditional_lyapunov_linear",
+      "a_neg": -2.0,
+      "cle_neg": -2.0,
+      "sync_neg": true,
+      "a_pos": 0.5,
+      "cle_pos": 0.5,
+      "sync_pos": false,
+      "status": "passed"
+    },
+    {
+      "name": "worked_example_c4_k3_sync",
+      "c": 4.0,
+      "k": 3.0,
+      "phi": 2.0,
+      "cle": -3.0,
+      "map_exists": true,
+      "sync_achieved": true,
+      "hand_check_decay_rate": 3.0,
+      "status": "passed"
+    },
+    {
+      "name": "counterexample_c4_k_minus1_no_sync",
+      "c": 4.0,
+      "k": -1.0,
+      "phi": -2.0,
+      "cle": 1.0,
+      "map_exists": true,
+      "sync_achieved": false,
+      "status": "passed"
+    },
+    {
+      "name": "k_equals_one_scope_violation",
+      "raised": true,
+      "error_type": "ScopeViolationError",
+      "status": "passed"
+    },
+    {
+      "name": "source_and_exports",
+      "SOURCE": "Pecora & Carroll 1990, Phys. Rev. Lett. 64, 821–824, DOI 10.1103/PhysRevLett.64.821",
+      "DOI": "10.1103/PhysRevLett.64.821",
+      "coupling_exports_checked": true,
+      "note": "coupling.__init__ exports OK",
+      "status": "passed"
+    }
+  ],
+  "source": "Pecora & Carroll 1990, Phys. Rev. Lett. 64, 821–824, DOI 10.1103/PhysRevLett.64.821",
+  "doi": "10.1103/PhysRevLett.64.821",
+  "BRIDGE_NOTE": "Das CLE<0-Kriterium hier ähnelt strukturell der bereits gemergten\nKontraktionsanalyse (M14, `dynamics/contraction.py`, Lohmiller &\nSlotine 1998) — beide sind Vorzeichenkriterien an einer\nVariationsgleichung. Das ist KEINE Identität: M14 prüft globale\nmetrische Kontraktion EINES Systems, dieses Modul prüft\nDrive-Response-Synchronisation ZWISCHEN zwei gekoppelten Systemen in\n`coupling`. Eine mögliche künftige `correspondence`-Brücke zwischen\nden beiden Kriterien ist denkbar, aber HIER NICHT behauptet oder\nimplementiert — offener, unbewiesener Kandidat, analog zum\ndokumentierten Turing↔dynamics-Brückenkandidaten in\n`pattern_formation/core.py`.",
+  "LUHMANN_DISCLAIMER": "mathematische Fassung im Sinne dynamischer Mitführung, KEINE Luhmann-Soziologie, KEINE Gleichsetzung.",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+  "timestamp_local": "2026-09-19T19:56:16.755553+02:00",
+  "forbidden_untouched_by_design": [
+    "src/scoped_correspondence/coupling/core.py",
+    "src/scoped_correspondence/dynamics/contraction.py",
+    "src/scoped_correspondence/__init__.py",
+    "FORMALISM.md",
+    "coupling_layer_afet.md"
+  ],
+  "branch_target": "aeon/m39-pecora-carroll-sync",
+  "no_merge": true
+}
