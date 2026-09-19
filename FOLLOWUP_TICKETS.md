@@ -318,6 +318,30 @@ Von Aeon geliefert (`prompts/41_teil2_percolation_kesten_for_aeon.md`) direkt al
 - Kein bestehender Baustein, kein Paket-Root-`__init__.py`, keine der acht Kerndokumente berührt.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m32-percolation-kesten` wird gelöscht. **Das Repository hat damit 15 Bausteine.**
 
+## F53: DeepResearch-Auftrag Runde 3 gesendet (2026-09-19, ausstehend)
+
+`prompts/42_deepresearch_round3_legacy_concepts_and_further_extensions.md`
+— diesmal an zwei unabhängige Grok-Agenten (von Aeon beauftragt, nicht
+Claude-Subagenten). Drei Spuren: (A) weitere direkte Erweiterungen wie
+Runde 1/2 (jetzt 15 Bausteine, 25 bereits gemergte Vorschläge — Feld
+zunehmend ausgeschöpft), (B) Fortsetzung von Runde 2s eigenständigen
+Themenfeldern — explizit inklusive der zwei Punkte aus Runde 2s Auftrag
+(`prompts/33_...md`), die dort nur als Orientierung genannt, aber nie
+zu einem Milestone wurden: GENERIC↔Navier-Stokes (Öttinger & Grmela)
+für `coupling`/`thermo`, und die Chapman-Enskog-Entwicklung
+(hydrodynamischer Grenzwert als Closure-Problem) für `closure`, (C) NEU
+auf Johanns Anregung — ehrliche Neuprüfung der
+ursprünglichen CREP/UTAC/AFET-Inspirationsliteratur (Panarchy/Holling,
+Autopoiesis/Maturana-Varela, strukturelle Kopplung im Sinne
+generalisierter Synchronisation, Resilienz-Frühwarnsignale/Scheffer
+et al. 2009), explizit OHNE die künstliche Übersetzung, die zu den
+bereits zurückgenommenen Gleichsetzungen (β≡Stabilität,
+V≡Panarchy≡Onsager-L, geteiltes σ=2,2, A_ij≡L_ij) geführt hatte. Jeder
+Spur-C-Vorschlag muss explizit als (a) echte Erweiterung eines
+Bausteins oder (b) eigenständiger neuer Baustein klassifiziert werden;
+"nichts Zitierfähiges gefunden" (v.a. für Autopoiesis erwartet) ist
+ein explizit zulässiges, valides Ergebnis. Noch keine Antwort erhalten.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
