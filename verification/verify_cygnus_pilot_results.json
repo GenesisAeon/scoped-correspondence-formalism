@@ -1,7 +1,7 @@
 {
   "milestone": "M6_cygnus_pilot",
   "kind": "real-data validation pilot (honesty over beauty)",
-  "generated_at_utc": "2026-09-17T06:07:00.577881+00:00",
+  "generated_at_utc": "2026-09-19T22:22:30.512368+00:00",
   "python": "3.11.9",
   "numpy": "2.2.6",
   "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\cygnus_x1_radio_epochs.yaml",
@@ -133,8 +133,8 @@
     "no_gamma_jet_sigma_reuse": true,
     "retune_after_holdout": false
   },
-  "count": 6,
-  "passed": 6,
+  "count": 7,
+  "passed": 7,
   "failed": 0,
   "empirical_validation": true,
   "checks": [
@@ -204,6 +204,17 @@
       "evidence": {
         "raised_on_wrong_calib": true,
         "raised_on_wrong_holdout": true
+      }
+    },
+    {
+      "id": "audit_a09_manifest_disjointness",
+      "status": "passed",
+      "evidence": {
+        "overlapping_calib_holdout_raises": true,
+        "duplicate_indices_raises": true,
+        "out_of_range_index_raises": true,
+        "canonical_manifest_unaffected": true,
+        "qualification": "canonical cygnus_pa_manifest() always used disjoint fixed indices; this hardens the DatasetManifest contract itself, not evidence of a leak in the real run."
       }
     },
     {

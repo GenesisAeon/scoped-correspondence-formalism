@@ -84,6 +84,38 @@ class DatasetManifest:
         "from fixed efficiency (worked_example_cygnus_jet_utac.md) is excluded."
     )
 
+    def __post_init__(self) -> None:
+        # Audit finding A09: the manifest itself accepted overlapping or
+        # duplicated calib/holdout indices (split_epochs only checks that
+        # the CALLER's indices match the manifest's, not that the manifest
+        # is internally sound) -- a manifest built with
+        # holdout_indices=calib_indices passed silently, and split_epochs
+        # then returned identical calib/holdout epoch lists (a leak). The
+        # canonical Cygnus manifest already uses disjoint fixed indices;
+        # this hardens the contract for any manifest, not just that one.
+        calib = tuple(self.calib_indices)
+        holdout = tuple(self.holdout_indices)
+        if len(set(calib)) != len(calib):
+            raise ScopeViolationError(
+                f"DatasetManifest: calib_indices has duplicates: {calib!r}"
+            )
+        if len(set(holdout)) != len(holdout):
+            raise ScopeViolationError(
+                f"DatasetManifest: holdout_indices has duplicates: {holdout!r}"
+            )
+        overlap = set(calib) & set(holdout)
+        if overlap:
+            raise ScopeViolationError(
+                "DatasetManifest: calib_indices and holdout_indices must be "
+                f"disjoint (anti data-snooping); overlap={sorted(overlap)!r}"
+            )
+        for idx in (*calib, *holdout):
+            if not (0 <= idx < self.n_epochs):
+                raise ScopeViolationError(
+                    f"DatasetManifest: index {idx!r} out of range "
+                    f"[0, {self.n_epochs})"
+                )
+
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
         d["citations"] = list(self.citations)

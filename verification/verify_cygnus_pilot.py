@@ -154,6 +154,54 @@ def main():
         }
     )
 
+    # Audit finding A09: split_epochs only checked that the CALLER's indices
+    # matched the manifest's own indices, not that the manifest itself was
+    # internally sound -- a manifest built with holdout_indices==calib_indices
+    # passed silently and produced identical calib/holdout epoch lists (a
+    # leak). DatasetManifest.__post_init__ now rejects overlapping/duplicate/
+    # out-of-range indices at construction time, so dataclasses.replace()
+    # with the audit's exact leaky substitution must raise immediately.
+    import dataclasses as _dc
+
+    leak_raised = False
+    try:
+        _dc.replace(manifest, holdout_indices=manifest.calib_indices)
+    except ScopeViolationError:
+        leak_raised = True
+    require(leak_raised, "manifest with holdout==calib_indices must raise at construction")
+
+    dup_raised = False
+    try:
+        _dc.replace(manifest, calib_indices=(0, 0, 1))
+    except ScopeViolationError:
+        dup_raised = True
+    require(dup_raised, "manifest with duplicate indices must raise")
+
+    range_raised = False
+    try:
+        _dc.replace(manifest, calib_indices=(0, 1, 999))
+    except ScopeViolationError:
+        range_raised = True
+    require(range_raised, "manifest with out-of-range index must raise")
+
+    checks.append(
+        {
+            "id": "audit_a09_manifest_disjointness",
+            "status": "passed",
+            "evidence": {
+                "overlapping_calib_holdout_raises": leak_raised,
+                "duplicate_indices_raises": dup_raised,
+                "out_of_range_index_raises": range_raised,
+                "canonical_manifest_unaffected": True,
+                "qualification": (
+                    "canonical cygnus_pa_manifest() always used disjoint fixed "
+                    "indices; this hardens the DatasetManifest contract itself, "
+                    "not evidence of a leak in the real run."
+                ),
+            },
+        }
+    )
+
     calib_pa = [e.jet_pa_deg for e in calib]
     base = persistence_baseline(calib_pa)
     require(base == calib_pa[-1], "baseline is last calib PA")
