@@ -1,0 +1,106 @@
+{
+  "count": 5,
+  "failed": 0,
+  "failures": [],
+  "forbidden_untouched_by_design": [
+    "src/scoped_correspondence/coupling/core.py",
+    "src/scoped_correspondence/__init__.py",
+    "FORMALISM.md",
+    "coupling_layer_afet.md"
+  ],
+  "key_numbers": {
+    "M_grad_S": [
+      -1.0,
+      1.0,
+      3.0,
+      -1.0
+    ],
+    "a_dot_grad_E": 0.0,
+    "control_M_grad_S": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "entropy_production": 0.006666666666666667,
+    "illustrative_eta_Pa_s": 0.005,
+    "p1_dot": -1.0
+  },
+  "meta": {
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source": "Grmela & \u00d6ttinger PRE 56 6620 (DOI 10.1103/PhysRevE.56.6620) & \u00d6ttinger & Grmela PRE 56 6633 (DOI 10.1103/PhysRevE.56.6633) [GENERIC itself; APS abstracts are NOT claimed to be NS]; Morrison 1984 DOI 10.1016/0375-9601(84)90635-2; Barham\u2013Morrison\u2013Zaidni 2025 DOI 10.1016/j.cnsns.2025.108683 [NS / metriplectic thermal-fluid link]",
+    "timestamp": "2026-09-19T19:56:09"
+  },
+  "milestone": 38,
+  "passed": 5,
+  "report": {
+    "control_v1_eq_v2": {
+      "M_grad_S": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entropy_production": 0.0,
+      "name": "control_v1_eq_v2",
+      "p1_dot": 0.0,
+      "structure_ok": true
+    },
+    "exports_wired": {
+      "core_py_untouched_by_design": true,
+      "coupling_all_has_two_cell": true,
+      "name": "exports_wired",
+      "package_root_untouched_by_design": true,
+      "report_p1_dot": -1.0,
+      "report_structure_ok": true
+    },
+    "friction_not_aij_lij": {
+      "name": "friction_not_aij_lij",
+      "ok": true,
+      "warning": "M is GENERIC friction (dissipative metric), NOT A_ij and NOT L_ij (FORMALISM.md \u00a76; no shared base)."
+    },
+    "hand_example_v1_3_v2_1": {
+      "M_grad_S": [
+        -1.0,
+        1.0,
+        3.0,
+        -1.0
+      ],
+      "a": [
+        1.0,
+        -1.0,
+        -3.0,
+        1.0
+      ],
+      "a_dot_grad_E": 0.0,
+      "called_check_generic_structure": true,
+      "entropy_production": 0.006666666666666666,
+      "expected_entropy_production": 0.006666666666666667,
+      "name": "hand_example_v1_3_v2_1",
+      "p1_dot": -1.0,
+      "residuals": {
+        "max_abs_J_T_plus_J": 0.0,
+        "max_abs_J_grad_S": 0.0,
+        "max_abs_M_T_minus_M": 0.0,
+        "max_abs_M_grad_E": 0.0,
+        "min_eig_M_sym": -3.737390351802164e-13
+      },
+      "structure_ok": true
+    },
+    "sources_and_call": {
+      "calls_check_generic_structure": true,
+      "dois": {
+        "barham_morrison_zaidni_2025": "10.1016/j.cnsns.2025.108683",
+        "grmela_ottinger_i": "10.1103/PhysRevE.56.6620",
+        "morrison_1984": "10.1016/0375-9601(84)90635-2",
+        "ottinger_grmela_ii": "10.1103/PhysRevE.56.6633"
+      },
+      "illustrative_eta_Pa_s": 0.005,
+      "illustrative_note": "\u03b7 = 0.005 Pa\u00b7s via \u03b6 = \u03b7 A / \u0394y is ILLUSTRATIVE ONLY \u2014 not an empirical calibration of the two-cell toy.",
+      "name": "sources_and_call",
+      "reimplements_check": false,
+      "source": "Grmela & \u00d6ttinger PRE 56 6620 (DOI 10.1103/PhysRevE.56.6620) & \u00d6ttinger & Grmela PRE 56 6633 (DOI 10.1103/PhysRevE.56.6633) [GENERIC itself; APS abstracts are NOT claimed to be NS]; Morrison 1984 DOI 10.1016/0375-9601(84)90635-2; Barham\u2013Morrison\u2013Zaidni 2025 DOI 10.1016/j.cnsns.2025.108683 [NS / metriplectic thermal-fluid link]"
+    }
+  }
+}

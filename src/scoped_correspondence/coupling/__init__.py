@@ -8,7 +8,8 @@ FORMALISM.md §6: there is no general identity between eta_info, Panarchy,
 A_ij and L_ij.
 
 Milestone 12 (Dirac structure composition), Milestone 15 (Dissipativity /
-supply rates), and Milestone 26 (Lie–Poisson / Casimir invariants) are
+supply rates), Milestone 26 (Lie–Poisson / Casimir invariants), and
+Milestone 38 (GENERIC ↔ Navier–Stokes viscous dissipation) are
 exported here as **submodule-local** additions; package-root
 ``scoped_correspondence.__init__`` is intentionally left untouched.
 """
@@ -50,6 +51,18 @@ from scoped_correspondence.coupling.casimir import (
     rigid_body_hamiltonian_grad,
     time_derivative_along_field,
 )
+from scoped_correspondence.coupling.generic_navier_stokes import (
+    BARHAM_MORRISON_ZAIDNI_2025_DOI,
+    FRICTION_NOT_AIJ_LIJ_WARNING,
+    GRMELA_OTTINGER_I_DOI,
+    ILLUSTRATIVE_ETA_PA_S,
+    ILLUSTRATIVE_ZETA_NOTE,
+    MORRISON_1984_DOI,
+    OTTINGER_GRMELA_II_DOI,
+    SOURCE as GENERIC_NS_SOURCE,
+    as_report as generic_ns_as_report,
+    two_cell_viscous_example,
+)
 
 __all__ = [
     "AijInfluence",
@@ -84,4 +97,15 @@ __all__ = [
     "quadratic_casimir_grad",
     "rigid_body_hamiltonian_grad",
     "time_derivative_along_field",
+    # M38 GENERIC ↔ Navier–Stokes viscous dissipation (submodule-local; core.py CALL-only)
+    "BARHAM_MORRISON_ZAIDNI_2025_DOI",
+    "FRICTION_NOT_AIJ_LIJ_WARNING",
+    "GRMELA_OTTINGER_I_DOI",
+    "ILLUSTRATIVE_ETA_PA_S",
+    "ILLUSTRATIVE_ZETA_NOTE",
+    "MORRISON_1984_DOI",
+    "OTTINGER_GRMELA_II_DOI",
+    "GENERIC_NS_SOURCE",
+    "generic_ns_as_report",
+    "two_cell_viscous_example",
 ]
