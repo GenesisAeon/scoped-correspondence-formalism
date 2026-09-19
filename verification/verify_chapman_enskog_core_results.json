@@ -1,0 +1,68 @@
+{
+  "Pr_BGK": 1.0,
+  "SOURCE": "BGK 1954 Phys. Rev. 94, 511 (DOI 10.1103/PhysRev.94.511); Holway 1966 Phys. Fluids 9, 1658 (DOI 10.1063/1.1761920); BGK first-order Chapman\u2013Enskog: \u03bc=p\u00b7\u03c4, \u03ba=(5/2)(k_B/m)\u00b7p\u00b7\u03c4, Pr_BGK=1",
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "air_sanity": {
+        "data": {
+          "Pr_BGK_air": 1.0000000000000002,
+          "T_K": 300.0,
+          "m_kg": 4.8105816776026335e-26,
+          "mean_free_path_m": 8.530777478251449e-08,
+          "mean_speed_m_s": 468.24541060879096,
+          "mu_Pa_s": 1.846e-05,
+          "note": "\u03bb\u2248\u27e8v\u27e9\u00b7\u03c4 is order-of-magnitude only; not a precision claim",
+          "p_Pa": 101325.0,
+          "tau_s": 1.8218603503577596e-10
+        },
+        "ok": true
+      },
+      "docs_exports_no_hard_sphere": {
+        "data": {
+          "SOURCE": "BGK 1954 Phys. Rev. 94, 511 (DOI 10.1103/PhysRev.94.511); Holway 1966 Phys. Fluids 9, 1658 (DOI 10.1063/1.1761920); BGK first-order Chapman\u2013Enskog: \u03bc=p\u00b7\u03c4, \u03ba=(5/2)(k_B/m)\u00b7p\u00b7\u03c4, Pr_BGK=1",
+          "analogy_targets_callable": true,
+          "doi_bgk": "10.1103/PhysRev.94.511",
+          "doi_holway": "10.1063/1.1761920",
+          "exports": [
+            "bgk_transport_coefficients",
+            "prandtl_number",
+            "relaxation_time_from_viscosity"
+          ],
+          "hard_sphere_eta_absent": true
+        },
+        "ok": true
+      },
+      "tau_to_zero_control": {
+        "data": {
+          "kappa_tau0": 0.0,
+          "kappa_tau_1e-16": 1.25e-16,
+          "mu_tau0": 0.0,
+          "mu_tau_1e-16": 1e-16,
+          "rejects_negative_tau": true,
+          "rejects_zero_p_inverse": true
+        },
+        "ok": true
+      },
+      "unit_bgk_prandtl": {
+        "data": {
+          "Pr_BGK": 1.0,
+          "Pr_BGK_over_physical": 1.5,
+          "Pr_physical_monatomic": 0.6666666666666666,
+          "c_p": 2.5,
+          "kappa": 2.5,
+          "mu": 1.0
+        },
+        "ok": true
+      }
+    },
+    "milestone": "M40",
+    "module": "scoped_correspondence.closure.chapman_enskog",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "timestamp_local": "2026-09-19T19:54:13+02:00"
+  }
+}
