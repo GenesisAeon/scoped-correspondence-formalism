@@ -21,6 +21,9 @@ Milestone 35 (Panarchy / Adaptive-Cycle as Cusp extension) is likewise
 exported submodule-locally; ``dynamics/core.py`` is CALLED only
 (``fixed_points`` + ``CubicNormalForm.discriminant``); does NOT revive
 V≡Panarchy≡Onsager-L.
+
+Milestone 36 (Early-Warning Signals / Critical Slowing Down) is likewise
+exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -78,6 +81,15 @@ from scoped_correspondence.dynamics.panarchy_cusp import (
     fold_thresholds,
     hysteresis_sweep,
 )
+from scoped_correspondence.dynamics.early_warning import (
+    COUNTEREXAMPLE_WARNING as EARLY_WARNING_COUNTEREXAMPLE_WARNING,
+    SOURCE as EARLY_WARNING_SOURCE,
+    EarlyWarningReport,
+    early_warning_at_cusp_branch,
+    estimate_lambda_from_ar1,
+    ou_autocorrelation,
+    ou_variance,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -128,4 +140,12 @@ __all__ = [
     "fold_thresholds",
     "hysteresis_sweep",
     "control_path_no_fold_crossing",
+    # M36 early-warning signals / critical slowing down
+    "EARLY_WARNING_COUNTEREXAMPLE_WARNING",
+    "EARLY_WARNING_SOURCE",
+    "EarlyWarningReport",
+    "early_warning_at_cusp_branch",
+    "estimate_lambda_from_ar1",
+    "ou_autocorrelation",
+    "ou_variance",
 ]
