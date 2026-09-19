@@ -2,13 +2,13 @@
 """Hand-checkable verification for Crooks fluctuation theorem (Milestone 37).
 
 Checks (all numbers from this script run):
-  1. β=1, ΔF=0, W=1 → ω=1, e^ω≈2.718281828459045
+  1. beta=1, DeltaF=0, W=1 -> omega=1, e^omega~=2.718281828459045
   2. verify_crooks_ratio with P_F=e, P_R=1 passes; mismatch fails
-  3. Control W=ΔF → ω=0, e^ω=1; ratio 1/1 ok
-  4. Jarzynski on synthetic Gaussian toy converges to known ΔF
+  3. Control W=DeltaF -> omega=0, e^omega=1; ratio 1/1 ok
+  4. Jarzynski on synthetic Gaussian toy converges to known DeltaF
   5. SOURCE has DOI 10.1103/PhysRevE.60.2721 + arXiv cond-mat/9901352;
      docstring fences NOT Onsager L_ij/A_ij and NOT Schnakenberg M18;
-     β≤0 / empty samples raise ScopeViolationError
+     beta<=0 / empty samples raise ScopeViolationError
 
 Uses numpy. JSON {count, passed, failed, report}; numbers from this run.
 Does not import or mutate thermo.core / thermo.schnakenberg formulas.
@@ -50,7 +50,6 @@ def near(a, b, atol=1e-12, rtol=1e-9):
 
 
 def check_work_ratio_mini_example():
-    """β=1, ΔF=0, W=1 → ω=1, e^ω = e."""
     omega, exp_omega = work_ratio(1.0, 0.0, 1.0)
     near(omega, 1.0)
     near(exp_omega, math.e)
@@ -66,7 +65,6 @@ def check_work_ratio_mini_example():
 
 
 def check_verify_crooks_ratio():
-    """P_F=e, P_R=1 at W=1, ΔF=0, β=1 → ok; deliberate mismatch → not ok."""
     report_ok = verify_crooks_ratio(math.e, 1.0, 1.0, 0.0, 1.0)
     require(report_ok["ok"], "exact Crooks densities must pass")
     near(report_ok["omega"], 1.0)
@@ -74,9 +72,8 @@ def check_verify_crooks_ratio():
     near(report_ok["ratio_expected"], math.e)
 
     report_bad = verify_crooks_ratio(1.0, 1.0, 1.0, 0.0, 1.0, rtol=1e-9, atol=1e-12)
-    require(not report_bad["ok"], "ratio=1 must fail when e^ω=e")
+    require(not report_bad["ok"], "ratio=1 must fail when e^omega=e")
 
-    # Non-positive density refused
     raised = False
     try:
         verify_crooks_ratio(0.0, 1.0, 1.0, 0.0, 1.0)
@@ -94,7 +91,6 @@ def check_verify_crooks_ratio():
 
 
 def check_control_W_equals_delta_F():
-    """W=ΔF → ω=0, e^ω=1; Crooks ratio 1/1 passes."""
     cases = []
     for beta, df in ((1.0, 0.0), (1.0, 2.5), (2.0, -1.0), (0.5, 3.0)):
         W = df
@@ -102,7 +98,7 @@ def check_control_W_equals_delta_F():
         near(omega, 0.0)
         near(exp_omega, 1.0)
         rep = verify_crooks_ratio(1.0, 1.0, W, df, beta)
-        require(rep["ok"], f"control failed for beta={beta}, ΔF={df}")
+        require(rep["ok"], f"control failed for beta={beta}, DeltaF={df}")
         cases.append(
             {
                 "beta": float(beta),
@@ -117,21 +113,17 @@ def check_control_W_equals_delta_F():
 
 
 def check_jarzynski_gaussian_toy():
-    """Synthetic Gaussian W ~ N(ΔF + σ²β/2, σ²) → ΔF̂ → ΔF."""
     beta = 1.0
     delta_F_true = 1.5
     sigma = 0.4
-    # Exact infinite-sample mean of W for Crooks/Jarzynski consistency:
     mu = delta_F_true + (sigma ** 2) * beta / 2.0
     rng = np.random.default_rng(20260919)
     n = 200_000
     samples = rng.normal(loc=mu, scale=sigma, size=n)
     hat = jarzynski_estimate(samples, beta)
     err = abs(hat - delta_F_true)
-    require(err < 0.05, f"Jarzynski |ΔF̂-ΔF|={err} not < 0.05")
+    require(err < 0.05, f"Jarzynski |DeltaF_hat-DeltaF|={err} not < 0.05")
 
-    # Analytic infinite-sample check via exact log-mgf on the sample mean of e^{-βW}
-    # Also: empty / bad beta refused
     raised_empty = False
     try:
         jarzynski_estimate([], beta)
@@ -170,14 +162,10 @@ def check_source_and_scope_fences():
 
     doc = mod.__doc__ or ""
     require("NOT" in doc and "Onsager" in doc, "NOT Onsager fence missing")
-    require("L_ij" in doc or "L_{ij}" in doc or "L_ij" in doc, "L_ij mention missing")
+    require("L_ij" in doc, "L_ij mention missing")
     require("Schnakenberg" in doc and "M18" in doc, "NOT Schnakenberg M18 fence missing")
-    require(
-        "NOT" in doc
-        and ("A_ij" in doc or "affinities" in doc.lower()),
-        "A_ij / affinities fence missing",
-    )
-    # work_ratio docstring fence
+    require("NOT" in doc and ("A_ij" in doc or "affinities" in doc.lower()),
+            "A_ij / affinities fence missing")
     wr_doc = work_ratio.__doc__ or ""
     require("NOT Onsager" in wr_doc or "NOT Onsager" in doc, "API Onsager fence missing")
     require("NOT Schnakenberg" in wr_doc or "NOT Schnakenberg" in doc, "API M18 fence missing")
@@ -220,7 +208,7 @@ def main(argv=None):
             entry["ok"] = True
             entry["detail"] = detail
             passed += 1
-        except Exception as exc:  # noqa: BLE001 -- collect into report
+        except Exception as exc:  # noqa: BLE001
             failed += 1
             entry["error"] = f"{type(exc).__name__}: {exc}"
         report.append(entry)
@@ -259,7 +247,7 @@ def main(argv=None):
             print(f"omega=1 exp_omega={e['detail']['exp_omega']}")
         if e["name"] == "jarzynski_gaussian_toy" and e["ok"]:
             print(
-                f"jarzynski ΔF̂={e['detail']['delta_F_hat']} "
+                f"jarzynski DeltaF_hat={e['detail']['delta_F_hat']} "
                 f"true={e['detail']['delta_F_true']} "
                 f"abs_err={e['detail']['abs_err']}"
             )
