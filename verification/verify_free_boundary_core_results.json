@@ -1,0 +1,171 @@
+{
+  "count": 5,
+  "failed": 0,
+  "passed": 5,
+  "report": {
+    "control_small_Ste": {
+      "Ste_control": 0.01,
+      "clearly_smaller": true,
+      "lambda_Ste_0_01": 0.07059327655997549,
+      "lambda_Ste_0_1": 0.22001627274266866,
+      "residual_Ste_0_01": 7.278119079634493e-14,
+      "stefan_number_api": 0.01
+    },
+    "meta": {
+      "branch": "aeon/m31-free-boundary-stefan",
+      "milestone": 31,
+      "platform": "Windows-10-10.0.19045-SP0",
+      "python": "3.11.9",
+      "source": "Kot 2017 DOI 10.1007/s10891-017-1638-2; Bollati et al. arXiv:1906.08601",
+      "title": "Free Boundary / One-Phase Stefan\u2013Neumann",
+      "utc": "2026-09-19T15:37:29.089938+00:00"
+    },
+    "neumann_roots_and_residuals": {
+      "cases": [
+        {
+          "Ste": 1.0,
+          "iterations": 40,
+          "lambda": 0.6200626333134096,
+          "lambda_target_approx": 0.620063,
+          "lhs": 0.5641895835473271,
+          "residual_recomputed": 4.292122213200855e-13,
+          "residual_reported": 4.292122213200855e-13,
+          "rhs_Ste_over_sqrt_pi": 0.5641895835477563
+        },
+        {
+          "Ste": 0.5,
+          "iterations": 40,
+          "lambda": 0.46478592064659097,
+          "lambda_target_approx": 0.464786,
+          "lhs": 0.2820947917743611,
+          "residual_recomputed": 4.829470157119431e-13,
+          "residual_reported": 4.829470157119431e-13,
+          "rhs_Ste_over_sqrt_pi": 0.28209479177387814
+        },
+        {
+          "Ste": 0.1,
+          "iterations": 40,
+          "lambda": 0.22001627274266866,
+          "lambda_target_approx": 0.220016,
+          "lhs": 0.056418958354633085,
+          "residual_recomputed": 1.425526363618701e-13,
+          "residual_reported": 1.425526363618701e-13,
+          "rhs_Ste_over_sqrt_pi": 0.05641895835477564
+        }
+      ],
+      "max_residual": 4.829470157119431e-13
+    },
+    "scope_violations": {
+      "Ste_le_0_raises": true,
+      "s_t_for_probe": 12.401252666268192,
+      "x_outside_raises": true
+    },
+    "sources_and_viability_disclaimer": {
+      "SOURCE": "Kot 2017 DOI 10.1007/s10891-017-1638-2; Bollati et al. arXiv:1906.08601",
+      "cites_bollati_arxiv_1906_08601": true,
+      "cites_kot_2017_doi": true,
+      "not_viability_subclass_stated": true,
+      "rubinstein_1971_not_cited": true,
+      "stefan_1891_not_cited": true
+    },
+    "sqrt_t_law": {
+      "Ste": 1.0,
+      "T_front_t100": 0.0,
+      "T_surface_t100": 1.0,
+      "alpha_mm2_per_s": 1.0,
+      "lambda": 0.6200626333134096,
+      "s_100_mm": 12.401252666268192,
+      "s_400_mm": 24.802505332536384,
+      "sqrt_t_ratio_s400_over_s100": 2.0
+    }
+  },
+  "results": [
+    {
+      "detail": {
+        "cases": [
+          {
+            "Ste": 1.0,
+            "iterations": 40,
+            "lambda": 0.6200626333134096,
+            "lambda_target_approx": 0.620063,
+            "lhs": 0.5641895835473271,
+            "residual_recomputed": 4.292122213200855e-13,
+            "residual_reported": 4.292122213200855e-13,
+            "rhs_Ste_over_sqrt_pi": 0.5641895835477563
+          },
+          {
+            "Ste": 0.5,
+            "iterations": 40,
+            "lambda": 0.46478592064659097,
+            "lambda_target_approx": 0.464786,
+            "lhs": 0.2820947917743611,
+            "residual_recomputed": 4.829470157119431e-13,
+            "residual_reported": 4.829470157119431e-13,
+            "rhs_Ste_over_sqrt_pi": 0.28209479177387814
+          },
+          {
+            "Ste": 0.1,
+            "iterations": 40,
+            "lambda": 0.22001627274266866,
+            "lambda_target_approx": 0.220016,
+            "lhs": 0.056418958354633085,
+            "residual_recomputed": 1.425526363618701e-13,
+            "residual_reported": 1.425526363618701e-13,
+            "rhs_Ste_over_sqrt_pi": 0.05641895835477564
+          }
+        ],
+        "max_residual": 4.829470157119431e-13
+      },
+      "name": "neumann_roots_and_residuals",
+      "ok": true
+    },
+    {
+      "detail": {
+        "Ste": 1.0,
+        "T_front_t100": 0.0,
+        "T_surface_t100": 1.0,
+        "alpha_mm2_per_s": 1.0,
+        "lambda": 0.6200626333134096,
+        "s_100_mm": 12.401252666268192,
+        "s_400_mm": 24.802505332536384,
+        "sqrt_t_ratio_s400_over_s100": 2.0
+      },
+      "name": "sqrt_t_law",
+      "ok": true
+    },
+    {
+      "detail": {
+        "Ste_control": 0.01,
+        "clearly_smaller": true,
+        "lambda_Ste_0_01": 0.07059327655997549,
+        "lambda_Ste_0_1": 0.22001627274266866,
+        "residual_Ste_0_01": 7.278119079634493e-14,
+        "stefan_number_api": 0.01
+      },
+      "name": "control_small_Ste",
+      "ok": true
+    },
+    {
+      "detail": {
+        "Ste_le_0_raises": true,
+        "s_t_for_probe": 12.401252666268192,
+        "x_outside_raises": true
+      },
+      "name": "scope_violations",
+      "ok": true
+    },
+    {
+      "detail": {
+        "SOURCE": "Kot 2017 DOI 10.1007/s10891-017-1638-2; Bollati et al. arXiv:1906.08601",
+        "cites_bollati_arxiv_1906_08601": true,
+        "cites_kot_2017_doi": true,
+        "not_viability_subclass_stated": true,
+        "rubinstein_1971_not_cited": true,
+        "stefan_1891_not_cited": true
+      },
+      "name": "sources_and_viability_disclaimer",
+      "ok": true
+    }
+  ],
+  "sqrt_t_ratio_s400_over_s100": 2.0
+}
