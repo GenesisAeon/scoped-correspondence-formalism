@@ -116,15 +116,24 @@ Crooks) — beide von Claude zusätzlich live gegen Crossref verifiziert.
 
 | # | Baustein | Kandidat | Quelle | Konvergenz | Status |
 |---|---|---|---|---|---|
-| M33 | `dynamics` | Fenichel/GSPT (langsame invariante Mannigfaltigkeit) — seit Runde 1 als "offen" geführt, jetzt ausgearbeitet | Fenichel 1979, DOI 10.1016/0022-0396(79)90152-9 | ✅ beide Grok-Agenten | 🔄 Prompt gesendet |
-| M34 | `dynamics` | Floquet-Multiplikatoren für periodische Orbits | Floquet 1883, DOI 10.24033/asens.220 | nur Grok Agent A — von Claude live verifiziert | 🔄 Prompt gesendet |
-| M35 | `dynamics` | Panarchy/Adaptive-Cycle als Cusp-Erweiterung (explizit ohne V≡Panarchy≡Onsager-L) | Holling 1973, DOI 10.1146/annurev.es.04.110173.000245; **Zwick & Hughes 2017, DOI 10.1145/3145574.3145591** (Volltext nicht abrufbar, nur Abstract verifiziert) | ✅ 3 von 4 Agenten fanden unabhängig dieselbe Zwick&Hughes-Quelle | 🔄 Prompt gesendet |
-| M36 | `dynamics` | Early-Warning-Signale / kritisches Verlangsamen | Scheffer et al. 2009, DOI 10.1038/nature08227 | ✅ alle 4 Agenten — höchste Konvergenz der Runde | 🔄 Prompt gesendet |
-| M37 | `thermo` | Crooks-Fluktuationstheorem | Crooks 1999, DOI 10.1103/PhysRevE.60.2721 | nur Grok Agent B — von Claude live verifiziert | 🔄 Prompt gesendet |
-| M38 | `coupling` | GENERIC↔Navier-Stokes (viskose Dissipation) — liegengebliebener Punkt aus Runde 2 | Grmela & Öttinger 1997 (GENERIC selbst); Morrison 1984 + Barham/Morrison/Zaidni 2025 (die tatsächliche NS-Verbindung — Öttinger-Grmela 1997 allein deckt das laut unabhängiger Prüfung NICHT ab) | ✅ alle 4 Agenten | 🔄 Prompt gesendet |
-| M39 | `coupling` | Generalisierte Synchronisation (Pecora-Carroll) als Fassung "struktureller Kopplung", mit Brücken-Vermerk zu M14 | Pecora & Carroll 1990, DOI 10.1103/PhysRevLett.64.821 | ✅ alle 4 Agenten | 🔄 Prompt gesendet |
-| M40 | `closure` | Chapman-Enskog (BGK-Route) als Closure-Defekt — liegengebliebener Punkt aus Runde 2 | BGK 1954, DOI 10.1103/PhysRev.94.511; Holway 1966, DOI 10.1063/1.1761920 (Chapman & Cowlings Monographie bewusst NICHT zitiert — keine verifizierbare DOI) | ✅ alle 4 Agenten (unterschiedliche Herleitungswege) | 🔄 Prompt gesendet |
-| — | neuer Baustein `chemical_organization` | Chemical Organization Theory als ehrlicher Teilaspekt von Autopoiesis (Autopoiesis selbst: nichts Zitierfähiges gefunden) | Dittrich & Speroni di Fenizio 2007, DOI 10.1007/s11538-006-9130-8 | ✅ alle 4 Agenten, inkl. übereinstimmender "nichts gefunden"-Aussage zu voller Autopoiesis | 🔄 Prompt gesendet |
+| M33 | `dynamics` | Fenichel/GSPT (langsame invariante Mannigfaltigkeit) — seit Runde 1 als "offen" geführt, jetzt ausgearbeitet | Fenichel 1979, DOI 10.1016/0022-0396(79)90152-9 | ✅ beide Grok-Agenten | ✅ **gemergt** |
+| M34 | `dynamics` | Floquet-Multiplikatoren für periodische Orbits | Floquet 1883, DOI 10.24033/asens.220 | nur Grok Agent A — von Claude live verifiziert | ✅ **gemergt** |
+| M35 | `dynamics` | Panarchy/Adaptive-Cycle als Cusp-Erweiterung (explizit ohne V≡Panarchy≡Onsager-L) | Holling 1973, DOI 10.1146/annurev.es.04.110173.000245; **Zwick & Hughes 2017, DOI 10.1145/3145574.3145591** (Volltext nicht abrufbar, nur Abstract verifiziert) | ✅ 3 von 4 Agenten fanden unabhängig dieselbe Zwick&Hughes-Quelle | ✅ **gemergt** (Aeon fand und korrigierte einen Rechenfehler im Prompt — `fold_thresholds(3)`=±2, nicht ±2/√3, siehe unten) |
+| M36 | `dynamics` | Early-Warning-Signale / kritisches Verlangsamen | Scheffer et al. 2009, DOI 10.1038/nature08227 | ✅ alle 4 Agenten — höchste Konvergenz der Runde | ✅ **gemergt** (von Claude selbst implementiert, da Aeons Grok-Kontingent für 5 Tage aufgebraucht war) |
+| M37 | `thermo` | Crooks-Fluktuationstheorem | Crooks 1999, DOI 10.1103/PhysRevE.60.2721 | nur Grok Agent B — von Claude live verifiziert | ✅ **gemergt** |
+| M38 | `coupling` | GENERIC↔Navier-Stokes (viskose Dissipation) — liegengebliebener Punkt aus Runde 2 | Grmela & Öttinger 1997 (GENERIC selbst); Morrison 1984 + Barham/Morrison/Zaidni 2025 (die tatsächliche NS-Verbindung — Öttinger-Grmela 1997 allein deckt das laut unabhängiger Prüfung NICHT ab) | ✅ alle 4 Agenten | ✅ **gemergt** |
+| M39 | `coupling` | Generalisierte Synchronisation (Pecora-Carroll) als Fassung "struktureller Kopplung", mit Brücken-Vermerk zu M14 | Pecora & Carroll 1990, DOI 10.1103/PhysRevLett.64.821 | ✅ alle 4 Agenten | ✅ **gemergt** |
+| M40 | `closure` | Chapman-Enskog (BGK-Route) als Closure-Defekt — liegengebliebener Punkt aus Runde 2 | BGK 1954, DOI 10.1103/PhysRev.94.511; Holway 1966, DOI 10.1063/1.1761920 (Chapman & Cowlings Monographie bewusst NICHT zitiert — keine verifizierbare DOI) | ✅ alle 4 Agenten (unterschiedliche Herleitungswege) | ✅ **gemergt** |
+| — | neuer Baustein `chemical_organization` | Chemical Organization Theory als ehrlicher Teilaspekt von Autopoiesis (Autopoiesis selbst: nichts Zitierfähiges gefunden) | Dittrich & Speroni di Fenizio 2007, DOI 10.1007/s11538-006-9130-8 | ✅ alle 4 Agenten, inkl. übereinstimmender "nichts gefunden"-Aussage zu voller Autopoiesis | ✅ **gemergt** |
+
+**Status (2026-09-19): alle neun Runde-3-Kandidaten gemergt — das
+Repository hat damit 16 Bausteine.** Aeon hat bei M35 selbständig einen
+Rechenfehler im Milestone-Prompt gefunden und korrigiert: die
+Faltschwelle für `a=3` ist `±2` (aus `√(4a³/27)=√4=2`), nicht `±2/√3≈1,1547`
+wie ursprünglich im Prompt stand (ein beim Vereinfachen fallengelassener
+Faktor `a^(3/2)=3√3`) — transparent im JSON als
+`note_research_slip_2_over_sqrt3` dokumentiert statt stillschweigend
+übernommen. Von Claude unabhängig nachgerechnet und bestätigt.
 
 **Namenskollision aufgelöst:** COTs Kernbegriff "closed"/"closure"
 kollidiert mit dem bestehenden `closure`-Baustein. Der neue Baustein

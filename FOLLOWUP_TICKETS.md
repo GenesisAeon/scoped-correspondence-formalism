@@ -391,6 +391,58 @@ verifizierbare DOI), `51_...md` (neuer Baustein
 `chemical_organization`, mit beiden Namenskollisions-Zäunen).
 `EXTENSIONS_ROADMAP.md` §Runde 3 entsprechend aktualisiert.
 
+## F55: Runde 3 — alle neun Milestones geliefert, geprüft und gemergt (erledigt 2026-09-19)
+
+Acht der neun Prompts kamen als Aeon-Branches zurück (M33, M34, M35,
+M37–M41); M36 (Early-Warning-Signale) fehlte, da Aeons Grok-Kontingent
+für die nächsten 5 Tage aufgebraucht war — auf Johanns Bitte von Claude
+selbst direkt implementiert (eigener Branch `claude/m36-early-warning-
+signals`, dieselbe Disziplin: additiv, durchgerechnetes Beispiel,
+Johann-OK vor Merge).
+
+**Alle acht Aeon-Branches unabhängig geprüft** (Diff-Scope, Skript
+selbst nachgerechnet, mindestens eine Zahl von Hand):
+- **M33 Fenichel/GSPT**: Faltpunkte `S(±1)=∓2/3`, Normalhyperbolizität
+  an 4 Testpunkten von Hand bestätigt.
+- **M34 Floquet**: `tr=1,5,det=1→μ=0,75±i0,661438,|μ|=1` (neutral);
+  `tr=2,5,det=1→μ={0,5;2,0}` (instabil); Grenzfall `tr=2,det=1`
+  (doppeltes `μ=1`) korrekt "neutral" statt "stable" — alle von Hand
+  bestätigt.
+- **M35 Panarchy-Cusp**: **Aeon fand und korrigierte selbständig einen
+  Rechenfehler im Milestone-Prompt** — `fold_thresholds(3)` ist `±2`
+  (aus `√(4a³/27)=√4=2`), nicht `±2/√3≈1,1547` wie im Prompt stand (ein
+  beim Vereinfachen fallengelassener Faktor `a^(3/2)=3√3`). Transparent
+  im JSON als `note_research_slip_2_over_sqrt3` dokumentiert statt
+  stillschweigend übernommen. Von Claude unabhängig nachgerechnet:
+  `4·27-27·4=0` bestätigt `b=2` als echte Falte.
+- **M37 Crooks**: `ω=1,e^ω=e` exakt; Jarzynski-Schätzer konvergiert auf
+  `1,50014` gegen wahren Wert `1,5`.
+- **M38 GENERIC↔NS**: `a·∇E=0` (Degeneriertheit strukturell), `M∇S=
+  (-1,1,3,-1)` exakt, Entropieproduktion `2/300=0,006667` exakt, alle
+  Residuen von `check_generic_structure` ≈0.
+- **M39 Pecora-Carroll**: `φ=c/(k-1)`, `CLE=-k` — `c=4,k=3→φ=2,CLE=-3`
+  (Sync); `c=4,k=-1→φ=-2,CLE=1` (kein Sync trotz existierender
+  Abbildung) — beide exakt. Brücken-Vermerk zu M14 wörtlich vorhanden.
+- **M40 Chapman-Enskog**: `μ=1,κ=2,5,Pr=1,0` exakt; Verhältnis zum
+  realen `Pr=2/3` exakt `1,5`; Hartkugelformel korrekt nicht verwendet.
+- **M41 chemical_organization**: Regex-Scan selbst mit `grep`
+  nachvollzogen (nur die erlaubte Ausnahme `is_reaction_closed`, keine
+  verbotenen Bezeichner). Beispiel von Hand: ohne `r4` erzwingt die
+  Summe `(Sv)_a+(Sv)_b=-v3<0` einen echten Widerspruch; mit `r4` erfüllt
+  Zeuge `v=(2,1,1,1)` `(Sv)_a=(Sv)_b=0` exakt.
+
+Alle neun gemergt auf `master` nach Johanns OK. Nach dem Mergen aller
+neun (mit den erwarteten trivialen `pyproject.toml`/`dynamics`-`
+coupling`-`__init__.py`-Konflikten, da mehrere Milestones dieselben
+Submodule betrafen) wurde ein vollständiger Import- und Verify-Lauf
+über alle betroffenen Bausteine (`dynamics`, `coupling`, `thermo`,
+`closure`, `chemical_organization`) durchgeführt — alle Importe und
+alle neun Verify-Skripte laufen sauber auf dem gemergten Stand.
+Review-Branches gelöscht (lokal + origin für die acht Aeon-Branches;
+`claude/m36-early-warning-signals` bleibt als Backup auf origin
+bestehen). **Das Repository hat jetzt 16 Bausteine**, `pyproject.toml`
+bei `0.41.0a1`.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
