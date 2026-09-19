@@ -9,6 +9,11 @@ left untouched to avoid fighting parallel M15/M16 branches.
 
 Milestone 29 (Landau Exponent Comparison / Self-Falsification) is likewise
 exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
+
+Milestone 35 (Panarchy / Adaptive-Cycle as Cusp extension) is likewise
+exported submodule-locally; ``dynamics/core.py`` is CALLED only
+(``fixed_points`` + ``CubicNormalForm.discriminant``); does NOT revive
+V≡Panarchy≡Onsager-L.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -37,6 +42,15 @@ from scoped_correspondence.dynamics.landau import (
     mean_field_order_parameter,
     onsager_critical_ratio,
 )
+from scoped_correspondence.dynamics.panarchy_cusp import (
+    PANARCHY_V_ONSAGER_WARNING,
+    SOURCE as PANARCHY_SOURCE,
+    HysteresisSample,
+    HysteresisSweepResult,
+    control_path_no_fold_crossing,
+    fold_thresholds,
+    hysteresis_sweep,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -61,4 +75,12 @@ __all__ = [
     "mean_field_order_parameter",
     "onsager_critical_ratio",
     "compare_scaling_exponents",
+    # M35 Panarchy / Adaptive-Cycle as Cusp extension
+    "PANARCHY_V_ONSAGER_WARNING",
+    "PANARCHY_SOURCE",
+    "HysteresisSample",
+    "HysteresisSweepResult",
+    "fold_thresholds",
+    "hysteresis_sweep",
+    "control_path_no_fold_crossing",
 ]
