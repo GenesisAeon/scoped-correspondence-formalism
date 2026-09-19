@@ -1,0 +1,138 @@
+{
+  "ONSAGER_SIGMA_WARNING": "WARNING: Onsager critical ratio \u22482.269185314213022 is accidentally near the discarded ecosystem \u03c3\u22482.2; this is coincidence only \u2014 do not identify them.",
+  "count": 5,
+  "failed": 0,
+  "passed": 5,
+  "report": {
+    "ONSAGER_SIGMA_WARNING": "WARNING: Onsager critical ratio \u22482.269185314213022 is accidentally near the discarded ecosystem \u03c3\u22482.2; this is coincidence only \u2014 do not identify them.",
+    "control_equal_a": {
+      "a1": 0.25,
+      "a2": 0.25,
+      "actual_ratio": 1.0,
+      "discrepancy_factor_mf_over_ising": 1.0,
+      "ising_hypothetical_ratio": 1.0,
+      "mean_field_ratio": 1.0
+    },
+    "meta": {
+      "ISING_2D_BETA": 0.125,
+      "MEAN_FIELD_BETA": 0.5,
+      "forbidden_untouched": [
+        "src/scoped_correspondence/dynamics/core.py",
+        "src/scoped_correspondence/__init__.py",
+        "FORMALISM.md"
+      ],
+      "milestone": 29,
+      "platform": "Windows-10-10.0.19045-SP0",
+      "python": "3.11.9",
+      "source": "Onsager 1944 DOI 10.1103/PhysRev.65.117; Yang 1952 DOI 10.1103/PhysRev.85.808; Guckenheimer & Holmes 1983 DOI 10.1007/978-1-4612-1140-2",
+      "title": "Landau Exponent Comparison / Self-Falsification",
+      "utc": "2026-09-19T12:54:45.804256+00:00"
+    },
+    "onsager_and_sigma_warning": {
+      "ONSAGER_SIGMA_WARNING": "WARNING: Onsager critical ratio \u22482.269185314213022 is accidentally near the discarded ecosystem \u03c3\u22482.2; this is coincidence only \u2014 do not identify them.",
+      "ecosystem_sigma_approx_refused": 2.2,
+      "onsager_critical_ratio": 2.269185314213022,
+      "onsager_critical_ratio_expected": 2.269185314213022,
+      "warning_in_docstring": true
+    },
+    "order_parameter_via_fixed_points": {
+      "a1": 0.25,
+      "a2": 0.0625,
+      "a_le_0_raises": true,
+      "fixed_points_positive_a1": 0.5,
+      "fixed_points_positive_a2": 0.25,
+      "uses_fixed_points_call": true,
+      "x_star_a1": 0.5,
+      "x_star_a2": 0.25
+    },
+    "scaling_example_a1_0.25_a2_0.0625": {
+      "ISING_2D_BETA": 0.125,
+      "MEAN_FIELD_BETA": 0.5,
+      "a1": 0.25,
+      "a2": 0.0625,
+      "actual_ratio": 2.0,
+      "beta_crit_note": "beta_crit is model-specific, not universal (FORMALISM.md \u00a712)",
+      "discrepancy_factor_mf_over_ising": 1.6817928305074292,
+      "ising_hypothetical_ratio": 1.189207115002721,
+      "matches_mean_field": true,
+      "mean_field_ratio": 2.0,
+      "x_star_a1": 0.5,
+      "x_star_a2": 0.25
+    },
+    "sources_no_landau_1937": {
+      "SOURCE": "Onsager 1944 DOI 10.1103/PhysRev.65.117; Yang 1952 DOI 10.1103/PhysRev.85.808; Guckenheimer & Holmes 1983 DOI 10.1007/978-1-4612-1140-2",
+      "cites_guckholmes": true,
+      "cites_onsager": true,
+      "cites_yang": true,
+      "landau_1937_not_cited_as_source": true
+    }
+  },
+  "results": [
+    {
+      "detail": {
+        "a1": 0.25,
+        "a2": 0.0625,
+        "a_le_0_raises": true,
+        "fixed_points_positive_a1": 0.5,
+        "fixed_points_positive_a2": 0.25,
+        "uses_fixed_points_call": true,
+        "x_star_a1": 0.5,
+        "x_star_a2": 0.25
+      },
+      "name": "order_parameter_via_fixed_points",
+      "ok": true
+    },
+    {
+      "detail": {
+        "ISING_2D_BETA": 0.125,
+        "MEAN_FIELD_BETA": 0.5,
+        "a1": 0.25,
+        "a2": 0.0625,
+        "actual_ratio": 2.0,
+        "beta_crit_note": "beta_crit is model-specific, not universal (FORMALISM.md \u00a712)",
+        "discrepancy_factor_mf_over_ising": 1.6817928305074292,
+        "ising_hypothetical_ratio": 1.189207115002721,
+        "matches_mean_field": true,
+        "mean_field_ratio": 2.0,
+        "x_star_a1": 0.5,
+        "x_star_a2": 0.25
+      },
+      "name": "scaling_example_a1_0.25_a2_0.0625",
+      "ok": true
+    },
+    {
+      "detail": {
+        "a1": 0.25,
+        "a2": 0.25,
+        "actual_ratio": 1.0,
+        "discrepancy_factor_mf_over_ising": 1.0,
+        "ising_hypothetical_ratio": 1.0,
+        "mean_field_ratio": 1.0
+      },
+      "name": "control_equal_a",
+      "ok": true
+    },
+    {
+      "detail": {
+        "ONSAGER_SIGMA_WARNING": "WARNING: Onsager critical ratio \u22482.269185314213022 is accidentally near the discarded ecosystem \u03c3\u22482.2; this is coincidence only \u2014 do not identify them.",
+        "ecosystem_sigma_approx_refused": 2.2,
+        "onsager_critical_ratio": 2.269185314213022,
+        "onsager_critical_ratio_expected": 2.269185314213022,
+        "warning_in_docstring": true
+      },
+      "name": "onsager_and_sigma_warning",
+      "ok": true
+    },
+    {
+      "detail": {
+        "SOURCE": "Onsager 1944 DOI 10.1103/PhysRev.65.117; Yang 1952 DOI 10.1103/PhysRev.85.808; Guckenheimer & Holmes 1983 DOI 10.1007/978-1-4612-1140-2",
+        "cites_guckholmes": true,
+        "cites_onsager": true,
+        "cites_yang": true,
+        "landau_1937_not_cited_as_source": true
+      },
+      "name": "sources_no_landau_1937",
+      "ok": true
+    }
+  ]
+}

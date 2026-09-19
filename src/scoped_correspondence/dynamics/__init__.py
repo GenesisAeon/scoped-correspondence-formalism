@@ -6,6 +6,9 @@ FORMALISM.md §4–§5; system_layer_utac.md.
 Milestone 14 (Contraction Analysis) is exported here as a **submodule-local**
 addition; package-root ``scoped_correspondence.__init__`` is intentionally
 left untouched to avoid fighting parallel M15/M16 branches.
+
+Milestone 29 (Landau Exponent Comparison / Self-Falsification) is likewise
+exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -24,6 +27,16 @@ from scoped_correspondence.dynamics.contraction import (
     make_contraction_certificate,
     verify_contraction_bound,
 )
+from scoped_correspondence.dynamics.landau import (
+    ISING_2D_BETA,
+    MEAN_FIELD_BETA,
+    ONSAGER_SIGMA_WARNING,
+    SOURCE as LANDAU_SOURCE,
+    ScalingExponentComparison,
+    compare_scaling_exponents,
+    mean_field_order_parameter,
+    onsager_critical_ratio,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -39,4 +52,13 @@ __all__ = [
     "contraction_rate_cusp",
     "make_contraction_certificate",
     "verify_contraction_bound",
+    # M29 Landau exponent comparison / self-falsification
+    "MEAN_FIELD_BETA",
+    "ISING_2D_BETA",
+    "ONSAGER_SIGMA_WARNING",
+    "LANDAU_SOURCE",
+    "ScalingExponentComparison",
+    "mean_field_order_parameter",
+    "onsager_critical_ratio",
+    "compare_scaling_exponents",
 ]
