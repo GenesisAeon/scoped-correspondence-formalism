@@ -1,0 +1,239 @@
+{
+  "count": 5,
+  "failed": 0,
+  "forbidden_untouched_by_design": [
+    "src/scoped_correspondence/coupling/core.py",
+    "src/scoped_correspondence/__init__.py",
+    "FORMALISM.md",
+    "coupling_layer_afet.md"
+  ],
+  "key_zeros": {
+    "casimir_max_abs_at_z_1_2_3": 0.0,
+    "casimir_norm_at_z_1_2_3": 0.0,
+    "dC_dt": 0.0,
+    "dH_dt": 0.0,
+    "generic_match_zero": true,
+    "negative_max_abs": 3.0
+  },
+  "meta": {
+    "arnold_doi": "10.5802/aif.233",
+    "marsden_ratiu_doi": "10.1007/978-0-387-21792-5",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source": "Arnold 1966 DOI 10.5802/aif.233; Marsden & Ratiu 1999 DOI 10.1007/978-0-387-21792-5 (finite-dim so(3)* only; NOT fluid PDE)",
+    "timestamp": "2026-09-19T14:56:12"
+  },
+  "milestone": 26,
+  "passed": 5,
+  "report": {
+    "conservation_dC_dH": {
+      "I": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "Omega": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "dC_dt": 0.0,
+      "dH_dt": 0.0,
+      "name": "conservation_dC_dH",
+      "z": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "z_dot": [
+        -1.0,
+        2.0,
+        -1.0
+      ]
+    },
+    "generic_compatibility": {
+      "called_check_generic_structure": true,
+      "casimir_bad_max_abs": 3.0,
+      "casimir_zero_max_abs": 0.0,
+      "generic_bad_max_abs_J_grad_S": 3.0,
+      "generic_zero_max_abs_J_grad_S": 0.0,
+      "max_abs_match_bad": true,
+      "max_abs_match_zero": true,
+      "name": "generic_compatibility"
+    },
+    "negative_grad_C_prime": {
+      "J_grad_C": [
+        0.0,
+        3.0,
+        -2.0
+      ],
+      "grad_C_prime": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_abs": 3.0,
+      "name": "negative_grad_C_prime",
+      "norm": 3.605551275463989,
+      "ok": false
+    },
+    "scope_and_exports": {
+      "SOURCE": "Arnold 1966 DOI 10.5802/aif.233; Marsden & Ratiu 1999 DOI 10.1007/978-0-387-21792-5 (finite-dim so(3)* only; NOT fluid PDE)",
+      "arnold_doi": "10.5802/aif.233",
+      "marsden_ratiu_doi": "10.1007/978-0-387-21792-5",
+      "module": "casimir.py",
+      "name": "scope_and_exports",
+      "tol": 1e-10
+    },
+    "so3_casimir_residual_zero": {
+      "J": [
+        [
+          0.0,
+          -3.0,
+          2.0
+        ],
+        [
+          3.0,
+          0.0,
+          -1.0
+        ],
+        [
+          -2.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "grad_C": [
+        1.0,
+        2.0,
+        3.0
+      ],
+      "max_abs": 0.0,
+      "name": "so3_casimir_residual_zero",
+      "norm": 0.0,
+      "ok": true,
+      "skew_residual": 0.0,
+      "z": [
+        1.0,
+        2.0,
+        3.0
+      ]
+    }
+  },
+  "results": [
+    {
+      "detail": {
+        "J": [
+          [
+            0.0,
+            -3.0,
+            2.0
+          ],
+          [
+            3.0,
+            0.0,
+            -1.0
+          ],
+          [
+            -2.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "grad_C": [
+          1.0,
+          2.0,
+          3.0
+        ],
+        "max_abs": 0.0,
+        "name": "so3_casimir_residual_zero",
+        "norm": 0.0,
+        "ok": true,
+        "skew_residual": 0.0,
+        "z": [
+          1.0,
+          2.0,
+          3.0
+        ]
+      },
+      "name": "so3_casimir_residual_zero",
+      "ok": true
+    },
+    {
+      "detail": {
+        "I": [
+          1.0,
+          2.0,
+          3.0
+        ],
+        "Omega": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "dC_dt": 0.0,
+        "dH_dt": 0.0,
+        "name": "conservation_dC_dH",
+        "z": [
+          1.0,
+          2.0,
+          3.0
+        ],
+        "z_dot": [
+          -1.0,
+          2.0,
+          -1.0
+        ]
+      },
+      "name": "conservation_dC_dH",
+      "ok": true
+    },
+    {
+      "detail": {
+        "J_grad_C": [
+          0.0,
+          3.0,
+          -2.0
+        ],
+        "grad_C_prime": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "max_abs": 3.0,
+        "name": "negative_grad_C_prime",
+        "norm": 3.605551275463989,
+        "ok": false
+      },
+      "name": "negative_grad_C_prime",
+      "ok": true
+    },
+    {
+      "detail": {
+        "called_check_generic_structure": true,
+        "casimir_bad_max_abs": 3.0,
+        "casimir_zero_max_abs": 0.0,
+        "generic_bad_max_abs_J_grad_S": 3.0,
+        "generic_zero_max_abs_J_grad_S": 0.0,
+        "max_abs_match_bad": true,
+        "max_abs_match_zero": true,
+        "name": "generic_compatibility"
+      },
+      "name": "generic_compatibility",
+      "ok": true
+    },
+    {
+      "detail": {
+        "SOURCE": "Arnold 1966 DOI 10.5802/aif.233; Marsden & Ratiu 1999 DOI 10.1007/978-0-387-21792-5 (finite-dim so(3)* only; NOT fluid PDE)",
+        "arnold_doi": "10.5802/aif.233",
+        "marsden_ratiu_doi": "10.1007/978-0-387-21792-5",
+        "module": "casimir.py",
+        "name": "scope_and_exports",
+        "tol": 1e-10
+      },
+      "name": "scope_and_exports",
+      "ok": true
+    }
+  ],
+  "title": "Lie-Poisson / Casimir Invariants"
+}
