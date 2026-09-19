@@ -3,9 +3,10 @@
 FORMALISM.md §2 rows: K_info, R_info, eta_info.
 FORMALISM.md §3; information_layer_crep.md.
 
-Milestone 22 (Directed Information) is exported here as a **submodule-local**
-addition; package-root ``scoped_correspondence.__init__`` is intentionally
-left untouched. ``observation.core`` is not edited.
+Milestone 22 (Directed Information) and Milestone 25 (Arimoto–Blahut DMC
+capacity) are exported here as **submodule-local** additions; package-root
+``scoped_correspondence.__init__`` is intentionally left untouched.
+``observation.core`` is not edited.
 """
 
 from scoped_correspondence.observation.core import (
@@ -23,6 +24,17 @@ from scoped_correspondence.observation.directed_information import (
     directed_information,
     mutual_information_sequences,
 )
+from scoped_correspondence.observation.arimoto_blahut import (
+    SOURCE as ARIMOTO_BLAHUT_SOURCE,
+    SOURCE_ARIMOTO,
+    SOURCE_BLAHUT,
+    ArimotoBlahutResult,
+    blahut_arimoto_capacity,
+    bsc_channel,
+    mutual_information_dmc,
+    z_channel,
+    z_channel_capacity_closed_form,
+)
 from scoped_correspondence.errors import ScopeViolationError
 
 __all__ = [
@@ -39,4 +51,14 @@ __all__ = [
     "bsc_no_feedback_joint",
     "directed_information",
     "mutual_information_sequences",
+    # M25 Arimoto–Blahut DMC capacity (submodule-local; core untouched)
+    "ARIMOTO_BLAHUT_SOURCE",
+    "SOURCE_ARIMOTO",
+    "SOURCE_BLAHUT",
+    "ArimotoBlahutResult",
+    "blahut_arimoto_capacity",
+    "bsc_channel",
+    "mutual_information_dmc",
+    "z_channel",
+    "z_channel_capacity_closed_form",
 ]

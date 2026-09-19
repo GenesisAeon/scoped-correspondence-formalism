@@ -1,0 +1,56 @@
+{
+  "milestone": 25,
+  "name": "arimoto_blahut_capacity",
+  "count": 3,
+  "passed": 3,
+  "failed": 0,
+  "report": {
+    "z_channel_eps_0_5": {
+      "epsilon": 0.5,
+      "beta": 0.25,
+      "C_analytic_log2_1_25": 0.32192809488736235,
+      "r_analytic": [
+        0.6,
+        0.4
+      ],
+      "C_ba": 0.3219280948873625,
+      "r_star": [
+        0.5999999999983882,
+        0.40000000000161184
+      ],
+      "iterations": 53,
+      "tol": 1e-14,
+      "abs_err_C": 1.6653345369377348e-16,
+      "abs_err_r0": 1.6118217871508023e-12,
+      "abs_err_r1": 1.6118217871508023e-12,
+      "_status": "passed"
+    },
+    "bsc_p_0_1": {
+      "p": 0.1,
+      "H2_p": 0.4689955935892812,
+      "C_analytic_1_minus_H2": 0.5310044064107188,
+      "C_ba": 0.5310044064107189,
+      "r_star": [
+        0.5,
+        0.5
+      ],
+      "iterations": 1,
+      "tol": 1e-14,
+      "abs_err_C": 1.1102230246251565e-16,
+      "_status": "passed"
+    },
+    "scope_and_sources": {
+      "SOURCE_ARIMOTO": "Arimoto, S. (1972). An algorithm for computing the capacity of arbitrary discrete memoryless channels. IEEE Trans. Inf. Theory 18(1):14\u201320. DOI: 10.1109/TIT.1972.1054753.",
+      "SOURCE_BLAHUT": "Blahut, R. E. (1972). Computation of channel capacity and rate-distortion functions. IEEE Trans. Inf. Theory 18(4):460\u2013473. DOI: 10.1109/TIT.1972.1054855.",
+      "shannon_hartley_B1_SNR1": 1.0,
+      "z_capacity_distinct": 0.32192809488736207,
+      "_status": "passed"
+    }
+  },
+  "errors": [],
+  "meta": {
+    "timestamp": "2026-09-19T14:55:59+02:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.19045-SP0"
+  }
+}
