@@ -39,6 +39,22 @@ SOURCE = (
 
 _CLASS_FLAT = "flat"
 _CLASS_IDENTIFIABLE = "identifiable"
+_CLASS_UNRESOLVED = "unresolved_in_scan"
+
+# Audit finding A07: a finite scan can only ever show that chi2 did not
+# visibly curve WITHIN the sampled window — it can never prove the profile
+# is flat beyond that window. A variance-based flatness test compares its
+# statistic to an ABSOLUTE atol, so shrinking the scan span always
+# eventually drives the observed variance below any fixed atol (variance
+# shrinks quadratically with the span for a smooth chi2), even for a
+# genuinely curved, fully identifiable parameter (audit example:
+# chi2=theta^2 scanned at {-0.001,0,0.001} was classified "flat" although
+# the true global interval at threshold=1 is exactly [-1,1]). Below this
+# default minimum half-span, classify_identifiability refuses to call
+# anything "flat" and reports "unresolved_in_scan" instead — distinct from
+# a genuine flat_profile finding on a properly wide scan (see the M20
+# non-identifiable product worked example, span=4, still correctly "flat").
+_MIN_RESOLVABLE_SPAN = 1e-2
 
 # Golden-section ratio for 1-D free-parameter refine (algebraic cases only).
 _PHI = (1.0 + math.sqrt(5.0)) / 2.0
@@ -229,14 +245,26 @@ def profile_parameter(
 def classify_identifiability(
     profile: Sequence[Tuple[float, float]],
     atol: float = 1e-8,
+    min_resolvable_span: float = _MIN_RESOLVABLE_SPAN,
 ) -> str:
-    """Classify a profile as ``\"flat\"`` or ``\"identifiable\"``.
+    """Classify a profile as ``"flat"``, ``"identifiable"``, or
+    ``"unresolved_in_scan"``.
 
     Uses the sample variance of the profiled ``chi2_min`` values:
 
-    - ``\"flat\"`` if ``Var(chi2_min) < atol`` (practically non-identifiable
-      on the scanned grid — Raue et al. 2009 flat-profile signature);
-    - ``\"identifiable\"`` otherwise.
+    - ``"unresolved_in_scan"`` if the scanned grid's span
+      (``max(fixed_value) - min(fixed_value)``) is below
+      ``min_resolvable_span`` — a scan this narrow cannot distinguish a
+      genuinely flat profile from a curved one whose curvature only shows
+      up over a wider window (audit finding A07: chi2=theta^2 scanned at
+      {-0.001,0,0.001} has variance ~2e-13, far below any reasonable
+      atol, despite being fully identifiable with global interval [-1,1]
+      at threshold=1). This check runs BEFORE the variance test, on the
+      grid alone, regardless of the observed chi2 values.
+    - ``"flat"`` if ``Var(chi2_min) < atol`` on a sufficiently wide scan
+      (practically non-identifiable on the scanned grid — Raue et al.
+      2009 flat-profile signature);
+    - ``"identifiable"`` otherwise.
 
     Parameters
     ----------
@@ -244,6 +272,9 @@ def classify_identifiability(
         Output of :func:`profile_parameter`.
     atol :
         Absolute variance threshold (default ``1e-8``).
+    min_resolvable_span :
+        Minimum grid half-span (``max(x)-min(x)``) required before a
+        "flat" call is trusted (default ``1e-2``, see module notes).
     """
     if len(profile) < 2:
         raise ScopeViolationError(
@@ -252,13 +283,24 @@ def classify_identifiability(
     atol_f = float(atol)
     if not math.isfinite(atol_f) or atol_f < 0.0:
         raise ScopeViolationError(f"atol must be finite and >= 0; got {atol!r}")
+    span_f = float(min_resolvable_span)
+    if not math.isfinite(span_f) or span_f < 0.0:
+        raise ScopeViolationError(
+            f"min_resolvable_span must be finite and >= 0; got {min_resolvable_span!r}"
+        )
 
+    xs = [float(x) for x, _ in profile]
     ys = [float(chi2) for _, chi2 in profile]
     for y in ys:
         if not math.isfinite(y):
             raise ScopeViolationError(
                 f"classify_identifiability: non-finite chi2_min in profile: {y!r}"
             )
+
+    scan_span = max(xs) - min(xs)
+    if scan_span < span_f:
+        return _CLASS_UNRESOLVED
+
     n = len(ys)
     mean = sum(ys) / n
     var = sum((y - mean) ** 2 for y in ys) / n  # population variance on the grid
@@ -316,6 +358,27 @@ def likelihood_interval(
         if len(profile) >= 2
         else _CLASS_IDENTIFIABLE
     )
+
+    if classification == _CLASS_UNRESOLVED:
+        return {
+            "bounded": False,
+            "unbounded": True,
+            "unbounded_reason": "unresolved_in_scan",
+            "lower": None,
+            "upper": None,
+            "chi2_star": chi2_star,
+            "threshold": thr,
+            "values_in_set": list(in_set),
+            "classification": classification,
+            "source": SOURCE,
+            "note": (
+                "scan span too narrow to distinguish a flat profile from a "
+                "curved one whose curvature only appears over a wider "
+                "window (audit finding A07) — this is NOT a claim that the "
+                "parameter is non-identifiable, only that this scan cannot "
+                "tell; widen fixed_values to resolve"
+            ),
+        }
 
     if classification == _CLASS_FLAT:
         return {
