@@ -196,21 +196,37 @@ Von Aeon geliefert (`prompts/28_teil2_m20_profile_likelihood_for_aeon.md`) direk
 - `identifiability/core.py` und alle 8 Kerndokumente unverändert.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m20-profile-likelihood` gelöscht.
 
-## F39: Teil 2, Milestone 21 — Formal Reduction Error Bounds (Prompt gesendet 2026-09-18, noch offen)
+## F39: Teil 2, Milestone 21 — Formal Reduction Error Bounds (erledigt 2026-09-19)
 
-Prompt an Aeon: [prompts/29_teil2_m21_formal_reduction_error_bounds_for_aeon.md](prompts/29_teil2_m21_formal_reduction_error_bounds_for_aeon.md). Aus F26 (Astra3) — Michel & Siegle, dieselbe Quelle wie M11 aber andere Aussage (allgemeine Fehlerschranken statt exakter Lumpability). Aeon muss die genaue Formel/Theorem-Stelle aus der Primärquelle entnehmen, nicht erfinden. Pflicht-Vergleich gegen bestehende `propagated_error_bound`. Kann parallel zu M22/M23/M24 bearbeitet werden.
+Von Aeon geliefert (`prompts/29_teil2_m21_formal_reduction_error_bounds_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F26 (Astra3) — Michel & Siegle, dieselbe Quelle wie M11 aber andere Aussage. `closure/error_bounds.py` implementiert Theorem 4 (DTMC), Theorem 5 (CTMC), Corollary 10 (Stationaritätsabstand), mit Pflicht-Vergleich gegen `propagated_error_bound`.
+- 4/4 neue Prüfungen selbst nachgerechnet. Zusätzlich die echte arXiv-Quelle (2403.07618, Abstract UND HTML-Volltext) direkt abgerufen und Theorem 4, Theorem 5 sowie das vollständige zweigliedrige Corollary 10 wortgleich gegen Aeons Zitate bestätigt (eine erste Zusammenfassung hatte Cor. 10 auf einen Term verkürzt, gezielter zweiter Abruf bestätigte die vollständige Form). Beispielmatrizen von Hand bestätigt: `‖ΠA-AP‖∞=0,25` exakt, `π=(2/3,1/3)` als tatsächlicher Stationärvektor von Π selbst nachgerechnet.
+- `closure/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m21-formal-reduction-error-bounds` gelöscht.
 
-## F40: Teil 2, Milestone 22 — Directed Information (Prompt gesendet 2026-09-18, noch offen)
+## F40: Teil 2, Milestone 22 — Directed Information (erledigt 2026-09-19)
 
-Prompt an Aeon: [prompts/30_teil2_m22_directed_information_for_aeon.md](prompts/30_teil2_m22_directed_information_for_aeon.md). Aus F28 (docx) — Massey 1990/Permuter et al. 2009. `I(X^n→Y^n)=Σ I(X^i;Y_i|Y^{i-1})` für `observation`, BSC-mit-Rückkopplung-Beispiel plus Pflicht-Kontrollfall ohne Rückkopplung (exakte Gleichheit mit Standard-Transinformation). Kann parallel zu M21/M23/M24 bearbeitet werden.
+Von Aeon geliefert (`prompts/30_teil2_m22_directed_information_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F28 (docx) — Massey 1990/Permuter et al. 2009. `observation/directed_information.py`: `I(X^n→Y^n)=Σ I(X^i;Y_i|Y^{i-1})` über die Entropie-Identität, mit Laufzeit-Garantie der Massey-Ungleichung.
+- 4/4 neue Prüfungen selbst nachgerechnet. Rückkopplungsbeispiel unabhängig von der Entropie-Kettenregel neu hergeleitet (nicht aus dem Code übernommen): `I(X_1;Y_1)=1-H(p)`, zweiter Summand exakt 0, ergibt `I_dir=1-H(p)`; separat `H(X²)=1+H(p)`, `H(X²|Y²)=H(p)` ergibt `I_mutual=1` — beide exakt bestätigt (0,188722 bzw. 1,0). Kontrollfall ohne Rückkopplung liefert exakte Gleichheit.
+- `observation/core.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m22-directed-information` gelöscht.
 
-## F41: Teil 2, Milestone 23 — Fisher-Information-Sloppiness (Prompt gesendet 2026-09-18, noch offen)
+## F41: Teil 2, Milestone 23 — Fisher-Information-Sloppiness (erledigt 2026-09-19)
 
-Prompt an Aeon: [prompts/31_teil2_m23_fisher_sloppiness_for_aeon.md](prompts/31_teil2_m23_fisher_sloppiness_for_aeon.md). Aus F28 (docx) — Transtrum/Machta/Sethna 2011, Raju et al. 2018. FIM-Spektralzerfall (stiff/sloppy Eigenvektoren) für `identifiability`, algebraisch durchgerechnetes Zwei-Parameter-Modell plus Pflicht-Kontrollfall (isotrope FIM, Anisotropie=1). Kann parallel zu M21/M22/M24 bearbeitet werden.
+Von Aeon geliefert (`prompts/31_teil2_m23_fisher_sloppiness_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F28 (docx) — Transtrum/Machta/Sethna 2011, Raju et al. 2018. `identifiability/fim_sloppiness.py`: FIM-Spektralzerfall (stiff/sloppy Eigenvektoren), getrennt von `identifiability_jacobian_rank`.
+- 4/4 neue Prüfungen selbst nachgerechnet. Jacobi-Matrix und FIM für das Exponential-Zerfalls-Beispiel komplett von Hand hergeleitet — exakte Übereinstimmung (`λ_max=0,35527, λ_min=0,006977, Anisotropie=50,92`). Isotroper Kontrollfall liefert korrekt `Anisotropie=1,0`. Kleine Differenz (16. Nachkommastelle) zwischen eigenem Windows-Lauf und dem committeten Linux-Box-Lauf als harmloses plattformübergreifendes LAPACK-Gleitkommarauschen bestätigt.
+- `identifiability/core.py`, `profile_likelihood.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m23-fisher-sloppiness` gelöscht.
 
-## F42: Teil 2, Milestone 24 — Čech-Cohomology-Witness (Prompt gesendet 2026-09-18, noch offen)
+## F42: Teil 2, Milestone 24 — Čech-Cohomology-Witness (erledigt 2026-09-19)
 
-Prompt an Aeon: [prompts/32_teil2_m24_cech_cohomology_witness_for_aeon.md](prompts/32_teil2_m24_cech_cohomology_witness_for_aeon.md). Aus F26 (Astra3) — Abramsky/Mansfield/Barbosa 2012. Dritte Kontextualitäts-Charakterisierung, über die bereits gemergten `bell_222_scenario`/`classical_factorizable_model`/`pr_box_model` (M7). Pflicht-Negativtest: verschwindende Obstruktion beweist NICHT Nichtkontextualität. Letzter der 17 ursprünglich identifizierten Kandidaten. Kann parallel zu M21/M22/M23 bearbeitet werden.
+Von Aeon geliefert (`prompts/32_teil2_m24_cech_cohomology_witness_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F26 (Astra3) — Abramsky/Mansfield/Barbosa 2012. `contextuality/cohomology.py`: relative `Z_2`-Čech-Obstruktion über GF(2)-Lineare-Algebra auf den bereits gemergten Bell-Szenario-Modellen. `proves_contextuality` wird ausschließlich aus `obstruction_nonzero` gesetzt, nie durch Invertieren — sowohl per Laufzeit-Negativtest als auch per statischer Quellcode-Prüfung auf das verbotene Muster abgesichert.
+- 4/4 neue Prüfungen selbst nachgerechnet. PR-Box-Kombinatorik von Hand nachvollzogen: Fixierung `a1=0,b1=0` erzwingt über die Kontexte `{a1,b2}` und `{a2,b1}` `b2=0` und `a2=0`, aber `{a2,b2}` unterstützt nur `(0,1)` oder `(1,0)` — echter Widerspruch, bestätigt einen realen Hindernis-Fall. Skript-Ergebnis (8 von 8 Sektionen bei PR-Box, 0 von 16 bei klassisch) ist stärker als der eine handnachgerechnete Fall und konsistent damit.
+- `contextuality/core.py`, `csw.py` und alle 8 Kerndokumente unverändert.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m24-cech-cohomology-witness` gelöscht. **Letzter der ursprünglich 17 identifizierten Erweiterungskandidaten — alle jetzt erledigt.**
+
+## F43: DeepResearch-Auftrag Runde 2 gesendet (2026-09-19, ausstehend)
+
+`prompts/33_deepresearch_structural_and_mathematical_extensions.md` — Fortsetzung von F26/F28. Zwei Spuren: (A) weitere direkt anschließbare Erweiterungen wie Runde 1 (alle 17 aus Runde 1 sind jetzt gemergt, siehe M9-M24), (B) NEU — strukturell passende, aber eigenständige Themenfelder auf Johanns Vorschlag (Randbedingungen/Grenzflächen, Aggregatzustandswechsel, Fluiddynamik/Kontinuumsmechanik, ähnliches), mit der harten Auflage, dass jeder Spur-B-Vorschlag entweder als echte Erweiterung EINES Bausteins oder als eigenständiger neuer Baustein einzuordnen ist — niemals als Gleichsetzung mit einem bestehenden Baustein (exakt die Art Fehler, die diese Revision korrigiert hat). Noch keine Antwort erhalten.
 
 ## Neue Forschungsaufgaben aus Revision 3
 
