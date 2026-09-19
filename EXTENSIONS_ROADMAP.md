@@ -62,6 +62,33 @@ gut belegte Fälle zuerst, größere (Čech-Kohomologie, BROJA, Schnakenberg)
 später. Reihenfolge wird bei Bedarf mit Johann abgestimmt, nicht
 automatisch abgearbeitet.
 
+## Runde 2 (2026-09-19): zwei unabhängige Claude-Agenten-Recherchen
+
+Vier menschliche DeepResearch-Antworten auf `prompts/33_deepresearch_structural_and_mathematical_extensions.md`
+erfüllten den Spur-A/B-Auftrag nicht zuverlässig (siehe F43 in
+`FOLLOWUP_TICKETS.md` für Details — eine verworfen als stale/halluziniert,
+eine erwies sich als Wiederholung von Runde 1, eine enthielt ein per
+WebSearch als falsch verifiziertes Zitat). Deshalb wurden zusätzlich zwei
+unabhängige, frische general-purpose-Agenten mit vollem Repo-Kontext
+beauftragt — ohne Einsicht ineinander oder in die menschlichen Antworten,
+mit Pflicht zur Live-Verifikation jedes Zitats per WebSearch/WebFetch/
+Crossref-API. Fünf Kandidaten mit klarer Formel-zu-Formel-Anknüpfung und
+kleinem/mittlerem Aufwand wurden als M25–M29 an Aeon gesendet. Drei
+weitere Punkte sind zurückgestellt, weil sie eine Grundsatzentscheidung
+(Baustein-Klassifizierung bzw. ein komplett neues Modul) statt einer
+reinen additiven Erweiterung sind.
+
+| # | Baustein | Kandidat | Quelle | Konvergenz | Status |
+|---|---|---|---|---|---|
+| M25 | `observation` | Arimoto–Blahut-Algorithmus (Kanalkapazität für beliebige DMC) | Arimoto 1972, DOI 10.1109/TIT.1972.1054753; Blahut 1972, DOI 10.1109/TIT.1972.1054855 | ✅ beide Agenten unabhängig, identisches Zahlenbeispiel (Z-Kanal ε=0,5 → C=0,321928 bit, optimale Eingabe (0,6; 0,4)) | 🔄 Prompt gesendet |
+| M26 | `coupling` | Lie-Poisson-Struktur / Casimir-Invarianten (formalisiert die bereits verlangte GENERIC-Degeneriertheitsbedingung `J∇S=0`) | Arnold 1966, DOI 10.5802/aif.233; Marsden & Ratiu 1999, DOI 10.1007/978-0-387-21792-5 | nur Agent B | 🔄 Prompt gesendet |
+| M27 | `membership` | Formal Concept Analysis (Galois-Verbindung auf der bestehenden binären `MembershipMatrix`) — schließt die bisherige "kein Kandidat"-Lücke OHNE gewichtete Semantik | Ganter & Wille 1999, DOI 10.1007/978-3-642-59830-2 | nur Agent B | 🔄 Prompt gesendet |
+| M28 | `viability` | Nagumos Tangentialkegel-Bedingung (verallgemeinert M16/CBF auf nicht-glatte/polyedrische Mengen) | Nagumo 1942, DOI 10.11429/ppmsj1919.24.0_551 (Übersetzung: arXiv:2406.18614) | beide (Agent A: Saint-Pierre-Kernel-Approximation; Agent B: Nagumo direkt — Agent B gewählt, kleinerer Aufwand) | 🔄 Prompt gesendet |
+| M29 | `dynamics` | Landau-Entwicklung der bestehenden kubischen Normalform als Selbst-Falsifizierungs-Instrument gegen Universalitätsansprüche (β=1/2 modellintern vs. β=1/8 beim exakten 2D-Ising-Modell) | Onsager 1944, DOI 10.1103/PhysRev.65.117; Yang 1952, DOI 10.1103/PhysRev.85.808; Guckenheimer & Holmes 1983, DOI 10.1007/978-1-4612-1140-2 | nur Agent B | 🔄 Prompt gesendet |
+| — | `dynamics` (a) ODER neuer Baustein (b) — **noch offen** | Turing-Instabilität (Diffusions-getriebene Musterbildung) | Turing 1952, DOI 10.1098/rstb.1952.0012; Schnakenberg 1979, DOI 10.1016/0022-5193(79)90042-0 — **ACHTUNG:** anderer Schnakenberg-Aufsatz als M18 (1976)! | ✅ beide Agenten, aber UNEINIG in der a/b-Klassifizierung (Argumente beider Seiten plausibel) | ⏸ wartet auf Johanns Entscheidung |
+| — | neuer 13./14. Baustein (b) — **noch offen** | Stefan-Problem / freie Randbedingung (bewegliche Phasengrenze als eigene dynamische Variable, kein Unterfall von `viability`) | Kot 2017, DOI 10.1007/s10891-017-1638-2; Rubinstein 1971, DOI 10.1090/chel/343 | ✅ beide Agenten, fast identisches Rechenbeispiel (λ≈0,6201 bei St=1) | ⏸ wartet auf Johanns Grundsatzentscheidung (neues Modul, größerer Schnitt) |
+| — | neuer 13./14. Baustein (b) — **noch offen** | Perkolation (Kesten-Theorem / Bethe-Gitter-Verzweigungsprozess) | Kesten 1980, DOI 10.1007/BF01197577 | ✅ beide Agenten, beide warnen unabhängig vor Zahlenkoinzidenzen mit bereits verworfenen Werten (u.a. Bethe-Gitter-Zwischenwert 1/16) | ⏸ wartet auf Johanns Grundsatzentscheidung |
+
 ## Arbeitsweise (unverändert für jeden Eintrag)
 
 1. Prompt für Aeon schreiben (Referenzen gegen echten Code/Doku-Stand
