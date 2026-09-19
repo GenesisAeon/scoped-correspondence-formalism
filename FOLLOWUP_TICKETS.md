@@ -234,6 +234,41 @@ Von Aeon geliefert (`prompts/32_teil2_m24_cech_cohomology_witness_for_aeon.md`) 
 
 Da keine der vier menschlichen Antworten den Spur-A/B-Auftrag vollständig und zuverlässig erfüllte, wurden zusätzlich **zwei unabhängige, frische general-purpose-Claude-Agenten** (nicht Aeon) mit demselben Auftrag plus vollem Repo-Kontext beauftragt — ohne Einsicht ineinander oder in `prompts/Answers/`, mit der Pflicht, jedes Zitat live per WebSearch/WebFetch/Crossref-API zu verifizieren, bevor es verwendet wird. Beide lieferten (52 bzw. 55 Tool-Aufrufe) vollständig zitatgeprüfte Berichte mit expliziten (a)/(b)-Klassifizierungen und mehreren unabhängig konvergierenden Funden (Arimoto-Blahut für `observation` mit identischem Zahlenbeispiel C=0,321928 bit; Stefan-Problem mit fast identischem λ≈0,6201; Perkolation; Turing-Instabilität mit Uneinigkeit in der a/b-Klassifizierung). Ergebnis konsolidiert in `EXTENSIONS_ROADMAP.md` §Runde 2. Fünf Kandidaten (M25-M29) als Prompts an Aeon gesendet, drei weitere Punkte warten auf Johanns Grundsatzentscheidung (Turing a/b, Stefan-Problem und Perkolation als möglicher 13./14. Baustein — größerer Schnitt als eine reine Erweiterung).
 
+## F44: Teil 2, Milestone 25 — Arimoto-Blahut-Kanalkapazität (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/34_teil2_m25_arimoto_blahut_capacity_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F43 (Runde-2-Agentenrecherche, von beiden unabhängigen Agenten übereinstimmend vorgeschlagen) — Arimoto 1972/Blahut 1972. `observation/arimoto_blahut.py`: alternierende Maximierung berechnet die Kanalkapazität für eine BELIEBIGE diskrete gedächtnislose Übergangsmatrix, ergänzt (nicht ersetzt) das bestehende Shannon-Hartley-`channel_capacity`.
+- 3/3 neue Prüfungen selbst nachgerechnet (der abschließende Traceback im Skriptlauf ist nur ein Windows-cp1252-Encoding-Fehler beim Ausgeben eines Pfeilzeichens NACH dem JSON-Schreiben, kein echter Bug — mit `PYTHONIOENCODING=utf-8` läuft es sauber durch). Z-Kanal-Beispiel (ε=0,5) von Hand aus der Stationaritätsbedingung `dI/dq=0` hergeleitet: `q*=0,4`, `C=log2(1,25)=0,321928...` — exakt bestätigt gegen die konvergierte Ausgabe (53 Iterationen). BSC-Kontrollfall (`p=0,1`) konvergiert korrekt in 1 Iteration (uniforme Startverteilung ist bereits optimal), `C=1-H2(0,1)=0,531004...` exakt bestätigt.
+- `observation/core.py` und alle acht Kerndokumente unverändert. Berührt bewusst nicht den Paket-Root-`__init__.py` (nur `observation/__init__.py`).
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m25-arimoto-blahut-capacity` wird gelöscht.
+
+## F45: Teil 2, Milestone 26 — Lie-Poisson / Casimir-Invarianten (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/35_teil2_m26_lie_poisson_casimir_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F43 — Arnold 1966/Marsden & Ratiu 1999. `coupling/casimir.py`: `casimir_residual`/`hat_map` formalisieren die Casimir-Bedingung, die `check_generic_structure` bereits implizit verlangt (`J∇S=0`), ausdrücklich NUR für den endlich-dimensionalen so(3)*-Starrkörperfall — explizit keine Fluid-PDE-Implementierung und keine Gleichsetzung von `coupling` mit Fluiddynamik.
+- 5/5 neue Prüfungen selbst nachgerechnet. Starrkörper-Beispiel (`z=(1,2,3)`, `I=(1,2,3)`) komplett von Hand hergeleitet: `J@∇C=(0,0,0)`, `ż=(-1,2,-1)`, `dC/dt=dH/dt=0`, Negativfall `J@(1,0,0)=(0,3,-2)` mit `max_abs=3` — alle exakt bestätigt. Branch lag auf einem neueren Commit als die zuerst gemeldete SHA (reine ASCII-Docstring-Bereinigung ohne Logikänderung, per Diff bestätigt harmlos).
+- `coupling/core.py` und alle acht Kerndokumente unverändert. Berührt bewusst nicht den Paket-Root-`__init__.py`.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m26-lie-poisson-casimir` wird gelöscht.
+
+## F46: Teil 2, Milestone 27 — Formal Concept Analysis (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/36_teil2_m27_formal_concept_analysis_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F43 — Ganter & Wille 1999. `membership/formal_concept_analysis.py`: Galois-Verbindung (`derive_up`/`derive_down`) und vollständige Konzeptverbands-Enumeration auf der bestehenden binären `MembershipMatrix` — schließt die bisherige "kein Kandidat"-Lücke für `membership`, OHNE die zurückgestellte gewichtete Semantik zu benötigen.
+- 5/5 neue Prüfungen selbst nachgerechnet. Der vollständige 6-Konzept-Verband der 4×3-Beispielmatrix von Hand über Zeilen-/Spaltenschnitt nachvollzogen (Konzept `({e1,e3,e4},{s2})` unabhängig bestätigt: Spalte s2 ist genau bei e1,e3,e4 gleich 1), inklusive der abgeleiteten Implikation "s3⇒s1" und des Negativfalls (`{e1,e2}` ist kein Konzept).
+- `membership/core.py` und alle acht Kerndokumente unverändert. Berührt bewusst nicht den Paket-Root-`__init__.py`.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m27-formal-concept-analysis` wird gelöscht.
+
+## F47: Teil 2, Milestone 28 — Nagumo-Tangentialkegel für Polyeder (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/37_teil2_m28_nagumo_tangent_cone_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F43 — Nagumo 1942. `viability/nagumo.py`: notwendige-und-hinreichende Tangentialkegel-Bedingung für polyedrische/Box-Mengen, deckt den nicht-glatten Fall ab, den das bestehende M16 (CBF) nicht erreicht (keine einzelne glatte Barrierefunktion an einer Ecke).
+- 3/3 neue Prüfungen selbst nachgerechnet. Alle vier Ecken des `[-1,1]²`-Beispiels per `f=A_sys·z` von Hand nachgerechnet (`f(1,1)=(-0,5;-1,5)`, `f(1,-1)=(-1,5;0,5)`, `f(-1,1)=(1,5;-0,5)`, `f(-1,-1)=(0,5;1,5)`) — exakt bestätigt, alle Randbedingungen erfüllt. Negativfall (Identitätsdynamik an Ecke (1,1)) korrekt als Verletzung erkannt.
+- `viability/core.py`, `control_barrier.py` und alle acht Kerndokumente unverändert. Berührt bewusst nicht den Paket-Root-`__init__.py`.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m28-nagumo-tangent-cone` wird gelöscht.
+
+## F48: Teil 2, Milestone 29 — Landau-Exponentenvergleich / Selbst-Falsifizierung (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/38_teil2_m29_landau_exponent_comparison_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F43 — Onsager 1944/Yang 1952/Guckenheimer & Holmes 1983. `dynamics/landau.py`: nutzt die bestehende `CubicNormalForm`/`fixed_points` als Landau-Ordnungsparameter-Modell und vergleicht den modellinternen mean-field-Exponenten (β=1/2) mit dem exakten 2D-Ising-Exponenten (β=1/8) — ein eingebautes, ausführbares Gegenbeispiel gegen Universalitätsansprüche, mit Pflicht-Docstring-Warnung, dass Onsagers `2/ln(1+√2)=2,269185` rein zufällig nahe am früher verworfenen σ≈2,2 liegt.
+- 5/5 neue Prüfungen selbst nachgerechnet. Alle Zahlen von Hand bestätigt: `x*(0,25)=0,5`, `x*(0,0625)=0,25`, Verhältnis `4^0,5=2,0`, hypothetisches Ising-Verhältnis `4^0,125=1,189207`, Diskrepanzfaktor `1,681793`, Onsager-Verhältnis `2,269185314` — alle exakt. Landau 1937 (keine verifizierbare DOI) korrekt nicht zitiert.
+- `dynamics/core.py` und alle acht Kerndokumente unverändert. Berührt bewusst nicht den Paket-Root-`__init__.py`.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m29-landau-exponent-comparison` wird gelöscht. **Johann entscheidet zugleich (2026-09-19): Turing-Instabilität, Stefan-Problem und Perkolation werden als drei eigenständige neue Bausteine geplant (nicht als Erweiterung bestehender Module) — siehe `EXTENSIONS_ROADMAP.md` §Runde 2.**
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
