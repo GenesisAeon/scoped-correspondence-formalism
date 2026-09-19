@@ -1,0 +1,83 @@
+{
+  "count": 5,
+  "failed": 0,
+  "failures": [],
+  "passed": 5,
+  "report": {
+    "EARLY_WARNING_COUNTEREXAMPLE_FENCE": "Boettiger & Hastings 2012 DOI 10.1098/rsif.2012.0125; Ditlevsen & Johnsen 2010 DOI 10.1029/2010GL044486 \u2014 rising Var/\u03c1 necessary near \u03bb\u21920 but NOT sufficient; false alarms; D-O events noise-induced. Also: no Var/S_rec \u2261 beta_response.",
+    "SOURCE": "Scheffer et al. 2009 DOI 10.1038/nature08227; Boettiger & Hastings 2012 DOI 10.1098/rsif.2012.0125; Ditlevsen & Johnsen 2010 DOI 10.1029/2010GL044486",
+    "checks": {
+      "control_far_from_fold": {
+        "data": {
+          "a_values": [2.0, 2.5],
+          "indicators": [
+            {"a": 2.0, "b": 0.0, "delta_t": 1.0, "lam": 4.000000000000001, "rho": 0.018315638888734165, "sigma": 0.1414213562373095, "tau": 1.0, "variance": 0.0024999999999999996, "x_star": 1.4142135623730951},
+            {"a": 2.5, "b": 0.0, "delta_t": 1.0, "lam": 5.000000000000001, "rho": 0.006737946999085461, "sigma": 0.1414213562373095, "tau": 1.0, "variance": 0.0019999999999999996, "x_star": 1.5811388300841898}
+          ],
+          "near_critical_contrast": {"a": 0.05, "b": 0.0, "delta_t": 1.0, "lam": 0.09999999999999999, "rho": 0.9048374180359596, "sigma": 0.1414213562373095, "tau": 1.0, "variance": 0.1, "x_star": 0.22360679774997896},
+          "note": "far from fold: \u03bb large; Var/\u03c1 do not show critical-slowing blow-up",
+          "rho_gap": 0.011577691889648703,
+          "var_rho_stable": true,
+          "variance_ratio": 1.25
+        },
+        "ok": true
+      },
+      "example_a_0_05_and_inverse": {
+        "data": {
+          "S_rec_core": 0.09999999999999999,
+          "a": 0.05,
+          "inverse_recovers_0_1": true,
+          "lambda_hat_from_exp_m01": 0.10000000000000006,
+          "lambda_hat_from_rho_0_904837": 0.10000046200129195,
+          "rho": 0.9048374180359596,
+          "rho_expected_exp_m01": 0.9048374180359595,
+          "variance": 0.1,
+          "variance_expected": 0.1,
+          "x_star": 0.22360679774997896
+        },
+        "ok": true
+      },
+      "example_a_0_5": {
+        "data": {
+          "S_rec_core": 1.0000000000000002,
+          "a": 0.5,
+          "lam": 1.0000000000000002,
+          "rho": 0.3678794411714422,
+          "rho_expected_exp_m1": 0.36787944117144233,
+          "uses_recovery_rate_at_equilibrium_call": true,
+          "variance": 0.009999999999999998,
+          "variance_expected": 0.01,
+          "x_star": 0.7071067811865476
+        },
+        "ok": true
+      },
+      "fence_and_sources": {
+        "data": {
+          "EARLY_WARNING_COUNTEREXAMPLE_FENCE": "Boettiger & Hastings 2012 DOI 10.1098/rsif.2012.0125; Ditlevsen & Johnsen 2010 DOI 10.1029/2010GL044486 \u2014 rising Var/\u03c1 necessary near \u03bb\u21920 but NOT sufficient; false alarms; D-O events noise-induced. Also: no Var/S_rec \u2261 beta_response.",
+          "SOURCE": "Scheffer et al. 2009 DOI 10.1038/nature08227; Boettiger & Hastings 2012 DOI 10.1098/rsif.2012.0125; Ditlevsen & Johnsen 2010 DOI 10.1029/2010GL044486",
+          "cites_boettiger_hastings_2012": true,
+          "cites_ditlevsen_johnsen_2010": true,
+          "cites_scheffer_2009": true,
+          "docs_has_counterexample_section": true,
+          "fence_in_module_docstring": true,
+          "no_var_srec_equiv_beta_response": true
+        },
+        "ok": true
+      },
+      "scope_and_core_call": {
+        "data": {
+          "calls_recovery_rate_at_equilibrium": true,
+          "dynamics_core_edited": false,
+          "lam_le_0_raises": true,
+          "reimplements_S_rec": false
+        },
+        "ok": true
+      }
+    },
+    "milestone": "M36",
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.41",
+    "python": "3.13.5",
+    "timestamp": "2026-09-19T20:11:24+02:00",
+    "title": "Early-Warning / Critical Slowing Down"
+  }
+}
