@@ -15,6 +15,7 @@ from pathlib import Path
 import platform
 import re
 import sys
+from urllib.parse import unquote
 
 
 RESULTS: list[dict] = []
@@ -318,7 +319,7 @@ def p11_document_links(output_path: Path):
         for target in re.findall(r'\]\(([^)]+)\)', p.read_text(encoding='utf-8')):
             if '://' in target or target.startswith('#'):
                 continue
-            target = target.split('#', 1)[0]
+            target = unquote(target.split('#', 1)[0])
             count += 1
             if (p.parent/target).resolve() == output_path.resolve():
                 # This report is written after all checks; it may not exist yet

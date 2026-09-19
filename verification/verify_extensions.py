@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 import platform
 import re
+from urllib.parse import unquote
 
 import numpy as np
 
@@ -392,7 +393,7 @@ def e16_current_document_links(output):
         for target in re.findall(r'\]\(([^)]+)\)', content):
             if '://' in target or target.startswith('#'):
                 continue
-            target = target.split('#', 1)[0]
+            target = unquote(target.split('#', 1)[0])
             resolved = (path.parent/target).resolve()
             if resolved == output.resolve():
                 continue
