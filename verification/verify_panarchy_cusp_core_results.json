@@ -1,0 +1,120 @@
+{
+  "count": 5,
+  "failed": 0,
+  "failures": [],
+  "passed": 5,
+  "report": {
+    "PANARCHY_V_ONSAGER_WARNING": "does NOT revive V\u2261Panarchy\u2261Onsager-L; interpretation layer only, no proven ecological claim; Abstract-verified Zwick 2017 fulltext not seen.",
+    "SOURCE": "Holling 1973 DOI 10.1146/annurev.es.04.110173.000245 (context only); Zwick & Hughes 2017 DOI 10.1145/3145574.3145591",
+    "checks": {
+      "control_no_jump_without_fold": {
+        "data": {
+          "a_values": [
+            4.0,
+            3.5,
+            3.0,
+            2.5
+          ],
+          "any_jump": false,
+          "b_fixed": 0.5,
+          "discriminants": [
+            249.25,
+            164.75,
+            101.25,
+            55.75
+          ],
+          "fold_ok": true,
+          "no_jump_without_fold_crossing": true,
+          "x_path": [
+            2.0597919701013208,
+            1.938537191230537,
+            1.810037929233953,
+            1.6729816478549422
+          ]
+        },
+        "ok": true
+      },
+      "core_call_only": {
+        "data": {
+          "calls_core_discriminant": true,
+          "discriminant_exterior_b3": -135.0,
+          "discriminant_interior_b0": 108.0,
+          "fold_minus": -2.0,
+          "fold_plus": 2.0,
+          "n_roots_exterior": 1,
+          "n_roots_interior": 3,
+          "reimplements_fixed_points": false
+        },
+        "ok": true
+      },
+      "equilibria_and_folds": {
+        "data": {
+          "a": 3.0,
+          "a_le_0_raises": true,
+          "discriminant_at_b0": 108.0,
+          "discriminant_at_fold_minus": 0.0,
+          "discriminant_at_fold_plus": 0.0,
+          "equilibria_b0": [
+            -1.7320508075688774,
+            -3.6739403974420594e-16,
+            1.7320508075688774
+          ],
+          "expected_equilibria": [
+            -1.7320508075688772,
+            0.0,
+            1.7320508075688772
+          ],
+          "fold_formula_mag": 2.0,
+          "fold_minus": -2.0,
+          "fold_plus": 2.0,
+          "note_research_slip_2_over_sqrt3": "Research draft wrote folds \u00b12/\u221a3\u2248\u00b11.1547 for a=3 by dropping a^{3/2}=3\u221a3 in (2/\u221a27)a^{3/2}; correct fold_thresholds(3)=\u00b12.",
+          "uses_cubic_discriminant_call": true,
+          "uses_fixed_points_call": true
+        },
+        "ok": true
+      },
+      "hysteresis_jumps_at_folds": {
+        "data": {
+          "a": 3.0,
+          "fold_minus": -2.0,
+          "fold_plus": 2.0,
+          "jump_b_values": [
+            2.0,
+            -2.0
+          ],
+          "jump_indices": [
+            40,
+            80
+          ],
+          "jumps_at_folds_not_at_b0": true,
+          "mid_forward_b": 0.0,
+          "mid_forward_jumped": false,
+          "mid_forward_x": -1.7320508075688774,
+          "n_b_samples": 81,
+          "n_jumps": 2,
+          "x_at_b0_forward": -1.7320508075688774,
+          "x_at_b0_return": 1.7320508075688774
+        },
+        "ok": true
+      },
+      "warning_and_sources": {
+        "data": {
+          "PANARCHY_V_ONSAGER_WARNING": "does NOT revive V\u2261Panarchy\u2261Onsager-L; interpretation layer only, no proven ecological claim; Abstract-verified Zwick 2017 fulltext not seen.",
+          "SOURCE": "Holling 1973 DOI 10.1146/annurev.es.04.110173.000245 (context only); Zwick & Hughes 2017 DOI 10.1145/3145574.3145591",
+          "abstract_verified": true,
+          "fulltext_seen": false,
+          "holling_doi": "10.1146/annurev.es.04.110173.000245",
+          "revives_V_Panarchy_Onsager_L": false,
+          "warning_in_module_docstring": true,
+          "zwick_doi": "10.1145/3145574.3145591"
+        },
+        "ok": true
+      }
+    },
+    "milestone": "M35",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "timestamp_local": "2026-09-19T19:56:02",
+    "title": "Panarchy / Adaptive-Cycle as Cusp Extension"
+  }
+}
