@@ -1,0 +1,43 @@
+DeepResearch Runde 3 — Agent A — Kurzfassung für Johann
+Datum: 2026-09-19 (CEST) | Nur Literatur | Unabhängig von Agent B
+Vollbericht: /workspace/research_round3_A/REPORT.md
+Quellen:   /workspace/research_round3_A/SOURCES.md
+
+SPUR A (knapp nach 25 Merges) — 2 Vorschläge
+  A1 Fenichel/GSPT (1979, DOI 10.1016/0022-0396(79)90152-9) → dynamics
+     Langsame Mannigfaltigkeit C_ε ≈ C_0; war explizit OPEN. Beispiel: van-der-Pol-
+     Falten (±1, ∓2/3). Aufwand: mittel.
+  A2 Floquet-Multiplier (1883, DOI 10.24033/asens.220) → dynamics
+     Periodische Orbits: Stabilität ⇔ |μ_i|<1 (außer μ=1). Ergänzt S_rec über
+     Gleichgewichte hinaus. Aufwand: klein–mittel.
+
+SPUR B — 2 Pflicht-Themen konkret verfolgt
+  B1 GENERIC ↔ Navier-Stokes (Öttinger/Grmela PRE 56, 6633 & 6620, 1997)
+     DOIs Crossref+APS verifiziert. Passt formelgenau an coupling.check_generic_
+     structure / thermo. 0D-Beispiel (u,e): M mit γ=1,u=2,e=3 erfüllt alle fünf
+     GENERIC-Checks; M∇E=0, M∇S=(-2,4). Aufwand: mittel.
+  B2 Chapman–Enskog (Chapman & Cowling, ISBN 978-0-521-40844-8)
+     η_CE = 5/(16σ²)√(mkT/π); bei m=kT=σ=1: η≈0.176309. Struktureller Anschluss
+     an closure PC=CQ (kinetisch→hydro Momente), keine Identität mit Lumpability.
+     Aufwand: mittel.
+
+SPUR C — alle vier; ehrliche Leerstellen markiert
+  C1 Panarchy/Adaptive Cycle
+     Holling qualitativ; formale Fassung = Cusp (Zwick & Hughes 2017,
+     DOI 10.1145/3145574.3145591) → (a) Erweiterung dynamics.cusp_field.
+     KEIN V≡Panarchy≡Onsager-L. Aufwand: klein.
+  C2 Autopoiesis — EHRLICH TEILWEISE LEER
+     Volle Maturana–Varela-Autopoiesis: keine kanonische Primärformel mit
+     handprüfbarem Vollbeispiel. COT (Dittrich 2007, DOI 10.1007/s11538-006-9130-8)
+     und Fontana–Buss 1994 operationalisieren nur Selbst-Erhaltung/Abschluss
+     → eher (b) neuer Baustein oder membership-Erweiterung; nicht viability≡autopoiesis.
+  C3 Strukturelle Kopplung (math.)
+     Pecora & Carroll 1990 (DOI 10.1103/PhysRevLett.64.821): CLE<0 ⇒ Sync
+     → (a) coupling. Aufwand: klein–mittel.
+  C4 Early-Warning (Scheffer 2009, DOI 10.1038/nature08227)
+     a=e^{-λ Δt}, Var=s²/(1-a²); λ=S_rec → (a) dynamics (nicht β_response,
+     nicht identifiability als Hauptsitz). λ: 0.1→0.01 ⇒ Var ≈5.52→50.5.
+     Aufwand: klein.
+
+Hard bans eingehalten. Alle DOIs live via Crossref (und APS/arXiv wo nötig).
+Empfohlene Reihenfolge (nur Recherche): C4, C3, B1, A1, B2, A2, C1, C2.

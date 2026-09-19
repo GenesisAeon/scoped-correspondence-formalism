@@ -1,0 +1,32 @@
+Round-3 DeepResearch — Agent B — Executive Summary für Johann
+Datum: 2026-09-19 (Europe/Berlin, UTC+2)
+Pfad: /workspace/research_round3_B/REPORT.md
+
+SPUR A (2 Vorschläge; Spur nach 25 Merges ehrlich dünn)
+  A1 Fenichel/GSPT 1979 (DOI 10.1016/0022-0396(79)90152-9) → dynamics
+     OPEN-Kandidat aus ALREADY_DONE, jetzt mit DOI + van-der-Pol-Handcheck.
+  A2 Crooks-Fluktuationstheorem 1999 (DOI 10.1103/PhysRevE.60.2721) → thermo
+     Trajektorien-ω neben Schnakenberg; Aufwand klein–mittel.
+
+SPUR B (2 Pflicht-Themen, beide konkret)
+  B1 GENERIC↔Navier-Stokes (Öttinger/Grmela PRE 56, 6633 & 6620, DOIs verifiziert)
+     Dockt an coupling.check_generic_structure; 0D-viskoses Mini-Beispiel
+     (p_irr=-γTv) besteht die Strukturchecks von Hand.
+  B2 Chapman–Enskog (Chapman & Cowling; η=5/(16√π)√(mT)/d² ≈0.176 bei m=T=d=1)
+     Closure-Analog zu PC=CQ; Buch-ISBN, Formel gegen arXiv 1702.06313 geprüft.
+  Aktive Materie: kein Astra-taugliches Mini-Beispiel → nicht erzwungen.
+
+SPUR C (alle 4)
+  C1 Panarchy: qualitative Holling/Gunderson; FORMALE Fassung = Cusp
+     (Zwick & Hughes 2017, DOI 10.1145/3145574.3145591) → (a) dynamics.
+     WARNUNG: nicht V≡Panarchy≡Onsager-L.
+  C2 Autopoiesis: volle Maturana/Varela-Formalisierung FEHLT (ehrlich).
+     Teilfassung COT (Dittrich 2007) bzw. Fontana–Buss Selbstwartung existiert
+     → eher (b) neuer Baustein oder membership/closure; nicht erzwingen.
+  C3 Strukturelle Kopplung MATH: Pecora & Carroll 1990 (DOI 10.1103/PhysRevLett.64.821)
+     CLE<0 → (a) coupling. Mini: λ−K=−0.5.
+  C4 Early-Warning CSD: Scheffer Nature 2009 + Held/Kleinen ρ₁=e^{λΔt}
+     → (a) dynamics (Indikator, NICHT β≡Stabilität). Mini: λ=-0.01 → ρ≈0.99.
+
+Zählung Vorschläge: A=2, B=2, C=4 Themen (davon 1 ehrlicher Teil-/Misserfolg: volle Autopoiesis).
+Alle DOIs live via Crossref verifiziert; Details in SOURCES.md.
