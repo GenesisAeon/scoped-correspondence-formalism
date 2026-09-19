@@ -9,6 +9,10 @@ left untouched to avoid fighting parallel M15/M16 branches.
 
 Milestone 29 (Landau Exponent Comparison / Self-Falsification) is likewise
 exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
+
+Milestone 34 (Floquet Multipliers) is exported submodule-locally; given 2×2
+monodromy only — no ODE integrator; **not** M14 contraction;
+``dynamics/core.py`` and package-root ``__init__`` untouched.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -37,6 +41,16 @@ from scoped_correspondence.dynamics.landau import (
     mean_field_order_parameter,
     onsager_critical_ratio,
 )
+from scoped_correspondence.dynamics.floquet import (
+    SOURCE as FLOQUET_SOURCE,
+    SOURCE_OPTIONAL as FLOQUET_SOURCE_OPTIONAL,
+    STABILITY_NEUTRAL,
+    STABILITY_STABLE,
+    STABILITY_UNSTABLE,
+    classify_orbital_stability,
+    floquet_multipliers,
+    monodromy_from_trace_det,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -61,4 +75,13 @@ __all__ = [
     "mean_field_order_parameter",
     "onsager_critical_ratio",
     "compare_scaling_exponents",
+    # M34 Floquet multipliers (given 2×2 monodromy; not M14)
+    "FLOQUET_SOURCE",
+    "FLOQUET_SOURCE_OPTIONAL",
+    "STABILITY_STABLE",
+    "STABILITY_UNSTABLE",
+    "STABILITY_NEUTRAL",
+    "floquet_multipliers",
+    "classify_orbital_stability",
+    "monodromy_from_trace_det",
 ]
