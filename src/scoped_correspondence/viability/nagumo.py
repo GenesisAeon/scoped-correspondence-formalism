@@ -135,6 +135,24 @@ def tangent_cone_condition(
             f"f_z dim ({f_a.shape[0]}) must match A columns ({A_a.shape[1]})"
         )
 
+    # Audit finding A06: Nagumo's tangent-cone theorem is only meaningful at
+    # a point z that actually lies in K = {x : Ax<=b}. The old code checked
+    # only which constraints are ACTIVE (|A[i]z-b[i]|<=tol) and silently
+    # ignored constraints that are outright VIOLATED (A[i]z-b[i] > tol,
+    # i.e. z is strictly outside K on that face). A point like z=2 with
+    # K=[0,1] then had zero active constraints (2>1 is a violation, not a
+    # boundary touch) and vacuously returned ok=True. Reject infeasible z
+    # explicitly instead of reporting a vacuous pass.
+    residuals_all = A_a @ z_a - b_a
+    violated = [int(i) for i in range(A_a.shape[0]) if float(residuals_all[i]) > float(tol)]
+    if violated:
+        raise ScopeViolationError(
+            f"tangent_cone_condition: z={z_a.tolist()} is outside K "
+            f"(constraints {violated} violated by up to "
+            f"{float(np.max(residuals_all[violated]))!r} > tol={tol!r}); "
+            f"the Nagumo tangent-cone condition is only defined for z in K"
+        )
+
     idxs = active_constraints(z_a, A_a, b_a, tol=tol)
     margins: List[float] = []
     for i in idxs:

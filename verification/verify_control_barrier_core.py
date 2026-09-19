@@ -161,18 +161,34 @@ def check_nonlinear_alpha_refused():
         raised2 = True
     require(raised2, "alpha_kind='cubic' must raise")
 
-    # Non-identity h refused by verify / admissible
-    weird = BarrierFunction(
-        h=lambda x: float(x) - 1.0,  # h(x)=x-1 ≠ identity
-        alpha=lambda r: float(r),
-    )
+    # Non-identity h refused at CONSTRUCTION (audit finding A06: a barrier
+    # like h(x)=1-x can match h(x)=x at one evaluation point -- e.g. at
+    # x=0.5 -- without being the identity function; the old code only
+    # checked pointwise inside verify_forward_invariance/admissible_
+    # controls_cbf on whatever x a caller later passed, which such a
+    # non-identity h can pass by accident. Checked structurally on
+    # multiple probe points at construction time instead, same pattern
+    # already used for alpha).
     raised3 = False
     try:
-        verify_forward_invariance(weird, 0.2, -0.1)
+        BarrierFunction(
+            h=lambda x: float(x) - 1.0,  # h(x)=x-1 != identity
+            alpha=lambda r: float(r),
+        )
     except ScopeViolationError as exc:
         raised3 = True
         require("identity" in str(exc).lower() or "h(x)=x" in str(exc), str(exc))
-    require(raised3, "non-identity h must raise in verify_forward_invariance")
+    require(raised3, "non-identity h must raise at BarrierFunction construction")
+
+    # A barrier that only coincidentally matches h(x)=x at ONE point
+    # (h(x)=1-x matches at x=0.5) must also be refused.
+    raised4 = False
+    try:
+        BarrierFunction(h=lambda x: 1.0 - float(x), alpha=lambda r: float(r))
+    except ScopeViolationError as exc:
+        raised4 = True
+        require("identity" in str(exc).lower() or "h(x)=x" in str(exc), str(exc))
+    require(raised4, "h(x)=1-x (matches h(x)=x only at x=0.5) must still raise")
 
     require(ALPHA_LINEAR == "linear", ALPHA_LINEAR)
     require("10.1109/TAC.2016.2638961" in SOURCE, SOURCE)

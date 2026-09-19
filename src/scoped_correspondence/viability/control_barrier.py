@@ -58,6 +58,36 @@ _DEFAULT_ASSUMPTIONS: Tuple[str, ...] = (
 _ALPHA_PROBE: Tuple[float, ...] = (-2.0, -0.5, 0.0, 0.25, 0.7, 1.0, 3.5)
 
 
+def _require_identity_h(h: Callable[[float], float]) -> None:
+    """Refuse any h that is not the identity on probe points.
+
+    Audit finding A06: the old code only checked h(x)==x AT THE SINGLE
+    EVALUATION POINT of a later call (inside _scalar_lie_derivatives),
+    which h(x)=1-x satisfies exactly at x=0.5 (1-0.5=0.5) despite being a
+    completely different function with h'=-1, not h'=1. That let an
+    unsupported barrier through with a silently wrong L_g_h=1, producing
+    a wrong safety margin/verdict. Mirrors the existing _require_linear_alpha
+    probe check: verify identity STRUCTURALLY, on multiple points, at
+    construction time — not pointwise, after the fact, on whatever x a
+    caller later happens to pass in.
+    """
+    for s in _ALPHA_PROBE:
+        try:
+            val = float(h(s))
+        except Exception as exc:  # noqa: BLE001 — surface as scope violation
+            raise ScopeViolationError(
+                f"BarrierFunction: h must be callable on floats; "
+                f"h({s!r}) raised {type(exc).__name__}: {exc}"
+            ) from exc
+        if abs(val - float(s)) > 1e-12:
+            raise ScopeViolationError(
+                "BarrierFunction: only the identity barrier h(x)=x is "
+                f"supported (M16); h({s!r})={val!r} != {s!r}. Matching h(x)=x "
+                "at a single evaluation point does not establish h is the "
+                "identity function (e.g. h(x)=1-x also matches at x=0.5)."
+            )
+
+
 def _require_linear_alpha(alpha: Callable[[float], float]) -> None:
     """Refuse any alpha that is not the identity on probe points."""
     for s in _ALPHA_PROBE:
@@ -105,6 +135,7 @@ class BarrierFunction:
             raise ScopeViolationError("BarrierFunction: h must be callable")
         if not callable(self.alpha):
             raise ScopeViolationError("BarrierFunction: alpha must be callable")
+        _require_identity_h(self.h)
         _require_linear_alpha(self.alpha)
 
     def eval_h(self, x: float) -> float:
@@ -223,10 +254,18 @@ def verify_forward_invariance(
     x: float,
     u: float,
 ) -> BarrierCertificate:
-    """Check the CBF inequality at ``(x, u)`` for scalar ``x_dot = u``.
+    """Check the CBF inequality at ONE instantaneous ``(x, u)`` pair.
 
     Returns a ``BarrierCertificate`` with ``margin = u + x`` when
     ``h(x)=x`` and ``alpha(r)=r``, and ``safe = (margin >= 0)``.
+
+    Audit finding A06 (local-vs-global): a single passing instantaneous
+    check does NOT by itself certify forward invariance under a *held*
+    or *policy* control over time — the CBF inequality would need to
+    keep holding along the resulting trajectory, which requires either a
+    fresh check at each new state or an explicit feedback law u(x). A
+    passing certificate here is evidence at that one sampled point only,
+    not a proof that a constant ``u`` remains safe as ``x`` evolves.
     """
     h_x, alpha_h, L_f_h, L_g_h = _scalar_lie_derivatives(barrier, x)
     margin = cbf_condition(L_f_h, L_g_h, u, alpha_h)
