@@ -161,10 +161,49 @@ def mig_obs_shannon_hartley_and_scope():
     }
 
 
+def mig_obs_audit_input_guards():
+    """Audit findings: retention(nan,H) and realized_rate(rate>capacity)
+    must raise ScopeViolationError instead of silently returning a number.
+
+    retention(nan, 1.0) previously returned 1.0: `nan < -1e-15` is False,
+    `r=nan` then fails BOTH bounds of `r<-1e-12 or r>1+1e-12` (also False
+    for NaN), and `max(0.0, min(1.0, nan))` returns 1.0 because Python's
+    min/max never replace their first argument on a NaN comparison.
+
+    realized_rate(2.0, 1.0) previously returned 2.0 (eta_info=2): only a
+    negative-eta check existed, no upper bound, even though K_info is
+    defined as the maximum achievable rate (eta_info > 1 is a contradiction
+    of that definition, not a valid over-100% reading).
+    """
+    raised_nan = False
+    try:
+        retention(float("nan"), 1.0)
+    except ScopeViolationError:
+        raised_nan = True
+    require(raised_nan, "retention(nan, 1.0) must raise ScopeViolationError")
+
+    raised_over_capacity = False
+    try:
+        realized_rate(2.0, 1.0)
+    except ScopeViolationError:
+        raised_over_capacity = True
+    require(raised_over_capacity, "realized_rate(2.0, 1.0) (rate>capacity) must raise")
+
+    # Legitimate eta_info==1.0 boundary case must still succeed.
+    near(realized_rate(1.0, 1.0), 1.0)
+
+    return {
+        "retention_nan_raises": raised_nan,
+        "realized_rate_over_capacity_raises": raised_over_capacity,
+        "realized_rate_boundary_eta_1_ok": True,
+    }
+
+
 CHECKS = [
     ("MIG-OBS-p03_information_channel", mig_obs_p03_information_channel),
     ("MIG-OBS-c06_information_window", mig_obs_c06_information_window),
     ("MIG-OBS-shannon_hartley_and_scope", mig_obs_shannon_hartley_and_scope),
+    ("audit_input_guards", mig_obs_audit_input_guards),
 ]
 
 

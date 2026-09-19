@@ -11,6 +11,7 @@ from typing import Optional, Sequence, Tuple, Union
 
 import numpy as np
 
+from scoped_correspondence.closure.error_bounds import is_row_stochastic
 from scoped_correspondence.errors import ScopeViolationError
 
 ArrayLike = Union[np.ndarray, Sequence[Sequence[float]], Sequence[float]]
@@ -57,6 +58,22 @@ def is_exact_closure(
         raise ScopeViolationError("Q must be M x M with M = C.columns")
     if tol < 0:
         raise ScopeViolationError(f"tol must be >= 0; got {tol!r}")
+    # Audit finding: is_exact_closure(2*I, I, 2*I) returned True, since
+    # PC=CQ holds trivially for P=Q=2I even though P=2I is not a valid
+    # row-stochastic micro kernel (rows sum to 2, not 1). "Exact closure"
+    # (FORMALISM.md section 9) is only defined for stochastic P and Q;
+    # checking PC=CQ alone silently certifies non-stochastic matrices that
+    # happen to satisfy the algebraic identity for unrelated reasons.
+    if not is_row_stochastic(p, tol=max(tol, 1e-10)):
+        raise ScopeViolationError(
+            "is_exact_closure: P must be row-stochastic (entries >= 0, rows "
+            "sum to 1); got row sums " + repr(p.sum(axis=1))
+        )
+    if not is_row_stochastic(q, tol=max(tol, 1e-10)):
+        raise ScopeViolationError(
+            "is_exact_closure: Q must be row-stochastic (entries >= 0, rows "
+            "sum to 1); got row sums " + repr(q.sum(axis=1))
+        )
     return bool(np.allclose(p @ c, c @ q, atol=tol, rtol=0.0))
 
 

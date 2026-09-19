@@ -91,6 +91,15 @@ def retention(
             "retention: requires 0 < H(X) < inf for discrete X; "
             f"got H={entropy!r} (FORMALISM.md §2 R_info / §3)"
         )
+    # Audit finding: NaN mutual_information passes `< -1e-15` (always False
+    # for NaN) and the later [0,1] bound check (also always False for NaN),
+    # then max(0.0, min(1.0, nan)) silently returns 1.0 because Python's
+    # min/max never replace on a NaN comparison. Reject non-finite input
+    # explicitly before any comparison-based check can be skipped this way.
+    if not math.isfinite(mutual_information):
+        raise ScopeViolationError(
+            f"retention: mutual_information must be finite; got {mutual_information!r}"
+        )
     if mutual_information < -1e-15:
         raise ScopeViolationError(
             f"retention: mutual information I must be >= 0; got {mutual_information!r}"
@@ -151,6 +160,18 @@ def realized_rate(
     if eta < -1e-12:
         raise ScopeViolationError(
             f"realized_rate: eta_info={eta!r} is negative"
+        )
+    # Audit finding: rate > capacity (eta_info > 1) passed through silently.
+    # K_info is defined as the channel's maximum achievable rate (FORMALISM.md
+    # §3, c06_information_window); a realized rate above it is a contradiction
+    # of that definition (e.g. a measurement/unit error), not a valid
+    # over-100%-utilization reading, so it must be flagged rather than
+    # returned as an "eta_info" outside its defined [0,1] range.
+    if eta > 1.0 + 1e-9:
+        raise ScopeViolationError(
+            f"realized_rate: eta_info={eta!r} > 1 means rate exceeds capacity "
+            f"K_info={capacity!r}; check units/definition of capacity "
+            "(information_layer_crep.md §5)"
         )
     return float(eta)
 

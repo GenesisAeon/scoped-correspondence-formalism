@@ -301,6 +301,50 @@ def mig_cl_t15_changing_partition_exact_closure():
     return evidence
 
 
+def mig_cl_audit_nonstochastic_rejected():
+    """Audit finding: is_exact_closure(2*I, I, 2*I) returned True.
+
+    PC=CQ holds trivially for P=Q=2*I (2I@I == I@2I), but P=2I is not a
+    valid row-stochastic micro kernel (rows sum to 2, not 1) -- "exact
+    closure" (FORMALISM.md section 9) is only defined for stochastic P
+    and Q, and checking the algebraic identity alone silently certified a
+    non-stochastic matrix pair that satisfies it for unrelated reasons.
+    """
+    p_bad = 2.0 * np.eye(2)
+    c = np.eye(2)
+    q_bad = 2.0 * np.eye(2)
+    raised_p = False
+    try:
+        is_exact_closure(p_bad, c, np.eye(2))
+    except ScopeViolationError:
+        raised_p = True
+    require(raised_p, "non-stochastic P (2I) must raise")
+
+    raised_q = False
+    try:
+        is_exact_closure(np.eye(2), c, q_bad)
+    except ScopeViolationError:
+        raised_q = True
+    require(raised_q, "non-stochastic Q (2I) must raise")
+
+    raised_both = False
+    try:
+        is_exact_closure(p_bad, c, q_bad)
+    except ScopeViolationError:
+        raised_both = True
+    require(raised_both, "audit exact counter-example is_exact_closure(2I,I,2I) must raise")
+
+    # A genuinely stochastic identity closure must still pass.
+    require(is_exact_closure(np.eye(2), c, np.eye(2)), "P=Q=I stochastic closure must hold")
+
+    return {
+        "nonstochastic_P_raises": raised_p,
+        "nonstochastic_Q_raises": raised_q,
+        "audit_example_2I_raises": raised_both,
+        "stochastic_identity_still_ok": True,
+    }
+
+
 CHECKS = [
     ("MIG-CL-e01_circle_reconstruction", mig_cl_e01_circle_reconstruction),
     ("MIG-CL-e03_projected_memory", mig_cl_e03_projected_memory),
@@ -309,6 +353,7 @@ CHECKS = [
     ("MIG-CL-e06_approximate_error_bound", mig_cl_e06_approximate_error_bound),
     ("MIG-CL-t07_unequal_rates_break_closure", mig_cl_t07_unequal_rates_break_closure),
     ("MIG-CL-t15_changing_partition_exact_closure", mig_cl_t15_changing_partition_exact_closure),
+    ("audit_nonstochastic_rejected", mig_cl_audit_nonstochastic_rejected),
 ]
 
 

@@ -1,11 +1,11 @@
 {
   "milestone": "M3_closure_core",
   "kind": "MIG equivalence (legacy extensions/transformations vs Closure API)",
-  "generated_at_utc": "2026-09-16T20:08:43.940328+00:00",
+  "generated_at_utc": "2026-09-19T22:18:38.822976+00:00",
   "python": "3.11.9",
   "numpy": "2.2.6",
-  "count": 7,
-  "passed": 7,
+  "count": 8,
+  "passed": 8,
   "failed": 0,
   "empirical_validation": false,
   "checks": [
@@ -106,6 +106,16 @@
         "steps": 7,
         "legacy_id": "t15_changing_partition_exact_closure",
         "legacy_alias": "VER-CL-t15_changing_partition_exact_closure"
+      }
+    },
+    {
+      "id": "audit_nonstochastic_rejected",
+      "status": "passed",
+      "evidence": {
+        "nonstochastic_P_raises": true,
+        "nonstochastic_Q_raises": true,
+        "audit_example_2I_raises": true,
+        "stochastic_identity_still_ok": true
       }
     }
   ]

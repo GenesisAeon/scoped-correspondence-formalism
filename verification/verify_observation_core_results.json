@@ -1,11 +1,11 @@
 {
   "milestone": "M2_observation_core",
   "kind": "MIG equivalence (legacy verify_formalism vs Observation API)",
-  "generated_at_utc": "2026-09-16T19:50:26.664333+00:00",
+  "generated_at_utc": "2026-09-19T22:18:37.066191+00:00",
   "python": "3.11.9",
   "numpy": "2.2.6",
-  "count": 3,
-  "passed": 3,
+  "count": 4,
+  "passed": 4,
   "failed": 0,
   "empirical_validation": false,
   "checks": [
@@ -51,6 +51,15 @@
           "R_info",
           "eta_info"
         ]
+      }
+    },
+    {
+      "id": "audit_input_guards",
+      "status": "passed",
+      "evidence": {
+        "retention_nan_raises": true,
+        "realized_rate_over_capacity_raises": true,
+        "realized_rate_boundary_eta_1_ok": true
       }
     }
   ]
