@@ -269,6 +269,32 @@ Von Aeon geliefert (`prompts/38_teil2_m29_landau_exponent_comparison_for_aeon.md
 - `dynamics/core.py` und alle acht Kerndokumente unverändert. Berührt bewusst nicht den Paket-Root-`__init__.py`.
 - Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m29-landau-exponent-comparison` wird gelöscht. **Johann entscheidet zugleich (2026-09-19): Turing-Instabilität, Stefan-Problem und Perkolation werden als drei eigenständige neue Bausteine geplant (nicht als Erweiterung bestehender Module) — siehe `EXTENSIONS_ROADMAP.md` §Runde 2.**
 
+## F49: drei neue, eigenständige Bausteine beauftragt (2026-09-19, ausstehend)
+
+Umsetzung von Johanns Entscheidung aus F48: drei komplett neue,
+eigenständige Bausteine statt Erweiterungen bestehender Module.
+- `prompts/39_teil2_pattern_formation_turing_for_aeon.md` — neuer
+  Baustein `pattern_formation` (Turing 1952, Schnakenberg 1979 —
+  ausdrücklich NICHT Schnakenberg 1976 aus M18 —, Murray 2003).
+  Pflicht-Docstring-Hinweis: eine mögliche künftige
+  `correspondence`-Brücke zu `dynamics` (`S_rec(k)` verallgemeinert
+  `S_rec(0)`) bleibt als offener, unbewiesener Kandidat dokumentiert,
+  wird aber nicht gebaut.
+- `prompts/40_teil2_free_boundary_stefan_for_aeon.md` — neuer Baustein
+  `free_boundary` (Stefan-Problem, Kot 2017 + Bollati et al. arXiv
+  1906.08601; Rubinstein 1971 bewusst weggelassen, keine verlässliche
+  DOI in dieser Runde gefunden).
+- `prompts/41_teil2_percolation_kesten_for_aeon.md` — neuer Baustein
+  `percolation` (Kesten 1980 + Fisher & Essam 1961, exakt lösbarer
+  Bethe-Gitter-/Baum-Fall). Pflicht-Docstring-Hinweise: keine
+  Verwandtschaft zur Cusp-Schwelle in `dynamics`, und jede zufällige
+  Nähe zu bereits verworfenen Zahlenwerten (u.a. 1/16) muss explizit
+  als Zufall vermerkt werden.
+
+Alle drei können parallel bearbeitet werden (komplett unabhängige,
+neue Package-Verzeichnisse). `EXTENSIONS_ROADMAP.md` entsprechend
+aktualisiert. Noch keine Antwort erhalten.
+
 ## Neue Forschungsaufgaben aus Revision 3
 
 Die Literaturanschlüsse und synthetischen Gegenprüfungen sind in den Dokumenten ausgearbeitet. Die folgende empirische bzw. paketbezogene Umsetzung bleibt offen.
