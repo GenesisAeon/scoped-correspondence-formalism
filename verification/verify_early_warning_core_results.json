@@ -1,0 +1,77 @@
+{
+  "milestone": 36,
+  "title": "Early-Warning Signals / Critical Slowing Down",
+  "count": 5,
+  "passed": 5,
+  "failed": 0,
+  "source": "Scheffer et al. 2009 DOI 10.1038/nature08227",
+  "counterexample_warning": "MANDATORY COUNTEREXAMPLE: rising variance/autocorrelation as lambda->0 is NECESSARY but NOT SUFFICIENT evidence of an approaching bifurcation. Boettiger & Hastings 2012 (DOI 10.1098/rsif.2012.0125) quantify false positive/negative rates at realistic sample sizes; Ditlevsen & Johnsen 2010 (DOI 10.1029/2010GL044486) show the Dansgaard-Oeschger events are noise-induced, not bifurcation-induced -- the signal can be present with no approaching bifurcation at all.",
+  "report": {
+    "worked_example_table": {
+      "ok": true,
+      "detail": {
+        "rows": [
+          {
+            "a": 0.5,
+            "x_star": 0.7071067811865476,
+            "S_rec": 1.0000000000000002,
+            "variance": 0.009999999999999998,
+            "autocorrelation": 0.3678794411714422,
+            "lambda_hat": 1.0000000000000002
+          },
+          {
+            "a": 0.05,
+            "x_star": 0.22360679774997896,
+            "S_rec": 0.09999999999999999,
+            "variance": 0.1,
+            "autocorrelation": 0.9048374180359596,
+            "lambda_hat": 0.09999999999999994
+          }
+        ],
+        "variance_ratio_a_0p05_over_0p5": 10.000000000000002
+      }
+    },
+    "inverse_estimator_consistency": {
+      "ok": true,
+      "detail": {
+        "lambda_true": 0.1,
+        "rho": 0.9048374180359595,
+        "lambda_hat": 0.10000000000000006
+      }
+    },
+    "counterexample_citations_present": {
+      "ok": true,
+      "detail": {
+        "counterexample_warning": "MANDATORY COUNTEREXAMPLE: rising variance/autocorrelation as lambda->0 is NECESSARY but NOT SUFFICIENT evidence of an approaching bifurcation. Boettiger & Hastings 2012 (DOI 10.1098/rsif.2012.0125) quantify false positive/negative rates at realistic sample sizes; Ditlevsen & Johnsen 2010 (DOI 10.1029/2010GL044486) show the Dansgaard-Oeschger events are noise-induced, not bifurcation-induced -- the signal can be present with no approaching bifurcation at all.",
+        "doc_has_boettiger": true,
+        "doc_has_ditlevsen": true
+      }
+    },
+    "control_same_lambda_different_branch": {
+      "ok": true,
+      "detail": {
+        "lam1": 1.0000000000000002,
+        "lam2": 1.0,
+        "variance1": 0.02,
+        "variance2": 0.020000000000000004
+      }
+    },
+    "scope_violations": {
+      "ok": true,
+      "detail": {
+        "ou_variance_lambda_zero": true,
+        "ou_variance_lambda_negative": true,
+        "ou_autocorrelation_lambda_zero": true,
+        "ou_autocorrelation_delta_t_negative": true,
+        "estimate_lambda_rho_zero": true,
+        "estimate_lambda_rho_one": true,
+        "estimate_lambda_delta_t_zero": true
+      }
+    }
+  },
+  "forbidden_untouched_by_design": [
+    "src/scoped_correspondence/dynamics/core.py",
+    "src/scoped_correspondence/__init__.py",
+    "FORMALISM.md"
+  ]
+}
