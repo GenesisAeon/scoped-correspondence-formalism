@@ -9,6 +9,9 @@ left untouched to avoid fighting parallel M15/M16 branches.
 
 Milestone 29 (Landau Exponent Comparison / Self-Falsification) is likewise
 exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
+
+Milestone 36 (Early-Warning Signals / Critical Slowing Down) is likewise
+exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -37,6 +40,15 @@ from scoped_correspondence.dynamics.landau import (
     mean_field_order_parameter,
     onsager_critical_ratio,
 )
+from scoped_correspondence.dynamics.early_warning import (
+    COUNTEREXAMPLE_WARNING as EARLY_WARNING_COUNTEREXAMPLE_WARNING,
+    SOURCE as EARLY_WARNING_SOURCE,
+    EarlyWarningReport,
+    early_warning_at_cusp_branch,
+    estimate_lambda_from_ar1,
+    ou_autocorrelation,
+    ou_variance,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -61,4 +73,12 @@ __all__ = [
     "mean_field_order_parameter",
     "onsager_critical_ratio",
     "compare_scaling_exponents",
+    # M36 early-warning signals / critical slowing down
+    "EARLY_WARNING_COUNTEREXAMPLE_WARNING",
+    "EARLY_WARNING_SOURCE",
+    "EarlyWarningReport",
+    "early_warning_at_cusp_branch",
+    "estimate_lambda_from_ar1",
+    "ou_autocorrelation",
+    "ou_variance",
 ]
