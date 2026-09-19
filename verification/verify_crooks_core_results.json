@@ -1,0 +1,116 @@
+{
+  "milestone": 37,
+  "title": "Crooks Fluctuation Theorem",
+  "count": 5,
+  "passed": 5,
+  "failed": 0,
+  "report": [
+    {
+      "name": "work_ratio_mini_example",
+      "ok": true,
+      "detail": {
+        "beta": 1.0,
+        "delta_F": 0.0,
+        "W": 1.0,
+        "omega": 1.0,
+        "exp_omega": 2.718281828459045,
+        "exp_omega_expected": 2.718281828459045
+      }
+    },
+    {
+      "name": "verify_crooks_ratio",
+      "ok": true,
+      "detail": {
+        "exact_ok": true,
+        "omega": 1.0,
+        "ratio_observed": 2.718281828459045,
+        "mismatch_rejected": true,
+        "nonpositive_density_refused": true
+      }
+    },
+    {
+      "name": "control_W_equals_delta_F",
+      "ok": true,
+      "detail": {
+        "cases": [
+          {
+            "beta": 1.0,
+            "delta_F": 0.0,
+            "W": 0.0,
+            "omega": 0.0,
+            "exp_omega": 1.0,
+            "verify_ok": true
+          },
+          {
+            "beta": 1.0,
+            "delta_F": 2.5,
+            "W": 2.5,
+            "omega": 0.0,
+            "exp_omega": 1.0,
+            "verify_ok": true
+          },
+          {
+            "beta": 2.0,
+            "delta_F": -1.0,
+            "W": -1.0,
+            "omega": 0.0,
+            "exp_omega": 1.0,
+            "verify_ok": true
+          },
+          {
+            "beta": 0.5,
+            "delta_F": 3.0,
+            "W": 3.0,
+            "omega": 0.0,
+            "exp_omega": 1.0,
+            "verify_ok": true
+          }
+        ],
+        "all_omega_zero_ratio_one": true
+      }
+    },
+    {
+      "name": "jarzynski_gaussian_toy",
+      "ok": true,
+      "detail": {
+        "beta": 1.0,
+        "delta_F_true": 1.5,
+        "sigma": 0.4,
+        "mu_work": 1.58,
+        "n_samples": 200000,
+        "delta_F_hat": 1.5001383402380133,
+        "abs_err": 0.00013834023801329032,
+        "tol": 0.05,
+        "empty_refused": true,
+        "beta_nonpositive_refused": true,
+        "seed": 20260919
+      }
+    },
+    {
+      "name": "source_scope_fences",
+      "ok": true,
+      "detail": {
+        "doi": "10.1103/PhysRevE.60.2721",
+        "arxiv": "cond-mat/9901352",
+        "source_has_doi": true,
+        "source_has_arxiv": true,
+        "not_onsager_Lij_Aij": true,
+        "not_schnakenberg_m18": true
+      }
+    }
+  ],
+  "meta": {
+    "generated_at": "2026-09-19T19:54:59+02:00",
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "source_doi": "10.1103/PhysRevE.60.2721",
+    "source_arxiv": "cond-mat/9901352",
+    "omega_example": 1.0,
+    "exp_omega_example": 2.718281828459045,
+    "not_onsager_Lij_Aij": true,
+    "not_schnakenberg_m18": true,
+    "thermo_core_untouched": true,
+    "thermo_schnakenberg_untouched": true,
+    "package_root_init_untouched": true
+  }
+}
