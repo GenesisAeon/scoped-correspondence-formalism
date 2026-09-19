@@ -1,0 +1,285 @@
+{
+  "count": 5,
+  "errors": [],
+  "failed": 0,
+  "implication": {
+    "conclusion_label": "s1",
+    "conclusion_system_index": 0,
+    "extent_conclusion": [
+      0,
+      1,
+      2
+    ],
+    "extent_conclusion_labels": [
+      "e1",
+      "e2",
+      "e3"
+    ],
+    "extent_premise": [
+      1,
+      2
+    ],
+    "extent_premise_labels": [
+      "e2",
+      "e3"
+    ],
+    "from_concept_hint": "extent({s3}) = {e2, e3} \u2286 extent({s1}) = {e1, e2, e3}",
+    "holds": true,
+    "premise_label": "s3",
+    "premise_system_index": 2,
+    "source": "Ganter & Wille, Formal Concept Analysis: Mathematical Foundations, Springer 1999, DOI 10.1007/978-3-642-59830-2",
+    "statement": "membership in s3 implies membership in s1"
+  },
+  "meta": {
+    "doi": "10.1007/978-3-642-59830-2",
+    "forbidden_untouched": [
+      "membership/core.py",
+      "scoped_correspondence/__init__.py",
+      "FORMALISM.md",
+      "context_transformations.md"
+    ],
+    "milestone": 27,
+    "module": "membership.formal_concept_analysis",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source": "Ganter & Wille, Formal Concept Analysis: Mathematical Foundations, Springer 1999, DOI 10.1007/978-3-642-59830-2",
+    "timestamp_local": "2026-09-19T14:56:26+02:00"
+  },
+  "passed": 5,
+  "report": {
+    "implication_s3_implies_s1": {
+      "from_concept": {
+        "extent_labels": [
+          "e2",
+          "e3"
+        ],
+        "intent_labels": [
+          "s1",
+          "s3"
+        ]
+      },
+      "implication": {
+        "conclusion_label": "s1",
+        "conclusion_system_index": 0,
+        "extent_conclusion": [
+          0,
+          1,
+          2
+        ],
+        "extent_conclusion_labels": [
+          "e1",
+          "e2",
+          "e3"
+        ],
+        "extent_premise": [
+          1,
+          2
+        ],
+        "extent_premise_labels": [
+          "e2",
+          "e3"
+        ],
+        "from_concept_hint": "extent({s3}) = {e2, e3} \u2286 extent({s1}) = {e1, e2, e3}",
+        "holds": true,
+        "premise_label": "s3",
+        "premise_system_index": 2,
+        "source": "Ganter & Wille, Formal Concept Analysis: Mathematical Foundations, Springer 1999, DOI 10.1007/978-3-642-59830-2",
+        "statement": "membership in s3 implies membership in s1"
+      },
+      "readable_field": "membership in s3 implies membership in s1"
+    },
+    "is_concept_positives": {
+      "checked": [
+        {
+          "extent_labels": [
+            "e1",
+            "e2",
+            "e3"
+          ],
+          "intent_labels": [
+            "s1"
+          ],
+          "is_concept": true
+        },
+        {
+          "extent_labels": [
+            "e2",
+            "e3"
+          ],
+          "intent_labels": [
+            "s1",
+            "s3"
+          ],
+          "is_concept": true
+        }
+      ],
+      "n_checked": 2
+    },
+    "negative_not_concept": {
+      "A_labels": [
+        "e1",
+        "e2"
+      ],
+      "B_labels": [
+        "s1"
+      ],
+      "derive_down_B": [
+        "e1",
+        "e2",
+        "e3"
+      ],
+      "derive_up_A": [
+        "s1"
+      ],
+      "is_concept": false,
+      "reason": "A\u2191={s1} but {s1}\u2193={e1,e2,e3} \u2260 A={e1,e2}"
+    },
+    "scope_ganter_wille": {
+      "doi": "10.1007/978-3-642-59830-2",
+      "imports_metarules": false,
+      "mentions_nextclosure_out_of_scope": true,
+      "source": "Ganter & Wille, Formal Concept Analysis: Mathematical Foundations, Springer 1999, DOI 10.1007/978-3-642-59830-2",
+      "uses_membership_matrix": true
+    },
+    "six_concepts_from_matrix": {
+      "concepts": [
+        {
+          "extent_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "extent_labels": [
+            "e1",
+            "e2",
+            "e3",
+            "e4"
+          ],
+          "extent_size": 4,
+          "intent_indices": [],
+          "intent_labels": []
+        },
+        {
+          "extent_indices": [
+            0,
+            1,
+            2
+          ],
+          "extent_labels": [
+            "e1",
+            "e2",
+            "e3"
+          ],
+          "extent_size": 3,
+          "intent_indices": [
+            0
+          ],
+          "intent_labels": [
+            "s1"
+          ]
+        },
+        {
+          "extent_indices": [
+            0,
+            2,
+            3
+          ],
+          "extent_labels": [
+            "e1",
+            "e3",
+            "e4"
+          ],
+          "extent_size": 3,
+          "intent_indices": [
+            1
+          ],
+          "intent_labels": [
+            "s2"
+          ]
+        },
+        {
+          "extent_indices": [
+            0,
+            2
+          ],
+          "extent_labels": [
+            "e1",
+            "e3"
+          ],
+          "extent_size": 2,
+          "intent_indices": [
+            0,
+            1
+          ],
+          "intent_labels": [
+            "s1",
+            "s2"
+          ]
+        },
+        {
+          "extent_indices": [
+            1,
+            2
+          ],
+          "extent_labels": [
+            "e2",
+            "e3"
+          ],
+          "extent_size": 2,
+          "intent_indices": [
+            0,
+            2
+          ],
+          "intent_labels": [
+            "s1",
+            "s3"
+          ]
+        },
+        {
+          "extent_indices": [
+            2
+          ],
+          "extent_labels": [
+            "e3"
+          ],
+          "extent_size": 1,
+          "intent_indices": [
+            0,
+            1,
+            2
+          ],
+          "intent_labels": [
+            "s1",
+            "s2",
+            "s3"
+          ]
+        }
+      ],
+      "matrix": [
+        [
+          1.0,
+          1.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "n_concepts": 6,
+      "ordered_by_extent_size_desc": true
+    }
+  }
+}
