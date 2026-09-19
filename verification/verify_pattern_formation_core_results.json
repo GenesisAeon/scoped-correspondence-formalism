@@ -1,0 +1,107 @@
+{
+  "count": 5,
+  "failed": 0,
+  "passed": 5,
+  "report": {
+    "DYNAMICS_BRIDGE_WARNING": "A future correspondence bridge to dynamics is structurally conceivable (Turing S_rec(k) would generalize dynamics.recovery_rate_at_equilibrium as S_rec(0)) but is NOT claimed or implemented here; a real conjugacy would need the correspondence contract with its own proof.",
+    "SCHNAKENBERG_PAPER_WARNING": "Schnakenberg 1979 (J Theor Biol) is a DIFFERENT paper than Schnakenberg 1976 (Rev Mod Phys) used in thermo/schnakenberg.py (M18) \u2014 different journal/year/claim; do not mix modules.",
+    "SOURCE": "Turing 1952 DOI 10.1098/rstb.1952.0012; Schnakenberg 1979 DOI 10.1016/0022-5193(79)90042-0; Murray 2003 DOI 10.1007/b98869",
+    "checks": {
+      "control_Dv_eq_1": {
+        "data": {
+          "D_u": 1.0,
+          "D_v": 1.0,
+          "condition_i": true,
+          "condition_ii": true,
+          "condition_iii": false,
+          "condition_iv": false,
+          "fails_iv": true,
+          "h": -0.19999999999999996,
+          "turing_unstable": false
+        },
+        "ok": true
+      },
+      "critical_Dv_and_kc": {
+        "data": {
+          "A": 0.6400000000000001,
+          "B": -5.6,
+          "C": 1.0,
+          "D_v_c_larger": 8.567627457812103,
+          "D_v_smaller": 0.18237254218789395,
+          "k_c_sq": 0.34164078649987384,
+          "k_c_sq_agree": true,
+          "k_c_sq_from_det": 0.3416407864998739,
+          "quadratic": "0.64*D_v^2 - 5.6*D_v + 1 = 0",
+          "smaller_root_fails_iii": true,
+          "turing_at_critical_strict_iv": false,
+          "turing_unstable_at_1_2_Dv_c": true
+        },
+        "ok": true
+      },
+      "dispersion_across_criticality": {
+        "data": {
+          "D_v_c": 8.567627457812103,
+          "cases": {
+            "above_1_2": {
+              "D_v": 10.281152949374523,
+              "factor": 1.2,
+              "k": 0.5845004589389763,
+              "re_lambda_max": 0.0651401758009773
+            },
+            "below_0_99": {
+              "D_v": 8.481951183233981,
+              "factor": 0.99,
+              "k": 0.5845004589389763,
+              "re_lambda_max": -0.0039052089020272795
+            },
+            "critical": {
+              "D_v": 8.567627457812103,
+              "factor": 1.0,
+              "k": 0.5845004589389763,
+              "re_lambda_max": -2.220446049250313e-16
+            }
+          },
+          "k_c": 0.5845004589389763,
+          "k_c_sq": 0.34164078649987384,
+          "k_neg_raises": true
+        },
+        "ok": true
+      },
+      "schnakenberg_steady_state": {
+        "data": {
+          "a": 0.1,
+          "a_plus_b_le_0_raises": true,
+          "b": 0.9,
+          "det": 1.0,
+          "dynamics_bridge_warning_on_result": "A future correspondence bridge to dynamics is structurally conceivable (Turing S_rec(k) would generalize dynamics.recovery_rate_at_equilibrium as S_rec(0)) but is NOT claimed or implemented here; a real conjugacy would need the correspondence contract with its own proof.",
+          "f_u": 0.8,
+          "f_v": 1.0,
+          "g_u": -1.8,
+          "g_v": -1.0,
+          "jacobian_stable": true,
+          "paper_warning_on_result": "Schnakenberg 1979 (J Theor Biol) is a DIFFERENT paper than Schnakenberg 1976 (Rev Mod Phys) used in thermo/schnakenberg.py (M18) \u2014 different journal/year/claim; do not mix modules.",
+          "trace": -0.19999999999999996,
+          "u_star": 1.0,
+          "v_star": 0.9
+        },
+        "ok": true
+      },
+      "warnings_and_sources": {
+        "data": {
+          "DYNAMICS_BRIDGE_WARNING": "A future correspondence bridge to dynamics is structurally conceivable (Turing S_rec(k) would generalize dynamics.recovery_rate_at_equilibrium as S_rec(0)) but is NOT claimed or implemented here; a real conjugacy would need the correspondence contract with its own proof.",
+          "SCHNAKENBERG_PAPER_WARNING": "Schnakenberg 1979 (J Theor Biol) is a DIFFERENT paper than Schnakenberg 1976 (Rev Mod Phys) used in thermo/schnakenberg.py (M18) \u2014 different journal/year/claim; do not mix modules.",
+          "SOURCE": "Turing 1952 DOI 10.1098/rstb.1952.0012; Schnakenberg 1979 DOI 10.1016/0022-5193(79)90042-0; Murray 2003 DOI 10.1007/b98869",
+          "no_pde_solver_api": true,
+          "warnings_in_api_docs": true,
+          "warnings_in_module_doc": true
+        },
+        "ok": true
+      }
+    },
+    "milestone": 30,
+    "module": "pattern_formation",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "started_at": "2026-09-19T17:32:53+02:00"
+  }
+}
