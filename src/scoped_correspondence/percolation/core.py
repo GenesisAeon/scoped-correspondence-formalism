@@ -122,6 +122,11 @@ def critical_probability_tree(m: Number) -> float:
         raise ScopeViolationError(
             f"critical_probability_tree: requires m >= 1; got {m!r}"
         )
+    if mm != round(mm):
+        raise ScopeViolationError(
+            f"critical_probability_tree: requires integer m (Binomial(m,p) "
+            f"offspring PGF assumes an integer maximum offspring count); got {m!r}"
+        )
     p_c = 1.0 / mm
     # Explicit coincidence mark when p_c ≈ 1/16 (do not leave uncommented).
     if _near_one_sixteenth(p_c):
@@ -184,6 +189,11 @@ def extinction_probability(
         raise ScopeViolationError(
             f"extinction_probability: requires m >= 1; got {m!r}"
         )
+    if mm != round(mm):
+        raise ScopeViolationError(
+            f"extinction_probability: requires integer m (Binomial(m,p) "
+            f"offspring PGF assumes an integer maximum offspring count); got {m!r}"
+        )
     if not (0.0 <= pp <= 1.0):
         raise ScopeViolationError(
             f"extinction_probability: requires 0 <= p <= 1; got {p!r}"
@@ -197,10 +207,22 @@ def extinction_probability(
             f"extinction_probability: requires max_iter >= 1; got {max_iter!r}"
         )
 
-    # Branching-process theorem: mean offspring m*p <= 1 ⇒ Q* = 1 exactly
-    # (critical slowing makes pure iteration from Q0=0 impractical at p=p_c).
+    # Audit finding A05 (fall 1): p=1 means every edge is present with
+    # certainty, degenerating the branching process to Q*=0 for ANY m
+    # (including m=1, an infinite deterministic chain that never breaks).
+    # Direct iteration from Q0=0 confirms this trivially: q_next=(1-1+1*0)^m
+    # =0 immediately. The old code's "p<=p_c => Q*=1" shortcut wrongly fired
+    # here too whenever p_c=1 (i.e. m=1), giving the OPPOSITE answer
+    # (certain extinction instead of certain survival). Handled first and
+    # separately from the general subcritical/critical shortcut below.
+    if pp >= 1.0:
+        return 0.0, 0, 0.0
+
+    # Branching-process theorem: mean offspring m*p <= 1 (p <= p_c, and here
+    # p < 1 strictly, see above) => Q* = 1 exactly (critical slowing makes
+    # pure iteration from Q0=0 impractical at p=p_c).
     p_c = 1.0 / mm
-    if pp <= p_c + 0.0:
+    if pp <= p_c:
         # Coincidence fence if p_c ≈ 1/16
         if _near_one_sixteenth(p_c) or _near_one_sixteenth(pp):
             _ = ONE_SIXTEENTH_COINCIDENCE_WARNING  # noqa: F841
@@ -220,6 +242,32 @@ def extinction_probability(
         q = q_next
         if residual <= float(tol):
             break
+
+    # Audit finding A05 (fall 2): Picard/fixed-point iteration converges only
+    # LINEARLY, at a rate that -> 1 as p -> p_c ("critical slowing"), so
+    # max_iter=1000 can leave a residual orders of magnitude above the
+    # requested tol near criticality (audit example: p=0.5001, m=2 left
+    # residual~=3.9e-6 against a requested 1e-12). Polish with Newton-Raphson
+    # on g(Q)=Q-(1-p+pQ)^m, quadratically convergent, starting from the
+    # Picard iterate. g'(1)=1-m*p != 0 here because p>p_c is already
+    # guaranteed (the p<=p_c case returned above), so Newton is well-posed
+    # at the target root (not the trivial Q=1 root).
+    for _ in range(50):
+        base = 1.0 - pp + pp * q
+        g = q - base**mm
+        dg = 1.0 - mm * pp * (base ** (mm - 1.0))
+        if dg == 0.0:
+            break
+        step = g / dg
+        q_new = q - step
+        if q_new < 0.0:
+            q_new = 0.0
+        elif q_new > 1.0:
+            q_new = 1.0
+        if abs(q_new - q) < 1e-16:
+            q = q_new
+            break
+        q = q_new
 
     # Final residual against the fixed-point map (not the last step delta).
     f_q = (1.0 - pp + pp * q) ** mm
@@ -258,7 +306,20 @@ def percolation_probability(p: Number, m: Number) -> float:
     Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually
     called 'threshold' — NO mathematical kinship; different objects.
     """
-    q_star, _iters, _res = extinction_probability(p, m)
+    q_star, _iters, residual = extinction_probability(p, m)
+    # Audit finding A05: this convenience wrapper used to discard iters/
+    # residual entirely, silently returning a value that could be far off
+    # if the underlying fixed-point solve had not actually converged. The
+    # full (Q*, iters, residual) triple is still available from
+    # extinction_probability directly for callers who need it; this
+    # wrapper now at least refuses to hand back a value it cannot stand
+    # behind.
+    if residual > 1e-8:
+        raise ScopeViolationError(
+            f"percolation_probability: extinction_probability did not "
+            f"converge (residual={residual!r} > 1e-8) for p={p!r}, m={m!r}; "
+            f"call extinction_probability directly to inspect iters/residual"
+        )
     theta = 1.0 - q_star
     if _near_one_sixteenth(theta):
         _ = ONE_SIXTEENTH_COINCIDENCE_WARNING  # noqa: F841
