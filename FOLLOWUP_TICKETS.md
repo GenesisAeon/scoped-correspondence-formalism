@@ -293,7 +293,30 @@ eigenständige Bausteine statt Erweiterungen bestehender Module.
 
 Alle drei können parallel bearbeitet werden (komplett unabhängige,
 neue Package-Verzeichnisse). `EXTENSIONS_ROADMAP.md` entsprechend
-aktualisiert. Noch keine Antwort erhalten.
+aktualisiert.
+
+## F50: neuer Baustein `pattern_formation` — Turing-Instabilität (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/39_teil2_pattern_formation_turing_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F49 — Turing 1952/Schnakenberg 1979/Murray 2003. `pattern_formation/core.py`: alle vier Turing-Bedingungen für Diffusions-getriebene Instabilität, Dispersionsrelation, Schnakenberg-1979-Kinetik als durchgerechnetes Beispiel. Komplett eigenständiger, neuer Baustein — kein Unterfall von `dynamics`.
+- 5/5 neue Prüfungen selbst nachgerechnet. Fixpunkt/Jacobi von Hand bestätigt (`u*=1,0, v*=0,9, f_u=0,8, f_v=1,0, g_u=-1,8, g_v=-1,0`, `trJ=-0,2, detJ=1,0`). Kritisches `D_v` selbst aus der quadratischen Gleichung `0,64*D_v²-5,6*D_v+1=0` hergeleitet (Diskriminante 28,8, Wurzeln `8,567627`/`0,182373`) — exakt bestätigt. `k_c²` über zwei unabhängige Formeln exakt übereinstimmend (`0,341641`). Alle drei Dispersions-Vorzeichen (stabil unterhalb, ≈0 an der Kritikalität, instabil oberhalb) bestätigt.
+- Beide Pflicht-Docstring-Warnhinweise wörtlich vorhanden: (1) Schnakenberg 1979 (J. Theor. Biol.) ist ein ANDERER Aufsatz als Schnakenberg 1976 (Rev. Mod. Phys.) aus M18; (2) eine mögliche künftige `correspondence`-Brücke zu `dynamics` (`S_rec(k)` verallgemeinert `S_rec(0)`) ist als offener, unbewiesener Kandidat dokumentiert, nicht implementiert.
+- Kein bestehender Baustein, kein Paket-Root-`__init__.py`, keine der acht Kerndokumente berührt.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m30-pattern-formation-turing` wird gelöscht.
+
+## F51: neuer Baustein `free_boundary` — Stefan-Problem (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/40_teil2_free_boundary_stefan_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F49 — Kot 2017/Bollati et al. arXiv:1906.08601. `free_boundary/core.py`: Neumann-Ähnlichkeitslösung des Ein-Phasen-Stefan-Problems, bewegliche Phasengrenze als eigene dynamische Variable — kein Unterfall von `viability` (dessen `K` immer fest vorgegeben ist).
+- 5/5 neue Prüfungen selbst nachgerechnet. `sqrt(t)`-Frontgesetz von Hand bestätigt: `s(100)=12,401253mm`, `s(400)=24,802505mm`, Verhältnis exakt `2,0` (da `sqrt(400)/sqrt(100)=2`). `lambda` fällt monoton mit sinkender Stefan-Zahl über alle vier getesteten Fälle (`Ste=1/0,5/0,1/0,01`) — physikalisch sinnvoll bestätigt. Rubinstein 1971 und Stefan 1891 korrekt NICHT zitiert (keine verifizierte DOI in dieser Runde).
+- Kein bestehender Baustein, kein Paket-Root-`__init__.py`, keine der acht Kerndokumente berührt.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m31-free-boundary-stefan` wird gelöscht.
+
+## F52: neuer Baustein `percolation` — Kesten / Bethe-Gitter-Verzweigung (erledigt 2026-09-19)
+
+Von Aeon geliefert (`prompts/41_teil2_percolation_kesten_for_aeon.md`) direkt als GitHub-Branch, per Claude-Review gemergt nach `master`. Aus F49 — Kesten 1980/Fisher & Essam 1961. `percolation/core.py`: exakt lösbarer Baum-/Bethe-Gitter-Verzweigungsprozess (`Q=(1-p+p*Q)^m`, `p_c=1/m`) — kein Unterfall von `dynamics` oder `membership` (Perkolation betrifft die a.s.-Existenz eines unendlichen Clusters in einem ZUFÄLLIGEN Teilgraphen, ein Objekt, das keines der beiden Module abbildet).
+- 5/5 neue Prüfungen selbst nachgerechnet. `m=2, p=0,6`-Fall komplett von Hand hergeleitet (`9Q²-13Q+4=0`, Wurzeln `{1; 4/9}`) — exakt bestätigt. Zusätzlich selbst den Fall `m=2, p=0,8` hergeleitet (`16Q²-17Q+1=0` → `Q*=1/16` exakt) und damit unabhängig bestätigt, dass die im Code ausgelöste 1/16-Koinzidenzwarnung nicht nur vorhanden, sondern durch eine echte, unabhängig nachvollziehbare Rechnung tatsächlich ausgelöst wird — nicht nur bei größerer Verzweigung, sondern bereits im einfachsten Binärbaum-Fall.
+- Beide Pflicht-Docstring-Warnhinweise wörtlich vorhanden: keine Verwandtschaft zur Cusp-Schwelle in `dynamics` (nur zufällig dasselbe Alltagswort "Schwelle"), und die 1/16-Koinzidenz explizit als Zufall vermerkt, keine Beziehung zum bereits verworfenen README-Wert.
+- Kein bestehender Baustein, kein Paket-Root-`__init__.py`, keine der acht Kerndokumente berührt.
+- Gemergt auf `master` nach Johanns OK; Review-Branch `aeon/m32-percolation-kesten` wird gelöscht. **Das Repository hat damit 15 Bausteine.**
 
 ## Neue Forschungsaufgaben aus Revision 3
 
