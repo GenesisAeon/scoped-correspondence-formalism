@@ -1,0 +1,112 @@
+{
+  "count": 4,
+  "failed": 0,
+  "meta": {
+    "arxiv": "https://arxiv.org/abs/1111.3620",
+    "python": "3.11.9",
+    "timestamp": "2026-09-18T23:49:34"
+  },
+  "milestone": 24,
+  "passed": 4,
+  "report": {
+    "classical_vanishes_cf0": {
+      "CF": 0.0,
+      "NCF": 1.0,
+      "coboundary_rank": 7,
+      "coefficient_ring": "Z_2",
+      "degree": 1,
+      "n_support_sections": 16,
+      "obstruction_nonzero": false,
+      "obstruction_vanishes": true,
+      "proves_contextuality": false
+    },
+    "pr_nonzero_cf1": {
+      "CF": 1.0,
+      "NCF": 0.0,
+      "coboundary_rank": 7,
+      "coefficient_ring": "Z_2",
+      "degree": 1,
+      "n_sections_with_nonzero_obstruction": 8,
+      "n_support_sections": 8,
+      "obstruction_nonzero": true,
+      "obstruction_vanishes": false,
+      "proves_contextuality": true
+    },
+    "scope_and_source": {
+      "arxiv": "https://arxiv.org/abs/1111.3620",
+      "coefficient_ring": "Z_2",
+      "degree": 1,
+      "module": "cohomology.py",
+      "source": "Abramsky/Mansfield/Barbosa 2012 \u2014 The Cohomology of Non-Locality and Contextuality (arXiv:1111.3620)"
+    },
+    "test_vanishing_obstruction_does_not_certify_noncontextuality": {
+      "CF_cross_check_only": 0.0,
+      "forbidden_assignment_absent_in_source": true,
+      "forbidden_attrs_absent": true,
+      "note": "Vanishing obstruction is not a noncontextuality certificate (AMB \u00a78). CF cross-check is separate and not identified with \u010cech.",
+      "obstruction_vanishes": true,
+      "proves_contextuality": false,
+      "proves_contextuality_equals_obstruction_nonzero": true,
+      "test": "test_vanishing_obstruction_does_not_certify_noncontextuality"
+    }
+  },
+  "results": [
+    {
+      "detail": {
+        "CF": 0.0,
+        "NCF": 1.0,
+        "coboundary_rank": 7,
+        "coefficient_ring": "Z_2",
+        "degree": 1,
+        "n_support_sections": 16,
+        "obstruction_nonzero": false,
+        "obstruction_vanishes": true,
+        "proves_contextuality": false
+      },
+      "name": "classical_vanishes_cf0",
+      "ok": true
+    },
+    {
+      "detail": {
+        "CF": 1.0,
+        "NCF": 0.0,
+        "coboundary_rank": 7,
+        "coefficient_ring": "Z_2",
+        "degree": 1,
+        "n_sections_with_nonzero_obstruction": 8,
+        "n_support_sections": 8,
+        "obstruction_nonzero": true,
+        "obstruction_vanishes": false,
+        "proves_contextuality": true
+      },
+      "name": "pr_nonzero_cf1",
+      "ok": true
+    },
+    {
+      "detail": {
+        "CF_cross_check_only": 0.0,
+        "forbidden_assignment_absent_in_source": true,
+        "forbidden_attrs_absent": true,
+        "note": "Vanishing obstruction is not a noncontextuality certificate (AMB \u00a78). CF cross-check is separate and not identified with \u010cech.",
+        "obstruction_vanishes": true,
+        "proves_contextuality": false,
+        "proves_contextuality_equals_obstruction_nonzero": true,
+        "test": "test_vanishing_obstruction_does_not_certify_noncontextuality"
+      },
+      "name": "test_vanishing_obstruction_does_not_certify_noncontextuality",
+      "ok": true
+    },
+    {
+      "detail": {
+        "arxiv": "https://arxiv.org/abs/1111.3620",
+        "coefficient_ring": "Z_2",
+        "degree": 1,
+        "module": "cohomology.py",
+        "source": "Abramsky/Mansfield/Barbosa 2012 \u2014 The Cohomology of Non-Locality and Contextuality (arXiv:1111.3620)"
+      },
+      "name": "scope_and_source",
+      "ok": true
+    }
+  ],
+  "title": "Cech Cohomology Witness"
+}
