@@ -103,9 +103,17 @@ def verify_approximate_simulation(
     if float(epsilon) < 0.0:
         raise ValueError(f"epsilon must be >= 0; got {epsilon!r}")
 
+    # Audit finding A03: verify_conjugacy now rejects empty evidence and
+    # reports a non-finite max_residual (instead of silently masking it as
+    # 0.0 via Python's built-in max()) whenever any residual is non-finite.
+    # NOT report.ok itself: that flag means "near-exact conjugacy" under a
+    # tight tolerance and is the wrong criterion here on purpose — a
+    # nonzero epsilon budget is exactly what makes this certificate
+    # "approximate" rather than exact. Finiteness must still be required
+    # explicitly so a NaN cannot compare True against any epsilon.
     report = correspondence.verify_conjugacy(states, times)
     max_residual = float(report.max_residual)
-    ok = bool(max_residual <= float(epsilon))
+    ok = bool(np.isfinite(max_residual)) and bool(max_residual <= float(epsilon))
 
     assumptions = _DEFAULT_ASSUMPTIONS + (
         f"scope: {correspondence.scope.description}",

@@ -129,34 +129,102 @@ class Correspondence:
     def _metric(self) -> ErrorMetric:
         return self.metric if self.metric is not None else ErrorMetric()
 
+    def _target_elapsed_time(self, state: State, time: float, *, n: int = 2000) -> tuple[float, float]:
+        """Elapsed target time tau(time) and its average rate c=tau/time.
+
+        For ``constant_scale`` (or no time_map), tau = c*time exactly — the
+        source flow's state at intermediate times is irrelevant because the
+        rate never changes. For a state/time-dependent ``scale_fn`` (T2:
+        a(z,t)=dtau/dt), the *correct* elapsed target time is the integral
+        along the source trajectory, tau(t) = integral_0^t a(Phi_j^s(z0), s) ds
+        — NOT a(z0,t)*t, which silently assumes a is constant (audit finding
+        A02: this previously produced a nonzero residual for an exact
+        conjugacy, e.g. xdot=x, ydot=1, a(x)=x). Evaluated here via Simpson's
+        rule using ``source.flow`` itself (an exact/closed-form trajectory
+        function in every current caller, not a discretized ODE state), so
+        no new numerical-integration dependency is introduced.
+        """
+        if self.time_map is None:
+            return float(time), 1.0
+        if self.time_map.constant_scale is not None:
+            c = float(self.time_map.constant_scale)
+            return c * float(time), c
+        if self.time_map.scale_fn is None:
+            return float(time), 1.0
+        if self.source.flow is None:
+            raise ValueError("state-dependent time_map requires source.flow to integrate along")
+        t = float(time)
+        if t == 0.0:
+            return 0.0, float(self.time_map.scale_fn(state, 0.0))
+        steps = n if n % 2 == 0 else n + 1
+        h = t / steps
+
+        def rate_at(s: float) -> float:
+            return float(self.time_map.scale_fn(self.source.flow(state, s), s))
+
+        total = rate_at(0.0) + rate_at(t)
+        for i in range(1, steps):
+            s = i * h
+            total += (4.0 if i % 2 == 1 else 2.0) * rate_at(s)
+        tau = total * h / 3.0
+        return tau, (tau / t if t != 0.0 else rate_at(0.0))
+
     def conjugacy_residual(self, state: State, time: float) -> Residual:
-        """Residual of T∘Φ_j^t − Φ_k^{c t}∘T (FORMALISM.md §1)."""
+        """Residual of T∘Φ_j^t − Φ_k^{tau(t)}∘T (FORMALISM.md §1).
+
+        ``tau(t)`` is the constant-rate product ``c*t`` for a constant (or
+        absent) time_map, or the trajectory-integrated elapsed target time
+        for a state/time-dependent ``scale_fn`` — see ``_target_elapsed_time``.
+        """
         if self.source.flow is None or self.target.flow is None:
             raise ValueError("conjugacy_residual requires source.flow and target.flow")
         if not self.scope.contains(state, time):
             raise ValueError("state/time outside declared scope")
-        c = 1.0 if self.time_map is None else self.time_map.scale_at(state, time)
+        target_time, c = self._target_elapsed_time(state, time)
         left = self.state_map(self.source.flow(state, time))
-        right = self.target.flow(self.state_map(state), c * time)
+        right = self.target.flow(self.state_map(state), target_time)
         value = float(np.max(np.abs(np.asarray(left, dtype=float) - np.asarray(right, dtype=float))))
-        return Residual(value=value, kind="conjugacy", at_state=state, at_time=time, detail={"c": c})
+        return Residual(
+            value=value,
+            kind="conjugacy",
+            at_state=state,
+            at_time=time,
+            detail={"c": c, "target_time": target_time},
+        )
 
     def verify_conjugacy(
         self,
         states: Sequence[State],
         times: Sequence[float],
     ) -> CorrespondenceReport:
+        """Audit finding A03: empty evidence must not certify anything, and a
+        non-finite residual must not be silently absorbed by ``max()``.
+
+        Python's built-in ``max`` on a list containing NaN is order-dependent
+        (NaN compares False against everything, so ``max([0.0, nan])`` can
+        return ``0.0``) — that previously let a NaN residual masquerade as a
+        passing ``max_residual=0.0``. Finiteness is now checked explicitly
+        and short-circuits ``ok`` to ``False`` before ``max`` is ever taken
+        over non-finite values.
+        """
+        if len(states) == 0 or len(times) == 0:
+            raise ValueError(
+                "verify_conjugacy requires at least one state and one time; "
+                "empty evidence cannot certify a conjugacy"
+            )
         residuals = []
         for x in states:
             for t in times:
                 residuals.append(self.conjugacy_residual(x, t))
-        max_r = max((r.value for r in residuals), default=0.0)
-        ok = all(self._metric().near(r.value, 0.0) for r in residuals)
+        values = [r.value for r in residuals]
+        all_finite = bool(np.all(np.isfinite(values)))
+        max_r = float(np.max(values)) if all_finite else float("nan")
+        ok = all_finite and all(self._metric().near(r.value, 0.0) for r in residuals)
         return CorrespondenceReport(
             ok=ok,
             max_residual=max_r,
             residuals=tuple(residuals),
-            evidence={"n_pairs": len(residuals), "max_conjugacy_residual": max_r},
+            evidence={"n_pairs": len(residuals), "max_conjugacy_residual": max_r, "all_finite": all_finite},
             kind="conjugacy",
         )
 
