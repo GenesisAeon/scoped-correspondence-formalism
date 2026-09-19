@@ -8,7 +8,8 @@ FORMALISM.md §6: there is no general identity between eta_info, Panarchy,
 A_ij and L_ij.
 
 Milestone 12 (Dirac structure composition), Milestone 15 (Dissipativity /
-supply rates), and Milestone 26 (Lie–Poisson / Casimir invariants) are
+supply rates), Milestone 26 (Lie–Poisson / Casimir invariants), and
+Milestone 39 (Pecora–Carroll generalized / drive–response sync) are
 exported here as **submodule-local** additions; package-root
 ``scoped_correspondence.__init__`` is intentionally left untouched.
 """
@@ -51,6 +52,17 @@ from scoped_correspondence.coupling.casimir import (
     time_derivative_along_field,
 )
 
+from scoped_correspondence.coupling.generalized_sync import (
+    BRIDGE_NOTE as GENERALIZED_SYNC_BRIDGE_NOTE,
+    DOI as GENERALIZED_SYNC_DOI,
+    LUHMANN_DISCLAIMER,
+    SOURCE as GENERALIZED_SYNC_SOURCE,
+    LinearDriveResponseResult,
+    conditional_lyapunov_linear,
+    linear_drive_response_map,
+    sync_criterion_cle_negative,
+)
+
 __all__ = [
     "AijInfluence",
     "GENERIC_STRUCTURE_TOL",
@@ -84,4 +96,14 @@ __all__ = [
     "quadratic_casimir_grad",
     "rigid_body_hamiltonian_grad",
     "time_derivative_along_field",
+    # M39 Pecora–Carroll generalized sync (submodule-local; core.py untouched)
+    "GENERALIZED_SYNC_BRIDGE_NOTE",
+    "GENERALIZED_SYNC_DOI",
+    "LUHMANN_DISCLAIMER",
+    "GENERALIZED_SYNC_SOURCE",
+    "LinearDriveResponseResult",
+    "conditional_lyapunov_linear",
+    "linear_drive_response_map",
+    "sync_criterion_cle_negative",
+
 ]
