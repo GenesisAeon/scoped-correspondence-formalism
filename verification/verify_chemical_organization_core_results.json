@@ -1,0 +1,88 @@
+{
+  "count": 5,
+  "errors": [],
+  "failed": 0,
+  "passed": 5,
+  "report": {
+    "autopoiesis_scope_warning": "This Baustein does NOT fully formalize Autopoiesis; name chemical_organization not autopoiesis; word collisions with closure Baustein (PC=CQ) AND M27 FCA lattice \u2014 same words different objects, no shared base class.",
+    "baustein": "chemical_organization",
+    "checks": {
+      "forbidden_identifier_names": {
+        "_status": "passed",
+        "allowed_exception": [
+          "is_reaction_closed"
+        ],
+        "forbidden_substrings": [
+          "closure",
+          "closed"
+        ],
+        "mandated_api_present": true,
+        "offenders": [],
+        "scan_clean": true,
+        "scanned_files": [
+          "src\\scoped_correspondence\\chemical_organization\\__init__.py",
+          "src\\scoped_correspondence\\chemical_organization\\core.py"
+        ]
+      },
+      "negative_b_alone": {
+        "B_reaction_closed_with_r4": false,
+        "B_reaction_closed_without_r4": false,
+        "B_self_maintaining_with_r4": false,
+        "B_self_maintaining_without_r4": false,
+        "_status": "passed"
+      },
+      "warning_verbatim": {
+        "_status": "passed",
+        "as_report_has_warning": true,
+        "autopoiesis_scope_warning": "This Baustein does NOT fully formalize Autopoiesis; name chemical_organization not autopoiesis; word collisions with closure Baustein (PC=CQ) AND M27 FCA lattice \u2014 same words different objects, no shared base class.",
+        "docs_has_warning": true,
+        "module_doc_has_warning": true,
+        "source": "Dittrich & Speroni di Fenizio 2007 DOI 10.1007/s11538-006-9130-8; Fontana & Buss 1994 DOI 10.1007/BF02458289"
+      },
+      "with_r4": {
+        "A_ab_organization": true,
+        "A_ab_reaction_closed": true,
+        "A_ab_self_maintaining": true,
+        "Sv_hand_a": 0.0,
+        "Sv_hand_b": 0.0,
+        "_status": "passed",
+        "empty_organization": false,
+        "empty_reaction_closed": false,
+        "linprog_Sv_a": 0.0,
+        "linprog_Sv_b": 0.0,
+        "linprog_flux": [
+          2.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "n_reactions": 4,
+        "witness_v": [
+          2.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "without_r4": {
+        "A_ab_organization": false,
+        "A_ab_reaction_closed": true,
+        "A_ab_self_maintaining": false,
+        "_status": "passed",
+        "empty_is_organization": true,
+        "hand_contradiction": "sum_s (Sv)_s = -v3 >= 0 with v3>=1 impossible",
+        "hand_sum_Sv_equals_minus_v3": true,
+        "n_reactions": 3,
+        "organizations": [
+          []
+        ]
+      }
+    },
+    "milestone": "M41",
+    "numpy": "2.2.6",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source": "Dittrich & Speroni di Fenizio 2007 DOI 10.1007/s11538-006-9130-8; Fontana & Buss 1994 DOI 10.1007/BF02458289",
+    "timestamp": "2026-09-19T19:55:05+02:00"
+  }
+}
