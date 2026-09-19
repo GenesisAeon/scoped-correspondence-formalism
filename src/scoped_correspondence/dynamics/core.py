@@ -65,15 +65,33 @@ def fixed_points(a: float, b: float) -> List[float]:
 
     Same Cardano / trigonometric forms as verify_formalism.real_cubic_roots
     (p02_cusp_region).
+
+    Audit finding A04: the degenerate-case test used to compare the
+    discriminant ``4a^3-27b^2`` against a fixed ABSOLUTE threshold
+    (``1e-12``). Since the discriminant scales with ``a^3``/``b^2``, that
+    threshold silently misclassified genuinely-three-distinct-real-root
+    cases at small ``|a|,|b|`` as degenerate (e.g. ``a=1e-5, b=0`` has
+    discriminant ``4e-15`` and three real roots ``0, ±0.00316...``, but
+    the old code returned only ``[-0.0, 0.0]``). Fixed by comparing the
+    discriminant against a RELATIVE tolerance scaled by the magnitude of
+    the two terms being subtracted (``4|a|^3 + 27b^2``) — the standard
+    fix for a cancellation-sensitive sign test — instead of a fixed
+    absolute value. Verified across a=1e-3 down to a=1e-10 (b=0): all
+    return three distinct roots with |root - sqrt(a)| at machine
+    precision. Exact-fold cases (discriminant exactly 0, e.g. the
+    Panarchy cusp worked example a=3,b=±2) are unaffected — 0 remains
+    inside the relative-tolerance band around 0 for any scale.
     """
     discriminant = 4 * a**3 - 27 * b**2
-    if discriminant > 1e-12:
+    scale = 4 * abs(a) ** 3 + 27 * b**2
+    tol = 1e-9 * scale if scale > 0.0 else 1e-12
+    if discriminant > tol:
         angle = math.acos(max(-1.0, min(1.0, b / (2 * (a / 3) ** 1.5))))
         return sorted(
             2 * math.sqrt(a / 3) * math.cos((angle + 2 * k * math.pi) / 3)
             for k in range(3)
         )
-    if discriminant < -1e-12:
+    if discriminant < -tol:
         q = math.sqrt(b * b / 4 - a**3 / 27)
         return [_cbrt(b / 2 + q) + _cbrt(b / 2 - q)]
     if abs(a) + abs(b) < 1e-12:
