@@ -87,6 +87,13 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) ist der einzige noch
   offene ursprüngliche Meilenstein; eine SemVer-`1.0`-Stabilisierung steht
   noch aus (aktuell `0.41.0a1`, Alpha).
+- Drei echte, direkt von der Primärquelle geladene Datensätze (USGS-Erdbeben
+  M≥6.0 seit 2000, NOAA-Globaltemperaturanomalie 1880–2025, OWID/JHU-Covid-
+  Weltzeitreihe) liegen seit 2026-09-20 mit vollständiger Provenienz vor
+  (URL, Abrufzeitpunkt, sha256) — siehe
+  [docs/real_data_provenance.md](docs/real_data_provenance.md) und
+  `data/real_data_manifest.json`. Noch keine Validierungspilotstudie
+  darauf aufgebaut; das ist eigenständige Folgearbeit.
 
 ---
 

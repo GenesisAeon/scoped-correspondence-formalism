@@ -1,0 +1,100 @@
+# Real Data Provenance (added 2026-09-20)
+
+**Status:** raw data + provenance record only. No validation pilot has been
+built on top of these yet (that is separate future work — see suggested
+modules per dataset below and `AUDIT_ROADMAP.md` items 12/13). Johann-OK
+required before any "core" promotion.
+
+## Why this file exists
+
+`AUDIT_ROADMAP.md` item 1 found that `data/cygnus_x1_radio_epochs.yaml`'s
+per-epoch granularity was very likely AI-interpolated to four real
+aggregate values, not a real archival transcription — see
+`docs/cygnus_pilot.md` and `validation/core.DATA_PROVENANCE_WARNING`. To
+avoid repeating that failure mode, every dataset below was fetched
+**directly from its primary public source** with the exact URL/query
+recorded, at a specific timestamp, and its sha256 stored in
+`data/real_data_manifest.json` — never compiled from a paper description,
+never copied from another package without checking that package's own
+data lineage first.
+
+Before using any of these files in code, verify them against the manifest:
+
+```bash
+PYTHONPATH=src python verification/verify_real_data_provenance.py
+```
+
+## Datasets
+
+### `usgs_earthquakes_m6plus_2000_2026.csv`
+
+- **Source:** USGS Earthquake Catalog (ComCat) via the FDSN Event Web
+  Service — a live, queryable government seismological catalog.
+- **Exact query:**
+  `https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime=2000-01-01&endtime=2026-09-20&minmagnitude=6.0&orderby=time`
+- **Retrieved:** 2026-09-20T17:49:00Z. **License:** U.S. Government work,
+  public domain.
+- **Content:** 3974 earthquakes worldwide, magnitude ≥ 6.0, 2000-01-01
+  through 2026-09-20. Raw API response, byte-for-byte.
+- **Possible use:** magnitude-frequency (Gutenberg-Richter) distribution
+  as an independent comparison point for `percolation/core.py`'s
+  branching-process threshold framing (a genuine structural-relations
+  bridge candidate per `docs/structural_relations.md` §2 — evidence and
+  scope would need their own derivation, not an assumed identity);
+  inter-event time clustering as a candidate input for
+  `dynamics/early_warning.py`.
+
+### `noaa_global_temp_anomaly_1880_2025.csv`
+
+- **Source:** NOAA National Centers for Environmental Information (NCEI),
+  Climate at a Glance: Global Time Series.
+- **Exact query:**
+  `https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/globe/land_ocean/12/12/1880-2026/data.csv`
+  (parameters select the annual Jan-Dec global land+ocean series).
+- **Retrieved:** 2026-09-20T17:51:20Z. **License:** U.S. Government work,
+  public domain.
+- **Content:** 146 annual values (1880-2025), degrees Celsius departure
+  from the 1901-2000 average. Includes NOAA's own `#`-prefixed header
+  comment lines (title/units/base period) exactly as served.
+- **Possible use:** a real trend-estimation / identifiability worked
+  example (e.g. profile likelihood on a fitted warming rate); explicitly
+  **not** proposed as data for the cubic normal form in `dynamics/core.py`
+  without its own separately derived and checked model — a long-term
+  temperature anomaly series is not thereby claimed to follow that
+  specific ODE.
+
+### `owid_covid_world_daily_2020_2023.csv`
+
+- **Source:** Our World in Data COVID-19 dataset, JHU CSSE historical
+  compact series (`public/data/jhu/full_data.csv` in `owid/covid-19-data`
+  on GitHub), filtered client-side to `location == "World"` only.
+- **Exact query:**
+  `https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/jhu/full_data.csv`
+  (the full file covers 232 locations; only the "World" rows were kept
+  here — see `data/real_data_manifest.json` for the exact filter).
+- **Retrieved:** 2026-09-20T17:50:10Z. **License:** CC BY 4.0 (Our World
+  in Data); underlying counts originally from Johns Hopkins CSSE.
+  **Attribution required** when used/published: "Data: Our World in Data
+  / Johns Hopkins University CSSE COVID-19 Data Repository."
+- **Content:** 1143 daily rows, 2020-01-22 through 2023-03-09: global new
+  and total cases/deaths, plus weekly/biweekly rollups.
+- **Possible use:** a validation pilot structurally analogous to
+  `docs/cygnus_pilot.md` (model vs. persistence baseline, calib/holdout
+  split, honest reporting of a negative result) but resting on confirmed
+  real per-row data instead of an unverified one; growth-phase comparison
+  against `percolation/core.py`'s threshold framing.
+
+## Ground rules going forward
+
+- Every new "real data" file added to this repo needs an entry in
+  `data/real_data_manifest.json` (source URL, exact query/filter, retrieval
+  timestamp, sha256, license) and a matching section here — no exceptions,
+  including for data that "looks" well-sourced.
+- A dataset compiled or summarized by an AI assistant from a paper's prose
+  (rather than downloaded directly from a primary archive, API, or the
+  paper's own supplementary data files) does not qualify for this file;
+  it must be labeled unverified/illustrative, as `docs/cygnus_pilot.md`
+  now is.
+- Building an actual validation pilot on one of these (comparable to
+  Milestone 6) is separate future work, not implied by this file's
+  existence.

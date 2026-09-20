@@ -1,0 +1,7 @@
+# Real data files carry a recorded sha256 in data/real_data_manifest.json
+# (see docs/real_data_provenance.md). Force no line-ending conversion so
+# the byte content -- and therefore the hash -- is identical on every
+# machine and checkout, regardless of core.autocrlf.
+data/usgs_earthquakes_m6plus_2000_2026.csv -text
+data/noaa_global_temp_anomaly_1880_2025.csv -text
+data/owid_covid_world_daily_2020_2023.csv -text
