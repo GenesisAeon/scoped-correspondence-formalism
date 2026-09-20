@@ -1,9 +1,11 @@
 # Real Data Provenance (added 2026-09-20)
 
-**Status:** raw data + provenance record only. No validation pilot has been
-built on top of these yet (that is separate future work — see suggested
-modules per dataset below and `AUDIT_ROADMAP.md` items 12/13). Johann-OK
-required before any "core" promotion.
+**Status:** raw data + provenance record for all three datasets. A first
+validation pilot is now built on the OWID/JHU COVID dataset — see
+[docs/covid_pilot.md](covid_pilot.md) (Milestone 6b). The USGS and NOAA
+datasets still have no pilot built on top of them yet (separate future
+work — see suggested modules per dataset below and `AUDIT_ROADMAP.md`
+items 12/13). Johann-OK required before any "core" promotion.
 
 ## Why this file exists
 
@@ -78,11 +80,15 @@ PYTHONPATH=src python verification/verify_real_data_provenance.py
   / Johns Hopkins University CSSE COVID-19 Data Repository."
 - **Content:** 1143 daily rows, 2020-01-22 through 2023-03-09: global new
   and total cases/deaths, plus weekly/biweekly rollups.
-- **Possible use:** a validation pilot structurally analogous to
-  `docs/cygnus_pilot.md` (model vs. persistence baseline, calib/holdout
-  split, honest reporting of a negative result) but resting on confirmed
-  real per-row data instead of an unverified one; growth-phase comparison
-  against `percolation/core.py`'s threshold framing.
+- **Pilot built:** [docs/covid_pilot.md](covid_pilot.md) (Milestone 6b,
+  `src/scoped_correspondence/validation/covid_pilot.py`,
+  `verification/verify_covid_pilot.py`) — exponential growth fit vs.
+  persistence baseline on a fixed calib/holdout calendar split. Honest
+  result: `model_beats_baseline=False` (the calib window spans a real
+  regime change -- initial outbreak, containment dip, then global-wave
+  onset -- so a single growth-rate fit underestimates the accelerating
+  holdout). Reported as-is, not retuned. A growth-phase comparison against
+  `percolation/core.py`'s threshold framing remains open future work.
 
 ## Ground rules going forward
 

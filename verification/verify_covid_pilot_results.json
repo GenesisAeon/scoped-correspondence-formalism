@@ -1,0 +1,180 @@
+{
+  "milestone": "M6b_covid_pilot",
+  "kind": "real-data growth-phase pilot on verified per-row data (honesty over beauty)",
+  "generated_at_utc": "2026-09-20T18:55:30.776309+00:00",
+  "python": "3.11.9",
+  "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\owid_covid_world_daily_2020_2023.csv",
+  "data_sha256": "abd452a8e84db2fd885c2c8eca5b9b0d04b1bb624e893fa6cb62921b05379387",
+  "source_citation": "Our World in Data COVID-19 dataset (JHU CSSE historical compact series); data/real_data_manifest.json entry owid_covid_world_daily_2020_2023",
+  "attribution_required": "CC BY 4.0: Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.",
+  "validation_report": {
+    "domain": "owid-jhu-covid-world",
+    "macro": "cases_7day_avg",
+    "split": {
+      "calib_start": "2020-01-27",
+      "calib_end": "2020-03-11",
+      "holdout_start": "2020-03-12",
+      "holdout_end": "2020-03-25",
+      "n_calib": 45,
+      "n_holdout": 14,
+      "rule": "calib ends at the WHO pandemic declaration (2020-03-11, an externally documented milestone); holdout is the fixed next 14 days -- both fixed before any fit"
+    },
+    "model_rmse_holdout": 17428.699000980658,
+    "baseline_rmse_holdout": 15932.675722164136,
+    "model_beats_baseline": false,
+    "fitted_parameters": {
+      "r": 0.00743587084687687,
+      "ln_cases0": 7.4615812638633,
+      "cases0": 1739.897119720822,
+      "t_ref": "2020-01-27",
+      "n_calib": 45,
+      "note": "fitted_parameters estimated exclusively on calibration days"
+    },
+    "source_citation": "Our World in Data COVID-19 dataset (JHU CSSE historical compact series); data/real_data_manifest.json entry owid_covid_world_daily_2020_2023",
+    "baseline_value": 4459.571428571428,
+    "n_holdout": 14,
+    "notes": [
+      "Real per-row data (see data/real_data_manifest.json entry owid_covid_world_daily_2020_2023); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.'",
+      "False model_beats_baseline is a VALID complete result -- no retune.",
+      "fit_exponential_growth receives only calib points; holdout used solely for RMSE.",
+      "Exponential growth is a local early-phase model; no claim beyond the fixed calib/holdout window, no cross-wave or cross-country claim."
+    ]
+  },
+  "protocol": {
+    "macro": "cases_7day_avg (weekly_cases / 7)",
+    "calib_window": [
+      "2020-01-27",
+      "2020-03-11"
+    ],
+    "holdout_window": [
+      "2020-03-12",
+      "2020-03-25"
+    ],
+    "split_anchor": "calib_end = WHO pandemic declaration (2020-03-11), holdout = fixed next 14 days",
+    "baseline": "persistence = last calib cases_7day_avg constant",
+    "metric": "RMSE on 14 holdout days",
+    "retune_after_holdout": false
+  },
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "empirical_validation": true,
+  "empirical_validation_note": "Real, provenance-verified per-row data (unlike the Cygnus pilot, see validation.core.DATA_PROVENANCE_WARNING); the computed model_beats_baseline=False result is itself the honest finding, not evidence against the data's authenticity.",
+  "checks": [
+    {
+      "id": "MIG-M6b-fit_no_holdout_reference",
+      "status": "passed",
+      "evidence": {
+        "fit_function": "fit_exponential_growth",
+        "holdout_tokens_in_body": []
+      }
+    },
+    {
+      "id": "MIG-M6b-fixed_calendar_split",
+      "status": "passed",
+      "evidence": {
+        "calib_start": "2020-01-27",
+        "calib_end": "2020-03-11",
+        "holdout_start": "2020-03-12",
+        "holdout_end": "2020-03-25",
+        "n_calib": 45,
+        "n_holdout": 14,
+        "calib_end_is_who_pandemic_declaration": true
+      }
+    },
+    {
+      "id": "MIG-M6b-scope_violations",
+      "status": "passed",
+      "evidence": {
+        "raised_on_wrong_split": true,
+        "raised_on_degenerate_calib": true
+      }
+    },
+    {
+      "id": "MIG-M6b-persistence_baseline_last_calib",
+      "status": "passed",
+      "evidence": {
+        "baseline_value": 4459.571428571428,
+        "last_calib_date": "2020-03-11",
+        "last_calib_weekly_cases": 31217.0
+      }
+    },
+    {
+      "id": "MIG-M6b-pilot_run",
+      "status": "passed",
+      "evidence": {
+        "model_rmse_holdout": 17428.699000980658,
+        "baseline_rmse_holdout": 15932.675722164136,
+        "model_beats_baseline": false,
+        "fitted_parameters": {
+          "r": 0.00743587084687687,
+          "ln_cases0": 7.4615812638633,
+          "cases0": 1739.897119720822,
+          "t_ref": "2020-01-27",
+          "n_calib": 45,
+          "note": "fitted_parameters estimated exclusively on calibration days"
+        },
+        "baseline_value": 4459.571428571428,
+        "macro": "cases_7day_avg",
+        "domain": "owid-jhu-covid-world",
+        "interpretation": "model_beats_baseline is False: the calib window spans a real regime change (initial China outbreak, containment dip, then global-wave onset), so the single log-linear fit underestimates the accelerating holdout and the flat persistence baseline wins on RMSE -- reported honestly, not retuned"
+      }
+    },
+    {
+      "id": "MIG-M6b-rmse_hand_recompute",
+      "status": "passed",
+      "evidence": {
+        "hand_model_rmse": 17428.699000980658,
+        "hand_baseline_rmse": 15932.675722164136,
+        "holdout_observed_cases_7day_avg": [
+          5033.285714285715,
+          6349.0,
+          7313.428571428572,
+          8375.57142857143,
+          9843.0,
+          11330.857142857143,
+          12767.42857142857,
+          15671.857142857143,
+          18005.85714285714,
+          21083.714285714286,
+          24361.571428571428,
+          28359.285714285714,
+          32175.571428571428,
+          37021.28571428572
+        ],
+        "model_predicted_cases_7day_avg": [
+          2431.3342311574124,
+          2449.480702280612,
+          2467.7626111441273,
+          2486.180968599129,
+          2504.736793041353,
+          2523.431110467429,
+          2542.26495453159,
+          2561.239366602843,
+          2580.3553958225425,
+          2599.6140991623915,
+          2619.0165414829016,
+          2638.563795592252,
+          2658.2569423056275,
+          2678.09707050496
+        ],
+        "baseline_predicted_cases_7day_avg": [
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428,
+          4459.571428571428
+        ]
+      }
+    }
+  ]
+}

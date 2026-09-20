@@ -92,8 +92,12 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   Weltzeitreihe) liegen seit 2026-09-20 mit vollständiger Provenienz vor
   (URL, Abrufzeitpunkt, sha256) — siehe
   [docs/real_data_provenance.md](docs/real_data_provenance.md) und
-  `data/real_data_manifest.json`. Noch keine Validierungspilotstudie
-  darauf aufgebaut; das ist eigenständige Folgearbeit.
+  `data/real_data_manifest.json`. Auf dem Covid-Datensatz steht bereits ein
+  vollständiger Validierungspilot ([docs/covid_pilot.md](docs/covid_pilot.md),
+  Milestone 6b): Exponentialwachstum vs. Persistenz-Baseline, ehrliches
+  Ergebnis `model_beats_baseline=False` (Kalibrierfenster überspannt einen
+  echten Regimewechsel — Eindämmung der China-Welle, dann globaler
+  Ausbruch). USGS/NOAA haben noch keinen Pilot; das bleibt Folgearbeit.
 
 ---
 
