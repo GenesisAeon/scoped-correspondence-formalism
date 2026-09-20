@@ -3,7 +3,94 @@
 [![License](https://img.shields.io/badge/code-GPLv3--or--later-blue)](LICENSE)
 [![Docs License](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 
-**Revision 3.2 · 16. September 2026 · methodischer Entwurf mit Literaturanschlüssen, prüfbaren Modellrechnungen und optionalen F08/F09-Ergänzungen. Umbenannt von "CREP–UTAC–AFET" am 16. September 2026 — siehe [GLOSSARY.md](GLOSSARY.md) für die vollständige Begriffszuordnung und Begründung.**
+## Aktueller Stand (2026-09-20)
+
+Seit dem 16. September 2026 ist dieses Repository ein **installierbares
+Python-Paket** (`scoped-correspondence`, aktuell `0.41.0a1`, Milestones
+M1-M41 als Review-Paket) unter `src/scoped_correspondence/` — nicht mehr
+nur Dokumentation und eigenständige Skripte. Der untenstehende
+"Revision 3.2"-Abschnitt beschreibt den Stand VOR dieser Umstellung und ist
+als historischer Kontext erhalten (siehe
+[REVISION_3_2026-09-16.md](REVISION_3_2026-09-16.md)); die aktuelle
+Modul-/Paketstruktur steht hier.
+
+### Installation
+
+```bash
+pip install -e .
+python -m pip install -r verification/requirements.txt
+```
+
+### Kurzbeispiel
+
+```python
+from scoped_correspondence.dynamics.core import fixed_points
+
+# Kubische Normalform tau*dx/dt = -x^3 + a*x + b bei b=0, a=3:
+# Fixpunkte sind 0 und +-sqrt(a).
+print(fixed_points(3.0, 0.0))
+# [-1.7320508075688774, ~0.0, 1.7320508075688774]
+```
+
+Ein zweites, ausführlicheres Beispiel (`Correspondence`-Vertrag mit
+Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
+[docs/correspondence_core.md](docs/correspondence_core.md).
+
+### Modulübersicht (`src/scoped_correspondence/`)
+
+| Paket | Enthält |
+|---|---|
+| `correspondence/` | Kernvertrag: `Correspondence`, Konjugationsresiduum, Approximationszertifikate |
+| `observation/` | Kanalkapazität, Informationsretention, Arimoto-Blahut, Directed Information |
+| `dynamics/` | Kubische Normalform, Kontraktion, Landau/Ising, GSPT, Floquet, Panarchy, Early-Warning |
+| `coupling/` | Kopplungslagen, Casimir/Dirac-Komposition, Dissipativität, GENERIC↔Navier-Stokes, generalisierte Synchronisation |
+| `closure/` | `PC=CQ`-Makroschließung, Generator-Lumpability, Fehlerschranken, Chapman-Enskog |
+| `viability/` | Viability Kernels, Nagumo-Tangentialkegel, Control Barrier Functions |
+| `membership/` | Zugehörigkeitsmatrizen, Formal Concept Analysis |
+| `identifiability/` | Profile Likelihood, Fisher-Informations-Sloppiness |
+| `validation/` | Cygnus-X1-Pilotstudie, Split Conformal Prediction |
+| `contextuality/` | Sheaf-Kontextualität, Čech-Kohomologie, CSW-Graph-Invarianten |
+| `information_decomposition/` | PID/Redundancy Bottleneck, BROJA |
+| `thermo/` | Schnakenberg-Netzwerkthermodynamik, Crooks/Jarzynski |
+| `chemical_organization/` | Chemical Organization Theory (Reaktionsabschluss, Selbsterhaltung) |
+| `percolation/` | Bethe-Baum-Perkolation / Kesten-Verzweigung |
+| `pattern_formation/` | Turing-Instabilität / Dispersionsrelation |
+| `free_boundary/` | Stefan-Neumann-Ähnlichkeitslösung |
+| `metarules/` | Repo-übergreifende Meta-Regeln |
+| `legacy/` | Adapter zu den ursprünglichen Revision-2/3-Prüfskripten |
+
+### Status, Prüfungen und offene Punkte
+
+- **51 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
+  aktuell alle grün (`python audit_review/run_all_local.py` — Skript nicht
+  eingecheckt, siehe [VERIFICATION.md](VERIFICATION.md) für die
+  eingecheckten Einzelläufe und ihre Aussagekraft).
+- Ein externer Code-Audit ("Tiefenanalyse", 2026-09-20) fand 9 echte
+  Korrektheitslücken (P0/P1/P2) in bereits gemergtem Code; alle wurden
+  am selben Tag behoben, gegen das jeweilige Audit-Gegenbeispiel verifiziert
+  und gegen alle 51 Suiten regressionsgetestet. Details, Priorisierung und
+  verbleibende Punkte: [AUDIT_ROADMAP.md](AUDIT_ROADMAP.md).
+- [docs/structural_relations.md](docs/structural_relations.md) definiert
+  eine Prüfsprache für Strukturbeziehungen zwischen Modellen (Beziehungstyp,
+  Konstruktion, Geltungsbereich, geprüfte vs. angenommene Voraussetzungen,
+  Reichweite) — als Gegengewicht zu pauschalen "keine gemeinsame
+  Mathematik"-Formulierungen, ohne unbegründete Identitäten wieder zu öffnen.
+- Ein einzelner realer Datensatz (`data/cygnus_x1_radio_epochs.yaml`,
+  Cygnus-X1-Jet-Positionswinkel) steht derzeit unter Prüfung: die
+  Einzelepochen-Granularität stammt wahrscheinlich aus einer KI-Interpolation
+  zu vier echten Paper-Kennzahlen (Prabu et al. 2026), nicht aus realen
+  archivierten Einzelmessungen — siehe `AUDIT_ROADMAP.md` Punkt 1. Bis zur
+  Klärung nicht als unabhängig verifizierte empirische Validierung zitieren.
+- Das Formal-Hooks-/Stable-Release-Milestone aus
+  [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) ist der einzige noch
+  offene ursprüngliche Meilenstein; eine SemVer-`1.0`-Stabilisierung steht
+  noch aus (aktuell `0.41.0a1`, Alpha).
+
+---
+
+## Revision 3.2 (historisch, 16. September 2026 — vor dem installierbaren Paket)
+
+**Methodischer Entwurf mit Literaturanschlüssen, prüfbaren Modellrechnungen und optionalen F08/F09-Ergänzungen. Umbenannt von "CREP–UTAC–AFET" am 16. September 2026 — siehe [GLOSSARY.md](GLOSSARY.md) für die vollständige Begriffszuordnung und Begründung.**
 
 Johanns Ausgangsabsicht bleibt die Grundlage: **Observation** (vormals CREP) beschreibt Information, **Dynamics** (vormals UTAC) Systeme und deren Dynamik, **Coupling** (vormals AFET) die Kopplung mit einer ausdrücklich ausgewiesenen thermodynamischen Spezialisierung (**Thermodynamics**). Die zentrale Beziehung zwischen Beschreibungsebenen heißt **Correspondence** (vormals „Selbstähnlichkeit" als Gesamtanspruch) — bewusst schwächer als „Äquivalenz" oder „Identität", weil eine Korrespondenz exakt, näherungsweise, projektiv, kontextabhängig oder empirisch widerlegt sein kann. Die Revision ersetzte bereits die unzutreffenden Größenidentitäten des Entwurfs vom 15. September durch definierte Schnittstellen und bedingte Modellbeziehungen; die neue Namensgebung macht diesen Verzicht auf Universalitätsanspruch jetzt auch im Namen sichtbar statt nur im Text.
 

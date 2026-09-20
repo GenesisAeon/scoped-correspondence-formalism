@@ -1,10 +1,12 @@
-# Architektur-Roadmap — Scoped Correspondence Formalism (Teil 2, noch nicht beauftragt)
+# Architektur-Roadmap — Scoped Correspondence Formalism (Teil 2)
 
-Stand: 16. September 2026. Dies ist eine **grobe Sicherungskopie** des vollständigen Astra-Vorschlags in [prompts/Answers/ChatGPTAstra2.md](prompts/Answers/ChatGPTAstra2.md), damit bei einer späteren Entscheidung nichts verloren geht. **Nichts hier ist beauftragt oder begonnen.** Teil 1 (Umbenennung, Glossar, Repo) ist abgeschlossen — siehe [GLOSSARY.md](GLOSSARY.md). Diese Datei ist die Diskussionsgrundlage für die nächste Entscheidung: ob, wie und von wem Teil 2 angegangen wird.
+Stand: 16. September 2026 (Planungstext), Status-Nachtrag 2026-09-20. Dies ist eine **grobe Sicherungskopie** des vollständigen Astra-Vorschlags in [prompts/Answers/ChatGPTAstra2.md](prompts/Answers/ChatGPTAstra2.md), damit bei einer späteren Entscheidung nichts verloren geht. Teil 1 (Umbenennung, Glossar, Repo) ist abgeschlossen — siehe [GLOSSARY.md](GLOSSARY.md).
 
-## Worum es geht
+**Nachtrag 2026-09-20:** "Noch nicht beauftragt" traf am 16. September zu; inzwischen ist Teil 2 fast vollständig umgesetzt — sieben der acht Meilensteine unten sind laut der Tabelle selbst "erledigt", und `src/scoped_correspondence/` existiert als installierbares Paket (siehe README.md "Aktueller Stand"). Der einleitende Satz unten ("kein installierbares Python-Paket, kein `src/`-Baum") beschreibt bewusst den Ausgangszustand VOR dieser Roadmap, nicht den heutigen — siehe README.md für den aktuellen Stand.
 
-Aktuell ist dieses Repository reine Dokumentation plus eigenständige Verify-Skripte (kein installierbares Python-Paket, kein `src/`-Baum). Der Astra-Vorschlag ist ein vollständiger Plan, daraus eine echte Softwarebibliothek zu machen: typisierte Contracts statt Prosa-Formeln, eine `Correspondence`-Kernklasse, getrennte Verification-/Validation-Pipelines, SemVer, und ausgewählte maschinengeprüfte Lean-Lemmata. Das ist ein eigenständiges Projekt, keine Fortsetzung "nebenbei".
+## Worum es geht (Ausgangslage 16.9., historisch)
+
+Zu Beginn dieser Roadmap war das Repository reine Dokumentation plus eigenständige Verify-Skripte (kein installierbares Python-Paket, kein `src/`-Baum). Der Astra-Vorschlag ist ein vollständiger Plan, daraus eine echte Softwarebibliothek zu machen: typisierte Contracts statt Prosa-Formeln, eine `Correspondence`-Kernklasse, getrennte Verification-/Validation-Pipelines, SemVer, und ausgewählte maschinengeprüfte Lean-Lemmata. Das ist ein eigenständiges Projekt, keine Fortsetzung "nebenbei".
 
 **Zeit-/Aufwandsschätzung aus dem Vorschlag** (Annahme: 2–4 Entwickler:innen, mindestens einer mit mathematisch-wissenschaftlichem Schwerpunkt): **16–20 Wochen** bis zu einer ersten stabilen Major-Version.
 
