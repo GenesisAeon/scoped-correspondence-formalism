@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Cygnus X-1 jet PA real-data pilot (Milestone 6).
+"""Cygnus X-1 jet PA pilot (Milestone 6) -- ILLUSTRATIVE, not empirical.
+
+DATA PROVENANCE (AUDIT_ROADMAP.md item 1 / A01, resolved 2026-09-20): the
+per-epoch data/cygnus_x1_radio_epochs.yaml table is UNVERIFIED -- only 4
+aggregate Prabu-2026 values are confirmed; the 18 individually dated
+epochs have no confirmed archival source and their MJD/year fields show a
+pattern consistent with AI interpolation. This script's numbers are a
+correct, reproducible calculation on that data, not an independently
+verified empirical validation -- see DATA_PROVENANCE_WARNING.
 
 Loads data/cygnus_x1_radio_epochs.yaml, locks DatasetManifest split, fits
 relaxation on calib only, compares holdout RMSE to persistence baseline.
@@ -12,6 +20,7 @@ Asserts:
   - ScopeViolationError on wrong split
   - baseline == last calib jet_pa_deg (constant)
   - fit_relaxation_pa body does not reference holdout data
+  - DATA_PROVENANCE_WARNING is present in the report and its own module
 """
 from __future__ import annotations
 
@@ -41,6 +50,7 @@ from scoped_correspondence.validation import (  # noqa: E402
 )
 from scoped_correspondence.validation.core import (  # noqa: E402
     CALIB_INDICES,
+    DATA_PROVENANCE_WARNING,
     HOLDOUT_INDICES,
     cygnus_pa_manifest,
 )
@@ -269,11 +279,27 @@ def main():
         }
     )
 
+    require(
+        DATA_PROVENANCE_WARNING in report.notes,
+        "ValidationReport.notes must carry DATA_PROVENANCE_WARNING",
+    )
+    checks.append(
+        {
+            "id": "audit_a01_data_provenance_warning",
+            "status": "passed",
+            "evidence": {
+                "data_provenance_warning": DATA_PROVENANCE_WARNING,
+                "in_report_notes": True,
+                "in_manifest_license_note": "UNVERIFIED" in manifest.license_note,
+            },
+        }
+    )
+
     passed = sum(c["status"] == "passed" for c in checks)
     failed = [c["id"] for c in checks if c["status"] != "passed"]
     out = {
         "milestone": "M6_cygnus_pilot",
-        "kind": "real-data validation pilot (honesty over beauty)",
+        "kind": "illustrative method demonstration on unverified per-epoch data (honesty over beauty)",
         "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "python": platform.python_version(),
         "numpy": np.__version__,
@@ -295,7 +321,8 @@ def main():
         "count": len(checks),
         "passed": passed,
         "failed": len(failed),
-        "empirical_validation": True,
+        "empirical_validation": False,
+        "data_provenance_warning": DATA_PROVENANCE_WARNING,
         "checks": checks,
     }
     args.output.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

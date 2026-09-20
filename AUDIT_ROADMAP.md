@@ -23,19 +23,37 @@ getrennt auszuweisen.
 
 | # | Paket | Priorität | Status |
 |---|---|---|---|
-| 1 | Cygnus-Datenherkunft klären (A01) | P0 | 🔄 in Arbeit |
-| 2 | NaN-/Leermengen-Zertifikate + Zeitabbildung (A02, A03) | P1 | 🔄 in Arbeit |
-| 3 | Kubische Wurzeln + Perkolation härten (A04, A05) | P1 | 🔄 in Arbeit |
-| 4 | Viabilität + Profile-Likelihood präzisieren (A06, A07) | P1 | 🔄 in Arbeit |
-| 5 | Restliche Input-Guards (retention/realized_rate/is_exact_closure) | P1/P2 | 🔄 in Arbeit |
-| 6 | Floquet Jordan-Block-Erkennung (A08) | P2 | 🔄 in Arbeit |
-| 7 | Split-Manifest-Vertrag härten (A09) | P1 | 🔄 in Arbeit |
-| 8 | Link-Checker-Bug (URI-Encoding) | P2 | 🔄 in Arbeit |
-| 9 | Übergreifende "kein gemeinsames X"-Sprache entschärfen (Abschnitt 7.3) | P2 | ⏸ geplant |
-| 10 | Gemeinsames Report-/Scope-Schema entwerfen und dokumentieren | P2 | ⏸ geplant |
-| 11 | README/ARCHITECTURE_ROADMAP konsolidieren (A11) | P2 | ⏸ geplant |
+| 1 | Cygnus-Datenherkunft klären (A01) | P0 | ✅ erledigt (2026-09-20, als unverifiziert gekennzeichnet — siehe unten) |
+| 2 | NaN-/Leermengen-Zertifikate + Zeitabbildung (A02, A03) | P1 | ✅ erledigt |
+| 3 | Kubische Wurzeln + Perkolation härten (A04, A05) | P1 | ✅ erledigt |
+| 4 | Viabilität + Profile-Likelihood präzisieren (A06, A07) | P1 | ✅ erledigt |
+| 5 | Restliche Input-Guards (retention/realized_rate/is_exact_closure) | P1/P2 | ✅ erledigt |
+| 6 | Floquet Jordan-Block-Erkennung (A08) | P2 | ✅ erledigt |
+| 7 | Split-Manifest-Vertrag härten (A09) | P1 | ✅ erledigt |
+| 8 | Link-Checker-Bug (URI-Encoding) | P2 | ✅ erledigt |
+| 9 | Übergreifende "kein gemeinsames X"-Sprache entschärfen (Abschnitt 7.3) | P2 | ✅ erledigt |
+| 10 | Gemeinsames Report-/Scope-Schema entwerfen und dokumentieren | P2 | ✅ erledigt |
+| 11 | README/ARCHITECTURE_ROADMAP konsolidieren (A11) | P2 | ✅ erledigt |
 | 12 | Vollständige Modellkette demonstrieren | P2 (später) | ⏸ zurückgestellt |
 | 13 | Unabhängige empirische Korrespondenzprüfung | P2 (später) | ⏸ zurückgestellt |
+
+### Paket 1 — Auflösung (2026-09-20)
+
+Nachbarpaket `D:\mandala\cygnus-jet-utac` (Commit `9178fb6`, Autor `Claude
+<noreply@anthropic.com>`) enthält dieselbe Epochentabelle byte-identisch
+sowie `data/prabu2026_measurements.yaml` mit nur 4 aggregierten
+Prabu-2026-Kennzahlen (Anfangs-/End-Positionswinkel, 18-Jahres-Basislinie).
+Keine Quelle für 18 einzeln datierte Epochen gefunden; der MJD/Jahr-Drift
+wächst systematisch (0 bis ~90 Tage). Wahrscheinlichste Erklärung:
+KI-Interpolation zu den 4 echten Werten, keine archivierte
+Einzelmessungsreihe. **Johanns Entscheidung:** als unverifiziert
+kennzeichnen, Pilot als illustrative Methodendemonstration im Repo
+belassen (Rechnung bleibt korrekt und reproduzierbar). Umgesetzt in
+`data/cygnus_x1_radio_epochs.yaml` (Header-Warnung), `validation/core.py`
+(`DATA_PROVENANCE_WARNING`-Konstante, in `ValidationReport.notes` und
+`DatasetManifest.license_note`), `verify_cygnus_pilot.py`
+(`empirical_validation: False` + neuer Check), `docs/cygnus_pilot.md` und
+README.md.
 
 Pakete 12/13 sind bewusst zurückgestellt — sie sind größere, eigene
 Vorhaben (siehe Audit Abschnitt 8, Punkte 7–8), keine Bugfixes. Sie

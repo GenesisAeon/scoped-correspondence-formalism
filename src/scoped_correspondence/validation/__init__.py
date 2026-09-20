@@ -6,6 +6,7 @@ Does not mutate ``validation/core.py``.
 """
 
 from scoped_correspondence.validation.core import (
+    DATA_PROVENANCE_WARNING,
     DatasetManifest,
     Epoch,
     FittedRelaxation,
@@ -29,6 +30,7 @@ from scoped_correspondence.validation.conformal import (
 
 __all__ = [
     # M6 Cygnus pilot
+    "DATA_PROVENANCE_WARNING",
     "DatasetManifest",
     "Epoch",
     "FittedRelaxation",

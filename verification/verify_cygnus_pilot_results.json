@@ -1,12 +1,12 @@
 {
   "milestone": "M6_cygnus_pilot",
-  "kind": "real-data validation pilot (honesty over beauty)",
-  "generated_at_utc": "2026-09-19T22:22:30.512368+00:00",
+  "kind": "illustrative method demonstration on unverified per-epoch data (honesty over beauty)",
+  "generated_at_utc": "2026-09-20T17:23:41.227440+00:00",
   "python": "3.11.9",
   "numpy": "2.2.6",
   "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\cygnus_x1_radio_epochs.yaml",
-  "data_sha256": "0e25441290434421adda63cb4c961a974630f87c47b91f113e7360aa75d5ecb6",
-  "data_bytes": 2519,
+  "data_sha256": "d24adbb4817d623ff1ba5ab21bf0f9bbd630dfb325cde63096fe9b2550561b03",
+  "data_bytes": 3380,
   "source_package": "GenesisAeon/cygnus-jet-utac",
   "citations": [
     "Stirling et al. 2001",
@@ -49,7 +49,7 @@
       17
     ],
     "exclusions": [],
-    "license_note": "Literature-compiled VLBI epochs; cite Stirling 2001, Rushton 2011, Miller-Jones 2021, Prabu 2026 as in YAML header. Copied 1:1 from cygnus-jet-utac; numbers not invented.",
+    "license_note": "Cite Stirling 2001, Rushton 2011, Miller-Jones 2021, Prabu 2026 as in YAML header. Copied 1:1 from cygnus-jet-utac. UNVERIFIED: only 4 aggregate Prabu-2026 values are confirmed; the 18 individual epoch dates/PA/flux values have no confirmed archival source — see DATA_PROVENANCE_WARNING / AUDIT_ROADMAP.md item 1.",
     "circularity_note": "Do NOT reuse cygnus-jet-utac σ / Γ_jet / efficiency. Free parameters (pa_eq, r) are estimated only on calib epochs. Prior Γ_jet inversion from fixed efficiency (worked_example_cygnus_jet_utac.md) is excluded."
   },
   "validation_report": {
@@ -119,6 +119,7 @@
     "baseline_value": 38.8,
     "n_holdout": 9,
     "notes": [
+      "UNVERIFIED per-epoch data: only 4 aggregate values (initial/final jet position angle, 18-year baseline) are confirmed from Prabu et al. 2026; the 18 individually dated epochs here have no confirmed archival source and show a growing MJD/year inconsistency consistent with AI interpolation. Treat this pilot as an illustrative method demonstration, not an independently verified empirical validation.",
       "Do NOT reuse cygnus-jet-utac σ / Γ_jet / efficiency. Free parameters (pa_eq, r) are estimated only on calib epochs. Prior Γ_jet inversion from fixed efficiency (worked_example_cygnus_jet_utac.md) is excluded.",
       "False model_beats_baseline is a VALID complete result — no retune.",
       "fit_relaxation_pa receives only calib epochs; holdout used solely for RMSE.",
@@ -133,10 +134,11 @@
     "no_gamma_jet_sigma_reuse": true,
     "retune_after_holdout": false
   },
-  "count": 7,
-  "passed": 7,
+  "count": 8,
+  "passed": 8,
   "failed": 0,
-  "empirical_validation": true,
+  "empirical_validation": false,
+  "data_provenance_warning": "UNVERIFIED per-epoch data: only 4 aggregate values (initial/final jet position angle, 18-year baseline) are confirmed from Prabu et al. 2026; the 18 individually dated epochs here have no confirmed archival source and show a growing MJD/year inconsistency consistent with AI interpolation. Treat this pilot as an illustrative method demonstration, not an independently verified empirical validation.",
   "checks": [
     {
       "id": "MIG-M6-fit_no_holdout_reference",
@@ -288,6 +290,15 @@
           38.8,
           38.8
         ]
+      }
+    },
+    {
+      "id": "audit_a01_data_provenance_warning",
+      "status": "passed",
+      "evidence": {
+        "data_provenance_warning": "UNVERIFIED per-epoch data: only 4 aggregate values (initial/final jet position angle, 18-year baseline) are confirmed from Prabu et al. 2026; the 18 individually dated epochs here have no confirmed archival source and show a growing MJD/year inconsistency consistent with AI interpolation. Treat this pilot as an illustrative method demonstration, not an independently verified empirical validation.",
+        "in_report_notes": true,
+        "in_manifest_license_note": true
       }
     }
   ]

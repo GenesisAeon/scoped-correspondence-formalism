@@ -75,12 +75,14 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   Konstruktion, Geltungsbereich, geprüfte vs. angenommene Voraussetzungen,
   Reichweite) — als Gegengewicht zu pauschalen "keine gemeinsame
   Mathematik"-Formulierungen, ohne unbegründete Identitäten wieder zu öffnen.
-- Ein einzelner realer Datensatz (`data/cygnus_x1_radio_epochs.yaml`,
-  Cygnus-X1-Jet-Positionswinkel) steht derzeit unter Prüfung: die
+- Der Cygnus-X1-Pilot (`data/cygnus_x1_radio_epochs.yaml`,
+  [docs/cygnus_pilot.md](docs/cygnus_pilot.md)) ist als **unverifiziert**
+  gekennzeichnet (Entscheidung 2026-09-20, `AUDIT_ROADMAP.md` Punkt 1): die
   Einzelepochen-Granularität stammt wahrscheinlich aus einer KI-Interpolation
   zu vier echten Paper-Kennzahlen (Prabu et al. 2026), nicht aus realen
-  archivierten Einzelmessungen — siehe `AUDIT_ROADMAP.md` Punkt 1. Bis zur
-  Klärung nicht als unabhängig verifizierte empirische Validierung zitieren.
+  archivierten Einzelmessungen. Der Pilot bleibt als **illustrative
+  Methodendemonstration** im Repo (Rechnung korrekt und reproduzierbar),
+  gilt aber nicht als unabhängig verifizierte empirische Validierung.
 - Das Formal-Hooks-/Stable-Release-Milestone aus
   [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) ist der einzige noch
   offene ursprüngliche Meilenstein; eine SemVer-`1.0`-Stabilisierung steht

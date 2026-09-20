@@ -2,6 +2,19 @@
 # Compiled from literature: Stirling et al. 2001, Rushton et al. 2011,
 # Miller-Jones et al. 2021, and Prabu et al. 2026.
 # All coordinates in J2000.
+#
+# DATA PROVENANCE WARNING (added 2026-09-20, AUDIT_ROADMAP.md item 1 / A01):
+# This per-epoch table is UNVERIFIED. Only 4 aggregate values are confirmed
+# from Prabu et al. 2026 (initial/final jet position angle ~25 deg / ~42 deg,
+# 18-year observation baseline 2006-2024) -- see the sibling package
+# GenesisAeon/cygnus-jet-utac's data/prabu2026_measurements.yaml. No source
+# for these 18 individually dated epochs (with per-row MJD, PA, flux) was
+# found; the declared "year" and "mjd" fields diverge by a systematically
+# growing amount (0 days in 2007 up to ~90 days by 2020), consistent with
+# AI interpolation to the 4 real aggregate numbers rather than archival
+# transcription. Treat this file as illustrative demonstration data, not
+# independently verified real per-epoch measurements, until a genuine
+# per-epoch source is confirmed.
 
 source:
   name: "Cygnus X-1"

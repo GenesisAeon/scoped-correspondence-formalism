@@ -5,7 +5,8 @@ Milestone 2: Observation / Dynamics / Coupling cores + legacy adapters.
 Milestone 3: Closure / Reconstruction + Viability / Safe transfer.
 Milestone 4: Membership / Shared resources (M_ea, T5).
 Milestone 5: Identifiability / Baseline metrics (conditioning, EI, SVD).
-Milestone 6: Validation / Cygnus jet_pa_deg real-data pilot.
+Milestone 6: Validation / Cygnus jet_pa_deg pilot (data provenance
+unverified as of 2026-09-20, see validation.core.DATA_PROVENANCE_WARNING).
 Milestone 7: Optional modules hardening (contextuality F08/F13, information_decomposition F09/F12).
 Milestone 8: Thermodynamics / GENERIC memory (heat e13, stochastic inverse e10, projection §9).
 Milestone 9: Metarules (discrete m′=H, priority T5 wrap, unobserved-m closure A/B).

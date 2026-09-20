@@ -1,9 +1,23 @@
 # Cygnus X-1 jet PA pilot (Milestone 6)
 
-**Status:** first real-data validation pilot (review package). Johann-OK required
-before any "core" promotion. A `model_beats_baseline: false` result is a
-**valid complete** outcome — do not retune the split or parameters after seeing
+**Status:** illustrative method demonstration (review package), **not** an
+independently verified empirical validation. Johann-OK required before any
+"core" promotion. A `model_beats_baseline: false` result is a **valid
+complete** outcome — do not retune the split or parameters after seeing
 holdout.
+
+**Data provenance (added 2026-09-20, AUDIT_ROADMAP.md item 1 / A01):** the
+per-epoch table in `data/cygnus_x1_radio_epochs.yaml` is **unverified**.
+Only 4 aggregate values are confirmed from Prabu et al. 2026 (initial/final
+jet position angle, 18-year observation baseline) — see the sibling
+package `GenesisAeon/cygnus-jet-utac`'s `data/prabu2026_measurements.yaml`.
+No source for the 18 individually dated epochs (per-row MJD, PA, flux) was
+found, and the declared `year`/`mjd` fields diverge by a systematically
+growing amount (0 days in 2007 up to ~90 days by 2020) — consistent with
+AI interpolation to the 4 real aggregate numbers, not archival
+transcription. The RMSE numbers below are a correct, reproducible
+calculation on that data; they are not evidence of real-world predictive
+skill until a genuine per-epoch source is confirmed.
 
 ## Mapping to ROADMAP.md §3
 

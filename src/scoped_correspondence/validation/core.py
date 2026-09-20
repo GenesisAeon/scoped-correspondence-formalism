@@ -1,5 +1,20 @@
 """Cygnus X-1 jet PA validation pilot (Milestone 6).
 
+DATA PROVENANCE (added 2026-09-20, see AUDIT_ROADMAP.md item 1 / A01):
+the per-epoch granularity in ``data/cygnus_x1_radio_epochs.yaml`` (18 rows
+with individual MJD/PA/flux values) is UNVERIFIED. The sibling package
+``GenesisAeon/cygnus-jet-utac`` (from which this file was copied 1:1) adds
+the same table in a single commit authored by an AI assistant, alongside a
+companion file that only confirms 4 AGGREGATE values from Prabu et al.
+(2026): initial/final jet position angle and an 18-year observation
+baseline. No source for 18 individually dated epochs was found, and their
+declared MJD/year fields diverge by a systematically growing amount (0 to
+~90 days by 2020) -- consistent with AI interpolation to the 4 real
+aggregate numbers, not archival transcription. This pilot is therefore an
+**illustrative method demonstration**, not an independently verified
+empirical validation, until a real per-epoch source is confirmed. See
+``DATA_PROVENANCE_WARNING`` below.
+
 Protocol (immutable before any fit — Johann-fixed):
   - Macro: jet_pa_deg only
   - Split: calib = indices 0..8 (2006.2–2015.2), holdout = 9..17 (2016.1–2023.8)
@@ -48,6 +63,19 @@ SOURCE_RELATIVE = "data/cygnus_x1_radio_epochs.yaml"
 SOURCE_PACKAGE = "GenesisAeon/cygnus-jet-utac"
 # Macro unit is degrees (position angle). Declared search domain for pa_eq.
 
+# Verbatim mandatory warning — must appear in the manifest notes, the verify
+# script's report, and docs/cygnus_pilot.md (AUDIT_ROADMAP.md item 1 / A01,
+# resolved 2026-09-20: relabel as unverified rather than delete or silently
+# "correct" data with no recoverable ground truth).
+DATA_PROVENANCE_WARNING: str = (
+    "UNVERIFIED per-epoch data: only 4 aggregate values (initial/final jet "
+    "position angle, 18-year baseline) are confirmed from Prabu et al. "
+    "2026; the 18 individually dated epochs here have no confirmed "
+    "archival source and show a growing MJD/year inconsistency consistent "
+    "with AI interpolation. Treat this pilot as an illustrative method "
+    "demonstration, not an independently verified empirical validation."
+)
+
 
 @dataclass(frozen=True)
 class Epoch:
@@ -74,9 +102,11 @@ class DatasetManifest:
     holdout_indices: Tuple[int, ...]
     exclusions: Tuple[str, ...] = ()
     license_note: str = (
-        "Literature-compiled VLBI epochs; cite Stirling 2001, Rushton 2011, "
-        "Miller-Jones 2021, Prabu 2026 as in YAML header. Copied 1:1 from "
-        "cygnus-jet-utac; numbers not invented."
+        "Cite Stirling 2001, Rushton 2011, Miller-Jones 2021, Prabu 2026 as "
+        "in YAML header. Copied 1:1 from cygnus-jet-utac. UNVERIFIED: only "
+        "4 aggregate Prabu-2026 values are confirmed; the 18 individual "
+        "epoch dates/PA/flux values have no confirmed archival source — "
+        "see DATA_PROVENANCE_WARNING / AUDIT_ROADMAP.md item 1."
     )
     circularity_note: str = (
         "Do NOT reuse cygnus-jet-utac σ / Γ_jet / efficiency. Free parameters "
@@ -448,6 +478,7 @@ def run_cygnus_pilot(
         baseline_value=base,
         n_holdout=len(holdout),
         notes=(
+            DATA_PROVENANCE_WARNING,
             manifest.circularity_note,
             "False model_beats_baseline is a VALID complete result — no retune.",
             "fit_relaxation_pa receives only calib epochs; holdout used solely for RMSE.",
@@ -461,6 +492,7 @@ def run_cygnus_pilot(
 __all__ = [
     "CALIB_INDICES",
     "HOLDOUT_INDICES",
+    "DATA_PROVENANCE_WARNING",
     "DatasetManifest",
     "Epoch",
     "FittedRelaxation",
