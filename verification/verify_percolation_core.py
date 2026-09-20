@@ -206,8 +206,11 @@ def check_warnings_verbatim():
     require(
         kin
         == (
-            "Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually "
-            "called 'threshold' — NO mathematical kinship; different objects."
+            "Percolation and cusp dynamics involve distinct objects and parameter "
+            "meanings. No identity of their thresholds or transfer of numerical "
+            "values is asserted. A comparison of local fixed-point or bifurcation "
+            "structures requires a separately stated scope, construction, and "
+            "derivation."
         ),
         "THRESHOLD_KINSHIP_WARNING must match verbatim acceptance string",
     )
@@ -229,8 +232,13 @@ def check_warnings_verbatim():
         percolation_probability,
     ):
         doc = inspect.getdoc(fn) or ""
+        # kin itself has no embedded newlines (it's built by implicit string
+        # concatenation), while the wrapped docstring copy does -- so `kin
+        # in doc` can never match a line-wrapped docstring. Anchor on a
+        # short phrase that fits on a single wrapped line instead (same
+        # defensive pattern the original check used).
         require(
-            "NO mathematical kinship" in doc or kin in doc,
+            "No identity of their thresholds" in doc,
             f"{fn.__name__} docstring must carry threshold-kinship warning",
         )
 
@@ -310,9 +318,10 @@ def main(argv=None):
         "disclaimer": (
             "Exact Bethe-tree / branching-process formulas only. "
             "No Monte-Carlo on Z^2; no Union-Find / Newman-Ziff. "
-            "Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH "
-            "casually called 'threshold' — NO mathematical kinship; different "
-            "objects. Values near 1/16 are coincidence vs discarded README "
+            "Percolation and cusp dynamics involve distinct objects and "
+            "parameter meanings; no identity of their thresholds or transfer "
+            "of numerical values is asserted (docs/structural_relations.md, "
+            "bridge B6). Values near 1/16 are coincidence vs discarded README "
             "'1/16'. Does not mutate dynamics/, membership/, package-root "
             "__init__.py, or FORMALISM.md."
         ),

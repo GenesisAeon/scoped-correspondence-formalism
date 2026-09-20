@@ -19,7 +19,7 @@ applicable inside ``A`` (reactants ⊆ ``A``), (2) ``v_r = 0`` otherwise, and
 **Organization** (``is_organization``): both of the above.
 
 WARNING — Autopoiesis / naming / word collisions (verbatim):
-This Baustein does NOT fully formalize Autopoiesis; name chemical_organization not autopoiesis; word collisions with closure Baustein (PC=CQ) AND M27 FCA lattice — same words different objects, no shared base class.
+This Baustein does NOT fully formalize Autopoiesis; name chemical_organization not autopoiesis. Reaction closure, formal-concept closure, and Markovian closure have different semantics. This does not rule out structural relations between selected constructions (see docs/structural_relations.md, bridge B1). Such relations must specify the objects, maps, preserved properties, and limitations; they do not imply shared physical meaning or require shared implementation inheritance.
 
 Hard naming rule (identifiers): no function/class/attribute name may contain
 ``closure`` or ``closed``, except the mandated API name ``is_reaction_closed``.
@@ -59,11 +59,24 @@ Species = Hashable
 Reaction = Tuple[AbstractSet[Species], AbstractSet[Species]]  # (reactants, products)
 
 # Verbatim mandatory disclaimer — must appear in module/API docstrings AND docs.
+# Reworded per SCF_Strukturelle_Bruecken_Konzept.md (2026-09-20, reviewed and
+# hand-verified independently): the original "same words different objects,
+# no shared base class" phrasing correctly denied an unearned identity, but
+# also pre-emptively denied any possible structural comparison, foreclosing
+# the genuine closure-operator kinship between reaction closure and Formal
+# Concept Analysis double-derivation (both extensive, monotone, idempotent —
+# see docs/structural_relations.md, bridge B1). The reworded text keeps the
+# non-identity/no-shared-implementation denial while explicitly not ruling
+# out a separately-specified structural relation.
 AUTOPOIESIS_SCOPE_WARNING: str = (
     "This Baustein does NOT fully formalize Autopoiesis; name "
-    "chemical_organization not autopoiesis; word collisions with closure "
-    "Baustein (PC=CQ) AND M27 FCA lattice — same words different objects, "
-    "no shared base class."
+    "chemical_organization not autopoiesis. Reaction closure, formal-concept "
+    "closure, and Markovian closure have different semantics. This does not "
+    "rule out structural relations between selected constructions (see "
+    "docs/structural_relations.md, bridge B1). Such relations must specify "
+    "the objects, maps, preserved properties, and limitations; they do not "
+    "imply shared physical meaning or require shared implementation "
+    "inheritance."
 )
 
 SOURCE: str = (
@@ -170,9 +183,13 @@ def is_reaction_closed(
     Notes
     -----
     This Baustein does NOT fully formalize Autopoiesis; name
-    chemical_organization not autopoiesis; word collisions with closure
-    Baustein (PC=CQ) AND M27 FCA lattice — same words different objects,
-    no shared base class.
+    chemical_organization not autopoiesis. Reaction closure, formal-concept
+    closure, and Markovian closure have different semantics. This does not
+    rule out structural relations between selected constructions (see
+    docs/structural_relations.md, bridge B1). Such relations must specify
+    the objects, maps, preserved properties, and limitations; they do not
+    imply shared physical meaning or require shared implementation
+    inheritance.
     """
     species = _as_species_set(A)
     rxns = _normalize_reactions(reactions)
@@ -207,9 +224,13 @@ def maintenance_flux(
     Notes
     -----
     This Baustein does NOT fully formalize Autopoiesis; name
-    chemical_organization not autopoiesis; word collisions with closure
-    Baustein (PC=CQ) AND M27 FCA lattice — same words different objects,
-    no shared base class.
+    chemical_organization not autopoiesis. Reaction closure, formal-concept
+    closure, and Markovian closure have different semantics. This does not
+    rule out structural relations between selected constructions (see
+    docs/structural_relations.md, bridge B1). Such relations must specify
+    the objects, maps, preserved properties, and limitations; they do not
+    imply shared physical meaning or require shared implementation
+    inheritance.
     """
     species = _as_species_set(A)
     rxns = _normalize_reactions(reactions)
@@ -296,9 +317,13 @@ def is_self_maintaining(
     Notes
     -----
     This Baustein does NOT fully formalize Autopoiesis; name
-    chemical_organization not autopoiesis; word collisions with closure
-    Baustein (PC=CQ) AND M27 FCA lattice — same words different objects,
-    no shared base class.
+    chemical_organization not autopoiesis. Reaction closure, formal-concept
+    closure, and Markovian closure have different semantics. This does not
+    rule out structural relations between selected constructions (see
+    docs/structural_relations.md, bridge B1). Such relations must specify
+    the objects, maps, preserved properties, and limitations; they do not
+    imply shared physical meaning or require shared implementation
+    inheritance.
     """
     return maintenance_flux(A, reactions, stoich_matrix, species_order=species_order) is not None
 
@@ -318,9 +343,13 @@ def is_organization(
     Notes
     -----
     This Baustein does NOT fully formalize Autopoiesis; name
-    chemical_organization not autopoiesis; word collisions with closure
-    Baustein (PC=CQ) AND M27 FCA lattice — same words different objects,
-    no shared base class.
+    chemical_organization not autopoiesis. Reaction closure, formal-concept
+    closure, and Markovian closure have different semantics. This does not
+    rule out structural relations between selected constructions (see
+    docs/structural_relations.md, bridge B1). Such relations must specify
+    the objects, maps, preserved properties, and limitations; they do not
+    imply shared physical meaning or require shared implementation
+    inheritance.
     """
     if not is_reaction_closed(A, reactions):
         return False

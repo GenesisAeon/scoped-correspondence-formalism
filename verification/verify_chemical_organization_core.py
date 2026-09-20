@@ -251,9 +251,13 @@ def check_warning_verbatim():
     warn = AUTOPOIESIS_SCOPE_WARNING
     expected = (
         "This Baustein does NOT fully formalize Autopoiesis; name "
-        "chemical_organization not autopoiesis; word collisions with closure "
-        "Baustein (PC=CQ) AND M27 FCA lattice — same words different objects, "
-        "no shared base class."
+        "chemical_organization not autopoiesis. Reaction closure, formal-concept "
+        "closure, and Markovian closure have different semantics. This does not "
+        "rule out structural relations between selected constructions (see "
+        "docs/structural_relations.md, bridge B1). Such relations must specify "
+        "the objects, maps, preserved properties, and limitations; they do not "
+        "imply shared physical meaning or require shared implementation "
+        "inheritance."
     )
     require(warn == expected, "AUTOPOIESIS_SCOPE_WARNING must match verbatim")
 
@@ -278,7 +282,10 @@ def check_warning_verbatim():
     docs_text = docs_path.read_text(encoding="utf-8")
     require(warn in docs_text, "docs must contain AUTOPOIESIS_SCOPE_WARNING verbatim")
     require("chemical_organization not autopoiesis" in docs_text, "docs naming fence")
-    require("PC=CQ" in docs_text and "M27" in docs_text, "docs word-collision fence")
+    require(
+        "formal-concept closure" in docs_text and "structural_relations.md" in docs_text,
+        "docs must reference the reworded structural-relations bridge note",
+    )
 
     require("10.1007/s11538-006-9130-8" in SOURCE, "Dittrich DOI")
     require("10.1007/BF02458289" in SOURCE, "Fontana DOI")

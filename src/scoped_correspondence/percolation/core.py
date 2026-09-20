@@ -28,7 +28,7 @@ Percolation (survival) probability:
     θ = 1 - Q*
 
 WARNING — threshold kinship (verbatim):
-Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually called 'threshold' — NO mathematical kinship; different objects.
+Percolation and cusp dynamics involve distinct objects and parameter meanings. No identity of their thresholds or transfer of numerical values is asserted. A comparison of local fixed-point or bifurcation structures requires a separately stated scope, construction, and derivation.
 
 WARNING — discarded README 1/16:
 If any computed value lands near 1/16, mark explicitly as coincidence vs the
@@ -55,9 +55,20 @@ from scoped_correspondence.errors import ScopeViolationError
 Number = Union[int, float]
 
 # Verbatim mandatory warning — must appear in module/API docstrings AND docs.
+# Reworded per SCF_Strukturelle_Bruecken_Konzept.md (2026-09-20, reviewed and
+# hand-verified independently): the original "NO mathematical kinship"
+# phrasing denied an unearned IDENTITY of the two thresholds correctly, but
+# overshot into denying any possible structural comparison whatsoever —
+# a universal negative this repo cannot actually establish. The reworded
+# text keeps the identity denial and explicitly leaves room for a
+# separately-scoped, separately-derived structural comparison (see
+# docs/structural_relations.md, bridge B6) without asserting one here.
 THRESHOLD_KINSHIP_WARNING: str = (
-    "Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually "
-    "called 'threshold' — NO mathematical kinship; different objects."
+    "Percolation and cusp dynamics involve distinct objects and parameter "
+    "meanings. No identity of their thresholds or transfer of numerical "
+    "values is asserted. A comparison of local fixed-point or bifurcation "
+    "structures requires a separately stated scope, construction, and "
+    "derivation."
 )
 
 # Verbatim mandatory coincidence fence vs discarded README universal 1/16.
@@ -111,8 +122,11 @@ def critical_probability_tree(m: Number) -> float:
 
     Notes
     -----
-    Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually
-    called 'threshold' — NO mathematical kinship; different objects.
+    Percolation and cusp dynamics involve distinct objects and parameter
+    meanings. No identity of their thresholds or transfer of numerical
+    values is asserted. A comparison of local fixed-point or bifurcation
+    structures requires a separately stated scope, construction, and
+    derivation.
 
     If ``p_c`` lands near ``1/16`` (e.g. ``m = 16``), that is coincidence vs
     the discarded README '1/16' value — do not identify them.
@@ -177,8 +191,11 @@ def extinction_probability(
     -----
     Start value: ``Q0 = 0`` (``EXTINCTION_Q0``).
 
-    Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually
-    called 'threshold' — NO mathematical kinship; different objects.
+    Percolation and cusp dynamics involve distinct objects and parameter
+    meanings. No identity of their thresholds or transfer of numerical
+    values is asserted. A comparison of local fixed-point or bifurcation
+    structures requires a separately stated scope, construction, and
+    derivation.
 
     If any of ``Q*``, ``p``, or related values land near ``1/16``, mark as
     coincidence vs the discarded README '1/16' value.
@@ -303,8 +320,11 @@ def percolation_probability(p: Number, m: Number) -> float:
 
     Notes
     -----
-    Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually
-    called 'threshold' — NO mathematical kinship; different objects.
+    Percolation and cusp dynamics involve distinct objects and parameter
+    meanings. No identity of their thresholds or transfer of numerical
+    values is asserted. A comparison of local fixed-point or bifurcation
+    structures requires a separately stated scope, construction, and
+    derivation.
     """
     q_star, _iters, residual = extinction_probability(p, m)
     # Audit finding A05: this convenience wrapper used to discard iters/

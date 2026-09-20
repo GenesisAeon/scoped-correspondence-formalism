@@ -1,0 +1,161 @@
+{
+  "count": 2,
+  "errors": [],
+  "failed": 0,
+  "passed": 2,
+  "report": {
+    "checks": {
+      "B1_reaction_closure_FCA_representation": {
+        "detail": {
+          "arbitrary_context_counterexample": {
+            "differ": true,
+            "fca_closure_on_identity_context": [
+              0
+            ],
+            "input": [
+              0
+            ],
+            "true_reaction_hull": [
+              0,
+              1,
+              2
+            ]
+          },
+          "closed_sets": [
+            [],
+            [
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              0,
+              1,
+              2
+            ]
+          ],
+          "closure_axioms_checked": [
+            "extensive",
+            "monotone",
+            "idempotent"
+          ],
+          "constructed_context_matrix": [
+            [
+              0,
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              1,
+              1,
+              1
+            ]
+          ],
+          "reactions": "0->1, 1->2",
+          "species": [
+            0,
+            1,
+            2
+          ],
+          "subsets_checked": 8
+        },
+        "status": "passed"
+      },
+      "B2_markov_operator_intertwining": {
+        "detail": {
+          "C": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "P": [
+            [
+              0.4,
+              0.3,
+              0.2,
+              0.1
+            ],
+            [
+              0.1,
+              0.6,
+              0.15,
+              0.15
+            ],
+            [
+              0.2,
+              0.2,
+              0.3,
+              0.3
+            ],
+            [
+              0.3,
+              0.1,
+              0.1,
+              0.5
+            ]
+          ],
+          "PC_CQ_residual": 5.551115123125783e-17,
+          "Q": [
+            [
+              0.7,
+              0.3
+            ],
+            [
+              0.4,
+              0.6
+            ]
+          ],
+          "is_exact_closure": true,
+          "nonlumpable_counterexample": {
+            "is_exact_closure_after_perturbation": false,
+            "perturbed_entries": {
+              "P_bad[0,0]": 0.35000000000000003,
+              "P_bad[0,2]": 0.25
+            },
+            "row_wise_macro_difference": 0.04999999999999999
+          },
+          "observable_basis_checked": true,
+          "powers_checked": [
+            0,
+            1,
+            2,
+            5,
+            10
+          ]
+        },
+        "status": "passed"
+      }
+    },
+    "concept_origin": "prompts/Answers/SCF_Strukturelle_Bruecken_Konzept.md",
+    "disclaimer": "Two pilot bridges only (B1, B2); B3-B6 and the follow-on research program are deferred (see docs/structural_relations.md section 6). Uses only existing repo APIs; no new production module; does not mutate chemical_organization/, membership/, or closure/.",
+    "numpy": "2.2.6",
+    "package": "AUDIT_ROADMAP.md items 9-10 (structural relations language + schema)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source_document": "docs/structural_relations.md",
+    "timestamp": "2026-09-20T18:09:04+02:00"
+  }
+}

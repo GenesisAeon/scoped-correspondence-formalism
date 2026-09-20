@@ -25,7 +25,7 @@ other Bausteine, package-root `__init__.py`, or `FORMALISM.md`.
 ## Mandatory warnings (verbatim)
 
 **WARNING — threshold kinship:**
-Percolation p_c and dynamics cusp threshold (4a³>27b²) are BOTH casually called 'threshold' — NO mathematical kinship; different objects.
+Percolation and cusp dynamics involve distinct objects and parameter meanings. No identity of their thresholds or transfer of numerical values is asserted. A comparison of local fixed-point or bifurcation structures requires a separately stated scope, construction, and derivation.
 
 **WARNING — discarded README 1/16:**
 If any computed value lands near 1/16, mark explicitly as coincidence vs the discarded README '1/16' value — do not leave uncommented.

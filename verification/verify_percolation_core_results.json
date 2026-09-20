@@ -31,41 +31,41 @@
       "m2_p06_algebraic_and_numeric": {
         "detail": {
           "Q0": 0.0,
-          "Q_star_abs_diff": 3.696154493582071e-12,
+          "Q_star_abs_diff": 3.3306690738754696e-16,
           "Q_star_algebraic": 0.4444444444444444,
-          "Q_star_numeric": 0.44444444444074827,
+          "Q_star_numeric": 0.44444444444444475,
           "abs_diff_lt_1e9": true,
           "iters": 111,
           "m": 2,
           "p": 0.6,
           "physical_root": 0.4444444444444444,
           "quadratic": "9Q^2 - 13Q + 4 = 0",
-          "residual": 7.392420009466605e-13,
+          "residual": 5.551115123125783e-17,
           "roots": [
             1.0,
             0.4444444444444444
           ],
-          "theta_abs_diff": 3.696154493582071e-12,
+          "theta_abs_diff": 3.3306690738754696e-16,
           "theta_algebraic": 0.5555555555555556,
-          "theta_numeric": 0.5555555555592517
+          "theta_numeric": 0.5555555555555552
         },
         "status": "passed"
       },
       "m2_p08_illustrative": {
         "detail": {
-          "Q_star": 0.06249999999961815,
+          "Q_star": 0.062499999999999965,
           "Q_star_closed_m2": 0.06249999999999997,
           "Q_star_equals_one_sixteenth": true,
           "coincidence_notes": [
-            "Q_star=0.06249999999961815 is near 1/16: WARNING: computed value near 1/16 is coincidence vs the discarded README '1/16' value \u2014 do not identify them."
+            "Q_star=0.062499999999999965 is near 1/16: WARNING: computed value near 1/16 is coincidence vs the discarded README '1/16' value \u2014 do not identify them."
           ],
           "illustrative_span": true,
           "iters": 28,
           "m": 2,
           "one_sixteenth_coincidence_warning": "WARNING: computed value near 1/16 is coincidence vs the discarded README '1/16' value \u2014 do not identify them.",
           "p": 0.8,
-          "residual": 2.2908064334359324e-13,
-          "theta": 0.9375000000003818,
+          "residual": 6.938893903907228e-18,
+          "theta": 0.9375,
           "theta_algebraic": 0.9375
         },
         "status": "passed"
@@ -83,19 +83,19 @@
           "one_sixteenth_coincidence_warning": "WARNING: computed value near 1/16 is coincidence vs the discarded README '1/16' value \u2014 do not identify them.",
           "p_c_m16": 0.0625,
           "p_c_m16_is_one_sixteenth": true,
-          "threshold_kinship_warning": "Percolation p_c and dynamics cusp threshold (4a\u00b3>27b\u00b2) are BOTH casually called 'threshold' \u2014 NO mathematical kinship; different objects."
+          "threshold_kinship_warning": "Percolation and cusp dynamics involve distinct objects and parameter meanings. No identity of their thresholds or transfer of numerical values is asserted. A comparison of local fixed-point or bifurcation structures requires a separately stated scope, construction, and derivation."
         },
         "status": "passed"
       }
     },
-    "disclaimer": "Exact Bethe-tree / branching-process formulas only. No Monte-Carlo on Z^2; no Union-Find / Newman-Ziff. Percolation p_c and dynamics cusp threshold (4a\u00b3>27b\u00b2) are BOTH casually called 'threshold' \u2014 NO mathematical kinship; different objects. Values near 1/16 are coincidence vs discarded README '1/16'. Does not mutate dynamics/, membership/, package-root __init__.py, or FORMALISM.md.",
+    "disclaimer": "Exact Bethe-tree / branching-process formulas only. No Monte-Carlo on Z^2; no Union-Find / Newman-Ziff. Percolation and cusp dynamics involve distinct objects and parameter meanings; no identity of their thresholds or transfer of numerical values is asserted (docs/structural_relations.md, bridge B6). Values near 1/16 are coincidence vs discarded README '1/16'. Does not mutate dynamics/, membership/, package-root __init__.py, or FORMALISM.md.",
     "milestone": "M32 Percolation / Kesten / Bethe-tree Branching",
     "one_sixteenth_coincidence_warning": "WARNING: computed value near 1/16 is coincidence vs the discarded README '1/16' value \u2014 do not identify them.",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source": "Fisher & Essam 1961 DOI 10.1063/1.1703745; Kesten 1980 DOI 10.1007/BF01197577",
-    "threshold_kinship_warning": "Percolation p_c and dynamics cusp threshold (4a\u00b3>27b\u00b2) are BOTH casually called 'threshold' \u2014 NO mathematical kinship; different objects.",
-    "timestamp": "2026-09-19T17:37:58+02:00",
+    "threshold_kinship_warning": "Percolation and cusp dynamics involve distinct objects and parameter meanings. No identity of their thresholds or transfer of numerical values is asserted. A comparison of local fixed-point or bifurcation structures requires a separately stated scope, construction, and derivation.",
+    "timestamp": "2026-09-20T18:08:57+02:00",
     "untouched": [
       "src/scoped_correspondence/dynamics/",
       "src/scoped_correspondence/membership/",

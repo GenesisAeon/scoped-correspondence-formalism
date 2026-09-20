@@ -23,7 +23,7 @@ Bausteine, package-root `__init__.py`, or `FORMALISM.md`.
 ## Mandatory disclaimer (verbatim)
 
 **WARNING — Autopoiesis / naming / word collisions:**
-This Baustein does NOT fully formalize Autopoiesis; name chemical_organization not autopoiesis; word collisions with closure Baustein (PC=CQ) AND M27 FCA lattice — same words different objects, no shared base class.
+This Baustein does NOT fully formalize Autopoiesis; name chemical_organization not autopoiesis. Reaction closure, formal-concept closure, and Markovian closure have different semantics. This does not rule out structural relations between selected constructions (see docs/structural_relations.md, bridge B1). Such relations must specify the objects, maps, preserved properties, and limitations; they do not imply shared physical meaning or require shared implementation inheritance.
 
 Hard naming rule: no function/class/attribute identifier may contain
 `closure` or `closed`, except the mandated API name `is_reaction_closed`.
