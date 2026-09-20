@@ -76,8 +76,8 @@ this whole window is pulled toward a weak net rate (`r=0.0074/day`,
 implausibly slow for an unmitigated outbreak) by averaging across a
 genuine regime change. The holdout window (2020-03-12 to 2020-03-25) then
 shows the real, much faster global acceleration
-(`cases_7day_avg` rises from 5033 to 37021, roughly doubling every ~3.6
-days) that the diluted fit badly underestimates — so the flat persistence
+(`cases_7day_avg` rises from 5033 to 37021, a factor of 7.4 over 13 days,
+i.e. roughly doubling every ~4.5 days) that the diluted fit badly underestimates — so the flat persistence
 baseline, despite being a naive constant, tracks the holdout's early
 values more closely on RMSE than the model's near-flat, too-low
 prediction curve does.
