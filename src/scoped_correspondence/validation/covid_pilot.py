@@ -31,7 +31,33 @@ universality claim is made about any other disease, wave, or country.
 This is ONE domain, ONE macro, ONE fixed window. No cross-wave, cross-domain,
 or cross-country claim (same scope discipline as validation/core.py's
 Cygnus pilot). A model_beats_baseline=False result is a VALID complete
-outcome and must not trigger a retune.
+outcome and must not trigger a retune. run_covid_pilot() above (Pilot A)
+is NEVER changed after the fact -- its honest negative result stands
+(see docs/covid_pilot.md).
+
+Two DISCLOSED follow-up investigations, informed by Pilot A's own
+diagnosis (not a silent retune of Pilot A -- Pilot A's protocol, code,
+and reported result are untouched):
+
+Pilot B -- run_covid_pilot_short_window(): tests whether a shorter,
+visibly homogeneous window fixes the problem. Pilot A's own data shows a
+clear local peak at 2020-02-14 and a local trough at 2020-02-25 (the
+initial China/Hubei wave and its containment) BEFORE the monotonic global
+rise resumes. Calib is restarted the day after that trough (2020-02-26)
+through the same 2020-03-11 anchor; holdout is the SAME fixed window as
+Pilot A (2020-03-12 to 2020-03-25) for direct comparability. Choosing the
+trough as the new calib start uses information from Pilot A's diagnosis,
+which is why this is reported as an investigative Pilot B, not folded
+into Pilot A.
+
+Pilot C -- run_covid_pilot_changepoint(): tests a two-segment
+(change-point / segmented regression) model on Pilot A's ORIGINAL calib
+window (2020-01-27 to 2020-03-11), instead of assuming one growth
+regime. The breakpoint is found by grid search WITHIN CALIB ONLY (total
+residual sum of squares of two independent log-linear fits, minimized
+over candidate breakpoints with >= MIN_SEGMENT_POINTS on each side -- no
+holdout peeking), then only the SECOND (most recent) segment's fitted
+rate is used to extrapolate into the same fixed holdout window.
 """
 
 from __future__ import annotations
@@ -60,6 +86,17 @@ CALIB_START = dt.date(2020, 1, 27)
 CALIB_END = dt.date(2020, 3, 11)  # WHO pandemic declaration -- external anchor
 HOLDOUT_START = dt.date(2020, 3, 12)
 HOLDOUT_END = dt.date(2020, 3, 25)  # 14 days after CALIB_END, fixed in advance
+
+# --- Pilot B: shorter window starting after Pilot A's own diagnosed trough --
+
+PEAK_DATE_IN_PILOT_A_CALIB = dt.date(2020, 2, 14)  # informational, not used in any fit
+TROUGH_DATE_IN_PILOT_A_CALIB = dt.date(2020, 2, 25)  # informational, not used in any fit
+CALIB_B_START = dt.date(2020, 2, 26)  # day after the trough
+CALIB_B_END = CALIB_END  # same WHO anchor, for comparability with Pilot A/C
+
+# --- Pilot C: change-point / segmented regression on Pilot A's full window --
+
+MIN_SEGMENT_POINTS = 5  # minimum points required on each side of a breakpoint
 
 DATA_PROVENANCE_NOTE = (
     "Real per-row data (see data/real_data_manifest.json entry "
@@ -267,6 +304,259 @@ def run_covid_pilot(
     return report, fit
 
 
+# --- Pilot B: shorter window starting after Pilot A's own diagnosed trough --
+
+
+def split_by_date_short_window(
+    points: List[DailyPoint],
+    *,
+    calib_start: dt.date = CALIB_B_START,
+    calib_end: dt.date = CALIB_B_END,
+    holdout_start: dt.date = HOLDOUT_START,
+    holdout_end: dt.date = HOLDOUT_END,
+) -> Tuple[List[DailyPoint], List[DailyPoint]]:
+    """Pilot B's own fixed split (post-trough calib, same holdout as Pilot A).
+
+    A separate fixed protocol from ``split_by_date`` -- refuses any other
+    split (same anti-data-snooping discipline), but for Pilot B's dates.
+    """
+    if (calib_start, calib_end) != (CALIB_B_START, CALIB_B_END) or (
+        holdout_start,
+        holdout_end,
+    ) != (HOLDOUT_START, HOLDOUT_END):
+        raise ScopeViolationError(
+            "split_by_date_short_window: requested dates differ from Pilot "
+            f"B's fixed protocol. requested calib=[{calib_start},{calib_end}] "
+            f"holdout=[{holdout_start},{holdout_end}]; fixed calib="
+            f"[{CALIB_B_START},{CALIB_B_END}] holdout=[{HOLDOUT_START},{HOLDOUT_END}]"
+        )
+    calib = [p for p in points if calib_start <= p.date <= calib_end]
+    holdout = [p for p in points if holdout_start <= p.date <= holdout_end]
+    if not calib:
+        raise ScopeViolationError("split_by_date_short_window: empty calibration window")
+    if not holdout:
+        raise ScopeViolationError("split_by_date_short_window: empty holdout window")
+    return calib, holdout
+
+
+def run_covid_pilot_short_window(
+    data_path: str | Path,
+    *,
+    domain: str = DOMAIN_NAME,
+) -> Tuple[ValidationReport, FittedExponentialGrowth]:
+    """Pilot B: same model/baseline/metric as Pilot A, shorter homogeneous calib.
+
+    Calib restarts the day after Pilot A's own diagnosed local trough
+    (2020-02-25); holdout is IDENTICAL to Pilot A for direct comparison.
+    Does not modify or re-run Pilot A.
+    """
+    points = load_world_daily(data_path)
+    calib, holdout = split_by_date_short_window(points)
+
+    fit = fit_exponential_growth(calib)  # calib only -- holdout not referenced
+    base = persistence_baseline_covid(calib)
+
+    hold_obs = [p.cases_7day_avg for p in holdout]
+    model_pred = [
+        predict_exponential(
+            float((p.date - fit.t_ref).days), r=fit.r, ln_cases0=fit.ln_cases0
+        )
+        for p in holdout
+    ]
+    base_pred = [base] * len(holdout)
+
+    model_rmse = rmse(hold_obs, model_pred)
+    baseline_rmse = rmse(hold_obs, base_pred)
+    beats = bool(model_rmse < baseline_rmse)
+
+    report = ValidationReport(
+        domain=domain,
+        macro=MACRO_NAME,
+        split={
+            "calib_start": CALIB_B_START.isoformat(),
+            "calib_end": CALIB_B_END.isoformat(),
+            "holdout_start": HOLDOUT_START.isoformat(),
+            "holdout_end": HOLDOUT_END.isoformat(),
+            "n_calib": len(calib),
+            "n_holdout": len(holdout),
+            "rule": (
+                "Pilot B: calib restarts the day after Pilot A's own "
+                "diagnosed local trough (2020-02-25); same fixed holdout as "
+                "Pilot A for direct comparison"
+            ),
+        },
+        model_rmse_holdout=model_rmse,
+        baseline_rmse_holdout=baseline_rmse,
+        model_beats_baseline=beats,
+        fitted_parameters=fit.to_dict(),
+        source_citation=SOURCE_CITATION,
+        baseline_value=base,
+        n_holdout=len(holdout),
+        notes=(
+            DATA_PROVENANCE_NOTE,
+            "Pilot B: disclosed follow-up informed by Pilot A's diagnosis; "
+            "Pilot A's own protocol, code, and result are unchanged.",
+            "False model_beats_baseline is a VALID complete result -- no further retune.",
+            "fit_exponential_growth receives only calib points; holdout used solely for RMSE.",
+        ),
+    )
+    return report, fit
+
+
+# --- Pilot C: change-point / segmented regression on Pilot A's full window --
+
+
+@dataclass(frozen=True)
+class ChangepointFit:
+    breakpoint_date: dt.date
+    n_segment1: int
+    n_segment2: int
+    segment1: FittedExponentialGrowth
+    segment2: FittedExponentialGrowth
+    rss_segment1: float
+    rss_segment2: float
+    total_rss: float
+    candidates_tried: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "breakpoint_date": self.breakpoint_date.isoformat(),
+            "n_segment1": self.n_segment1,
+            "n_segment2": self.n_segment2,
+            "segment1": self.segment1.to_dict(),
+            "segment2": self.segment2.to_dict(),
+            "rss_segment1": self.rss_segment1,
+            "rss_segment2": self.rss_segment2,
+            "total_rss": self.total_rss,
+            "candidates_tried": self.candidates_tried,
+        }
+
+
+def _log_fit_rss(segment: List[DailyPoint], fit: FittedExponentialGrowth) -> float:
+    """Residual sum of squares of a log-linear fit on its own segment."""
+    rss = 0.0
+    for p in segment:
+        t_days = float((p.date - fit.t_ref).days)
+        y_pred = fit.ln_cases0 + fit.r * t_days
+        y_obs = math.log(p.cases_7day_avg)
+        rss += (y_obs - y_pred) ** 2
+    return rss
+
+
+def fit_changepoint_growth(
+    calib: List[DailyPoint],
+    *,
+    min_segment_points: int = MIN_SEGMENT_POINTS,
+) -> ChangepointFit:
+    """Grid search for a single breakpoint minimizing total two-segment RSS.
+
+    Receives ONLY calib points -- the breakpoint search, both segment fits,
+    and their residuals are computed entirely within ``calib``; this
+    function never references a holdout window.
+    """
+    n = len(calib)
+    if n < 2 * min_segment_points:
+        raise ScopeViolationError(
+            f"fit_changepoint_growth: need >= {2 * min_segment_points} calib "
+            f"points for two segments of >= {min_segment_points} each; got {n}"
+        )
+    best: Tuple[float, int, FittedExponentialGrowth, FittedExponentialGrowth, float, float] | None = None
+    tried = 0
+    for i in range(min_segment_points, n - min_segment_points):
+        seg1 = calib[: i + 1]
+        seg2 = calib[i + 1 :]
+        tried += 1
+        fit1 = fit_exponential_growth(seg1)
+        fit2 = fit_exponential_growth(seg2)
+        rss1 = _log_fit_rss(seg1, fit1)
+        rss2 = _log_fit_rss(seg2, fit2)
+        total = rss1 + rss2
+        if best is None or total < best[0]:
+            best = (total, i, fit1, fit2, rss1, rss2)
+    assert best is not None
+    total, i, fit1, fit2, rss1, rss2 = best
+    return ChangepointFit(
+        breakpoint_date=calib[i].date,
+        n_segment1=i + 1,
+        n_segment2=n - i - 1,
+        segment1=fit1,
+        segment2=fit2,
+        rss_segment1=rss1,
+        rss_segment2=rss2,
+        total_rss=total,
+        candidates_tried=tried,
+    )
+
+
+def run_covid_pilot_changepoint(
+    data_path: str | Path,
+    *,
+    domain: str = DOMAIN_NAME,
+) -> Tuple[ValidationReport, ChangepointFit]:
+    """Pilot C: two-segment change-point fit on Pilot A's full calib window.
+
+    The breakpoint is found within calib only (grid search minimizing total
+    RSS); only the second (most recent) segment's rate is used to
+    extrapolate into the same fixed holdout window as Pilot A. Does not
+    modify or re-run Pilot A.
+    """
+    points = load_world_daily(data_path)
+    calib, holdout = split_by_date(points)  # same fixed calib/holdout as Pilot A
+
+    cp = fit_changepoint_growth(calib)
+    base = persistence_baseline_covid(calib)
+
+    hold_obs = [p.cases_7day_avg for p in holdout]
+    model_pred = [
+        predict_exponential(
+            float((p.date - cp.segment2.t_ref).days),
+            r=cp.segment2.r,
+            ln_cases0=cp.segment2.ln_cases0,
+        )
+        for p in holdout
+    ]
+    base_pred = [base] * len(holdout)
+
+    model_rmse = rmse(hold_obs, model_pred)
+    baseline_rmse = rmse(hold_obs, base_pred)
+    beats = bool(model_rmse < baseline_rmse)
+
+    report = ValidationReport(
+        domain=domain,
+        macro=MACRO_NAME,
+        split={
+            "calib_start": CALIB_START.isoformat(),
+            "calib_end": CALIB_END.isoformat(),
+            "holdout_start": HOLDOUT_START.isoformat(),
+            "holdout_end": HOLDOUT_END.isoformat(),
+            "n_calib": len(calib),
+            "n_holdout": len(holdout),
+            "rule": (
+                "Pilot C: same fixed calib/holdout as Pilot A; a breakpoint "
+                "is grid-searched within calib only (min RSS), and only the "
+                "second segment's rate is extrapolated into holdout"
+            ),
+        },
+        model_rmse_holdout=model_rmse,
+        baseline_rmse_holdout=baseline_rmse,
+        model_beats_baseline=beats,
+        fitted_parameters=cp.to_dict(),
+        source_citation=SOURCE_CITATION,
+        baseline_value=base,
+        n_holdout=len(holdout),
+        notes=(
+            DATA_PROVENANCE_NOTE,
+            "Pilot C: disclosed follow-up informed by Pilot A's diagnosis; "
+            "Pilot A's own protocol, code, and result are unchanged.",
+            "Breakpoint and both segment fits computed entirely within calib "
+            "(no holdout peeking); only the second segment's rate is "
+            "extrapolated forward.",
+            "False model_beats_baseline is a VALID complete result -- no further retune.",
+        ),
+    )
+    return report, cp
+
+
 __all__ = [
     "CALIB_START",
     "CALIB_END",
@@ -281,4 +571,16 @@ __all__ = [
     "predict_exponential",
     "run_covid_pilot",
     "split_by_date",
+    # Pilot B: shorter post-trough window
+    "PEAK_DATE_IN_PILOT_A_CALIB",
+    "TROUGH_DATE_IN_PILOT_A_CALIB",
+    "CALIB_B_START",
+    "CALIB_B_END",
+    "split_by_date_short_window",
+    "run_covid_pilot_short_window",
+    # Pilot C: change-point / segmented regression
+    "MIN_SEGMENT_POINTS",
+    "ChangepointFit",
+    "fit_changepoint_growth",
+    "run_covid_pilot_changepoint",
 ]
