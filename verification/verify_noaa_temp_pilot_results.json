@@ -1,0 +1,212 @@
+{
+  "milestone": "M6c_noaa_temp_pilot",
+  "kind": "real-data trend pilot on verified per-row data (honesty over beauty)",
+  "generated_at_utc": "2026-09-20T19:59:20.355793+00:00",
+  "python": "3.11.9",
+  "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\noaa_global_temp_anomaly_1880_2025.csv",
+  "data_sha256": "f34a93b449635cb8ffbf180e1cf60f1964ec20cc1283960846cd2b1ae8175afb",
+  "source_citation": "NOAA NCEI Climate at a Glance: Global Time Series; data/real_data_manifest.json entry noaa_global_temp_anomaly_1880_2025",
+  "validation_report": {
+    "domain": "noaa-global-temp-anomaly",
+    "macro": "temp_anomaly_c",
+    "split": {
+      "calib_start_year": 1880,
+      "calib_end_year": 1999,
+      "holdout_start_year": 2000,
+      "holdout_end_year": 2025,
+      "n_calib": 120,
+      "n_holdout": 26,
+      "rule": "calib is the full published 20th century (1880-1999, a round calendar boundary); holdout is 2000 through the last year in the source file -- both fixed before any fit"
+    },
+    "model_rmse_holdout": 0.4604384541211939,
+    "baseline_rmse_holdout": 0.43010732113311867,
+    "model_beats_baseline": false,
+    "fitted_parameters": {
+      "slope_c_per_year": 0.005323703034932983,
+      "intercept_c": -0.3575936639118458,
+      "year_ref": 1880,
+      "n_calib": 120,
+      "note": "fitted_parameters estimated exclusively on calibration years"
+    },
+    "source_citation": "NOAA NCEI Climate at a Glance: Global Time Series; data/real_data_manifest.json entry noaa_global_temp_anomaly_1880_2025",
+    "baseline_value": 0.4,
+    "n_holdout": 26,
+    "notes": [
+      "Real per-row data (see data/real_data_manifest.json entry noaa_global_temp_anomaly_1880_2025); U.S. Government work, public domain. This trend fit does NOT claim any connection to dynamics/core.py's cubic normal form or any other Baustein without its own separate derivation.",
+      "False model_beats_baseline is a VALID complete result -- no retune.",
+      "fit_linear_trend receives only calib points; holdout used solely for RMSE.",
+      "Linear trend over 1880-1999 is a simple baseline model, not a claim about the physical mechanism of global warming."
+    ]
+  },
+  "protocol": {
+    "macro": "temp_anomaly_c (annual global land+ocean anomaly, deg C)",
+    "calib_window": [
+      1880,
+      1999
+    ],
+    "holdout_window": [
+      2000,
+      2025
+    ],
+    "split_anchor": "calib = full 20th century (round calendar boundary), holdout = 2000 onward",
+    "baseline": "persistence = last calib year's anomaly constant",
+    "metric": "RMSE on 26 holdout years",
+    "retune_after_holdout": false
+  },
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "empirical_validation": true,
+  "empirical_validation_note": "Real, provenance-verified per-row data; the computed model_beats_baseline=False result is itself the honest finding, not evidence against the data's authenticity.",
+  "checks": [
+    {
+      "id": "MIG-M6c-fit_no_holdout_reference",
+      "status": "passed",
+      "evidence": {
+        "fit_function": "fit_linear_trend",
+        "holdout_tokens_in_body": []
+      }
+    },
+    {
+      "id": "MIG-M6c-fixed_calendar_split",
+      "status": "passed",
+      "evidence": {
+        "calib_start_year": 1880,
+        "calib_end_year": 1999,
+        "holdout_start_year": 2000,
+        "holdout_end_year": 2025,
+        "n_calib": 120,
+        "n_holdout": 26,
+        "calib_is_full_20th_century": true
+      }
+    },
+    {
+      "id": "MIG-M6c-scope_violations",
+      "status": "passed",
+      "evidence": {
+        "raised_on_wrong_split": true,
+        "raised_on_degenerate_calib": true
+      }
+    },
+    {
+      "id": "MIG-M6c-persistence_baseline_last_calib",
+      "status": "passed",
+      "evidence": {
+        "baseline_value": 0.4,
+        "last_calib_year": 1999
+      }
+    },
+    {
+      "id": "MIG-M6c-pilot_run",
+      "status": "passed",
+      "evidence": {
+        "model_rmse_holdout": 0.4604384541211939,
+        "baseline_rmse_holdout": 0.43010732113311867,
+        "model_beats_baseline": false,
+        "fitted_parameters": {
+          "slope_c_per_year": 0.005323703034932983,
+          "intercept_c": -0.3575936639118458,
+          "year_ref": 1880,
+          "n_calib": 120,
+          "note": "fitted_parameters estimated exclusively on calibration years"
+        },
+        "baseline_value": 0.4,
+        "macro": "temp_anomaly_c",
+        "domain": "noaa-global-temp-anomaly",
+        "interpretation": "model_beats_baseline is False: the 1880-1999 linear trend averages a slower warming rate than actually observed after 2000, so it undershoots the accelerated holdout and the flat persistence baseline (anchored at an already-elevated 1999 value) wins on RMSE -- reported honestly, not retuned"
+      }
+    },
+    {
+      "id": "MIG-M6c-rmse_hand_recompute",
+      "status": "passed",
+      "evidence": {
+        "hand_model_rmse": 0.4604384541211939,
+        "hand_baseline_rmse": 0.43010732113311867,
+        "holdout_observed_anomaly_c": [
+          0.4,
+          0.53,
+          0.59,
+          0.6,
+          0.53,
+          0.66,
+          0.63,
+          0.62,
+          0.52,
+          0.65,
+          0.71,
+          0.6,
+          0.63,
+          0.66,
+          0.73,
+          0.88,
+          1.0,
+          0.93,
+          0.86,
+          0.99,
+          1.01,
+          0.86,
+          0.89,
+          1.17,
+          1.25,
+          1.12
+        ],
+        "model_predicted_anomaly_c": [
+          0.28125070028011206,
+          0.2865744033150451,
+          0.2918981063499781,
+          0.297221809384911,
+          0.302545512419844,
+          0.307869215454777,
+          0.31319291848971004,
+          0.31851662152464294,
+          0.32384032455957595,
+          0.32916402759450897,
+          0.33448773062944187,
+          0.3398114336643749,
+          0.3451351366993079,
+          0.3504588397342409,
+          0.3557825427691738,
+          0.36110624580410683,
+          0.36642994883903984,
+          0.37175365187397275,
+          0.37707735490890576,
+          0.3824010579438388,
+          0.3877247609787718,
+          0.3930484640137047,
+          0.3983721670486377,
+          0.4036958700835707,
+          0.40901957311850373,
+          0.41434327615343663
+        ],
+        "baseline_predicted_anomaly_c": [
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4,
+          0.4
+        ]
+      }
+    }
+  ]
+}

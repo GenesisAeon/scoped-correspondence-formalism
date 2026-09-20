@@ -1,0 +1,160 @@
+{
+  "milestone": "M6d_earthquake_pilot",
+  "kind": "real-data constant-rate pilot on verified per-row data (honesty over beauty)",
+  "generated_at_utc": "2026-09-20T19:59:21.984374+00:00",
+  "python": "3.11.9",
+  "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\usgs_earthquakes_m6plus_2000_2026.csv",
+  "data_sha256": "7ea5a8398fb78c8522b4529fed4ef5ebb223dc0f6dd09c3c1f3b089bf81c56aa",
+  "source_citation": "USGS Earthquake Catalog (ComCat) via the FDSN Event Web Service; data/real_data_manifest.json entry usgs_earthquakes_m6plus_2000_2026",
+  "validation_report": {
+    "domain": "usgs-earthquakes-m6plus",
+    "macro": "annual_count_m6plus",
+    "split": {
+      "calib_start_year": 2000,
+      "calib_end_year": 2019,
+      "holdout_start_year": 2020,
+      "holdout_end_year": 2025,
+      "n_calib": 20,
+      "n_holdout": 6,
+      "rule": "calib is 2000-2019 (20 full calendar years); holdout is 2020-2025 (6 full calendar years); 2026 excluded as a partial year (source catalog truncated at 2026-09-20) -- both fixed before any fit"
+    },
+    "model_rmse_holdout": 28.778507605503094,
+    "baseline_rmse_holdout": 22.963739532866448,
+    "model_beats_baseline": false,
+    "fitted_parameters": {
+      "mean_annual_count": 153.95,
+      "n_calib_years": 20,
+      "total_calib_events": 3079,
+      "note": "fitted_parameters estimated exclusively on calibration years"
+    },
+    "source_citation": "USGS Earthquake Catalog (ComCat) via the FDSN Event Web Service; data/real_data_manifest.json entry usgs_earthquakes_m6plus_2000_2026",
+    "baseline_value": 145.0,
+    "n_holdout": 6,
+    "notes": [
+      "Real per-row data (see data/real_data_manifest.json entry usgs_earthquakes_m6plus_2000_2026); U.S. Government work, public domain. This constant-rate fit does NOT claim any connection to percolation/core.py's branching-process threshold framing without its own separate derivation; see docs/structural_relations.md bridge B6 for the kind of comparison that WOULD need.",
+      "False model_beats_baseline is a VALID complete result -- no retune.",
+      "fit_constant_rate receives only calib points; holdout used solely for RMSE.",
+      "2026 excluded as a partial year; all reviewed-status events only (source catalog has no unreviewed rows in this magnitude range)."
+    ]
+  },
+  "protocol": {
+    "macro": "annual_count_m6plus (worldwide earthquakes, magnitude >= 6.0)",
+    "calib_window": [
+      2000,
+      2019
+    ],
+    "holdout_window": [
+      2020,
+      2025
+    ],
+    "excluded": "2026 (partial year; source catalog truncated at 2026-09-20)",
+    "baseline": "persistence = last calib year's count constant",
+    "metric": "RMSE on 6 holdout years",
+    "retune_after_holdout": false
+  },
+  "count": 6,
+  "passed": 6,
+  "failed": 0,
+  "empirical_validation": true,
+  "empirical_validation_note": "Real, provenance-verified per-row data; the computed model_beats_baseline=False result is itself the honest finding, not evidence against the data's authenticity.",
+  "checks": [
+    {
+      "id": "MIG-M6d-fit_no_holdout_reference",
+      "status": "passed",
+      "evidence": {
+        "fit_function": "fit_constant_rate",
+        "holdout_tokens_in_body": []
+      }
+    },
+    {
+      "id": "MIG-M6d-fixed_calendar_split",
+      "status": "passed",
+      "evidence": {
+        "calib_start_year": 2000,
+        "calib_end_year": 2019,
+        "holdout_start_year": 2020,
+        "holdout_end_year": 2025,
+        "n_calib": 20,
+        "n_holdout": 6,
+        "partial_2026_excluded": true
+      }
+    },
+    {
+      "id": "MIG-M6d-scope_violations",
+      "status": "passed",
+      "evidence": {
+        "raised_on_wrong_split": true,
+        "raised_on_missing_calib_year": true,
+        "raised_on_degenerate_calib": true,
+        "raised_on_magnitude_below_6": true
+      }
+    },
+    {
+      "id": "MIG-M6d-persistence_baseline_last_calib",
+      "status": "passed",
+      "evidence": {
+        "baseline_value": 145.0,
+        "last_calib_year": 2019
+      }
+    },
+    {
+      "id": "MIG-M6d-pilot_run",
+      "status": "passed",
+      "evidence": {
+        "model_rmse_holdout": 28.778507605503094,
+        "baseline_rmse_holdout": 22.963739532866448,
+        "model_beats_baseline": false,
+        "fitted_parameters": {
+          "mean_annual_count": 153.95,
+          "n_calib_years": 20,
+          "total_calib_events": 3079,
+          "note": "fitted_parameters estimated exclusively on calibration years"
+        },
+        "baseline_value": 145.0,
+        "macro": "annual_count_m6plus",
+        "domain": "usgs-earthquakes-m6plus",
+        "holdout_counts": [
+          121,
+          157,
+          127,
+          147,
+          99,
+          145
+        ],
+        "interpretation": "model_beats_baseline is False: the calib mean rate (153.95/yr) overshoots the 2020-2025 holdout (which includes a notably low year, 2024=99) more than the flat persistence baseline (anchored at 2019's lower count of 145) does -- reported honestly, not retuned"
+      }
+    },
+    {
+      "id": "MIG-M6d-rmse_hand_recompute",
+      "status": "passed",
+      "evidence": {
+        "hand_model_rmse": 28.778507605503094,
+        "hand_baseline_rmse": 22.963739532866448,
+        "holdout_observed_counts": [
+          121.0,
+          157.0,
+          127.0,
+          147.0,
+          99.0,
+          145.0
+        ],
+        "model_predicted_counts": [
+          153.95,
+          153.95,
+          153.95,
+          153.95,
+          153.95,
+          153.95
+        ],
+        "baseline_predicted_counts": [
+          145.0,
+          145.0,
+          145.0,
+          145.0,
+          145.0,
+          145.0
+        ]
+      }
+    }
+  ]
+}

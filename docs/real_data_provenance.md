@@ -1,11 +1,10 @@
 # Real Data Provenance (added 2026-09-20)
 
-**Status:** raw data + provenance record for all three datasets. A first
-validation pilot is now built on the OWID/JHU COVID dataset — see
-[docs/covid_pilot.md](covid_pilot.md) (Milestone 6b). The USGS and NOAA
-datasets still have no pilot built on top of them yet (separate future
-work — see suggested modules per dataset below and `AUDIT_ROADMAP.md`
-items 12/13). Johann-OK required before any "core" promotion.
+**Status:** raw data + provenance record for all three datasets, and a
+validation pilot on each: [docs/covid_pilot.md](covid_pilot.md)
+(Milestone 6b), [docs/noaa_temp_pilot.md](noaa_temp_pilot.md)
+(Milestone 6c), [docs/earthquake_pilot.md](earthquake_pilot.md)
+(Milestone 6d). Johann-OK required before any "core" promotion.
 
 ## Why this file exists
 
@@ -38,13 +37,17 @@ PYTHONPATH=src python verification/verify_real_data_provenance.py
   public domain.
 - **Content:** 3974 earthquakes worldwide, magnitude ≥ 6.0, 2000-01-01
   through 2026-09-20. Raw API response, byte-for-byte.
-- **Possible use:** magnitude-frequency (Gutenberg-Richter) distribution
-  as an independent comparison point for `percolation/core.py`'s
-  branching-process threshold framing (a genuine structural-relations
-  bridge candidate per `docs/structural_relations.md` §2 — evidence and
-  scope would need their own derivation, not an assumed identity);
-  inter-event time clustering as a candidate input for
-  `dynamics/early_warning.py`.
+- **Pilot built:** [docs/earthquake_pilot.md](earthquake_pilot.md)
+  (Milestone 6d, `src/scoped_correspondence/validation/earthquake_pilot.py`,
+  `verification/verify_earthquake_pilot.py`) — constant-rate
+  (homogeneous-Poisson) annual-count model vs. persistence baseline on a
+  fixed 2000-2019 calib / 2020-2025 holdout calendar split. Honest result:
+  `model_beats_baseline=False` (ordinary sampling variability in a modest
+  count series, not a structural regime change like COVID/NOAA). A
+  magnitude-frequency (Gutenberg-Richter) comparison against
+  `percolation/core.py`'s branching-process threshold framing (a genuine
+  structural-relations bridge candidate per `docs/structural_relations.md`
+  §2) remains open future work.
 
 ### `noaa_global_temp_anomaly_1880_2025.csv`
 
@@ -58,12 +61,16 @@ PYTHONPATH=src python verification/verify_real_data_provenance.py
 - **Content:** 146 annual values (1880-2025), degrees Celsius departure
   from the 1901-2000 average. Includes NOAA's own `#`-prefixed header
   comment lines (title/units/base period) exactly as served.
-- **Possible use:** a real trend-estimation / identifiability worked
-  example (e.g. profile likelihood on a fitted warming rate); explicitly
-  **not** proposed as data for the cubic normal form in `dynamics/core.py`
-  without its own separately derived and checked model — a long-term
-  temperature anomaly series is not thereby claimed to follow that
-  specific ODE.
+- **Pilot built:** [docs/noaa_temp_pilot.md](noaa_temp_pilot.md)
+  (Milestone 6c, `src/scoped_correspondence/validation/noaa_temp_pilot.py`,
+  `verification/verify_noaa_temp_pilot.py`) — linear trend fit vs.
+  persistence baseline on a fixed 1880-1999 calib / 2000-2025 holdout
+  calendar split. Honest result: `model_beats_baseline=False` (the same
+  structural failure mode as the COVID pilot on a completely different
+  domain -- the calib window's average rate undershoots the actual
+  post-2000 acceleration). Explicitly **not** proposed as data for the
+  cubic normal form in `dynamics/core.py` without its own separately
+  derived and checked model.
 
 ### `owid_covid_world_daily_2020_2023.csv`
 

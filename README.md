@@ -92,12 +92,17 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   Weltzeitreihe) liegen seit 2026-09-20 mit vollständiger Provenienz vor
   (URL, Abrufzeitpunkt, sha256) — siehe
   [docs/real_data_provenance.md](docs/real_data_provenance.md) und
-  `data/real_data_manifest.json`. Auf dem Covid-Datensatz steht bereits ein
-  vollständiger Validierungspilot ([docs/covid_pilot.md](docs/covid_pilot.md),
-  Milestone 6b): Exponentialwachstum vs. Persistenz-Baseline, ehrliches
-  Ergebnis `model_beats_baseline=False` (Kalibrierfenster überspannt einen
-  echten Regimewechsel — Eindämmung der China-Welle, dann globaler
-  Ausbruch). USGS/NOAA haben noch keinen Pilot; das bleibt Folgearbeit.
+  `data/real_data_manifest.json`. Alle drei haben inzwischen einen
+  vollständigen Validierungspilot: **Covid**
+  ([docs/covid_pilot.md](docs/covid_pilot.md), M6b, plus zwei
+  Folgeuntersuchungen B/C) — Exponentialwachstum überspannt einen echten
+  Regimewechsel, `model_beats_baseline=False`; **NOAA-Temperatur**
+  ([docs/noaa_temp_pilot.md](docs/noaa_temp_pilot.md), M6c) — derselbe
+  Fehlertyp auf einer völlig anderen Domäne, `model_beats_baseline=False`;
+  **USGS-Erdbeben** ([docs/earthquake_pilot.md](docs/earthquake_pilot.md),
+  M6d) — konstante Rate vs. Persistenz, `model_beats_baseline=False`
+  (gewöhnliche Stichprobenvarianz, kein Regimewechsel). Keines der
+  Ergebnisse wurde nachträglich angepasst.
 
 ---
 
