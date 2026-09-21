@@ -130,11 +130,35 @@ def check_owid_covid_world():
     }
 
 
+def check_owid_covid_china_world():
+    """Header, only China/World rows, dates within declared range, both present per date."""
+    path = DATA / "owid_covid_china_world_daily_2020.csv"
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    require(len(rows) == 128, f"expected 128 rows, got {len(rows)}")
+    require(all(r["location"] in ("China", "World") for r in rows), "every row must be China or World")
+    dates = sorted({r["date"] for r in rows})
+    require(len(dates) == 64, f"expected 64 distinct dates, got {len(dates)}")
+    require(min(dates) == "2020-01-22", f"unexpected earliest date: {min(dates)}")
+    require(max(dates) == "2020-03-25", f"unexpected latest date: {max(dates)}")
+    by_date = {}
+    for r in rows:
+        by_date.setdefault(r["date"], set()).add(r["location"])
+    require(all(locs == {"China", "World"} for locs in by_date.values()), "every date must have both China and World rows")
+    return {
+        "row_count": len(rows),
+        "date_range": [min(dates), max(dates)],
+        "distinct_dates": len(dates),
+        "china_and_world_present_every_date": True,
+    }
+
+
 CHECKS = [
     ("manifest_sha256", check_manifest_hashes),
     ("usgs_earthquakes_sanity", check_usgs_earthquakes),
     ("noaa_temp_anomaly_sanity", check_noaa_temp_anomaly),
     ("owid_covid_world_sanity", check_owid_covid_world),
+    ("owid_covid_china_world_sanity", check_owid_covid_china_world),
 ]
 
 

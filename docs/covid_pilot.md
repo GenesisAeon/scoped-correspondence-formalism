@@ -156,7 +156,7 @@ therefore picking up a *measurement* discontinuity, not necessarily the
 *epidemiological* one a human would choose — worth knowing before trusting
 an automated change-point date as evidence of any real-world event.
 
-### Comparing all three
+### Comparing A, B, C
 
 | Pilot | Calib window | n | model_beats_baseline | model RMSE |
 |---|---|---|---|---|
@@ -170,11 +170,91 @@ rate(s) differ. No result here retunes another; each is a separately
 protocolled, separately checked computation on the same underlying real,
 provenance-verified data.
 
+## Pilot D — country decomposition (NONSTATIONARY_ROADMAP.md package 2, 2026-09-21)
+
+Pilots B and C fix Pilot A's problem by choosing a different **time**
+window. Astra's review (section 4) proposed a complementary, orthogonal
+diagnosis: does changing **country composition** alone explain part of
+the apparent World rate acceleration, even holding each country's own
+rate constant? `covid_country_decomposition.py`
+(`data/owid_covid_china_world_daily_2020.csv`, real China + World rows
+from the same OWID/JHU source, RestOfWorld computed as World minus China)
+tests this directly.
+
+**Composition shift, real data:** China's share of world cases_7day_avg
+collapses from **98.49% on 2020-01-28 to 0.12% on 2020-03-25** — matching
+the well-documented shift of the pandemic's epicenter away from China
+through February and March 2020.
+
+**Component rates, fit independently on the same calib window as Pilot A
+(here 2020-01-28 -- 2020-03-11, one day later than Pilot A because
+China's `weekly_cases` is undefined on 2020-01-27 in this file):**
+
+| Component | Fitted rate r (per day) | Interpretation |
+|---|---:|---|
+| China | -0.07116 | declining (matches documented containment) |
+| RestOfWorld | +0.14590 | doubling every ~4.75 days |
+| World (single aggregate fit, same window) | +0.00225 | nearly flat -- an average of a shrinking large component and a fast-growing small one |
+
+**Decomposed model** (extrapolate China's and RestOfWorld's own fitted
+rates *separately* into the holdout window, then sum for the World
+prediction) vs. the same-window aggregate fit vs. persistence:
+
+| Model | RMSE on 2020-03-12 -- 2020-03-25 |
+|---|---:|
+| Decomposed (China + RestOfWorld, summed) | **6668.83** |
+| Aggregate (single fit, same window) | 17686.65 |
+| Persistence | 15932.68 |
+
+The decomposed model beats both alternatives by a wide margin — comparable
+to Pilot B's fix, but reached via a completely different, complementary
+route (spatial decomposition rather than a shorter time window). This
+directly confirms, on real data, Astra's qualitative mixture-identity
+argument (section 4): a single blended rate over a period of shifting
+country composition systematically misrepresents the dynamics, even
+though each component's own within-period rate may be simple and roughly
+constant.
+
+**Mixture effective-rate diagnostic:** `mixture_effective_rate_diagnostic()`
+computes Astra's identity `r_eff(t) = w_China(t)*r_China + w_RoW(t)*r_RoW`
+using the ACTUAL observed daily composition weights and the two fitted
+constant rates above, and compares it to the World series' own actual
+local growth rate (centered 3-day log-difference) at every date:
+
+| Date | China share | Mixture-implied rate | Actual local rate | Difference |
+|---|---:|---:|---:|---:|
+| 2020-01-29 | 0.984 | -0.068 | +0.206 | +0.273 |
+| 2020-02-19 | 0.981 | -0.067 | -0.325 | -0.258 |
+| 2020-02-26 | 0.614 | +0.013 | +0.107 | +0.095 |
+| 2020-03-04 | 0.158 | +0.112 | +0.099 | -0.012 |
+| 2020-03-18 | 0.001 | +0.146 | +0.162 | +0.017 |
+
+The mixture-implied rate tracks the actual local rate reasonably well
+from late February onward (differences shrink to ~0.01-0.02) but is far
+off in late January/February (differences of 0.2-0.3, including a sharp
+actual-rate swing to -0.325 around 2020-02-19 that the smooth
+composition-shift story cannot produce). That large early discrepancy
+lines up with China's documented Feb 12-13 case-definition change
+(PAHO/WHO, see `SCF_Nichtstationaere_Treiber_und_Kippen.md` reference R1)
+-- a reporting artifact localized within China's own series, not a
+composition effect and not a genuine within-component rate change. This
+partially answers Astra's own open question from Pilot C: composition
+shift explains the *later* acceleration well but does **not** explain the
+*earlier* artifact-driven swing, which needs its own separate accounting.
+
+**Scope:** two components only (China, RestOfWorld); a complete analysis
+would decompose all ~200 countries. No claim that this two-component
+split is the unique or best decomposition -- it tests the qualitative
+hypothesis using the two largest, best-documented parts of the actual
+historical story.
+
 ## Verify
 
 ```bash
 PYTHONPATH=src python verification/verify_covid_pilot.py
+PYTHONPATH=src python verification/verify_covid_country_decomposition.py
 ```
 
-JSON report: `verification/verify_covid_pilot_results.json` — all numbers
-from **that** run.
+JSON reports: `verification/verify_covid_pilot_results.json` and
+`verification/verify_covid_country_decomposition_results.json` — all
+numbers from **those** runs.

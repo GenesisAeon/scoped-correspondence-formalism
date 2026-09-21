@@ -1,10 +1,12 @@
 # Real Data Provenance (added 2026-09-20)
 
-**Status:** raw data + provenance record for all three datasets, and a
+**Status:** raw data + provenance record for all datasets, and a
 validation pilot on each: [docs/covid_pilot.md](covid_pilot.md)
-(Milestone 6b), [docs/noaa_temp_pilot.md](noaa_temp_pilot.md)
-(Milestone 6c), [docs/earthquake_pilot.md](earthquake_pilot.md)
-(Milestone 6d). Johann-OK required before any "core" promotion.
+(Milestone 6b, plus follow-ups B/C/D), [docs/noaa_temp_pilot.md](noaa_temp_pilot.md)
+(Milestone 6c, plus a rolling-origin backtest), [docs/earthquake_pilot.md](earthquake_pilot.md)
+(Milestone 6d). See also [NONSTATIONARY_ROADMAP.md](../NONSTATIONARY_ROADMAP.md)
+for the follow-on work program (Astra's review, 2026-09-21). Johann-OK
+required before any "core" promotion.
 
 ## Why this file exists
 
@@ -96,6 +98,34 @@ PYTHONPATH=src python verification/verify_real_data_provenance.py
   onset -- so a single growth-rate fit underestimates the accelerating
   holdout). Reported as-is, not retuned. A growth-phase comparison against
   `percolation/core.py`'s threshold framing remains open future work.
+
+### `owid_covid_china_world_daily_2020.csv`
+
+- **Source:** same OWID/JHU compact series as above, filtered client-side
+  to `location in ('China','World')` and dates `2020-01-22` through
+  `2020-03-25`; RestOfWorld is computed as World minus China, not fetched
+  as an independent series.
+- **Exact query:** identical source URL to `owid_covid_world_daily_2020_2023.csv`
+  (re-fetched 2026-09-21; sha256 of the full source file confirmed
+  unchanged since the 2026-09-20 retrieval).
+- **Retrieved:** 2026-09-21T10:18:31Z. **License / attribution:** same as
+  above (CC BY 4.0, Our World in Data / JHU CSSE).
+- **Content:** 128 rows (64 dates x 2 locations). China's first date has
+  an empty `new_cases`/`weekly_cases` field in the source file (kept as-is).
+- **Pilot built:** [docs/covid_pilot.md](covid_pilot.md) "Pilot D" section
+  (Milestone 6f, NONSTATIONARY_ROADMAP.md package 2,
+  `src/scoped_correspondence/validation/covid_country_decomposition.py`,
+  `verification/verify_covid_country_decomposition.py`) -- decomposes
+  Pilot A's World aggregate into China (declining, r=-0.0712/day) and
+  RestOfWorld (r=+0.1459/day) components, fit independently and summed to
+  predict the holdout. Result: the decomposed model (RMSE 6668.83) beats
+  both a same-window aggregate fit (17686.65) and persistence (15932.68)
+  by a wide margin, confirming Astra's mixture-identity hypothesis that
+  changing country composition, not only within-country rate change,
+  drives much of Pilot A's apparent acceleration. A mixture
+  effective-rate diagnostic further shows this explains the *later* part
+  of the window well but not an early rate swing tied to China's
+  documented Feb 12-13 case-definition change.
 
 ## Ground rules going forward
 

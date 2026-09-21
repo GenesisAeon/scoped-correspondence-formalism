@@ -14,7 +14,7 @@ bei der Audit-Roadmap.
 | # | Paket | Status |
 |---|---|---|
 | 1 | Gemeinsame rollierende Auswertung + adaptive einfache Modelle | ✅ erledigt (NOAA) |
-| 2 | COVID-Heterogenität: Länder statt Weltmittel; Beobachtungsmodell trennen | ⏸ geplant |
+| 2 | COVID-Heterogenität: Länder statt Weltmittel; Beobachtungsmodell trennen | ✅ erledigt |
 | 3 | Treiber-abhängige Dynamik-Schnittstelle (eingefrorene Stabilität vs. echte Trajektorie) | ⏸ geplant |
 | 4 | Raten-/Viabilitäts-Kontrollfälle | ⏸ geplant |
 | 5 | Je Domäne ein mechanistisches Modell (COVID-Renewal, Energiebilanz-Klima, ETAS-Erdbeben) | ⏸ geplant |
@@ -38,6 +38,37 @@ nicht an jedem einzelnen Ursprung — dokumentiert in
 `docs/noaa_temp_pilot.md`. COVID/Erdbeben folgen als eigene Anwendung
 dieser gemeinsamen Infrastruktur, sobald sinnvoll (nicht Teil von Paket 1
 selbst, das die Infrastruktur + eine erste Anwendung liefert).
+
+### Paket 2 — Umsetzung (2026-09-21)
+
+`src/scoped_correspondence/validation/covid_country_decomposition.py`
+(Milestone 6f): echte China- und Weltdaten frisch von derselben
+OWID/JHU-Primärquelle geladen (`data/owid_covid_china_world_daily_2020.csv`,
+Herkunft in `data/real_data_manifest.json`), RestOfWorld = World − China
+exakt berechnet, nicht separat geladen. Chinas Anteil an den
+Weltfallzahlen fällt real von 98,49 % (28.1.) auf 0,12 % (25.3.) — die
+dokumentierte Verlagerung des Pandemiezentrums. China (r=−0,0712/Tag,
+fallend) und RestOfWorld (r=+0,1459/Tag) getrennt auf demselben
+Kalibrierfenster wie Pilot A gefittet, getrennt in den Holdout
+extrapoliert und summiert: RMSE 6668,83 gegenüber 17686,65 (Aggregatfit,
+gleiches Fenster) und 15932,68 (Persistenz) — schlägt beide deutlich.
+Bestätigt Astras Mischungsidentität (Abschnitt 4) direkt an echten Daten:
+wechselnde Länderzusammensetzung erklärt einen erheblichen Teil der
+scheinbaren Weltraten-Beschleunigung, unabhängig von echten
+Ratenänderungen innerhalb der Komponenten. Die Mischungsraten-Diagnose
+`mixture_effective_rate_diagnostic()` zeigt zusätzlich: die
+Zusammensetzungs-Erklärung trägt gut ab Ende Februar, aber nicht für den
+frühen Ratensprung um den 19./20. Februar, der mit Chinas dokumentierter
+Fallzähl-Definitionsänderung vom 12./13. Februar zusammenfällt (PAHO/WHO,
+Referenz R1 in Astras Bericht) — ein Meldeartefakt, keine
+Kompositions- oder echte Ratenänderung.
+
+`verify_covid_country_decomposition.py`: 5/5 bestanden (Lader-Scope-
+Verletzungen, Komponentenraten-Vorzeichen + Dekompositions-Sieg,
+Hand-Nachrechnung aller drei RMSE-Werte direkt aus der CSV, Hand-
+Nachrechnung der Mischungsraten-Diagnose an drei Stichtagen, exakte
+Kompositions-Kopfzahlen). Pilot A/B/C bleiben unverändert; dies ist Pilot
+D, dokumentiert in `docs/covid_pilot.md`.
 
 ## Arbeitsweise
 

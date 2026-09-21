@@ -7,7 +7,13 @@ M6c: additive ``noaa_temp_pilot`` module -- NOAA global temperature anomaly
 trend pilot on verified real per-row data.
 M6d: additive ``earthquake_pilot`` module -- USGS M>=6.0 earthquake
 annual-count pilot on verified real per-row data.
-None of M6b/M6c/M6d mutate ``validation/core.py``.
+M6e: additive ``rolling_origin`` module -- generic rolling-origin backtest
+utility (NONSTATIONARY_ROADMAP.md package 1).
+M6f: additive ``covid_country_decomposition`` module -- China vs.
+Rest-of-World decomposition of the Pilot A World aggregate
+(NONSTATIONARY_ROADMAP.md package 2).
+None of M6b/M6c/M6d/M6e/M6f mutate ``validation/core.py`` or covid_pilot.py's
+original Pilot A/B/C.
 M13: split conformal prediction (Lei et al. 2018); additive ``conformal`` module.
 Does not mutate ``validation/core.py``.
 """
@@ -87,6 +93,18 @@ from scoped_correspondence.validation.earthquake_pilot import (
     persistence_baseline_quake,
     run_earthquake_pilot,
     split_by_year as split_by_year_quake,
+)
+from scoped_correspondence.validation.covid_country_decomposition import (
+    CALIB_END as DECOMP_CALIB_END,
+    CALIB_START as DECOMP_CALIB_START,
+    DATA_PROVENANCE_NOTE as DECOMP_DATA_PROVENANCE_NOTE,
+    HOLDOUT_END as DECOMP_HOLDOUT_END,
+    HOLDOUT_START as DECOMP_HOLDOUT_START,
+    DecompositionReport,
+    MixtureRatePoint,
+    load_china_world_series,
+    mixture_effective_rate_diagnostic,
+    run_covid_country_decomposition,
 )
 from scoped_correspondence.validation.conformal import (
     COVERAGE_MARGINAL_EXCHANGEABLE,
@@ -169,6 +187,17 @@ __all__ = [
     "persistence_baseline_quake",
     "run_earthquake_pilot",
     "split_by_year_quake",
+    # M6f covid_country_decomposition (China vs. RestOfWorld, verified real data)
+    "DECOMP_CALIB_START",
+    "DECOMP_CALIB_END",
+    "DECOMP_HOLDOUT_START",
+    "DECOMP_HOLDOUT_END",
+    "DECOMP_DATA_PROVENANCE_NOTE",
+    "DecompositionReport",
+    "MixtureRatePoint",
+    "load_china_world_series",
+    "mixture_effective_rate_diagnostic",
+    "run_covid_country_decomposition",
     # M13 split conformal (Lei et al. 2018)
     "COVERAGE_MARGINAL_EXCHANGEABLE",
     "SplitConformalReport",

@@ -50,6 +50,23 @@
       "filter_applied": "location == 'World' only (client-side row filter on the public source file, which covers 232 locations; the full file is much larger and available unfiltered at source_url)",
       "suggested_modules": ["percolation / dynamics (epidemic growth-threshold comparison)", "validation (model-vs-persistence-baseline pilot analogous to docs/cygnus_pilot.md, but with confirmed real per-row data)"],
       "notes": "Header row plus only the rows where location=='World' were kept from the source file; no values were altered, estimated, or interpolated."
+    },
+    {
+      "id": "owid_covid_china_world_daily_2020",
+      "file": "data/owid_covid_china_world_daily_2020.csv",
+      "sha256": "b79b7e1c7616a1b5a70f5af82a07fcc153faa5f6690d4db75ac61bf17c92d8ec",
+      "source_name": "Our World in Data COVID-19 dataset (JHU CSSE historical compact series)",
+      "source_url": "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/jhu/full_data.csv",
+      "retrieved_at_utc": "2026-09-21T10:18:31Z",
+      "license": "CC BY 4.0 (Our World in Data); underlying case/death counts originally from Johns Hopkins CSSE.",
+      "attribution_required": true,
+      "attribution_text": "Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.",
+      "row_count_excluding_header": 128,
+      "columns": ["date", "location", "new_cases", "new_deaths", "total_cases", "total_deaths", "weekly_cases", "weekly_deaths", "biweekly_cases", "biweekly_deaths"],
+      "date_range": ["2020-01-22", "2020-03-25"],
+      "filter_applied": "location in ('China','World') AND date in [2020-01-22, 2020-03-25] (client-side row filter on the same public source file as owid_covid_world_daily_2020_2023; same source file hash c07ddfe8... confirmed unchanged since 2026-09-20 retrieval)",
+      "suggested_modules": ["validation.covid_country_decomposition (NONSTATIONARY_ROADMAP.md package 2: decompose the World Pilot A aggregate into China vs. Rest-of-World components and test how much of the apparent effective-rate change is explained by shifting country composition vs. genuine within-component rate change)"],
+      "notes": "64 dates x 2 locations = 128 rows; no values altered, estimated, or interpolated. China's first date (2020-01-22) has an empty new_cases field in the source file (kept as-is, not imputed)."
     }
   ]
 }

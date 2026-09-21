@@ -1,0 +1,145 @@
+{
+  "milestone": "M6f_covid_country_decomposition",
+  "kind": "real-data heterogeneity-decomposition pilot on verified per-row data (honesty over beauty)",
+  "generated_at_utc": "2026-09-21T10:33:34.327783+00:00",
+  "python": "3.11.9",
+  "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\owid_covid_china_world_daily_2020.csv",
+  "data_sha256": "b79b7e1c7616a1b5a70f5af82a07fcc153faa5f6690d4db75ac61bf17c92d8ec",
+  "source_citation": "Our World in Data COVID-19 dataset (JHU CSSE historical compact series); data/real_data_manifest.json entry owid_covid_china_world_daily_2020",
+  "attribution_required": "CC BY 4.0: Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.",
+  "validation_report": {
+    "domain": "owid-jhu-covid-china-vs-restofworld",
+    "macro": "cases_7day_avg (China + RestOfWorld, summed to predict World)",
+    "split": {
+      "calib_start": "2020-01-28",
+      "calib_end": "2020-03-11",
+      "holdout_start": "2020-03-12",
+      "holdout_end": "2020-03-25",
+      "n_calib": 44,
+      "n_holdout": 14,
+      "rule": "calib starts one day later than Pilot A (2020-01-28, data availability, not choice); calib_end/holdout identical to Pilot A"
+    },
+    "model_rmse_holdout": 6668.830095077335,
+    "baseline_rmse_holdout": 15932.675722164136,
+    "model_beats_baseline": true,
+    "fitted_parameters": {
+      "china_fit": {
+        "r": -0.07115578114552121,
+        "ln_cases0": 8.468006998566585,
+        "cases0": 4760.019284422791,
+        "t_ref": "2020-01-28",
+        "n_calib": 44,
+        "note": "fitted_parameters estimated exclusively on calibration days"
+      },
+      "row_fit": {
+        "r": 0.1458979355728228,
+        "ln_cases0": 1.7875118154080263,
+        "cases0": 5.974568128211505,
+        "t_ref": "2020-01-28",
+        "n_calib": 44,
+        "note": "fitted_parameters estimated exclusively on calibration days"
+      },
+      "aggregate_fit_same_window": {
+        "r": 0.002247701757655951,
+        "ln_cases0": 7.617744648601177,
+        "cases0": 2033.9696366597275,
+        "t_ref": "2020-01-28",
+        "n_calib": 44,
+        "note": "fitted_parameters estimated exclusively on calibration days"
+      },
+      "decomposed_rmse_holdout": 6668.830095077335,
+      "aggregate_rmse_holdout": 17686.651931033055,
+      "persistence_rmse_holdout": 15932.675722164136,
+      "baseline_value": 4459.571428571428,
+      "n_calib": 44,
+      "n_holdout": 14,
+      "decomposed_beats_aggregate": true,
+      "decomposed_beats_persistence": true
+    },
+    "source_citation": "Our World in Data COVID-19 dataset (JHU CSSE historical compact series); data/real_data_manifest.json entry owid_covid_china_world_daily_2020",
+    "baseline_value": 4459.571428571428,
+    "n_holdout": 14,
+    "notes": [
+      "Real per-row data (see data/real_data_manifest.json entry owid_covid_china_world_daily_2020); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' RestOfWorld is computed as World minus China from this file, not fetched as an independent series.",
+      "Decomposed (China+RestOfWorld, separately extrapolated, then summed) vs. a single aggregate exponential fit on the SAME window vs. persistence.",
+      "fit_exponential_growth receives only calib points for each component; holdout used solely for RMSE.",
+      "No claim of a complete or unique decomposition; two components only (China, RestOfWorld), matching the best-documented part of the historical story."
+    ]
+  },
+  "count": 5,
+  "passed": 5,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "audit_loader_scope_violations",
+      "status": "passed",
+      "evidence": {
+        "raised_on_non_china_world_row": true,
+        "raised_on_negative_row": true
+      }
+    },
+    {
+      "id": "audit_component_rates_and_decomposition_wins",
+      "status": "passed",
+      "evidence": {
+        "china_r": -0.07115578114552121,
+        "row_r": 0.1458979355728228,
+        "aggregate_r_same_window": 0.002247701757655951,
+        "decomposed_rmse": 6668.830095077335,
+        "aggregate_rmse": 17686.651931033055,
+        "persistence_rmse": 15932.675722164136,
+        "decomposed_beats_aggregate": true,
+        "decomposed_beats_persistence": true
+      }
+    },
+    {
+      "id": "audit_composition_shift_headline",
+      "status": "passed",
+      "evidence": {
+        "first_date": "2020-01-28",
+        "first_china_share": 0.9848695998407326,
+        "last_date": "2020-03-25",
+        "last_china_share": 0.001215516941990901
+      }
+    },
+    {
+      "id": "audit_rmse_hand_recompute",
+      "status": "passed",
+      "evidence": {
+        "hand_decomposed_rmse": 6668.830095077335,
+        "hand_aggregate_rmse": 17686.651931033055,
+        "hand_persistence_rmse": 15932.675722164136,
+        "matches_pilot_a_baseline_value": true
+      }
+    },
+    {
+      "id": "audit_mixture_rate_diagnostic_hand_recompute",
+      "status": "passed",
+      "evidence": {
+        "spot_checked_dates": {
+          "2020-01-29": {
+            "date": "2020-01-29",
+            "china_share": 0.9841411261582325,
+            "mixture_effective_rate": -0.06771355363519822,
+            "actual_local_rate": 0.20574291744318618,
+            "difference": 0.2734564710783844
+          },
+          "2020-02-26": {
+            "date": "2020-02-26",
+            "china_share": 0.6141361256544503,
+            "mixture_effective_rate": 0.012597406928520419,
+            "actual_local_rate": 0.10711982886347693,
+            "difference": 0.09452242193495651
+          },
+          "2020-03-18": {
+            "date": "2020-03-18",
+            "china_share": 0.001353891599158573,
+            "mixture_effective_rate": 0.1456040683691917,
+            "actual_local_rate": 0.16216842024077138,
+            "difference": 0.016564351871579674
+          }
+        }
+      }
+    }
+  ]
+}

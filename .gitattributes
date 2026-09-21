@@ -5,3 +5,4 @@
 data/usgs_earthquakes_m6plus_2000_2026.csv -text
 data/noaa_global_temp_anomaly_1880_2025.csv -text
 data/owid_covid_world_daily_2020_2023.csv -text
+data/owid_covid_china_world_daily_2020.csv -text

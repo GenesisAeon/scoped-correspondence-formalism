@@ -108,8 +108,11 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   Piloten unabhängig, fand zwei Fehler in `docs/earthquake_pilot.md`
   (korrigiert) und schlug ein Folgeprogramm vor — siehe
   [NONSTATIONARY_ROADMAP.md](NONSTATIONARY_ROADMAP.md). Paket 1
-  (gemeinsame rollierende Auswertung, `validation/rolling_origin.py`) ist
-  umgesetzt und exakt gegen die Review-Zahlen abgeglichen.
+  (gemeinsame rollierende Auswertung, `validation/rolling_origin.py`) und
+  Paket 2 (COVID-Länderdekomposition China vs. Rest der Welt,
+  `validation/covid_country_decomposition.py` — bestätigt Astras
+  Mischungsidentität direkt an echten Daten) sind umgesetzt und exakt
+  gegen die Review-Zahlen abgeglichen.
 
 ---
 
