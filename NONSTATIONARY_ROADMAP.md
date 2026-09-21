@@ -15,7 +15,7 @@ bei der Audit-Roadmap.
 |---|---|---|
 | 1 | Gemeinsame rollierende Auswertung + adaptive einfache Modelle | ✅ erledigt (NOAA) |
 | 2 | COVID-Heterogenität: Länder statt Weltmittel; Beobachtungsmodell trennen | ✅ erledigt |
-| 3 | Treiber-abhängige Dynamik-Schnittstelle (eingefrorene Stabilität vs. echte Trajektorie) | ⏸ geplant |
+| 3 | Treiber-abhängige Dynamik-Schnittstelle (eingefrorene Stabilität vs. echte Trajektorie) | ✅ erledigt |
 | 4 | Raten-/Viabilitäts-Kontrollfälle | ⏸ geplant |
 | 5 | Je Domäne ein mechanistisches Modell (COVID-Renewal, Energiebilanz-Klima, ETAS-Erdbeben) | ⏸ geplant |
 
@@ -69,6 +69,33 @@ Hand-Nachrechnung aller drei RMSE-Werte direkt aus der CSV, Hand-
 Nachrechnung der Mischungsraten-Diagnose an drei Stichtagen, exakte
 Kompositions-Kopfzahlen). Pilot A/B/C bleiben unverändert; dies ist Pilot
 D, dokumentiert in `docs/covid_pilot.md`.
+
+### Paket 3 — Umsetzung (2026-09-21)
+
+`src/scoped_correspondence/dynamics/rate_dependent.py` (Milestone 42):
+neue, bewusst getrennte Schnittstelle für eingefrorene (quasistatische)
+Stabilität (`frozen_equilibria_shifted_pitchfork`) versus echte
+Trajektorienintegration eines nichtautonomen Systems
+(`integrate_trajectory`, `scipy.integrate.solve_ivp`) plus Klassifikation
+(`classify_tracking`). Astras Kanonisches Kontrollbeispiel reproduziert:
+`ẋ=(x−u)−(x−u)³`, `u(t)=1+tanh(rt)` — eingefrorene Gleichgewichte `x=u`
+(instabil, Ableitung +1) und `x=u±1` (stabil, Ableitung −2), unabhängig
+von `u`: keine eingefrorene Bifurkation entlang irgendeines Treiberwegs.
+Bei `r=0,1` (langsam) verfolgt die Trajektorie den oberen Zweig
+(`x−u→+1`); bei `r=2` (schnell) wechselt sie zum unteren (`x−u→−1`) —
+beide Ergebnisse einschließlich der Integrations-Verfeinerungsdifferenzen
+(1,487×10⁻¹⁰ bzw. 1,364×10⁻⁸) exakt (Ziffer für Ziffer) gegen Astras
+Zahlen abgeglichen. Ein zusätzlicher Raten-Sweep (r=0,05 bis 5) zeigt: das
+Verfolgen scheitert erst oberhalb einer kritischen Rate zwischen 0,5 und
+1,0 — ein echter Ratenffekt, kein Zufallsergebnis.
+
+`verify_rate_dependent.py`: 4/4 bestanden (Hand-Herleitung der
+eingefrorenen Gleichgewichte, Scope-Verletzungen von
+`integrate_trajectory`/`classify_tracking`, exakte Reproduktion von
+Astras Zahlen, Monotonie-Check des Raten-Sweeps). `dynamics/core.py`,
+`gspt.py`, `panarchy_cusp.py` und `early_warning.py` bleiben unverändert
+— dieses Modul beantwortet eine andere Frage als deren quasistatische
+Werkzeuge. Dokumentiert in `docs/rate_dependent_tipping.md`.
 
 ## Arbeitsweise
 

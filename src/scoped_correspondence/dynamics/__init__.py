@@ -24,6 +24,13 @@ V≡Panarchy≡Onsager-L.
 
 Milestone 36 (Early-Warning Signals / Critical Slowing Down) is likewise
 exported submodule-locally; ``dynamics/core.py`` is CALLED only (not edited).
+
+Milestone 42 (Rate-Dependent Tracking / Rate-Induced Tipping,
+NONSTATIONARY_ROADMAP.md package 3) is likewise exported submodule-locally;
+independent of M14/M29/M33/M35/M36; ``dynamics/core.py``, ``gspt.py``, and
+``panarchy_cusp.py`` are untouched -- this module answers a genuinely
+different question (real non-autonomous trajectory tracking) than those
+modules' quasi-static/frozen-parameter tools.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -92,6 +99,17 @@ from scoped_correspondence.dynamics.early_warning import (
     ou_autocorrelation,
     ou_variance,
 )
+from scoped_correspondence.dynamics.rate_dependent import (
+    SOURCE as RATE_DEPENDENT_SOURCE,
+    STABLE as RATE_DEPENDENT_STABLE,
+    UNSTABLE as RATE_DEPENDENT_UNSTABLE,
+    FrozenEquilibrium,
+    TrackingResult,
+    classify_tracking,
+    frozen_equilibria_shifted_pitchfork,
+    integrate_trajectory,
+    rate_induced_tipping_cubic_example,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -152,4 +170,14 @@ __all__ = [
     "estimate_lambda_from_ar1",
     "ou_autocorrelation",
     "ou_variance",
+    # M42 rate-dependent tracking / rate-induced tipping (NONSTATIONARY_ROADMAP.md package 3)
+    "RATE_DEPENDENT_SOURCE",
+    "RATE_DEPENDENT_STABLE",
+    "RATE_DEPENDENT_UNSTABLE",
+    "FrozenEquilibrium",
+    "TrackingResult",
+    "classify_tracking",
+    "frozen_equilibria_shifted_pitchfork",
+    "integrate_trajectory",
+    "rate_induced_tipping_cubic_example",
 ]

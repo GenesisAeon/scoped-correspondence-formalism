@@ -111,8 +111,11 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   (gemeinsame rollierende Auswertung, `validation/rolling_origin.py`) und
   Paket 2 (COVID-Länderdekomposition China vs. Rest der Welt,
   `validation/covid_country_decomposition.py` — bestätigt Astras
-  Mischungsidentität direkt an echten Daten) sind umgesetzt und exakt
-  gegen die Review-Zahlen abgeglichen.
+  Mischungsidentität direkt an echten Daten) und Paket 3
+  (Treiber-abhängige Dynamik-Schnittstelle, `dynamics/rate_dependent.py`
+  — eingefrorene Stabilität getrennt von echter Trajektorienintegration,
+  reproduziert Astras rateninduziertes Kipp-Kontrollbeispiel Ziffer für
+  Ziffer) sind umgesetzt und exakt gegen die Review-Zahlen abgeglichen.
 
 ---
 
