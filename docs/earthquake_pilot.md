@@ -33,8 +33,11 @@ own separate derivation (a genuine future bridge candidate, see
 `data/real_data_manifest.json` entry `usgs_earthquakes_m6plus_2000_2026`
 for exact source URL, retrieval timestamp, sha256. U.S. Government work,
 public domain, no attribution required. All rows have USGS review status
-`reviewed` (checked, not just assumed) -- the holdout dip is not a
-catalog-lag artifact.
+`reviewed` (checked, not just assumed) -- but review status describes the
+processing state of *existing* catalog rows, not overall catalog
+completeness; it does not by itself rule out that additional matching
+events from recent years are still being added to the catalog
+(correction per `SCF_Nichtstationaere_Treiber_und_Kippen.md`, 2026-09-21).
 
 ## Protocol (immutable)
 
@@ -64,18 +67,33 @@ machine:
 
 **Why the model loses:** the 20-year calib average (153.95/year) sits
 above most of the holdout years, which include a notably quiet year
-(2024, 99 events) and no year matching or exceeding the calib mean. The
-flat persistence baseline happens to anchor closer to the holdout's
-actual range because 2019's count (145) was already somewhat below the
-calib mean. This is a different mechanism from the COVID and NOAA
-findings — there is no known regime change in large-earthquake
-occurrence over this period, and the standard model for this process (a
-long-run average / homogeneous Poisson rate) is the textbook-correct
-estimator of the true rate. The result here should be read as ordinary
-sampling variability in a modest count (6 holdout years, single-digit to
-low-triple-digit annual counts) rather than as a structural failure of
-the model, unlike the COVID/NOAA cases. Reported as-is, per protocol —
-**no retuning after seeing this result.**
+(2024, 99 events); **correction (2026-09-21, caught in independent review
+by Astra):** this document previously and incorrectly stated that no
+holdout year matches or exceeds the calib mean -- 2021 (157 events) does
+exceed it. The flat persistence baseline still happens to anchor closer
+to the holdout's actual range overall because 2019's count (145) was
+already somewhat below the calib mean, but the "no year exceeds it" claim
+itself was wrong and is retracted here.
+
+**Independent follow-up finding (Astra, 2026-09-21):** a dispersion check
+on the 20 calib years finds sample variance/mean (Fano factor) of 3.16
+(mean 153.95, variance 486.26). Under an independent, equal-rate Poisson
+model this ratio should be 1; the approximate dispersion statistic is
+`D=60.01` on 19 degrees of freedom, upper-tail `p≈3.85e-6` against that
+null. This is an exploratory diagnostic, not a mechanism test — it is
+consistent with event clustering (e.g. aftershock sequences, which
+self-exciting point processes like ETAS model explicitly), a genuinely
+heterogeneous/time-varying rate, or catalog effects, and does not by
+itself decide between them or establish any tipping behavior. It does
+mean a simple homogeneous-Poisson description is too narrow for this
+series' variance, independent of the RMSE comparison above.
+
+This is a different mechanism from the COVID and NOAA findings — there is
+no known regime change in large-earthquake occurrence over this period.
+The RMSE result here should be read as ordinary sampling variability in a
+modest, overdispersed count series rather than as the same kind of
+structural (regime-change) failure as the COVID/NOAA cases. Reported
+as-is, per protocol — **no retuning after seeing this result.**
 
 ## Verify
 
