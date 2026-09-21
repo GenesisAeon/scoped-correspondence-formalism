@@ -36,6 +36,15 @@ Checks (all numbers from this script run):
      not something to explain away.
   5. Hand re-integration of the fitted model, independent of the module's
      own solve_ivp call, confirms the reported RMSE.
+  6. NEW (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 1):
+     profile_energy_balance_identifiability profiles all 5 parameters via
+     identifiability.profile_likelihood_nlp (a general bounded-NLP
+     profiler generalizing identifiability.profile_likelihood's 1-free-
+     parameter algebraic scope). Confirms C_s, C_d, and alpha are
+     PRACTICALLY UNIDENTIFIED (unbounded likelihood interval) on a +-50%
+     scan even after normalizing by the reduced-chi-square noise estimate
+     -- a rigorous confirmation of the identifiability caveat already
+     documented in prose, not just an assertion.
 """
 from __future__ import annotations
 
@@ -64,6 +73,7 @@ from scoped_correspondence.dynamics.energy_balance import (  # noqa: E402
     co2_radiative_forcing,
     fit_energy_balance_model,
     load_annual_co2,
+    profile_energy_balance_identifiability,
 )
 
 
@@ -193,6 +203,43 @@ def check_hand_reintegration(result, co2_path, temp_path):
     return {"hand_rmse": hand_rmse, "module_rmse": result.rmse}
 
 
+def check_profile_likelihood_identifiability(fit_result, co2_path, temp_path):
+    """MECHANISTIC_VALIDATION_ROADMAP.md package 1 (Astra, 2026-09-21):
+    connect the existing profile-likelihood machinery to this model's
+    identifiability caveat, rather than leaving it as prose only.
+    """
+    report = profile_energy_balance_identifiability(co2_path, temp_path, fit_result=fit_result, likelihood_threshold=1.0)
+    require(len(report.profiles) == 5, "must profile all 5 parameters")
+
+    by_name = {p.name: p for p in report.profiles}
+    for name in ("C_s", "C_d", "alpha"):
+        li = by_name[name].likelihood_interval
+        require(
+            not li["bounded"],
+            f"{name} is expected to be practically unidentified (unbounded likelihood interval) on a +-50% scan -- got bounded={li['bounded']!r}",
+        )
+
+    for name in ("gamma", "T0"):
+        li = by_name[name].likelihood_interval
+        require(
+            li["lower"] is not None or li["upper"] is not None,
+            f"{name} is expected to show at least one-sided curvature (a finite lower or upper likelihood-interval endpoint); got fully unbounded",
+        )
+
+    return {
+        "chi2_at_fit_normalized": report.chi2_at_fit,
+        "profiles": {name: p.to_dict() for name, p in by_name.items()},
+        "interpretation": (
+            "C_s, C_d, and alpha are practically unidentified (flat likelihood "
+            "profile, unbounded interval) on this +-50% scan even after "
+            "normalizing by the reduced-chi-square noise estimate -- a "
+            "rigorous confirmation, not just an assertion, of this model's "
+            "documented weak-identifiability caveat. gamma and T0 show "
+            "partial (one-sided) curvature."
+        ),
+    }
+
+
 CHECKS = [
     ("co2_forcing_hand_check", check_co2_forcing_hand_check),
 ]
@@ -212,6 +259,7 @@ def main():
         ("load_annual_co2_real_data", lambda: check_load_annual_co2(co2_path)),
         ("fit_robust_and_bounded", lambda: check_fit_robust_and_bounded(fit_result)),
         ("hand_reintegration", lambda: check_hand_reintegration(fit_result, co2_path, temp_path)),
+        ("profile_likelihood_identifiability", lambda: check_profile_likelihood_identifiability(fit_result, co2_path, temp_path)),
     ]
 
     report = {

@@ -88,6 +88,13 @@ from scipy.linalg import expm
 from scipy.optimize import least_squares
 
 from scoped_correspondence.errors import ScopeViolationError
+from scoped_correspondence.identifiability.profile_likelihood import (
+    classify_identifiability,
+    likelihood_interval,
+)
+from scoped_correspondence.identifiability.profile_likelihood_nlp import (
+    profile_parameter_nlp,
+)
 
 SOURCE = (
     "Geoffroy, Saint-Martin, Olivie, Voldoire, Bellon & Tyteca 2013, J. Climate "
@@ -172,6 +179,10 @@ class EnergyBalanceFitResult:
     n_starts_tried: int
     at_bound: Tuple[str, ...]
     solve_ivp_cross_check_max_diff: float
+    optimizer_status: int
+    optimizer_message: str
+    initial_guesses_tried: Tuple[Tuple[float, ...], ...]
+    best_initial_guess: Tuple[float, ...]
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -185,6 +196,10 @@ class EnergyBalanceFitResult:
             "n_starts_tried": self.n_starts_tried,
             "at_bound": list(self.at_bound),
             "solve_ivp_cross_check_max_diff": self.solve_ivp_cross_check_max_diff,
+            "optimizer_status": self.optimizer_status,
+            "optimizer_message": self.optimizer_message,
+            "initial_guesses_tried": [list(g) for g in self.initial_guesses_tried],
+            "best_initial_guess": list(self.best_initial_guess),
         }
 
 
@@ -242,6 +257,29 @@ def _integrate_Ts_exact(F_vals: np.ndarray, C_s: float, C_d: float, alpha: float
     return np.array(out)
 
 
+def _load_overlap_series(co2_path: str | Path, temp_path: str | Path) -> Tuple[List[int], np.ndarray, np.ndarray]:
+    """Shared loader for fit_energy_balance_model and profile_energy_balance_identifiability."""
+    import csv
+
+    co2 = load_annual_co2(co2_path)
+    temp: Dict[int, float] = {}
+    lines = [ln for ln in Path(temp_path).read_text(encoding="utf-8").splitlines() if ln and not ln.startswith("#")]
+    for row in csv.DictReader(lines):
+        temp[int(row["Year"])] = float(row["Departure from Average"])
+
+    years = sorted(set(co2) & set(temp))
+    if len(years) < 10:
+        raise ScopeViolationError(f"_load_overlap_series: only {len(years)} overlapping years, need >= 10")
+    if any(b - a != 1 for a, b in zip(years, years[1:])):
+        raise ScopeViolationError("_load_overlap_series: overlapping years must be consecutive calendar years (no gaps)")
+
+    co2_arr = np.array([co2[y] for y in years], dtype=float)
+    Tobs = np.array([temp[y] for y in years], dtype=float)
+    co2_ref = co2_arr[0]
+    F_vals = co2_radiative_forcing(co2_arr, co2_ref)
+    return years, Tobs, F_vals
+
+
 def fit_energy_balance_model(
     co2_path: str | Path,
     temp_path: str | Path,
@@ -265,28 +303,12 @@ def fit_energy_balance_model(
     may still saturate a bound (reported in ``EnergyBalanceFitResult.at_bound``).
     A saturated bound is NOT hidden or treated as a successful fit; it is
     the honest identifiability finding this function is designed to
-    surface. A profile-likelihood-style check
-    (``identifiability.profile_likelihood``) would be needed to
-    characterize this rigorously; not done here.
+    surface. See ``profile_energy_balance_identifiability`` for a rigorous
+    per-parameter characterization via
+    ``identifiability.profile_likelihood_nlp`` (Astra, 2026-09-21,
+    MECHANISTIC_VALIDATION_ROADMAP.md package 1).
     """
-    import csv
-
-    co2 = load_annual_co2(co2_path)
-    temp: Dict[int, float] = {}
-    lines = [ln for ln in Path(temp_path).read_text(encoding="utf-8").splitlines() if ln and not ln.startswith("#")]
-    for row in csv.DictReader(lines):
-        temp[int(row["Year"])] = float(row["Departure from Average"])
-
-    years = sorted(set(co2) & set(temp))
-    if len(years) < 10:
-        raise ScopeViolationError(f"fit_energy_balance_model: only {len(years)} overlapping years, need >= 10")
-    if any(b - a != 1 for a, b in zip(years, years[1:])):
-        raise ScopeViolationError("fit_energy_balance_model: overlapping years must be consecutive calendar years (no gaps)")
-
-    co2_arr = np.array([co2[y] for y in years], dtype=float)
-    Tobs = np.array([temp[y] for y in years], dtype=float)
-    co2_ref = co2_arr[0]
-    F_vals = co2_radiative_forcing(co2_arr, co2_ref)
+    years, Tobs, F_vals = _load_overlap_series(co2_path, temp_path)
     t = np.arange(len(years), dtype=float)
 
     bounds = bounds or PARAM_BOUNDS
@@ -312,6 +334,7 @@ def fit_energy_balance_model(
         ]
 
     best = None
+    best_x0 = None
     for x0_raw in initial_guesses:
         x0 = np.clip(np.array(x0_raw, dtype=float), lb, ub)
         try:
@@ -321,6 +344,7 @@ def fit_energy_balance_model(
         rmse = float(np.sqrt(np.mean(res.fun**2)))
         if best is None or rmse < best[0]:
             best = (rmse, res)
+            best_x0 = x0_raw
 
     if best is None:
         raise ScopeViolationError("fit_energy_balance_model: all optimizer starts failed")
@@ -358,7 +382,142 @@ def fit_energy_balance_model(
         n_starts_tried=len(initial_guesses),
         at_bound=at_bound,
         solve_ivp_cross_check_max_diff=cross_check_max_diff,
+        optimizer_status=int(res.status),
+        optimizer_message=str(res.message),
+        initial_guesses_tried=tuple(tuple(float(v) for v in g) for g in initial_guesses),
+        best_initial_guess=tuple(float(v) for v in best_x0),
     )
+
+
+@dataclass(frozen=True)
+class ParameterProfile:
+    name: str
+    grid: Tuple[float, ...]
+    chi2: Tuple[float, ...]
+    classification: str
+    likelihood_interval: Dict[str, Any]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "grid": list(self.grid),
+            "chi2": list(self.chi2),
+            "classification": self.classification,
+            "likelihood_interval": self.likelihood_interval,
+        }
+
+
+@dataclass(frozen=True)
+class EnergyBalanceIdentifiabilityReport:
+    profiles: Tuple[ParameterProfile, ...]
+    fitted_params: EnergyBalanceParams
+    chi2_at_fit: float
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "profiles": [p.to_dict() for p in self.profiles],
+            "fitted_params": self.fitted_params.to_dict(),
+            "chi2_at_fit": self.chi2_at_fit,
+        }
+
+
+def profile_energy_balance_identifiability(
+    co2_path: str | Path,
+    temp_path: str | Path,
+    *,
+    fit_result: EnergyBalanceFitResult | None = None,
+    n_grid: int = 15,
+    grid_half_width_frac: float = 0.5,
+    likelihood_threshold: float = 1.0,
+    bounds: Dict[str, Tuple[float, float]] | None = None,
+) -> EnergyBalanceIdentifiabilityReport:
+    """Profile-likelihood identifiability for all 5 fitted parameters (Milestone 47).
+
+    MECHANISTIC_VALIDATION_ROADMAP.md package 1, response to Astra's
+    2026-09-21 review: "Anschluss an die vorhandenen Profile-Likelihood-
+    und Identifizierbarkeitsmodule." Uses
+    ``identifiability.profile_likelihood_nlp.profile_parameter_nlp`` (a
+    general bounded-NLP profiler; unlike
+    ``identifiability.profile_likelihood.profile_parameter``, it is not
+    restricted to a single free parameter) plus
+    ``classify_identifiability``/``likelihood_interval`` from
+    ``identifiability.profile_likelihood`` (reused unchanged).
+
+    For each parameter, scans a grid of +-``grid_half_width_frac`` around
+    its fitted value (clipped to ``bounds``), re-optimizing the other 4
+    parameters at every grid point, and classifies the resulting profile
+    as flat (practically non-identifiable on this scan), identifiable, or
+    unresolved (scan too narrow to tell). A parameter sitting at a
+    PARAM_BOUNDS boundary (see ``EnergyBalanceFitResult.at_bound``) will
+    show an asymmetric or one-sided profile here -- consistent with, not
+    contradicting, that finding.
+
+    NORMALIZATION: the raw residual sum-of-squares (RSS) has no inherent
+    scale, so a Wilks/Raue-et-al.-style ``likelihood_threshold=1.0`` (the
+    standard approximate 1-sigma cut for one degree of freedom) is
+    meaningless applied directly to RSS. This function instead profiles
+    ``chi2 = RSS(theta) / sigma_hat_sq``, with the noise variance estimated
+    from the fit itself via the standard reduced-chi-square estimator
+    ``sigma_hat_sq = RSS_min / (n_years - n_params)`` -- the conventional
+    choice when no independent measurement-noise estimate is available.
+
+    HONEST WOBBLE: a profile's own minimum chi2 can occasionally sit
+    slightly BELOW ``chi2_at_fit`` (by construction, exactly 62.0 for the
+    shipped 67-year/5-parameter fit) -- not a bug, but itself evidence of
+    the weak identifiability this function characterizes: a near-flat,
+    multimodal objective surface means the reported "best of 6 starts" fit
+    is not guaranteed to be the precise joint optimum along every
+    direction a 1-parameter profile explores.
+    """
+    if fit_result is None:
+        fit_result = fit_energy_balance_model(co2_path, temp_path)
+    years, Tobs, F_vals = _load_overlap_series(co2_path, temp_path)
+
+    bounds = bounds or PARAM_BOUNDS
+    param_names = ["C_s", "C_d", "alpha", "gamma", "T0"]
+    lb = np.array([bounds[name][0] for name in param_names])
+    ub = np.array([bounds[name][1] for name in param_names])
+    theta0 = np.array([getattr(fit_result.params, name) for name in param_names])
+
+    n_obs = len(Tobs)
+    n_params = len(param_names)
+    if n_obs <= n_params:
+        raise ScopeViolationError(f"profile_energy_balance_identifiability: need n_years > n_params; got {n_obs} <= {n_params}")
+    rss_min = fit_result.rmse**2 * n_obs
+    sigma_hat_sq = rss_min / (n_obs - n_params)
+    if sigma_hat_sq <= 0:
+        raise ScopeViolationError(f"profile_energy_balance_identifiability: non-positive sigma_hat_sq={sigma_hat_sq!r}")
+    inv_sigma = 1.0 / np.sqrt(sigma_hat_sq)
+
+    def resid(theta: np.ndarray) -> np.ndarray:
+        C_s, C_d, alpha, gamma, T0 = theta
+        return (_integrate_Ts_exact(F_vals, C_s, C_d, alpha, gamma, T0) - Tobs) * inv_sigma
+
+    profiles = []
+    for i, name in enumerate(param_names):
+        center = float(theta0[i])
+        half_width = grid_half_width_frac * max(abs(center), 0.1)
+        lo = max(float(lb[i]), center - half_width)
+        hi = min(float(ub[i]), center + half_width)
+        if hi <= lo:
+            lo, hi = float(lb[i]), float(ub[i])
+        grid = np.linspace(lo, hi, n_grid)
+
+        prof = profile_parameter_nlp(resid, theta0, i, grid, (lb, ub))
+        classification = classify_identifiability(prof)
+        li = likelihood_interval(prof, threshold=likelihood_threshold)
+        profiles.append(
+            ParameterProfile(
+                name=name,
+                grid=tuple(float(x) for x, _ in prof),
+                chi2=tuple(float(c) for _, c in prof),
+                classification=classification,
+                likelihood_interval=li,
+            )
+        )
+
+    chi2_at_fit = float(np.sum(resid(theta0) ** 2))
+    return EnergyBalanceIdentifiabilityReport(profiles=tuple(profiles), fitted_params=fit_result.params, chi2_at_fit=chi2_at_fit)
 
 
 __all__ = [
@@ -368,7 +527,10 @@ __all__ = [
     "PARAM_BOUNDS",
     "EnergyBalanceParams",
     "EnergyBalanceFitResult",
+    "ParameterProfile",
+    "EnergyBalanceIdentifiabilityReport",
     "co2_radiative_forcing",
     "load_annual_co2",
     "fit_energy_balance_model",
+    "profile_energy_balance_identifiability",
 ]

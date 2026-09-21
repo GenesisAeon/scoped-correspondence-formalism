@@ -108,6 +108,7 @@ def _neg_log_lik_core(
     i_idx: np.ndarray,
     j_idx: np.ndarray,
     dt_ij: np.ndarray,
+    t_end: float,
 ) -> float:
     """Shared fast implementation given precomputed causal-pair indices.
 
@@ -122,6 +123,13 @@ def _neg_log_lik_core(
     ``dt_ij + c`` bases -- unlike a dense ``np.where(mask, ..., ...)`` form,
     there is no masked-out branch to accidentally raise an invalid base to a
     non-integer power.
+
+    ``t_end`` is the EXPLICIT end of the observation window (Astra,
+    2026-09-21: "Beobachtungsbeginn/-ende explizit ... statt erster/letzter
+    Ereigniszeit") -- callers pass ``times[-1]`` to reproduce the original
+    implicit behavior, or a later value (e.g. "today", if no qualifying
+    event has occurred since the catalog's last one) for a more honest
+    compensator integral.
     """
     log_mu, log_K, log_c, log_pm1, alpha = log_params
     mu = np.exp(log_mu)
@@ -129,7 +137,6 @@ def _neg_log_lik_core(
     c = np.exp(log_c)
     p = 1.0 + np.exp(log_pm1)
 
-    T = float(times[-1])
     N = len(times)
     excitation = K * np.exp(alpha * (mags - m0))
     contrib = excitation[j_idx] / np.power(dt_ij + c, p)
@@ -137,7 +144,7 @@ def _neg_log_lik_core(
     if np.any(lam <= 0) or not np.all(np.isfinite(lam)):
         return 1e12
 
-    compensator = mu * T + np.sum(excitation * compensator_g(T - times, c, p))
+    compensator = mu * t_end + np.sum(excitation * compensator_g(t_end - times, c, p))
     ll = np.sum(np.log(lam)) - compensator
     if not np.isfinite(ll):
         return 1e12
@@ -150,6 +157,7 @@ def etas_neg_log_likelihood(
     mags: np.ndarray,
     *,
     m0: float,
+    t_end: float | None = None,
 ) -> float:
     """Negative log-likelihood in a log/logit parametrization for unconstrained optimization.
 
@@ -159,12 +167,18 @@ def etas_neg_log_likelihood(
     verify_etas.py), but :func:`fit_etas_model` uses :func:`_neg_log_lik_core`
     directly with indices built once, since an optimizer calls this hundreds
     of times against the same fixed ``times``/``mags``.
+
+    ``t_end`` defaults to ``times[-1]`` (the original implicit behavior) if
+    not given; pass an explicit value to use a different observation-window
+    end (see ``_neg_log_lik_core``).
     """
     times = np.asarray(times, dtype=float)
     mags = np.asarray(mags, dtype=float)
+    if t_end is None:
+        t_end = float(times[-1])
     i_idx, j_idx = np.tril_indices(len(times), k=-1)
     dt_ij = times[i_idx] - times[j_idx]
-    return _neg_log_lik_core(log_params, times, mags, m0, i_idx, j_idx, dt_ij)
+    return _neg_log_lik_core(log_params, times, mags, m0, i_idx, j_idx, dt_ij, float(t_end))
 
 
 @dataclass(frozen=True)
@@ -192,6 +206,11 @@ class ETASFitResult:
     branching_ratio: float
     optimizer_success: bool
     n_starts_tried: int
+    optimizer_status: int
+    optimizer_message: str
+    initial_guess_used: Tuple[float, float, float, float, float]
+    t_start: float
+    t_end: float
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -206,15 +225,30 @@ class ETASFitResult:
             "branching_ratio": self.branching_ratio,
             "optimizer_success": self.optimizer_success,
             "n_starts_tried": self.n_starts_tried,
+            "optimizer_status": self.optimizer_status,
+            "optimizer_message": self.optimizer_message,
+            "initial_guess_used": list(self.initial_guess_used),
+            "t_start": self.t_start,
+            "t_end": self.t_end,
         }
 
 
-def null_poisson_log_likelihood(times: np.ndarray) -> float:
-    """Closed-form log-likelihood of the MLE-fit homogeneous Poisson null (mu_hat = N/T)."""
+def null_poisson_log_likelihood(times: np.ndarray, *, t_start: float = 0.0, t_end: float | None = None) -> float:
+    """Closed-form log-likelihood of the MLE-fit homogeneous Poisson null (mu_hat = N/(t_end-t_start)).
+
+    ``t_start``/``t_end`` default to 0.0/``times[-1]`` (the original
+    implicit behavior: observation window = [first event, last event]) --
+    pass explicit values for a fair AIC comparison against an ETAS fit
+    using a different observation window (Astra, 2026-09-21).
+    """
     N = len(times)
-    T = float(times[-1])
-    mu_hat = N / T
-    return float(N * np.log(mu_hat) - mu_hat * T)
+    if t_end is None:
+        t_end = float(times[-1])
+    window = float(t_end) - float(t_start)
+    if window <= 0:
+        raise ScopeViolationError(f"null_poisson_log_likelihood: t_end must be > t_start; got t_start={t_start!r}, t_end={t_end!r}")
+    mu_hat = N / window
+    return float(N * np.log(mu_hat) - mu_hat * window)
 
 
 def etas_branching_ratio(K: float, c: float, p: float, alpha: float, mags: np.ndarray, m0: float) -> float:
@@ -238,6 +272,7 @@ def fit_etas_model(
     m0: float = 6.0,
     initial_guesses: List[Tuple[float, float, float, float, float]] | None = None,
     maxiter: int = 140,
+    t_end: float | None = None,
 ) -> ETASFitResult:
     """Fit (mu, K, c, p, alpha) to a real earthquake catalog via MLE (Nelder-Mead).
 
@@ -272,10 +307,26 @@ def fit_etas_model(
     like a single much slower/heavier-tailed decay at the population level.
     This is a real, honest limitation of the global-pooling simplification,
     not a claim that real regional aftershock decay has p~1.
+
+    OBSERVATION WINDOW (Astra, 2026-09-21): ``t_end`` defaults to the last
+    event's own time (the original implicit behavior), but can be set
+    explicitly -- e.g. to "today" in days-since-first-event -- when no
+    qualifying event has occurred between the catalog's last event and the
+    actual end of observation, which changes the compensator integral (a
+    longer quiet tail after the last event is real information the
+    implicit default silently discards). Pre-history before the first
+    event (t<0) is NOT modeled here -- a separate, harder extension left
+    for future work (see MECHANISTIC_VALIDATION_ROADMAP.md package 1).
     """
     times, mags = load_catalog(catalog_path, m0=m0)
     N = len(times)
-    T = float(times[-1])
+    t_start = 0.0
+    if t_end is None:
+        t_end = float(times[-1])
+    else:
+        t_end = float(t_end)
+        if t_end < float(times[-1]):
+            raise ScopeViolationError(f"fit_etas_model: t_end={t_end!r} must be >= the last event time {times[-1]!r}")
     if N < 100:
         raise ScopeViolationError(f"fit_etas_model: only {N} events, need >= 100")
 
@@ -284,23 +335,25 @@ def fit_etas_model(
 
     if initial_guesses is None:
         branching_guess = 0.3
-        mu0 = (N / T) * (1.0 - branching_guess)
+        mu0 = (N / t_end) * (1.0 - branching_guess)
         # A single informed start: c0/p0/alpha0 chosen near the basin found by
         # independent offline exploration (see PERFORMANCE NOTE above), the
         # same spirit as energy_balance.py's hand-chosen plausible starts.
         initial_guesses = [(mu0, 0.006, 0.006, 1.05, 1.9)]
 
     best = None
+    best_x0 = None
     for mu0, K0, c0, p0, alpha0 in initial_guesses:
         x0 = np.array([np.log(mu0), np.log(K0), np.log(c0), np.log(p0 - 1.0), alpha0])
         res = minimize(
-            lambda x: _neg_log_lik_core(x, times, mags, m0, i_idx, j_idx, dt_ij),
+            lambda x: _neg_log_lik_core(x, times, mags, m0, i_idx, j_idx, dt_ij, t_end),
             x0,
             method="Nelder-Mead",
             options={"maxiter": maxiter, "maxfev": maxiter, "xatol": 1e-5, "fatol": 1e-3, "adaptive": True},
         )
         if best is None or res.fun < best[0]:
             best = (res.fun, res)
+            best_x0 = (mu0, K0, c0, p0, alpha0)
 
     nll, res = best
     log_mu, log_K, log_c, log_pm1, alpha = res.x
@@ -311,13 +364,13 @@ def fit_etas_model(
     params = ETASParams(mu=mu, K=K, c=c, p=p, alpha=float(alpha))
 
     ll_etas = -float(nll)
-    ll_null = null_poisson_log_likelihood(times)
+    ll_null = null_poisson_log_likelihood(times, t_start=t_start, t_end=t_end)
     branching = etas_branching_ratio(K, c, p, float(alpha), mags, m0)
 
     return ETASFitResult(
         params=params,
         n_events=N,
-        T_days=T,
+        T_days=t_end,
         m0=m0,
         log_lik_etas=ll_etas,
         log_lik_null_poisson=ll_null,
@@ -326,6 +379,11 @@ def fit_etas_model(
         branching_ratio=branching,
         optimizer_success=bool(res.success),
         n_starts_tried=len(initial_guesses),
+        optimizer_status=int(res.status),
+        optimizer_message=str(res.message),
+        initial_guess_used=tuple(float(v) for v in best_x0),
+        t_start=t_start,
+        t_end=t_end,
     )
 
 

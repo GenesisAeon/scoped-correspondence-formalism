@@ -91,18 +91,42 @@ a well-identified mechanistic advantage; it is fully consistent with a
 flexible-enough linear system finding a good in-sample fit while its
 individual parameters remain poorly determined.
 
-**Identifiability caveat:** with CO2-only forcing and a single historical
-annual temperature record, `C_d` and `gamma` (and now demonstrably
-`alpha`) are only weakly constrained — multiple parameter combinations
-can give nearly the same surface-temperature trajectory (a real,
-well-known limitation in climate science: equilibrium climate sensitivity
-is notoriously hard to pin down from the historical record alone, which
-is why real assessments use step-response GCM experiments to identify
-these parameters separately). No profile-likelihood-style identifiability
-check (`identifiability.profile_likelihood`) is performed here; the
-reported fit is the best among several bounded optimizer starts (which
-now agree with each other, unlike the original unbounded fit), not a
-claim of a uniquely identified physical optimum.
+**Identifiability caveat, now rigorously checked (2026-09-21,
+MECHANISTIC_VALIDATION_ROADMAP.md package 1):** with CO2-only forcing and
+a single historical annual temperature record, `C_d` and `gamma` (and now
+demonstrably `alpha`) are only weakly constrained — multiple parameter
+combinations can give nearly the same surface-temperature trajectory (a
+real, well-known limitation in climate science: equilibrium climate
+sensitivity is notoriously hard to pin down from the historical record
+alone, which is why real assessments use step-response GCM experiments to
+identify these parameters separately).
+
+`profile_energy_balance_identifiability()` now connects this to
+`identifiability.profile_likelihood` directly, via a new general
+bounded-NLP profiler (`identifiability.profile_likelihood_nlp`, since the
+existing M20 module's `profile_parameter` is restricted to at most one
+free parameter — energy_balance.py has five). For each parameter, a
+±50% scan (re-optimizing the other 4 parameters at every grid point,
+chi2 normalized by the reduced-chi-square noise estimate) gives a genuine
+likelihood-ratio confidence interval at the standard `Δχ²=1` threshold:
+
+| Parameter | 1-σ likelihood interval on this scan |
+|---|---|
+| `C_s` | **unbounded** (fully flat — practically unidentified) |
+| `C_d` | **unbounded** (fully flat — practically unidentified) |
+| `alpha` | **unbounded** (fully flat — consistent with saturating `PARAM_BOUNDS`) |
+| `gamma` | lower ≈ 1.35, **unbounded above** (partially identified) |
+| `T0` | **unbounded below**, upper ≈ -0.0046 (partially identified) |
+
+This is a rigorous confirmation, not just an assertion: three of five
+parameters (`C_s`, `C_d`, `alpha`) cannot be pinned down even within a
+generous ±50% window around their fitted values — the data constrain the
+MODEL's overall trajectory (hence the good RMSE) far better than they
+constrain these individual physical parameters. `gamma` and `T0` show at
+least one-sided curvature. The reported fit is the best among several
+bounded optimizer starts (which now agree with each other, unlike the
+original unbounded fit), not a claim of a uniquely identified physical
+optimum.
 
 **Reference-level caveat (flagged by external review):** `F` is
 referenced to CO2 in 1959, while the NOAA temperature series is a

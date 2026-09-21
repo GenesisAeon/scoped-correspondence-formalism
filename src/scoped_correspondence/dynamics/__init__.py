@@ -37,6 +37,13 @@ package 5c) is likewise exported submodule-locally; independent of every
 other dynamics submodule -- it is a discrete-event point-process
 likelihood, not an ODE/SDE, and shares no code with ``rate_dependent.py``
 or ``energy_balance.py`` beyond following the same fit-and-report pattern.
+
+Milestone 47 (energy_balance.py profile-likelihood identifiability,
+MECHANISTIC_VALIDATION_ROADMAP.md package 1) adds
+``profile_energy_balance_identifiability`` to ``energy_balance.py`` itself
+(same file, additive function); it calls
+``identifiability.profile_likelihood_nlp`` (new) and
+``identifiability.profile_likelihood`` (M20, called only, not edited).
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -123,11 +130,15 @@ from scoped_correspondence.dynamics.energy_balance import (
     CO2_FORCING_COEFFICIENT,
     SOURCE as ENERGY_BALANCE_SOURCE,
     DATA_PROVENANCE_NOTE as ENERGY_BALANCE_DATA_PROVENANCE_NOTE,
+    PARAM_BOUNDS as ENERGY_BALANCE_PARAM_BOUNDS,
     EnergyBalanceFitResult,
+    EnergyBalanceIdentifiabilityReport,
     EnergyBalanceParams,
+    ParameterProfile as EnergyBalanceParameterProfile,
     co2_radiative_forcing,
     fit_energy_balance_model,
     load_annual_co2,
+    profile_energy_balance_identifiability,
 )
 from scoped_correspondence.dynamics.etas import (
     SOURCE as ETAS_SOURCE,
@@ -219,10 +230,14 @@ __all__ = [
     "CO2_FORCING_COEFFICIENT",
     "ENERGY_BALANCE_SOURCE",
     "ENERGY_BALANCE_DATA_PROVENANCE_NOTE",
+    "ENERGY_BALANCE_PARAM_BOUNDS",
     "EnergyBalanceFitResult",
+    "EnergyBalanceIdentifiabilityReport",
     "EnergyBalanceParams",
+    "EnergyBalanceParameterProfile",
     "co2_radiative_forcing",
     "fit_energy_balance_model",
+    "profile_energy_balance_identifiability",
     "load_annual_co2",
     # M46 ETAS self-exciting point process (NONSTATIONARY_ROADMAP.md package 5c)
     "ETAS_SOURCE",

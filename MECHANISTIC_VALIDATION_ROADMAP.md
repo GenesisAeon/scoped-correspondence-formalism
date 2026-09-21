@@ -20,44 +20,74 @@ unverändert stehen (neue Erkenntnisse ergänzen, nicht überschreiben).
 
 | # | Paket | Status |
 |---|---|---|
-| 1 | Numerisch zuverlässige Kalibrierung + Profile-Likelihood-Anschluss | ⏸ geplant |
+| 1 | Numerisch zuverlässige Kalibrierung + Profile-Likelihood-Anschluss | ✅ erledigt |
 | 2 | Gemeinsame zeitliche Prognoseprüfung (alle Mechanismus-Module) | ⏸ geplant |
 | 3 | Probabilistische Ergebnisse (Vorhersageintervalle, Scoring-Regeln) | ⏸ geplant |
 | 4 | Zwei neue Strukturbrücken (Impulsantwort; Kern/Verzweigung) | ⏸ geplant |
 | 5 | Beobachtungs- und Zustandsmodelle (COVID Negativ-Binomial, Mehrländer) | ⏸ geplant |
 | 6 | Mehrdimensionale R-Tipping-/Viabilitätskarten | ⏸ geplant |
 
-## Paket 1 — Numerisch zuverlässige Kalibrierung + Profile-Likelihood-Anschluss
+## Paket 1 — Umsetzung (2026-09-21)
 
-**Bereits erledigt** (Commit `20efc63`, Teil der Fehlerkorrektur, nicht Teil
-dieses Pakets): exakte Matrixexponential-Fortschreibung + physikalisch
+**Bereits vor diesem Paket erledigt** (Commit `20efc63`, Teil der
+Fehlerkorrektur): exakte Matrixexponential-Fortschreibung + physikalisch
 motivierte `PARAM_BOUNDS` + Mehrfachstart für `energy_balance.py`, `at_bound`-
 Flag, `solve_ivp`-Gegenrechnung. Auch bereits vorhanden: die Prüfung auf
-lückenlose Kalenderjahre in `fit_energy_balance_model` (Astras Hinweis zur
-Jahresindex-Kompression war zum Zeitpunkt der Zweitprüfung noch offen, ist
-aber inzwischen durch die Korrektur mit erledigt).
+lückenlose Kalenderjahre in `fit_energy_balance_model`.
 
-**Noch offen (dieses Paket):**
-- Anschluss an `identifiability.profile_likelihood` für `energy_balance.py`
-  (und exploratorisch für `covid_renewal.py`/`etas.py`, wo sinnvoll): welche
-  Parameterkombinationen sind bei gegebener Datenlage tatsächlich
-  unterscheidbar? Astras Beobachtung (kleinster Singulärwert der
-  Sensitivitätsmatrix sehr klein) braucht eine echte Charakterisierung, nicht
-  nur die jetzige Bound-Sättigungs-Meldung.
-- Explizite Diagnose von Gradient, Abbruchgrund (`termination_status`) und
-  Startwertabhängigkeit im JSON-Ergebnisbericht selbst (nicht nur im
-  Docstring behauptet) — für `energy_balance.py` UND `etas.py` (dort:
-  Konvergenzstatus samt Budget und Startwerten explizit ausweisen).
-- ETAS: Beobachtungsbeginn/-ende explizit als Parameter statt implizit als
-  erste/letzte Ereigniszeit (Astras konkreter Kritikpunkt); Vorhistorie vor
-  `t=0` berücksichtigen, falls verfügbar.
-- Ein gemeinsamer Ergebnisvertrag (Astras Vorschlag): ein
-  `EstimationContract`-artiges Dataclass-Feld-Set
-  (`numerically_verified`, `optimizer_converged`, `parameters_identified`,
-  `out_of_sample_evaluated`, `mechanism_discriminated`), das alle neuen
-  Fit-Ergebnisklassen (`EnergyBalanceFitResult`, `ETASFitResult`,
-  `RenewalReport`) konsistent ausweisen, damit ein grüner Test nicht
-  versehentlich als empirische Bestätigung gelesen wird.
+**Profile-Likelihood-Anschluss** (Milestone 47, neues Modul
+`identifiability/profile_likelihood_nlp.py`): `identifiability/profile_likelihood.py`
+(M20) ist bewusst auf algebraische Fälle mit höchstens einem freien
+Parameter beschränkt (1D-Golden-Section) — `energy_balance.py` hat aber 5
+Parameter. `profile_parameter_nlp()` verallgemeinert auf beliebig viele
+freie Parameter über echte gebundene NLP-Optimierung
+(`scipy.optimize.least_squares`), ruft `classify_identifiability`/
+`likelihood_interval` aus M20 unverändert wieder auf (beide sind generisch
+über das `Profile`-Format, unabhängig davon, wie `chi2_min` berechnet
+wurde). `energy_balance.profile_energy_balance_identifiability()` wendet
+das auf alle 5 Parameter an, mit einer wichtigen methodischen Korrektur
+unterwegs: die rohe Fehlerquadratsumme hat keine intrinsische Skala, daher
+ist ein Wilks-Schwellenwert `Δχ²=1` darauf bedeutungslos — die Funktion
+normiert stattdessen mit der reduzierten-Chi-Quadrat-Rausch-Schätzung
+`σ̂²=RSS_min/(n_Jahre−n_Parameter)`.
+
+Ergebnis (±50%-Raster um den gefitteten Wert, alle Zahlen aus
+`verify_energy_balance_results.json`): `C_s`, `C_d` und `alpha` sind auf
+diesem Raster **praktisch nicht identifizierbar** (unbeschränktes
+Konfidenzintervall) — eine strenge Bestätigung des bisher nur in Prosa
+dokumentierten Befunds, nicht nur eine Behauptung. `gamma`
+(untere Grenze ≈1,35, oben offen) und `T0` (obere Grenze ≈−0,0046, unten
+offen) zeigen wenigstens einseitige Krümmung.
+
+**Explizite Konvergenzdiagnose:** `EnergyBalanceFitResult` und
+`ETASFitResult` weisen jetzt `optimizer_status`/`optimizer_message`
+(direkt aus dem scipy-Ergebnis) sowie die tatsächlich verwendeten
+Startwerte (`initial_guesses_tried`/`best_initial_guess` bzw.
+`initial_guess_used`) im JSON-Bericht aus, statt nur im Docstring
+behauptet zu werden.
+
+**ETAS-Beobachtungsfenster:** `fit_etas_model(..., t_end=...)` akzeptiert
+jetzt ein explizites Fensterende statt implizit die letzte Ereigniszeit —
+eine Verlängerung des Fensters ohne neue Ereignisse macht sowohl die
+ETAS- als auch die Poisson-Null-Log-Likelihood nachweislich schlechter
+(unabhängig geprüft). Vorhistorie vor `t=0` bleibt bewusst **nicht**
+modelliert — eine eigenständige, schwierigere Erweiterung (siehe unten).
+
+**Ergebnisvertrag (bewusst leichtgewichtiger als vorgeschlagen):** statt
+einer neuen gemeinsamen `EstimationContract`-Dataclass (die alle
+bestehenden Fit-Ergebnisklassen umbauen würde) dokumentieren wir hier
+explizit, welche bereits vorhandenen Felder welche Vertragsdimension
+abdecken: `optimizer_success`≈`optimizer_converged`; `at_bound`
+(Energiebilanz) und die Profile-Likelihood-Klassifikation≈
+`parameters_identified`; `out_of_sample_evaluated` und
+`mechanism_discriminated` sind für KEINES der drei Modelle bisher wahr
+(explizit offen, siehe Paket 2). Eine vollständige gemeinsame Dataclass
+bleibt ein dokumentierter, aber bewusst zurückgestellter Vorschlag.
+
+`verify_energy_balance.py`: 5/5 bestanden (neuer Check
+`profile_likelihood_identifiability`). `verify_etas.py`: 6/6 bestanden
+(neuer Check `observation_window_t_end`). Dokumentiert in
+`docs/energy_balance.md` und `docs/etas_earthquakes.md`.
 
 ## Paket 2 — Gemeinsame zeitliche Prognoseprüfung
 

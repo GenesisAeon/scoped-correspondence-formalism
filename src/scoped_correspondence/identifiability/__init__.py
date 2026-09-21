@@ -6,6 +6,13 @@ Milestone 20 (Profile Likelihood) and Milestone 23 (Fisher-Information
 Sloppiness) are exported here as **submodule-local** additions; package-root
 ``scoped_correspondence.__init__`` is intentionally left untouched.
 ``identifiability.core`` and ``profile_likelihood`` are not edited by M23.
+
+Milestone 47 (NLP Profile Likelihood, MECHANISTIC_VALIDATION_ROADMAP.md
+package 1) is likewise exported submodule-locally; ``profile_likelihood.py``
+is CALLED only (``classify_identifiability``/``likelihood_interval`` reused
+directly, its own ``profile_parameter``'s 1-free-parameter restriction is
+untouched) -- it generalizes profiling to models with more than one free
+parameter via a real bounded NLP solver instead of 1-D golden section.
 """
 
 from scoped_correspondence.identifiability.core import (
@@ -33,6 +40,9 @@ from scoped_correspondence.identifiability.fim_sloppiness import (
     exponential_decay_jacobian,
     fisher_information_matrix,
 )
+from scoped_correspondence.identifiability.profile_likelihood_nlp import (
+    profile_parameter_nlp,
+)
 from scoped_correspondence.errors import ScopeViolationError
 
 __all__ = [
@@ -58,4 +68,6 @@ __all__ = [
     "eigenspectrum_report",
     "exponential_decay_jacobian",
     "fisher_information_matrix",
+    # M47 NLP profile likelihood (MECHANISTIC_VALIDATION_ROADMAP.md package 1)
+    "profile_parameter_nlp",
 ]

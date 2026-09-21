@@ -1,8 +1,8 @@
 {
-  "count": 5,
+  "count": 6,
   "errors": [],
   "failed": 0,
-  "passed": 5,
+  "passed": 6,
   "report": {
     "checks": {
       "branching_ratio_tail_sensitivity": {
@@ -55,6 +55,17 @@
         },
         "status": "passed"
       },
+      "observation_window_t_end": {
+        "detail": {
+          "ll_null_default": -27.82386313742803,
+          "ll_null_extended_window": -32.248021080958644,
+          "nll_default": 40.290920248973485,
+          "nll_extended_window": 45.55999033039178,
+          "raised_on_non_positive_window": true,
+          "raised_on_t_end_before_last_event": true
+        },
+        "status": "passed"
+      },
       "real_catalog_fit": {
         "detail": {
           "T_days": 9756.348292013889,
@@ -86,6 +97,6 @@
     "scipy": "1.15.3",
     "scope_warning": "Temporal-only ETAS on a pooled global catalog is a qualitative self-excitation test, not a calibrated regional hazard model.",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-21T18:35:54+02:00"
+    "timestamp": "2026-09-21T19:16:03+02:00"
   }
 }

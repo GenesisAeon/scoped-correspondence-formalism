@@ -32,6 +32,11 @@ Checks (all numbers from this script run):
      sub-critical. Quantified directly rather than left as an implicit
      assumption -- the specific branching-ratio value should not be read
      as a validated criticality finding.
+  6. NEW (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 1):
+     explicit observation-window (t_end) plumbing -- extending the window
+     past the last event with no new events makes both the ETAS and the
+     null-Poisson log-likelihood worse, as expected; ScopeViolationError
+     for t_end before the last event / non-positive windows.
 
 IMPORTANT SCOPE LIMITATION: temporal-only ETAS on a pooled GLOBAL
 multi-region catalog -- see dynamics/etas.py module docstring. Not a
@@ -165,6 +170,61 @@ def check_null_poisson_hand_check():
     return {"module_ll": float(module_ll), "hand_ll": float(hand_ll)}
 
 
+def check_observation_window_t_end():
+    """MECHANISTIC_VALIDATION_ROADMAP.md package 1 (Astra, 2026-09-21):
+    "Beobachtungsbeginn/-ende explizit als Parameter statt implizit als
+    erste/letzte Ereigniszeit." Cheap, direct-function checks (no full
+    re-fit) that the new explicit t_end plumbing behaves correctly.
+    """
+    rng = np.random.default_rng(7)
+    times = np.sort(rng.uniform(0, 50, size=12))
+    mags = 6.0 + rng.exponential(0.4, size=12)
+    m0 = 6.0
+    mu, K, c, p, alpha = 0.05, 0.3, 0.2, 1.3, 1.2
+    log_params = np.array([np.log(mu), np.log(K), np.log(c), np.log(p - 1.0), alpha])
+
+    nll_default = etas_neg_log_likelihood(log_params, times, mags, m0=m0)
+    nll_default_explicit = etas_neg_log_likelihood(log_params, times, mags, m0=m0, t_end=float(times[-1]))
+    near(nll_default, nll_default_explicit, atol=1e-12)
+
+    t_end_extended = float(times[-1]) + 20.0
+    nll_extended = etas_neg_log_likelihood(log_params, times, mags, m0=m0, t_end=t_end_extended)
+    require(
+        nll_extended > nll_default,
+        "extending the observation window with no new events must make the fit look WORSE (larger compensator, same log-intensity sum), i.e. higher negative log-likelihood",
+    )
+
+    ll_null_default = null_poisson_log_likelihood(times)
+    ll_null_extended = null_poisson_log_likelihood(times, t_start=0.0, t_end=t_end_extended)
+    require(
+        ll_null_extended < ll_null_default,
+        "the null Poisson log-likelihood must also decrease (fewer events per unit time) under the extended window",
+    )
+
+    bad_t_end = False
+    try:
+        fit_etas_model(ROOT / "data" / "usgs_earthquakes_m6plus_2000_2026.csv", m0=6.0, t_end=0.0)
+    except ScopeViolationError:
+        bad_t_end = True
+    require(bad_t_end, "expected ScopeViolationError for t_end before the last event time")
+
+    bad_window = False
+    try:
+        null_poisson_log_likelihood(times, t_start=5.0, t_end=5.0)
+    except ScopeViolationError:
+        bad_window = True
+    require(bad_window, "expected ScopeViolationError for t_end <= t_start")
+
+    return {
+        "nll_default": float(nll_default),
+        "nll_extended_window": float(nll_extended),
+        "ll_null_default": float(ll_null_default),
+        "ll_null_extended_window": float(ll_null_extended),
+        "raised_on_t_end_before_last_event": bad_t_end,
+        "raised_on_non_positive_window": bad_window,
+    }
+
+
 def check_real_catalog_fit(result):
     # NOTE: optimizer_success is intentionally NOT required here -- fit_etas_model
     # uses a deliberately time-boxed Nelder-Mead budget (see its PERFORMANCE NOTE
@@ -251,6 +311,7 @@ CHECKS = [
     ("compensator_g_hand_check", check_compensator_g_hand_check),
     ("neg_log_lik_hand_check", check_neg_log_lik_hand_check),
     ("null_poisson_hand_check", check_null_poisson_hand_check),
+    ("observation_window_t_end", check_observation_window_t_end),
 ]
 
 

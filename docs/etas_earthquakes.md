@@ -111,6 +111,21 @@ robust part of this module's finding is the AIC comparison (self-excitation
 present, decisively better than a Poisson null), not the specific
 branching-ratio value.
 
+## Explicit observation window, convergence diagnostics (2026-09-21)
+
+MECHANISTIC_VALIDATION_ROADMAP.md package 1, response to Astra's
+suggestion that observation start/end be explicit parameters rather than
+implicitly the first/last event time: `fit_etas_model(..., t_end=...)`
+now accepts an explicit window end (e.g. "today," if no qualifying event
+has occurred since the catalog's last one) — extending the window with no
+new events correctly makes both the ETAS and null-Poisson log-likelihood
+worse (independently verified). Pre-history before the first event
+(`t<0`) is NOT modeled — a harder extension left for future work.
+`ETASFitResult` also now reports `optimizer_status`/`optimizer_message`
+(from the Nelder-Mead result directly) and the exact `initial_guess_used`,
+so convergence behavior is visible in the JSON report, not just asserted
+in prose.
+
 ## IMPORTANT SCOPE LIMITATION
 
 This is a **TEMPORAL-ONLY** fit (no spatial kernel) on a **pooled global,
