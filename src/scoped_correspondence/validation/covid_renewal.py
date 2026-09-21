@@ -125,6 +125,45 @@ def instantaneous_r(incidence: np.ndarray, weights: np.ndarray) -> np.ndarray:
     return r_t
 
 
+def project_incidence_constant_r(
+    history_incidence: np.ndarray,
+    weights: np.ndarray,
+    r_constant: float,
+    n_steps: int,
+) -> np.ndarray:
+    """Forward-project incidence ``n_steps`` days assuming R stays constant at ``r_constant``.
+
+    MECHANISTIC_VALIDATION_ROADMAP.md package 2: the standard renewal-
+    equation forecasting recursion -- I_{t} = r_constant * Lambda_t where
+    Lambda_t = sum_s w_s * I_{t-s}, using ALREADY-PROJECTED values as they
+    become part of the growing history (a genuine multi-step-ahead
+    forecast, not a series of independent one-step predictions). A
+    standard, explicitly-flagged epidemiological forecasting ASSUMPTION
+    (constant R over the forecast horizon), not a claim that R actually
+    stays constant.
+    """
+    history_incidence = np.asarray(history_incidence, dtype=float)
+    weights = np.asarray(weights, dtype=float)
+    s_max = len(weights) - 1
+    if len(history_incidence) < s_max:
+        raise ScopeViolationError(
+            f"project_incidence_constant_r: history (len={len(history_incidence)}) shorter than s_max={s_max}"
+        )
+    if n_steps < 1:
+        raise ScopeViolationError(f"project_incidence_constant_r: n_steps must be >= 1; got {n_steps!r}")
+    if r_constant < 0:
+        raise ScopeViolationError(f"project_incidence_constant_r: r_constant must be >= 0; got {r_constant!r}")
+
+    series = list(history_incidence)
+    projected = []
+    for _ in range(n_steps):
+        lam = float(np.dot(weights[1 : s_max + 1], np.array(series[-s_max:])[::-1]))
+        next_val = r_constant * lam
+        series.append(next_val)
+        projected.append(next_val)
+    return np.array(projected)
+
+
 def wallinga_lipsitch_r(r: float, weights: np.ndarray) -> float:
     """R implied by exponential growth rate r, given generation-interval weights.
 
@@ -209,6 +248,7 @@ __all__ = [
     "RenewalReport",
     "discretized_generation_interval",
     "instantaneous_r",
+    "project_incidence_constant_r",
     "wallinga_lipsitch_r",
     "run_covid_renewal_analysis",
 ]

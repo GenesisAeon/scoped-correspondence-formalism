@@ -159,6 +159,14 @@ A) and `docs/noaa_temp_pilot.md`'s original linear-trend result still
 stands independently of this correction — but this module no longer
 claims to have traced it to a specific physical cause here.
 
+**Follow-up (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 2):**
+this model's genuine out-of-sample rolling-origin performance (refit on
+calib-only years, projected through real future CO2 forcing) is now
+tested directly — see
+[docs/mechanistic_rolling_origin.md](mechanistic_rolling_origin.md). It
+beats every statistical baseline (persistence, expanding-window and
+last-30-years linear trends) at every tested lead year, 1 through 5.
+
 ## Verify
 
 ```bash

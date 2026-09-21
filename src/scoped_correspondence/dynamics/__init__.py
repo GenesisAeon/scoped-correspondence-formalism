@@ -137,6 +137,8 @@ from scoped_correspondence.dynamics.energy_balance import (
     ParameterProfile as EnergyBalanceParameterProfile,
     co2_radiative_forcing,
     fit_energy_balance_model,
+    fit_energy_balance_model_from_series,
+    integrate_energy_balance_trajectory,
     load_annual_co2,
     profile_energy_balance_identifiability,
 )
@@ -148,8 +150,10 @@ from scoped_correspondence.dynamics.etas import (
     ETASParams,
     compensator_g as etas_compensator_g,
     etas_branching_ratio,
+    etas_expected_count_first_order,
     etas_neg_log_likelihood,
     fit_etas_model,
+    fit_etas_model_from_series,
     load_catalog as etas_load_catalog,
     null_poisson_log_likelihood,
 )
@@ -237,6 +241,8 @@ __all__ = [
     "EnergyBalanceParameterProfile",
     "co2_radiative_forcing",
     "fit_energy_balance_model",
+    "fit_energy_balance_model_from_series",
+    "integrate_energy_balance_trajectory",
     "profile_energy_balance_identifiability",
     "load_annual_co2",
     # M46 ETAS self-exciting point process (NONSTATIONARY_ROADMAP.md package 5c)
@@ -247,8 +253,10 @@ __all__ = [
     "ETASParams",
     "etas_compensator_g",
     "etas_branching_ratio",
+    "etas_expected_count_first_order",
     "etas_neg_log_likelihood",
     "fit_etas_model",
+    "fit_etas_model_from_series",
     "etas_load_catalog",
     "null_poisson_log_likelihood",
 ]

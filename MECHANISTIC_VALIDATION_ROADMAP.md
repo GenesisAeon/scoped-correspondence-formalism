@@ -21,7 +21,7 @@ unverändert stehen (neue Erkenntnisse ergänzen, nicht überschreiben).
 | # | Paket | Status |
 |---|---|---|
 | 1 | Numerisch zuverlässige Kalibrierung + Profile-Likelihood-Anschluss | ✅ erledigt |
-| 2 | Gemeinsame zeitliche Prognoseprüfung (alle Mechanismus-Module) | ⏸ geplant |
+| 2 | Gemeinsame zeitliche Prognoseprüfung (alle Mechanismus-Module) | ✅ erledigt |
 | 3 | Probabilistische Ergebnisse (Vorhersageintervalle, Scoring-Regeln) | ⏸ geplant |
 | 4 | Zwei neue Strukturbrücken (Impulsantwort; Kern/Verzweigung) | ⏸ geplant |
 | 5 | Beobachtungs- und Zustandsmodelle (COVID Negativ-Binomial, Mehrländer) | ⏸ geplant |
@@ -89,20 +89,61 @@ bleibt ein dokumentierter, aber bewusst zurückgestellter Vorschlag.
 (neuer Check `observation_window_t_end`). Dokumentiert in
 `docs/energy_balance.md` und `docs/etas_earthquakes.md`.
 
-## Paket 2 — Gemeinsame zeitliche Prognoseprüfung
+## Paket 2 — Umsetzung (2026-09-21)
 
 Astras Kernkritik: jedes neue Modell wurde bisher gegen sein EIGENES
 Trainingsfenster bewertet (In-Sample-RMSE), nicht gegen dieselben Zielgrößen,
 Ursprünge und Horizonte wie die anderen. `validation/rolling_origin.py`
-(Paket 1 der ersten Roadmap) existiert bereits generisch — dieses Paket
-wendet es zum ersten Mal auf `covid_renewal.py`, `energy_balance.py` und
-`etas.py` an:
-- Modellwahl (Startwerte, Bounds, Fensterwahl) ausschließlich mit
-  zurückliegenden Daten fixieren, VOR dem Blick auf die Prognoseperiode.
-- Fehler getrennt nach Horizont ausweisen (nicht nur gepoolt).
-- Direkter Vergleich: mechanistisches Modell vs. Persistenz vs. der
-  jeweils bereits vorhandenen einfachen statistischen Baseline (z.B.
-  `noaa_temp_pilot.md`s 30-Jahres-Trend für `energy_balance.py`).
+(Paket 1 der ersten Roadmap) existiert bereits generisch — neues Modul
+`validation/mechanistic_rolling_origin.py` (Milestone 48) wendet es zum
+ersten Mal auf `covid_renewal.py`, `energy_balance.py` und `etas.py` an,
+jeweils an die eigene Domäne angepasst (ein Punktprozess braucht eine
+andere Auswertung als eine kontinuierliche Jahresreihe). Modellwahl
+(Startwerte, Bounds, Fensterwahl) bleibt bei den bereits ausgelieferten
+Fit-Funktionen fixiert — nichts wurde anhand der Rolling-Origin-Leistung
+nachjustiert.
+
+**Energiebilanz** (`run_energy_balance_rolling_origin_backtest`): dieselben
+11 Ursprünge (1969–2019, Schritt 5) und derselbe 5-Jahres-Horizont wie
+`noaa_temp_pilot.py`, plus ein neuer Prädiktor (Refit auf Kalibrierjahre,
+Projektion durch reales, bereits beobachtetes CO2-Forcing). Ergebnis:
+das mechanistische Modell schlägt ALLE drei Baselines (RMSE 0,1064 vs.
+0,1171 last30 vs. 0,1343 expanding vs. 0,1376 Persistenz) — und zwar an
+JEDEM einzelnen Vorlaufjahr (1–5), nicht nur im Mittel (neue Funktion
+`rolling_origin.error_by_horizon_step`, additiv, `rolling_origin_backtest`
+selbst unverändert — direkte Antwort auf Astras "Fehler getrennt nach
+Horizont"-Anfrage).
+
+**COVID-Renewal** (`run_covid_renewal_rolling_origin_backtest`): mehrere
+Ursprünge im selben Januar–März-2020-Fenster, 7-Tage-Horizont. Neue
+Funktion `covid_renewal.project_incidence_constant_r` (Vorwärtsprojektion
+bei konstant angenommenem R, hand-geprüft: eine reine Exponentialreihe,
+bei ihrem eigenen Wallinga-Lipsitch-R projiziert, setzt sich exakt als
+dieselbe Exponentialreihe fort). Ergebnis: Renewal-Projektion schlägt
+Persistenz (1029 vs. 5696) und einfache Exponentialextrapolation (1029
+vs. 2012) deutlich.
+
+**ETAS-Erdbeben** (`run_etas_forecast_check`): derselbe Kalibrier-/
+Holdout-Split wie `earthquake_pilot.py` (2000–2019/2020–2025), ETAS-Fit
+mit explizitem `t_end=2020-01-01`-Beobachtungsfenster (Paket 1), neue
+Funktion `etas_expected_count_first_order` (Hintergrundrate + direkte
+Auslösung aus der Kalibrier-Historie — bewusst OHNE Kaskaden neu
+ausgelöster Nachbeben, siehe Docstring). **Ehrliches, nicht
+nachjustiertes gemischtes Ergebnis:** ETAS schlägt die Persistenz-
+Baseline hier NICHT (RMSE 26,31 vs. 22,96), schlägt aber die
+Gleichraten-Poisson-Baseline (28,78). Zusätzlich: die kalibrier-nur
+gefittete Verzweigungsrate liegt bei 0,854 (unterkritisch) — deutlich
+anders als die 1,02 (nahe-kritisch) auf dem VOLLEN Katalog (Paket 1) —
+ein weiterer Beleg für die dort bereits gefundene Fragilität dieser
+Kennzahl über verschiedene Fitfenster hinweg.
+
+`verify_mechanistic_rolling_origin.py`: 3/3 bestanden (inkl. unabhängiger
+Hand-Nachrechnung eines Energiebilanz-Ursprungs durch direkten Refit+
+Projektion außerhalb der privaten Prädiktor-Closure, und Integritätsprüfung
+der ETAS-Holdout-Zahlen gegen `earthquake_pilot.py`s eigene dokumentierte
+Werte). `verify_covid_renewal.py`: 5/5 bestanden (neuer Hand-Check für
+`project_incidence_constant_r`). Dokumentiert in
+`docs/mechanistic_rolling_origin.md`.
 
 ## Paket 3 — Probabilistische Ergebnisse
 

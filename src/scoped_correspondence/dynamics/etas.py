@@ -266,6 +266,51 @@ def etas_branching_ratio(K: float, c: float, p: float, alpha: float, mags: np.nd
     return float(K * magnitude_factor * kernel_integral)
 
 
+def etas_expected_count_first_order(
+    params: ETASParams,
+    times_history: np.ndarray,
+    mags_history: np.ndarray,
+    m0: float,
+    window_start: float,
+    window_end: float,
+) -> float:
+    """First-order (NOT full branching-cascade) expected event count in [window_start, window_end].
+
+    MECHANISTIC_VALIDATION_ROADMAP.md package 2. Computes
+    ``mu*(window_end-window_start) + sum_i K*exp(alpha*(M_i-M0))*[g(window_end-t_i)-g(window_start-t_i)]``
+    over the supplied HISTORY events only (typically all calib events,
+    i.e. those before ``window_start``). This is the expected count from
+    the background rate plus DIRECT triggering by already-observed
+    events -- it deliberately excludes "offspring of offspring" that
+    would be newly triggered by events occurring for the first time
+    inside the window itself.
+
+    This is a genuine LOWER BOUND on the true (full branching-cascade)
+    expected count only when the branching ratio n < 1 (subcritical); the
+    standard closed-form correction for a stationary linear Hawkes
+    process would be to divide by (1-n), but that identity is UNDEFINED
+    (negative/infinite) once n >= 1 -- exactly the near-critical regime
+    already found for this pooled global catalog (branching_ratio ~ 1.02,
+    itself fragile -- see docs/etas_earthquakes.md). Callers MUST check
+    ``etas_branching_ratio(...) < 1`` and report this function's output as
+    a first-order approximation only, not a calibrated forecast, when it
+    is not (see docs/mechanistic_rolling_origin.md).
+    """
+    if window_end <= window_start:
+        raise ScopeViolationError(f"etas_expected_count_first_order: window_end must be > window_start; got {window_start!r}, {window_end!r}")
+    times_history = np.asarray(times_history, dtype=float)
+    mags_history = np.asarray(mags_history, dtype=float)
+    if np.any(times_history > window_start):
+        raise ScopeViolationError("etas_expected_count_first_order: all history events must be at or before window_start (pass calib-only events)")
+    excitation = params.K * np.exp(params.alpha * (mags_history - m0))
+    triggered = np.sum(
+        excitation
+        * (compensator_g(window_end - times_history, params.c, params.p) - compensator_g(window_start - times_history, params.c, params.p))
+    )
+    background = params.mu * (window_end - window_start)
+    return float(background + triggered)
+
+
 def fit_etas_model(
     catalog_path: str | Path,
     *,
@@ -275,6 +320,29 @@ def fit_etas_model(
     t_end: float | None = None,
 ) -> ETASFitResult:
     """Fit (mu, K, c, p, alpha) to a real earthquake catalog via MLE (Nelder-Mead).
+
+    Thin wrapper around :func:`fit_etas_model_from_series` that loads the
+    full catalog; see that function to fit an arbitrary (e.g. calib-only,
+    for rolling-origin backtesting) slice of already-loaded events.
+    """
+    times, mags = load_catalog(catalog_path, m0=m0)
+    return fit_etas_model_from_series(times, mags, m0=m0, initial_guesses=initial_guesses, maxiter=maxiter, t_end=t_end)
+
+
+def fit_etas_model_from_series(
+    times: np.ndarray,
+    mags: np.ndarray,
+    *,
+    m0: float = 6.0,
+    initial_guesses: List[Tuple[float, float, float, float, float]] | None = None,
+    maxiter: int = 140,
+    t_end: float | None = None,
+) -> ETASFitResult:
+    """Fitting core, given already-loaded (times, mags) arrays (MECHANISTIC_VALIDATION_ROADMAP.md package 2).
+
+    Split out of :func:`fit_etas_model` so a rolling-origin/calib-only
+    backtest can refit on a SLICE of events (e.g. ``times < some cutoff``)
+    without needing a separate catalog file on disk per origin.
 
     Compares against the closed-form MLE homogeneous-Poisson null via AIC.
     See module docstring for the temporal-only / pooled-global-catalog
@@ -318,7 +386,8 @@ def fit_etas_model(
     event (t<0) is NOT modeled here -- a separate, harder extension left
     for future work (see MECHANISTIC_VALIDATION_ROADMAP.md package 1).
     """
-    times, mags = load_catalog(catalog_path, m0=m0)
+    times = np.asarray(times, dtype=float)
+    mags = np.asarray(mags, dtype=float)
     N = len(times)
     t_start = 0.0
     if t_end is None:
@@ -326,9 +395,9 @@ def fit_etas_model(
     else:
         t_end = float(t_end)
         if t_end < float(times[-1]):
-            raise ScopeViolationError(f"fit_etas_model: t_end={t_end!r} must be >= the last event time {times[-1]!r}")
+            raise ScopeViolationError(f"fit_etas_model_from_series: t_end={t_end!r} must be >= the last event time {times[-1]!r}")
     if N < 100:
-        raise ScopeViolationError(f"fit_etas_model: only {N} events, need >= 100")
+        raise ScopeViolationError(f"fit_etas_model_from_series: only {N} events, need >= 100")
 
     i_idx, j_idx = np.tril_indices(N, k=-1)
     dt_ij = times[i_idx] - times[j_idx]
@@ -398,5 +467,7 @@ __all__ = [
     "etas_neg_log_likelihood",
     "null_poisson_log_likelihood",
     "etas_branching_ratio",
+    "etas_expected_count_first_order",
     "fit_etas_model",
+    "fit_etas_model_from_series",
 ]

@@ -26,6 +26,10 @@ Checks (all numbers from this script run):
      (both ~1.5-1.9) -- two independent methods agreeing.
   5. Scope violations: degenerate generation-interval parameters, too-short
      incidence series for instantaneous_r.
+  6. NEW (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 2):
+     project_incidence_constant_r's forward recursion, hand-checked
+     against a pure exponential continuing as the same exponential when
+     projected at its own Wallinga-Lipsitch-implied R.
 """
 from __future__ import annotations
 
@@ -53,6 +57,7 @@ from scoped_correspondence.validation.covid_renewal import (  # noqa: E402
     GENERATION_INTERVAL_SD_DAYS,
     discretized_generation_interval,
     instantaneous_r,
+    project_incidence_constant_r,
     run_covid_renewal_analysis,
     wallinga_lipsitch_r,
 )
@@ -172,9 +177,49 @@ def check_wallinga_lipsitch_cross_check(data_path):
     }
 
 
+def check_project_incidence_constant_r():
+    """MECHANISTIC_VALIDATION_ROADMAP.md package 2: forward-projection
+    self-consistency -- a pure exponential history, projected forward at
+    its own Wallinga-Lipsitch-implied R, must continue as the SAME
+    exponential (hand-computed independently of the module's recursion).
+    """
+    w = discretized_generation_interval()
+    r_true = 0.08
+    n = 40
+    t = np.arange(n, dtype=float)
+    history = 50.0 * np.exp(r_true * t)
+    R = wallinga_lipsitch_r(r_true, w)
+    projected = project_incidence_constant_r(history, w, R, 10)
+    expected = 50.0 * np.exp(r_true * np.arange(n, n + 10))
+    require(np.allclose(projected, expected, rtol=1e-8), "constant-R projection of a pure exponential must continue the SAME exponential")
+
+    bad_n_steps = False
+    try:
+        project_incidence_constant_r(history, w, R, 0)
+    except ScopeViolationError:
+        bad_n_steps = True
+    require(bad_n_steps, "expected ScopeViolationError for n_steps < 1")
+
+    bad_r = False
+    try:
+        project_incidence_constant_r(history, w, -1.0, 5)
+    except ScopeViolationError:
+        bad_r = True
+    require(bad_r, "expected ScopeViolationError for negative r_constant")
+
+    return {
+        "r_true": r_true,
+        "wallinga_lipsitch_R": R,
+        "max_rel_diff": float(np.max(np.abs(projected - expected) / expected)),
+        "raised_on_n_steps_lt_1": bad_n_steps,
+        "raised_on_negative_r": bad_r,
+    }
+
+
 CHECKS = [
     ("generation_interval_hand_check", check_generation_interval_hand_check),
     ("self_consistency_exponential_growth", check_self_consistency_exponential_growth),
+    ("project_incidence_constant_r", check_project_incidence_constant_r),
 ]
 
 

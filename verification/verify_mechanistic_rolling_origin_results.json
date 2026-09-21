@@ -1,0 +1,116 @@
+{
+  "count": 3,
+  "errors": [],
+  "failed": 0,
+  "passed": 3,
+  "report": {
+    "checks": {
+      "covid_renewal_rolling_origin": {
+        "detail": {
+          "pooled_rmse": {
+            "exponential_extrapolation": 2011.5641904640252,
+            "persistence": 5696.106572350651,
+            "renewal_constant_R": 1029.145138815651
+          }
+        },
+        "status": "passed"
+      },
+      "energy_balance_rolling_origin_and_horizon": {
+        "detail": {
+          "hand_checked_origin": 1999.0,
+          "hand_rmse": 0.05823169303953053,
+          "harness_rmse": 0.05823169303953053,
+          "pooled_rmse": {
+            "energy_balance_mechanistic": 0.1063770198024169,
+            "expanding": 0.13433915578988734,
+            "last30": 0.11707832703313122,
+            "persistence": 0.13760946056272305
+          },
+          "rmse_by_step": {
+            "energy_balance_mechanistic": {
+              "1": 0.09238425125780704,
+              "2": 0.11162016320305407,
+              "3": 0.09750829722146015,
+              "4": 0.12150239512764428,
+              "5": 0.10637547155004357
+            },
+            "last30": {
+              "1": 0.10707665590328291,
+              "2": 0.11703827778305351,
+              "3": 0.09932152798667163,
+              "4": 0.14375501010462793,
+              "5": 0.11332711832011787
+            },
+            "persistence": {
+              "1": 0.09704731741878195,
+              "2": 0.13152946437965904,
+              "3": 0.13895715494025815,
+              "4": 0.15568032514214386,
+              "5": 0.15626318126219566
+            }
+          }
+        },
+        "status": "passed"
+      },
+      "etas_forecast_check": {
+        "detail": {
+          "branching_ratio_near_or_above_critical": false,
+          "calib_branching_ratio": 0.8544102958413622,
+          "caveat": "branching_ratio < 1: the first-order approximation is a genuine (if still approximate) lower bound on the true expected count.",
+          "constant_rate_predicted": [
+            153.95,
+            153.95,
+            153.95,
+            153.95,
+            153.95,
+            153.95
+          ],
+          "etas_first_order_predicted": [
+            119.08703323750998,
+            115.9903081982008,
+            114.8354629942807,
+            114.09224263822111,
+            113.8621491465788,
+            113.13131800519396
+          ],
+          "holdout_years": [
+            2020,
+            2021,
+            2022,
+            2023,
+            2024,
+            2025
+          ],
+          "observed_counts": [
+            121.0,
+            157.0,
+            127.0,
+            147.0,
+            99.0,
+            145.0
+          ],
+          "persistence_predicted": [
+            145.0,
+            145.0,
+            145.0,
+            145.0,
+            145.0,
+            145.0
+          ],
+          "rmse_constant_rate": 28.778507605503094,
+          "rmse_etas_first_order": 26.30857619357676,
+          "rmse_persistence": 22.963739532866448
+        },
+        "status": "passed"
+      }
+    },
+    "disclaimer": "No parameter here was chosen by looking at rolling-origin performance; model selection is fixed by the already-shipped fitting functions.",
+    "numpy": "2.2.6",
+    "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 2 (common temporal forecast evaluation)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source": "This module applies validation.rolling_origin (already-verified generic harness) to dynamics.energy_balance, dynamics.etas, and validation.covid_renewal for the first time, per Astra's 2026-09-21 review of commit f8e249f (SCF_Review_f8e249f.md).",
+    "timestamp": "2026-09-21T20:24:36+02:00"
+  }
+}

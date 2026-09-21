@@ -79,7 +79,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -257,6 +257,19 @@ def _integrate_Ts_exact(F_vals: np.ndarray, C_s: float, C_d: float, alpha: float
     return np.array(out)
 
 
+def integrate_energy_balance_trajectory(F_vals: np.ndarray, params: EnergyBalanceParams) -> np.ndarray:
+    """Public wrapper around :func:`_integrate_Ts_exact` given an :class:`EnergyBalanceParams`.
+
+    For MECHANISTIC_VALIDATION_ROADMAP.md package 2: projects a
+    CALIB-fitted model FORWARD through real (already-known/observed) CO2
+    forcing beyond the calib window -- the standard "given forcing is
+    known, how well does the fitted response model project the observed
+    temperature" rolling-origin forecast setup, distinct from forecasting
+    the forcing itself (not attempted here).
+    """
+    return _integrate_Ts_exact(F_vals, params.C_s, params.C_d, params.alpha, params.gamma, params.T0)
+
+
 def _load_overlap_series(co2_path: str | Path, temp_path: str | Path) -> Tuple[List[int], np.ndarray, np.ndarray]:
     """Shared loader for fit_energy_balance_model and profile_energy_balance_identifiability."""
     import csv
@@ -307,8 +320,37 @@ def fit_energy_balance_model(
     per-parameter characterization via
     ``identifiability.profile_likelihood_nlp`` (Astra, 2026-09-21,
     MECHANISTIC_VALIDATION_ROADMAP.md package 1).
+
+    Thin wrapper around :func:`fit_energy_balance_model_from_series` that
+    loads the full real-data overlap; see that function to fit an
+    arbitrary (e.g. calib-only, for rolling-origin backtesting) slice.
     """
     years, Tobs, F_vals = _load_overlap_series(co2_path, temp_path)
+    return fit_energy_balance_model_from_series(years, Tobs, F_vals, initial_guesses=initial_guesses, bounds=bounds)
+
+
+def fit_energy_balance_model_from_series(
+    years: Sequence[int],
+    Tobs: np.ndarray,
+    F_vals: np.ndarray,
+    *,
+    initial_guesses: List[Tuple[float, float, float, float, float]] | None = None,
+    bounds: Dict[str, Tuple[float, float]] | None = None,
+) -> EnergyBalanceFitResult:
+    """Fitting core, given already-sliced (years, Tobs, F_vals) arrays.
+
+    Split out of :func:`fit_energy_balance_model` (MECHANISTIC_VALIDATION_ROADMAP.md
+    package 2) so a rolling-origin backtest can refit on a CALIB-ONLY slice
+    (years <= some origin) without needing separate CO2/temperature files
+    on disk for every origin -- the caller slices the same real arrays.
+    """
+    years = list(years)
+    Tobs = np.asarray(Tobs, dtype=float)
+    F_vals = np.asarray(F_vals, dtype=float)
+    if len(years) < 10:
+        raise ScopeViolationError(f"fit_energy_balance_model_from_series: only {len(years)} years, need >= 10")
+    if Tobs.shape != (len(years),) or F_vals.shape != (len(years),):
+        raise ScopeViolationError("fit_energy_balance_model_from_series: years/Tobs/F_vals must have matching length")
     t = np.arange(len(years), dtype=float)
 
     bounds = bounds or PARAM_BOUNDS
@@ -347,7 +389,7 @@ def fit_energy_balance_model(
             best_x0 = x0_raw
 
     if best is None:
-        raise ScopeViolationError("fit_energy_balance_model: all optimizer starts failed")
+        raise ScopeViolationError("fit_energy_balance_model_from_series: all optimizer starts failed")
 
     rmse, res = best
     C_s, C_d, alpha, gamma, T0 = res.x
@@ -367,7 +409,7 @@ def fit_energy_balance_model(
     cross_check_max_diff = float(np.max(np.abs(predicted - predicted_solve_ivp)))
     if cross_check_max_diff > 1e-3:
         raise ScopeViolationError(
-            f"fit_energy_balance_model: exact propagation and solve_ivp disagree by {cross_check_max_diff!r} "
+            f"fit_energy_balance_model_from_series: exact propagation and solve_ivp disagree by {cross_check_max_diff!r} "
             "at the fitted parameters -- they should describe the same physics"
         )
 
@@ -532,5 +574,7 @@ __all__ = [
     "co2_radiative_forcing",
     "load_annual_co2",
     "fit_energy_balance_model",
+    "fit_energy_balance_model_from_series",
+    "integrate_energy_balance_trajectory",
     "profile_energy_balance_identifiability",
 ]

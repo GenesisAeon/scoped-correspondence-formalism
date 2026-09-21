@@ -140,6 +140,16 @@ module tests only the qualitative question of whether a self-exciting
 temporal kernel explains the pooled catalog's overdispersion better than
 an equal-rate Poisson null — not a hazard model, not a regional forecast.
 
+**Follow-up (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 2):**
+a genuine out-of-sample forecast check on `earthquake_pilot.py`'s own
+calib/holdout split — see
+[docs/mechanistic_rolling_origin.md](mechanistic_rolling_origin.md). An
+honest, unforced mixed result: ETAS's first-order expected count does
+**not** beat the simple persistence baseline, though it does beat the
+homogeneous-Poisson constant-rate baseline. The calib-only branching
+ratio (0.854) also differs materially from the full-catalog value (1.02)
+above — a further sign of this quantity's fragility.
+
 ## Verify
 
 ```bash

@@ -12,8 +12,14 @@ utility (NONSTATIONARY_ROADMAP.md package 1).
 M6f: additive ``covid_country_decomposition`` module -- China vs.
 Rest-of-World decomposition of the Pilot A World aggregate
 (NONSTATIONARY_ROADMAP.md package 2).
-None of M6b/M6c/M6d/M6e/M6f mutate ``validation/core.py`` or covid_pilot.py's
-original Pilot A/B/C.
+M48: additive ``mechanistic_rolling_origin`` module -- applies
+``rolling_origin`` for the first time to the 3 mechanistic models
+(energy_balance.py, etas.py, covid_renewal.py), each adapted to its own
+forecasting target (MECHANISTIC_VALIDATION_ROADMAP.md package 2). Also
+adds ``rolling_origin.error_by_horizon_step`` (additive; the original
+``rolling_origin_backtest`` is unchanged).
+None of M6b/M6c/M6d/M6e/M6f/M48 mutate ``validation/core.py`` or
+covid_pilot.py's original Pilot A/B/C.
 M13: split conformal prediction (Lei et al. 2018); additive ``conformal`` module.
 Does not mutate ``validation/core.py``.
 """
@@ -58,9 +64,19 @@ from scoped_correspondence.validation.covid_pilot import (
     split_by_date_short_window,
 )
 from scoped_correspondence.validation.rolling_origin import (
+    HorizonStepReport,
     OriginResult,
     RollingOriginReport,
+    error_by_horizon_step,
     rolling_origin_backtest,
+)
+from scoped_correspondence.validation.mechanistic_rolling_origin import (
+    SOURCE as MECHANISTIC_ROLLING_ORIGIN_SOURCE,
+    COVID_RENEWAL_HORIZON_DAYS,
+    COVID_RENEWAL_ORIGINS_DAY_INDEX,
+    run_covid_renewal_rolling_origin_backtest,
+    run_energy_balance_rolling_origin_analysis,
+    run_etas_forecast_check,
 )
 from scoped_correspondence.validation.noaa_temp_pilot import (
     CALIB_END_YEAR as TEMP_CALIB_END_YEAR,
@@ -186,6 +202,15 @@ __all__ = [
     "OriginResult",
     "RollingOriginReport",
     "rolling_origin_backtest",
+    "HorizonStepReport",
+    "error_by_horizon_step",
+    # M48 mechanistic_rolling_origin (MECHANISTIC_VALIDATION_ROADMAP.md package 2)
+    "MECHANISTIC_ROLLING_ORIGIN_SOURCE",
+    "run_energy_balance_rolling_origin_analysis",
+    "run_etas_forecast_check",
+    "run_covid_renewal_rolling_origin_backtest",
+    "COVID_RENEWAL_ORIGINS_DAY_INDEX",
+    "COVID_RENEWAL_HORIZON_DAYS",
     # M6d earthquake_pilot (USGS M>=6.0 annual counts, verified real data)
     "QUAKE_CALIB_START_YEAR",
     "QUAKE_CALIB_END_YEAR",

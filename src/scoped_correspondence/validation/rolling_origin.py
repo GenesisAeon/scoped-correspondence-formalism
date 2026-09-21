@@ -142,4 +142,86 @@ def rolling_origin_backtest(
     )
 
 
-__all__ = ["OriginResult", "RollingOriginReport", "rolling_origin_backtest"]
+@dataclass(frozen=True)
+class HorizonStepReport:
+    steps: Tuple[int, ...]
+    predictor_names: Tuple[str, ...]
+    rmse_by_step: Dict[str, Dict[int, float]]
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "steps": list(self.steps),
+            "predictor_names": list(self.predictor_names),
+            "rmse_by_step": {name: dict(by_step) for name, by_step in self.rmse_by_step.items()},
+        }
+
+
+def error_by_horizon_step(
+    x: Sequence[float],
+    y: Sequence[float],
+    *,
+    origins: Sequence[float],
+    max_horizon_steps: int,
+    step_size: float,
+    predictors: Dict[str, Predictor],
+) -> HorizonStepReport:
+    """Pool squared error SEPARATELY per horizon step (1, 2, ..., max_horizon_steps).
+
+    MECHANISTIC_VALIDATION_ROADMAP.md package 2, response to Astra's
+    2026-09-21 review: :func:`rolling_origin_backtest` pools ALL test
+    points within a horizon window into one RMSE per predictor per origin
+    -- this additive, non-destructive companion instead evaluates each
+    predictor at exactly ONE future point ``origin + k*step_size`` for
+    each step ``k=1..max_horizon_steps``, separately, and pools across
+    origins WITHIN each step. Requires ``x`` to actually contain each
+    ``origin + k*step_size`` point queried (a ``ScopeViolationError`` is
+    raised otherwise, same anti-guessing discipline as
+    ``rolling_origin_backtest``). ``rolling_origin_backtest`` itself is
+    untouched by this addition.
+    """
+    x_arr = np.asarray(x, dtype=float)
+    y_arr = np.asarray(y, dtype=float)
+    if x_arr.shape != y_arr.shape:
+        raise ScopeViolationError("error_by_horizon_step: x and y must have the same shape")
+    if not np.all(np.diff(x_arr) > 0):
+        raise ScopeViolationError("error_by_horizon_step: x must be strictly increasing")
+    if not predictors:
+        raise ScopeViolationError("error_by_horizon_step: need at least one predictor")
+    if max_horizon_steps < 1:
+        raise ScopeViolationError("error_by_horizon_step: max_horizon_steps must be >= 1")
+    if step_size <= 0:
+        raise ScopeViolationError("error_by_horizon_step: step_size must be > 0")
+    if not origins:
+        raise ScopeViolationError("error_by_horizon_step: need at least one origin")
+
+    pooled_sq_err: Dict[str, Dict[int, List[float]]] = {name: {k: [] for k in range(1, max_horizon_steps + 1)} for name in predictors}
+    for origin in origins:
+        if not np.any(x_arr == origin):
+            raise ScopeViolationError(f"error_by_horizon_step: origin {origin!r} not present in x")
+        calib_mask = x_arr <= origin
+        calib_x = x_arr[calib_mask]
+        calib_y = y_arr[calib_mask]
+        for k in range(1, max_horizon_steps + 1):
+            target_x = origin + k * step_size
+            matches = np.where(np.isclose(x_arr, target_x, atol=1e-9))[0]
+            if len(matches) == 0:
+                raise ScopeViolationError(f"error_by_horizon_step: step target {target_x!r} (origin={origin!r}, k={k!r}) not present in x")
+            test_x = x_arr[matches[:1]]
+            test_y = y_arr[matches[:1]]
+            for name, fn in predictors.items():
+                pred = np.asarray(fn(calib_x, calib_y, test_x), dtype=float)
+                if pred.shape != test_x.shape:
+                    raise ScopeViolationError(f"error_by_horizon_step: predictor {name!r} must return one prediction per test point")
+                pooled_sq_err[name][k].append(float((test_y[0] - pred[0]) ** 2))
+
+    rmse_by_step = {
+        name: {k: float(np.sqrt(np.mean(errs))) for k, errs in by_step.items()} for name, by_step in pooled_sq_err.items()
+    }
+    return HorizonStepReport(
+        steps=tuple(range(1, max_horizon_steps + 1)),
+        predictor_names=tuple(predictors.keys()),
+        rmse_by_step=rmse_by_step,
+    )
+
+
+__all__ = ["OriginResult", "RollingOriginReport", "rolling_origin_backtest", "HorizonStepReport", "error_by_horizon_step"]

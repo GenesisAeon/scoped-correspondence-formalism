@@ -81,6 +81,12 @@ series). Two independent methods agreeing is a meaningful cross-check.
   documented open questions (see `docs/covid_pilot.md`'s Pilot D for the
   composition angle).
 
+**Follow-up (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 2):** a
+genuine multi-origin, out-of-sample forecast check — projecting incidence
+forward assuming R stays constant at its last calib estimate — beats both
+persistence and a simple exponential extrapolation baseline. See
+[docs/mechanistic_rolling_origin.md](mechanistic_rolling_origin.md).
+
 ## Verify
 
 ```bash
