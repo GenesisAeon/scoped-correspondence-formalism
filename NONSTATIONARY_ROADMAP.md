@@ -16,7 +16,7 @@ bei der Audit-Roadmap.
 | 1 | Gemeinsame rollierende Auswertung + adaptive einfache Modelle | ✅ erledigt (NOAA) |
 | 2 | COVID-Heterogenität: Länder statt Weltmittel; Beobachtungsmodell trennen | ✅ erledigt |
 | 3 | Treiber-abhängige Dynamik-Schnittstelle (eingefrorene Stabilität vs. echte Trajektorie) | ✅ erledigt |
-| 4 | Raten-/Viabilitäts-Kontrollfälle | ⏸ geplant |
+| 4 | Raten-/Viabilitäts-Kontrollfälle | ✅ erledigt |
 | 5 | Je Domäne ein mechanistisches Modell (COVID-Renewal, Energiebilanz-Klima, ETAS-Erdbeben) | ⏸ geplant |
 
 ### Paket 1 — Umsetzung (2026-09-21)
@@ -96,6 +96,42 @@ Astras Zahlen, Monotonie-Check des Raten-Sweeps). `dynamics/core.py`,
 `gspt.py`, `panarchy_cusp.py` und `early_warning.py` bleiben unverändert
 — dieses Modul beantwortet eine andere Frage als deren quasistatische
 Werkzeuge. Dokumentiert in `docs/rate_dependent_tipping.md`.
+
+### Paket 4 — Umsetzung (2026-09-21)
+
+Zwei Teile, wie von Astra angefragt ("der oben gerechnete Fall sowie ein
+Pufferfall"):
+
+**Teil A — χ-Diagnose** (`dynamics/rate_dependent.py`, erweitert):
+`local_chi_diagnostic()` implementiert Astras Formel χ=|D_u x*·u̇|/(κ·d_Grenze)
+generisch. Für das kanonische Beispiel aus Paket 3 sind D_u x*=1 und der
+Abstand stabiler↔instabiler Zweig=1 exakte Konstanten, also
+χ_max=r/2 in geschlossener Form. `chi_diagnostic_for_cubic_example(r)`
+zeigt: χ_max≥0,5 sagt exakt das bereits verifizierte Kipp-Verhalten
+voraus, über den gesamten getesteten Ratenbereich (r=0,05 bis 5).
+
+**Teil B — Puffer-Lastspitzenfall** (neues Modul
+`viability/rate_dependent_buffer.py`, Milestone 43): dasselbe Skalar-
+Puffermodell wie `viability/core.has_safe_transfer`, jetzt mit echt
+zeitveränderlicher Last W(t) = W0 + Spitzenhöhe·exp(-(t/τ)²) — gleiche
+Last vor und nach der Spitze, eingefrorener Zustand an der Basislast
+sicher, eingefrorener Zustand am Spitzenwert absichtlich unsicher. Das
+**Spiegelbild-Ergebnis** zu Paket 3: schnellere (kürzere) Spitzen sind
+hier SICHERER, nicht gefährlicher — der Puffer wirkt wie ein Tiefpassfilter
+und dämpft kurze Störungen, bevor sie den eingefrorenen Extremwert
+erreichen. Erst Spitzen, die lang genug relativ zur Relaxationsrate r
+sind, lassen den Puffer nahe an den eingefrorenen schlimmsten Fall
+herankommen. Zusätzlich die Reserve-Dimension bei fester Spitzenbreite:
+schärfere Sicherheitsschwelle b bricht, großzügigere nicht — scharfer
+Übergang exakt am Trajektorienminimum. χ ist hier bewusst NICHT
+anwendbar (setzt voraus, dass der eingefrorene Pfad die Grenze nie
+überschreitet) — als expliziter Scope-Hinweis dokumentiert.
+
+`verify_rate_viability_control_cases.py`: 4/4 bestanden (χ-Korrelation
+mit dem Kippverhalten, Tempo-Dimension mit unabhängiger Hand-
+Nachintegration, Reserve-Dimension, Scope-Verletzungen). `has_safe_transfer`
+wird nur aufgerufen, nicht verändert. Dokumentiert in
+`docs/rate_dependent_tipping.md`.
 
 ## Arbeitsweise
 

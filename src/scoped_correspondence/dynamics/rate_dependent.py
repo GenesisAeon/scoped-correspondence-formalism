@@ -241,6 +241,71 @@ def rate_induced_tipping_cubic_example(
     )
 
 
+# --- Local rate-vs-restoring diagnostic (Astra section 5.2; NONSTATIONARY_ROADMAP.md package 4) --
+
+
+def local_chi_diagnostic(
+    equilibrium_sensitivity: float,
+    driver_rate: float,
+    restoring_rate: float,
+    distance_to_boundary: float,
+) -> float:
+    """chi = |D_u x*(u) * u_dot| / (kappa * d_boundary) (Astra section 5.2).
+
+    A LOCAL diagnostic of whether a moving stable equilibrium is likely
+    being tracked -- explicitly NOT a universal tipping threshold; no
+    single critical chi value is claimed to hold across models. chi can
+    grow because the driver speeds up, the restoring rate weakens, the
+    equilibrium becomes more sensitive to the driver, or the available
+    distance to the boundary shrinks. Meaningful only while the frozen
+    system stays stable and on the safe side of its boundary -- raises
+    ScopeViolationError if ``restoring_rate`` or ``distance_to_boundary``
+    is not strictly positive (see docs/rate_dependent_tipping.md for the
+    buffer-spike case where the frozen equilibrium itself crosses the
+    boundary and this diagnostic is not applicable).
+    """
+    if restoring_rate <= 0:
+        raise ScopeViolationError(f"local_chi_diagnostic: restoring_rate must be > 0; got {restoring_rate!r}")
+    if distance_to_boundary <= 0:
+        raise ScopeViolationError(
+            f"local_chi_diagnostic: distance_to_boundary must be > 0; got {distance_to_boundary!r}"
+        )
+    return abs(equilibrium_sensitivity * driver_rate) / (restoring_rate * distance_to_boundary)
+
+
+@dataclass(frozen=True)
+class ChiDiagnosticResult:
+    r: float
+    chi_max: float
+    switched: bool
+
+    def to_dict(self) -> dict:
+        return {"r": self.r, "chi_max": self.chi_max, "switched": self.switched}
+
+
+def chi_diagnostic_for_cubic_example(r: float, *, margin: float = 10.0) -> ChiDiagnosticResult:
+    """chi(t) for the canonical worked example, in closed form.
+
+    For dx/dt=(x-u)-(x-u)^3, u(t)=1+tanh(r*t): the stable-branch
+    sensitivity D_u x* = 1 and the distance between the stable and
+    unstable frozen branches |x_stable - x_unstable| = 1 are BOTH exact
+    constants, independent of u -- so chi(t) = u_dot(t) / 2, and its
+    maximum over all t is chi_max = r/2 (u_dot(t)=r*sech^2(r*t) peaks at
+    t=0 with value r). This correlates chi_max, computed purely from the
+    driver's own closed form, against whether the actual integrated
+    trajectory (rate_induced_tipping_cubic_example) switches branches.
+    """
+    if r <= 0:
+        raise ScopeViolationError(f"chi_diagnostic_for_cubic_example: r must be > 0; got {r!r}")
+    equilibrium_sensitivity = 1.0  # D_u x* = 1 for x*=u+1 or x*=u-1, exact
+    restoring_rate = 2.0  # |local derivative| at either stable branch, exact
+    distance_to_boundary = 1.0  # |x_stable - x_unstable| = 1, exact, constant in u
+    u_dot_max = r  # max_t r*sech^2(r*t) = r, attained at t=0
+    chi_max = local_chi_diagnostic(equilibrium_sensitivity, u_dot_max, restoring_rate, distance_to_boundary)
+    result = rate_induced_tipping_cubic_example(r, margin=margin)
+    return ChiDiagnosticResult(r=r, chi_max=chi_max, switched=result.switched)
+
+
 __all__ = [
     "SOURCE",
     "STABLE",
@@ -251,4 +316,7 @@ __all__ = [
     "integrate_trajectory",
     "classify_tracking",
     "rate_induced_tipping_cubic_example",
+    "local_chi_diagnostic",
+    "ChiDiagnosticResult",
+    "chi_diagnostic_for_cubic_example",
 ]

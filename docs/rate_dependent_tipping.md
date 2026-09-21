@@ -1,8 +1,8 @@
-# Rate-dependent tracking vs. rate-induced tipping (Milestone 42)
+# Rate-dependent tracking vs. rate-induced tipping (Milestone 42/43)
 
-**Status:** review package (synthetic control case, not an empirical
-claim about any real system) — see `NONSTATIONARY_ROADMAP.md` package 3.
-Johann-OK required before any "core" promotion.
+**Status:** review package (synthetic control cases, not an empirical
+claim about any real system) — see `NONSTATIONARY_ROADMAP.md` packages 3
+and 4. Johann-OK required before any "core" promotion.
 
 ## Why this exists
 
@@ -85,11 +85,99 @@ mechanism's name.
   precisely because conflating them would miss rate-induced tipping
   entirely.
 
+## Package 4 — a local diagnostic, and the mirror-image buffer case (2026-09-21)
+
+Astra's section 5.2 proposes a LOCAL diagnostic for whether a moving
+equilibrium is being tracked, without claiming a universal threshold:
+
+```
+chi(t) = |D_u x*(u) * u_dot| / (kappa * d_boundary)
+```
+
+`local_chi_diagnostic()` implements this directly. For the canonical
+worked example above, the stable-branch sensitivity `D_u x* = 1` and the
+distance between stable and unstable branches `|x_stable - x_unstable| =
+1` are both EXACT CONSTANTS independent of `u` — so `chi(t) = u_dot(t)/2`,
+and its maximum is `chi_max = r/2` in closed form (since `u_dot(t) =
+r*sech^2(r*t)` peaks at `t=0` with value `r`).
+
+`chi_diagnostic_for_cubic_example(r)` computes this `chi_max` purely from
+the driver's closed form and correlates it against the already-verified
+actual outcome:
+
+| `r` | `chi_max = r/2` | Switched? |
+|---:|---:|---|
+| 0.05 | 0.025 | No |
+| 0.20 | 0.100 | No |
+| 0.50 | 0.250 | No |
+| **1.00** | **0.500** | **Yes** |
+| 1.50 | 0.750 | Yes |
+| 2.00 | 1.000 | Yes |
+| 5.00 | 2.500 | Yes |
+
+`chi_max >= 0.5` predicts switching exactly, for every rate tested. This
+is a genuine, quantitatively precise validation of the diagnostic on the
+one model where it can be computed in exact closed form — not a claim
+that 0.5 is a universal critical `chi` value for other models.
+
+### A mirror-image buffer case (`viability/rate_dependent_buffer.py`, Milestone 43)
+
+`chi`'s denominator (`kappa * d_boundary`) assumes the frozen system
+stays stable and on the SAFE side of its boundary throughout — it is not
+meaningful once the frozen path itself crosses the boundary. Astra's
+package 4 also asks for a buffer/viability control case ("same final
+load values, different tempo or different reserve"), and the natural one
+— a scalar buffer briefly overloaded by a transient demand spike that
+returns to the same safe baseline load afterward — is exactly this
+excluded case: the frozen state AT THE PEAK of the spike is deliberately
+unsafe (`has_safe_transfer` correctly says so), while both the baseline
+before and after the spike are frozen-safe.
+
+Model: `z_dot = -r(z-z_eq) + U - W(t)`, the same scalar buffer as
+`viability.core.has_safe_transfer`, with `W(t) = W0 + spike_height *
+exp(-(t/tau)^2)` — a Gaussian spike of width `tau` above baseline `W0`,
+returning to `W0`. With `r=1`, `z_eq=0`, `U=0`, `W0=0`, `spike_height=1`,
+`b=-0.5`:
+
+| Spike width `tau` (tempo) | Trajectory minimum `z_min` | Breaches `b=-0.5`? |
+|---:|---:|---|
+| 0.05 (fast) | -0.081 | No |
+| 0.20 | -0.265 | No |
+| **0.50** | **-0.495** | **No** (barely) |
+| **1.00** | **-0.695** | **Yes** |
+| 2.00 | -0.858 | Yes |
+| 5.00 (slow) | -0.965 | Yes |
+
+**This is the MIRROR IMAGE of the rate-induced tipping result above:**
+there, faster driving was MORE dangerous (the trajectory couldn't keep
+up with a moving multistable equilibrium and tipped to the wrong
+attractor). Here, faster (shorter) spikes are LESS dangerous — the
+buffer's own relaxation acts as a low-pass filter and attenuates brief
+disturbances, never letting the state get close to the instantaneous
+frozen worst case; only spikes long enough relative to `1/r` let the
+buffer catch up toward that worst case. Checking only the frozen peak
+load ("this load, sustained, would be unsafe") is needlessly conservative
+for a genuinely brief spike; checking only the frozen baseline/endpoint
+loads misses the risk from a sufficiently sustained one.
+
+The **reserve** dimension, at fixed `tau=1.0` (`z_min=-0.695`): `b=-0.3`
+and `b=-0.5` breach, `b=-0.7` and `b=-0.9` do not — a sharp transition
+exactly at the trajectory's own minimum, as expected.
+
+**Scope:** a single scalar linear buffer, one Gaussian spike shape; no
+claim about any real resource, inventory, or safety system without its
+own separate model. `local_chi_diagnostic` is intentionally NOT applied
+here (its ScopeViolationError on a non-positive `distance_to_boundary`
+guards exactly this case) since the frozen peak is unsafe by
+construction, outside the diagnostic's stated scope.
+
 ## Verify
 
 ```bash
 PYTHONPATH=src python verification/verify_rate_dependent.py
+PYTHONPATH=src python verification/verify_rate_viability_control_cases.py
 ```
 
-JSON report: `verification/verify_rate_dependent_results.json` — all
-numbers from **that** run.
+JSON reports: `verification/verify_rate_dependent_results.json` and
+`verification/verify_rate_viability_control_cases_results.json` — all
+numbers from **those** runs.

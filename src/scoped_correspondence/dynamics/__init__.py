@@ -103,11 +103,14 @@ from scoped_correspondence.dynamics.rate_dependent import (
     SOURCE as RATE_DEPENDENT_SOURCE,
     STABLE as RATE_DEPENDENT_STABLE,
     UNSTABLE as RATE_DEPENDENT_UNSTABLE,
+    ChiDiagnosticResult,
     FrozenEquilibrium,
     TrackingResult,
+    chi_diagnostic_for_cubic_example,
     classify_tracking,
     frozen_equilibria_shifted_pitchfork,
     integrate_trajectory,
+    local_chi_diagnostic,
     rate_induced_tipping_cubic_example,
 )
 
@@ -180,4 +183,7 @@ __all__ = [
     "frozen_equilibria_shifted_pitchfork",
     "integrate_trajectory",
     "rate_induced_tipping_cubic_example",
+    "ChiDiagnosticResult",
+    "chi_diagnostic_for_cubic_example",
+    "local_chi_diagnostic",
 ]

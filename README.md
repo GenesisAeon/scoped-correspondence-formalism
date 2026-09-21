@@ -115,7 +115,12 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   (Treiber-abhängige Dynamik-Schnittstelle, `dynamics/rate_dependent.py`
   — eingefrorene Stabilität getrennt von echter Trajektorienintegration,
   reproduziert Astras rateninduziertes Kipp-Kontrollbeispiel Ziffer für
-  Ziffer) sind umgesetzt und exakt gegen die Review-Zahlen abgeglichen.
+  Ziffer) und Paket 4 (Raten-/Viabilitäts-Kontrollfälle: χ-Diagnose sagt
+  das Kippverhalten aus Paket 3 exakt voraus; ein neuer
+  Puffer-Lastspitzenfall, `viability/rate_dependent_buffer.py`, zeigt das
+  Spiegelbild-Ergebnis — schnellere Störungen sind hier sicherer, nicht
+  gefährlicher) sind umgesetzt und exakt gegen die Review-Zahlen
+  abgeglichen.
 
 ---
 

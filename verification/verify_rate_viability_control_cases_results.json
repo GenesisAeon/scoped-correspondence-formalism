@@ -1,0 +1,150 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "buffer_spike_reserve_dimension": {
+        "detail": {
+          "fixed_tau": 1.0,
+          "rows": [
+            {
+              "b": -0.3,
+              "transient_breach": true
+            },
+            {
+              "b": -0.5,
+              "transient_breach": true
+            },
+            {
+              "b": -0.7,
+              "transient_breach": false
+            },
+            {
+              "b": -0.9,
+              "transient_breach": false
+            }
+          ]
+        },
+        "status": "passed"
+      },
+      "buffer_spike_tempo_dimension": {
+        "detail": {
+          "hand_reintegration_z_min": -0.6947528522579796,
+          "module_z_min": -0.6947528522999472,
+          "rows": [
+            {
+              "tau": 0.05,
+              "transient_breach": false,
+              "z_min": -0.08079781553520922
+            },
+            {
+              "tau": 0.1,
+              "transient_breach": false,
+              "z_min": -0.15013840575906096
+            },
+            {
+              "tau": 0.2,
+              "transient_breach": false,
+              "z_min": -0.2649180611925072
+            },
+            {
+              "tau": 0.5,
+              "transient_breach": false,
+              "z_min": -0.4946177486891923
+            },
+            {
+              "tau": 1.0,
+              "transient_breach": true,
+              "z_min": -0.6947528522999472
+            },
+            {
+              "tau": 2.0,
+              "transient_breach": true,
+              "z_min": -0.8576460705475706
+            },
+            {
+              "tau": 5.0,
+              "transient_breach": true,
+              "z_min": -0.965466774905735
+            }
+          ]
+        },
+        "status": "passed"
+      },
+      "chi_diagnostic_correlates_with_switching": {
+        "detail": {
+          "critical_chi_between": [
+            0.25,
+            0.5
+          ],
+          "raised_on_nonpositive_inputs": true,
+          "rows": [
+            {
+              "chi_max": 0.025,
+              "r": 0.05,
+              "switched": false
+            },
+            {
+              "chi_max": 0.05,
+              "r": 0.1,
+              "switched": false
+            },
+            {
+              "chi_max": 0.1,
+              "r": 0.2,
+              "switched": false
+            },
+            {
+              "chi_max": 0.25,
+              "r": 0.5,
+              "switched": false
+            },
+            {
+              "chi_max": 0.5,
+              "r": 1.0,
+              "switched": true
+            },
+            {
+              "chi_max": 0.75,
+              "r": 1.5,
+              "switched": true
+            },
+            {
+              "chi_max": 1.0,
+              "r": 2.0,
+              "switched": true
+            },
+            {
+              "chi_max": 1.5,
+              "r": 3.0,
+              "switched": true
+            },
+            {
+              "chi_max": 2.5,
+              "r": 5.0,
+              "switched": true
+            }
+          ]
+        },
+        "status": "passed"
+      },
+      "scope_violations": {
+        "detail": {
+          "raised_on_r_le_0": true,
+          "raised_on_tau_le_0": true
+        },
+        "status": "passed"
+      }
+    },
+    "disclaimer": "Part A (chi diagnostic) and Part B (buffer spike) are synthetic control cases; no claim about any real driver, buffer, or safety system without its own separate model and identification.",
+    "numpy": "2.2.6",
+    "package": "NONSTATIONARY_ROADMAP.md package 4 (rate/viability control cases)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
+    "timestamp": "2026-09-21T13:15:53+02:00"
+  }
+}
