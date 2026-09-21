@@ -120,7 +120,13 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   Puffer-Lastspitzenfall, `viability/rate_dependent_buffer.py`, zeigt das
   Spiegelbild-Ergebnis — schnellere Störungen sind hier sicherer, nicht
   gefährlicher) sind umgesetzt und exakt gegen die Review-Zahlen
-  abgeglichen.
+  abgeglichen. Paket 5 (je Domäne ein mechanistisches Modell:
+  COVID-Renewal `validation/covid_renewal.py`, Energiebilanz-Klima
+  `dynamics/energy_balance.py` mit echten Mauna-Loa-CO2-Daten, ETAS-
+  Erdbeben `dynamics/etas.py` — erklärt die in Paket 4/`earthquake_pilot.md`
+  gefundene Überdispersion mechanistisch, AIC-Lücke ≈1304 gegen die
+  Poisson-Nullhypothese) ist ebenfalls umgesetzt, womit alle 5 Pakete aus
+  [NONSTATIONARY_ROADMAP.md](NONSTATIONARY_ROADMAP.md) abgeschlossen sind.
 
 ---
 

@@ -31,6 +31,12 @@ independent of M14/M29/M33/M35/M36; ``dynamics/core.py``, ``gspt.py``, and
 ``panarchy_cusp.py`` are untouched -- this module answers a genuinely
 different question (real non-autonomous trajectory tracking) than those
 modules' quasi-static/frozen-parameter tools.
+
+Milestone 46 (ETAS self-exciting point process, NONSTATIONARY_ROADMAP.md
+package 5c) is likewise exported submodule-locally; independent of every
+other dynamics submodule -- it is a discrete-event point-process
+likelihood, not an ODE/SDE, and shares no code with ``rate_dependent.py``
+or ``energy_balance.py`` beyond following the same fit-and-report pattern.
 """
 
 from scoped_correspondence.dynamics.core import (
@@ -123,6 +129,19 @@ from scoped_correspondence.dynamics.energy_balance import (
     fit_energy_balance_model,
     load_annual_co2,
 )
+from scoped_correspondence.dynamics.etas import (
+    SOURCE as ETAS_SOURCE,
+    DATA_PROVENANCE_NOTE as ETAS_DATA_PROVENANCE_NOTE,
+    SCOPE_WARNING as ETAS_SCOPE_WARNING,
+    ETASFitResult,
+    ETASParams,
+    compensator_g as etas_compensator_g,
+    etas_branching_ratio,
+    etas_neg_log_likelihood,
+    fit_etas_model,
+    load_catalog as etas_load_catalog,
+    null_poisson_log_likelihood,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -205,4 +224,16 @@ __all__ = [
     "co2_radiative_forcing",
     "fit_energy_balance_model",
     "load_annual_co2",
+    # M46 ETAS self-exciting point process (NONSTATIONARY_ROADMAP.md package 5c)
+    "ETAS_SOURCE",
+    "ETAS_DATA_PROVENANCE_NOTE",
+    "ETAS_SCOPE_WARNING",
+    "ETASFitResult",
+    "ETASParams",
+    "etas_compensator_g",
+    "etas_branching_ratio",
+    "etas_neg_log_likelihood",
+    "fit_etas_model",
+    "etas_load_catalog",
+    "null_poisson_log_likelihood",
 ]

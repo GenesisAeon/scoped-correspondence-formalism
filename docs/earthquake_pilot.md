@@ -95,6 +95,14 @@ modest, overdispersed count series rather than as the same kind of
 structural (regime-change) failure as the COVID/NOAA cases. Reported
 as-is, per protocol — **no retuning after seeing this result.**
 
+**Follow-up (2026-09-21, NONSTATIONARY_ROADMAP.md package 5c):** the
+self-exciting clustering hypothesis floated above is now tested directly
+with a real ETAS fit — see
+[docs/etas_earthquakes.md](etas_earthquakes.md). It decisively beats the
+homogeneous-Poisson null (AIC gap ≈1304), confirming self-excitation as a
+sufficient mechanistic explanation for this overdispersion, with its own
+honest caveats (temporal-only, pooled-global-catalog).
+
 ## Verify
 
 ```bash

@@ -1,0 +1,66 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "compensator_g_hand_check": {
+        "detail": {
+          "closed_form_g": 3.130437454226321,
+          "closed_form_g_p_eq_1": 2.833213344056216,
+          "quad_numeric_g": 3.130437454226321,
+          "quad_numeric_g_p_eq_1": 2.833213344056217,
+          "raised_on_m0_above_completeness": true,
+          "raised_on_p_leq_1_branching_ratio": true
+        },
+        "status": "passed"
+      },
+      "neg_log_lik_hand_check": {
+        "detail": {
+          "hand_double_loop_nll": 38.46617490623939,
+          "module_nll": 38.46617490623938
+        },
+        "status": "passed"
+      },
+      "null_poisson_hand_check": {
+        "detail": {
+          "hand_ll": -8.757193976270642,
+          "module_ll": -8.757193976270642
+        },
+        "status": "passed"
+      },
+      "real_catalog_fit": {
+        "detail": {
+          "T_days": 9756.348292013889,
+          "aic_etas": 13784.209909841076,
+          "aic_gap_null_minus_etas": 1304.2468352952928,
+          "aic_null_poisson": 15088.45674513637,
+          "branching_ratio": 1.0242760001402262,
+          "interpretation": "ETAS self-excitation decisively outperforms an equal-rate Poisson null on AIC -- a mechanistic explanation for the overdispersion (Fano factor 3.16) already documented in docs/earthquake_pilot.md, consistent with real aftershock clustering in the pooled global catalog (see SCOPE_WARNING for the temporal-only/global-pooling caveat).",
+          "log_lik_etas": -6887.104954920538,
+          "log_lik_null_poisson": -7543.228372568185,
+          "n_events": 3974,
+          "params": {
+            "K": 0.005541252117585621,
+            "alpha": 1.9756283099240428,
+            "c": 0.006087514295250117,
+            "mu": 0.2883877610521824,
+            "p": 1.0249207287200637
+          }
+        },
+        "status": "passed"
+      }
+    },
+    "data_provenance_note": "Real per-row data: data/usgs_earthquakes_m6plus_2000_2026.csv (USGS ComCat FDSN Event Web Service, public domain -- see data/real_data_manifest.json). TEMPORAL-ONLY fit on a pooled GLOBAL multi-region catalog -- a major documented simplification versus real regional ETAS practice; see module docstring.",
+    "disclaimer": "Temporal-only ETAS on a pooled global multi-region catalog; fitted parameters do not claim to recover physically calibrated, region-specific Omori-Utsu constants. See module docstring.",
+    "numpy": "2.2.6",
+    "package": "NONSTATIONARY_ROADMAP.md package 5c (ETAS self-exciting point process)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "scope_warning": "Temporal-only ETAS on a pooled global catalog is a qualitative self-excitation test, not a calibrated regional hazard model.",
+    "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
+    "timestamp": "2026-09-21T15:08:10+02:00"
+  }
+}

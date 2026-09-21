@@ -17,7 +17,7 @@ bei der Audit-Roadmap.
 | 2 | COVID-Heterogenität: Länder statt Weltmittel; Beobachtungsmodell trennen | ✅ erledigt |
 | 3 | Treiber-abhängige Dynamik-Schnittstelle (eingefrorene Stabilität vs. echte Trajektorie) | ✅ erledigt |
 | 4 | Raten-/Viabilitäts-Kontrollfälle | ✅ erledigt |
-| 5 | Je Domäne ein mechanistisches Modell (COVID-Renewal, Energiebilanz-Klima, ETAS-Erdbeben) | ⏸ geplant |
+| 5 | Je Domäne ein mechanistisches Modell (COVID-Renewal, Energiebilanz-Klima, ETAS-Erdbeben) | ✅ erledigt |
 
 ### Paket 1 — Umsetzung (2026-09-21)
 
@@ -133,6 +133,75 @@ Nachintegration, Reserve-Dimension, Scope-Verletzungen). `has_safe_transfer`
 wird nur aufgerufen, nicht verändert. Dokumentiert in
 `docs/rate_dependent_tipping.md`.
 
+### Paket 5 — Umsetzung (2026-09-21)
+
+Drei Teile, wie von Astra in Abschnitt 5.4 vorgeschlagen — je Domäne ein
+echtes mechanistisches Modell statt eines bloßen Trend-/Konstantratenfits:
+
+**Teil A — COVID-Renewal** (`validation/covid_renewal.py`, Milestone 44):
+Cori-et-al.-2013-Renewal-Gleichung `Λ_t=Σ_s w_s·I_{t−s}`, `R_t=I_t/Λ_t`,
+Generationsintervall als Gamma-Verteilung diskretisiert (Nishiura, Linton
+& Akhmetzhanov 2020: Mittel 4,7 Tage, SD 2,9 Tage) — auf den echten
+Welt-COVID-Daten (dieselbe Quelle wie Pilot A). Selbstkonsistenz-Check:
+ein rein exponentieller Verlauf liefert eine KONSTANTE `instantaneous_r`,
+die exakt mit der Wallinga-&-Lipsitch-(2007)-Umrechnung
+`R=1/Σ_s w_s·e^{−rs}` übereinstimmt (auf 1e-8). Am echten Datensatz fällt
+`R_t` Ende Februar 2020 unter 1 und steigt Mitte März auf 1,5–1,9 — Pilot
+As gefittete Rate (0,00744/Tag) entspricht `R≈1,036`, Pilot Bs Rate
+(0,1210/Tag) entspricht `R≈1,680`, beide konsistent mit dem direkt
+berechneten März-`R_t`-Bereich. `verify_covid_renewal.py`: 4/4 bestanden.
+Dokumentiert in `docs/covid_renewal.md`.
+
+**Teil B — Energiebilanz-Klima** (`dynamics/energy_balance.py`, Milestone
+45): Zweischichten-Energiebilanzmodell (Geoffroy et al. 2013),
+CO2-Strahlungsantrieb `F=5,35·ln(CO2/CO2_ref)` (Myhre et al. 1998) mit
+echten Mauna-Loa-CO2-Jahresmitteln (neu geladen,
+`data/noaa_mauna_loa_co2_annual_1959_2025.txt`, NOAA GML, sha256 in
+`data/real_data_manifest.json`). Fit an die echte NOAA-Temperaturreihe
+1959–2025: RMSE 0,154 °C, alle vier Raten-/Kapazitätsparameter strikt
+positiv. **Ehrlicher Befund:** das Modell unterschätzt die Erwärmung im
+jüngsten Jahrzehnt (2016–2025: mittleres Residuum +0,24 °C) stärker als im
+ältesten (1959–1968: +0,10 °C) — konsistent mit dem dokumentierten Effekt
+sinkender Aerosolkühlung ("Unmasking"), die ein reines CO2-Modell nicht
+erfassen kann. Verbindet damit dieselbe "einfaches Modell unterschätzt
+spätere Beschleunigung"-Beobachtung aus Pilot A und dem ursprünglichen
+NOAA-Trendfit mit einer konkreten physikalischen Ursache.
+`verify_energy_balance.py`: 4/4 bestanden. Dokumentiert in
+`docs/energy_balance.md`.
+
+**Teil C — ETAS-Erdbeben** (`dynamics/etas.py`, Milestone 46): Ogata-1988-
+Selbsterregungs-Punktprozess `λ(t|H_t)=μ+Σ_{t_i<t} K·exp(α(M_i−M0))/(t−t_i+c)^p`
+auf demselben USGS-M≥6,0-Katalog wie `docs/earthquake_pilot.md` (kein
+neuer Datensatz nötig). Direkter Test der dort bereits gefundenen
+Überdispersion (Fano-Faktor 3,16, D=60,01 auf 19 Freiheitsgraden,
+p≈3,85e-6 gegen eine Gleichraten-Poisson-Nullhypothese): der ETAS-Fit
+schlägt diese Nullhypothese deutlich (AIC-Lücke ≈1304). Zwei ehrliche
+Nebenbefunde: `p` konvergiert auf ≈1,02 (sehr langsam abklingender, fast
+logarithmischer Kern) — plausibel ein Mischungsartefakt des global
+gepoolten Katalogs (viele Regionen mit unterschiedlichen, typischerweise
+schnelleren Einzelraten summieren sich zu einem scheinbar langsameren
+Populationsverlauf) — und die Verzweigungsrate liegt bei ≈1,02, also
+genau an der Kritikalitätsschwelle. Aus Performancegründen (exakte
+O(N²)-Likelihood, N=3974) nutzt der Standardfit einen einzelnen,
+physikalisch motivierten Startpunkt statt Astras/`energy_balance.py`s
+Mehrfachstart-Schema — unabhängig getestet über 140/250/~1400
+Optimierungsschritte, alle innerhalb von 0,3 Nats desselben Optimums
+(Basin stabil, keine Artefakte des Zeitbudgets). `verify_etas.py`: 4/4
+bestanden (Hand-Nachrechnung des Kompensators gegen `scipy.integrate.quad`,
+unabhängige Doppelschleifen-Nachrechnung der Log-Likelihood an einem
+synthetischen Katalog, geschlossene Poisson-Null-Formel, echter
+Katalog-Fit). Dokumentiert in `docs/etas_earthquakes.md`, verlinkt aus
+`docs/earthquake_pilot.md`.
+
+**Wichtige Scope-Grenze für alle drei Teile:** jedes Modell ist bewusst
+vereinfacht (COVID-Renewal nutzt dieselbe Weltaggregat-Grenze wie Pilot A;
+Energiebilanz ist CO2-only, ohne Aerosole/andere Treibhausgase; ETAS ist
+rein zeitlich und global gepoolt ohne räumlichen Kern) — keines der drei
+beansprucht, physikalisch/epidemiologisch/seismologisch kalibrierte
+Konstanten zu liefern. Alle drei sind eigenständige, additive Module;
+`covid_pilot.py`, `noaa_temp_pilot.py` und `earthquake_pilot.py`/deren
+Ergebnisse bleiben unverändert.
+
 ## Arbeitsweise
 
 - Claude implementiert direkt (Astras Vorschlag ist Konzept + Rechenbelege,
@@ -141,4 +210,4 @@ wird nur aufgerufen, nicht verändert. Dokumentiert in
   wo verfügbar (Paket 1: NOAA-Rolling-Origin-Zahlen aus dem Bericht).
 - Bestehende `docs/*_pilot.md`-Ergebnisse bleiben unverändert stehen;
   neue Auswertungen werden als eigener Abschnitt ergänzt.
-- Volle 55-Suiten-Regression nach jedem Paket.
+- Volle Suiten-Regression nach jedem Paket (62/62 nach Paket 5).
