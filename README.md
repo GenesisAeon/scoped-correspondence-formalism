@@ -127,6 +127,16 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   gefundene Überdispersion mechanistisch, AIC-Lücke ≈1304 gegen die
   Poisson-Nullhypothese) ist ebenfalls umgesetzt, womit alle 5 Pakete aus
   [NONSTATIONARY_ROADMAP.md](NONSTATIONARY_ROADMAP.md) abgeschlossen sind.
+- Eine Zweitprüfung dieses Ergebnisses (Astra, 2026-09-21,
+  `SCF_Review_f8e249f.md`) fand einen echten Optimierer-Fehler
+  (Energiebilanz-Fit konvergierte zu einem schlechten lokalen Optimum,
+  RMSE 0,154 statt erreichbarer 0,090) und mehrere Überdehnungen
+  (fehlender `-u̇`-Term, χ-Schwellenpräzision, Puffer-Richtungsabhängigkeit,
+  ETAS-Verzweigungsraten-Fragilität) — alle unabhängig nachvollzogen und
+  behoben (Commit `20efc63`). Die verbleibenden, größeren Vorschläge
+  (belastbare Schätzung, gemeinsame Prognoseprüfung, Strukturbrücken,
+  Beobachtungsmodelle) sind als eigene Roadmap aufgenommen:
+  [MECHANISTIC_VALIDATION_ROADMAP.md](MECHANISTIC_VALIDATION_ROADMAP.md).
 
 ---
 
