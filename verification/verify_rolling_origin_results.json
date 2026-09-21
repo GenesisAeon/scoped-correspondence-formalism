@@ -1,0 +1,63 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "noaa_rolling_matches_astra": {
+        "detail": {
+          "matches_astra_within_1e-6": true,
+          "origins_checked": 11,
+          "pooled_rmse": {
+            "expanding": 0.2650621200212291,
+            "last30": 0.11930737327903063,
+            "persistence": 0.13760946056272305
+          }
+        },
+        "status": "passed"
+      },
+      "origin_1999_hand_verify": {
+        "detail": {
+          "base_1999": 0.4,
+          "hand_rmse": 0.14825653442597392,
+          "obs_2000_2004": [
+            0.4,
+            0.53,
+            0.59,
+            0.6,
+            0.53
+          ]
+        },
+        "status": "passed"
+      },
+      "scope_violations": {
+        "detail": {
+          "horizon_beyond_data": true,
+          "no_origins": true,
+          "no_predictors": true,
+          "non_increasing_x": true,
+          "nonpositive_horizon": true,
+          "origin_not_in_x": true,
+          "wrong_prediction_shape": true
+        },
+        "status": "passed"
+      },
+      "toy_series_hand_rmse": {
+        "detail": {
+          "hand_rmse": 2.160246899469287,
+          "n_calib": 5,
+          "report_rmse": 2.160246899469287
+        },
+        "status": "passed"
+      }
+    },
+    "disclaimer": "Rolling-origin results are a materially more robust comparison than a single split but remain a retrospective diagnosis on already-published historical data, not a prospective forecast evaluation -- same caveat Astra's review raised about Pilot B/C.",
+    "numpy": "2.2.6",
+    "package": "NONSTATIONARY_ROADMAP.md package 1 (rolling-origin evaluation)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
+    "timestamp": "2026-09-21T12:08:47+02:00"
+  }
+}

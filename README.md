@@ -103,6 +103,13 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   M6d) — konstante Rate vs. Persistenz, `model_beats_baseline=False`
   (gewöhnliche Stichprobenvarianz, kein Regimewechsel). Keines der
   Ergebnisse wurde nachträglich angepasst.
+- Eine externe Review (Astra, 2026-09-21,
+  `prompts/Answers/nicht_stationäre_Treiber/`) reproduzierte alle drei
+  Piloten unabhängig, fand zwei Fehler in `docs/earthquake_pilot.md`
+  (korrigiert) und schlug ein Folgeprogramm vor — siehe
+  [NONSTATIONARY_ROADMAP.md](NONSTATIONARY_ROADMAP.md). Paket 1
+  (gemeinsame rollierende Auswertung, `validation/rolling_origin.py`) ist
+  umgesetzt und exakt gegen die Review-Zahlen abgeglichen.
 
 ---
 

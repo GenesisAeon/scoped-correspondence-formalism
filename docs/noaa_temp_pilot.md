@@ -77,10 +77,47 @@ each sub-period may be well-described by its own simple model. No
 cross-domain universality is claimed from two examples; it is recorded
 here as an honest observation worth keeping in mind.
 
+## Rolling-origin backtest (NONSTATIONARY_ROADMAP.md package 1, 2026-09-21)
+
+Astra's review (`prompts/Answers/nicht_stationäre_Treiber/`) pointed out
+that a single train/test split -- however honestly reported -- cannot by
+itself distinguish "this window choice happened to fail" from "any
+similar window would fail." `run_noaa_rolling_origin_backtest()`
+(`src/scoped_correspondence/validation/rolling_origin.py`) answers this
+by refitting three predictors at 11 independent origins (1969, 1974, ...,
+2019, every 5 years), each with a 5-year test horizon, and pooling the
+squared errors across all 55 test-years into one RMSE per predictor. This
+does **not** change or retune the original 1880-1999/2000-2025 pilot
+above -- it is a separate, disclosed follow-up evaluation.
+
+| Predictor | Pooled RMSE (55 test-years) |
+|---|---:|
+| Persistence (value at origin) | 0.13761 °C |
+| Expanding-window linear (1880 to origin) | 0.26506 °C |
+| Last-30-years linear | 0.11931 °C |
+
+The last-30-years linear fit wins overall, and by a wide margin over the
+expanding (full-history) fit — but it does **not** win at every single
+origin (e.g. at origin=1979 persistence beats both linear variants; at
+origin=1984 last-30 already wins clearly). This supports treating the
+choice of calibration window as itself something to adapt over time
+rather than a fixed hyperparameter, without claiming any single window
+length is universally correct. These numbers were independently
+cross-checked against Astra's own computation
+(`SCF_Nichtstationaere_Treiber_und_Kippen.md` section 2.2) and matched
+exactly (to floating-point precision).
+
+**Scope:** this is still a retrospective diagnosis on already-published
+historical data (per Astra's own methodological caveat, section 7) — a
+genuinely prospective evaluation would need a reserved, not-yet-analyzed
+test period. It is a materially stronger comparison than the single
+1880-1999 split, not a claim of true out-of-sample forecast skill.
+
 ## Verify
 
 ```bash
 PYTHONPATH=src python verification/verify_noaa_temp_pilot.py
+PYTHONPATH=src python verification/verify_rolling_origin.py
 ```
 
 JSON report: `verification/verify_noaa_temp_pilot_results.json` — all

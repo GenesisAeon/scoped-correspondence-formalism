@@ -29,6 +29,17 @@ normal form in dynamics/core.py or any other Baustein without its own
 separate derivation (see data/real_data_manifest.json's suggested-module
 caveat for this dataset). A model_beats_baseline=False result is a VALID
 complete outcome and must not trigger a retune.
+
+Rolling-origin backtest (NONSTATIONARY_ROADMAP.md package 1, added
+2026-09-21, disclosed follow-up informed by Astra's review of the single
+1880-1999/2000-2025 split above -- that original split, its code, and its
+result are untouched): run_noaa_rolling_origin_backtest() below applies
+scoped_correspondence.validation.rolling_origin across 11 origins
+(1969, 1974, ..., 2019), each with a 5-year test horizon, comparing
+persistence, an expanding-window linear fit (1880 to the origin), and a
+last-30-years linear fit. All three predictors are refit AT EVERY origin
+using only data up to and including that origin -- no single split
+choice determines the result.
 """
 
 from __future__ import annotations
@@ -38,6 +49,13 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
+import numpy as np
+
+from scoped_correspondence.validation.rolling_origin import (
+    RollingOriginReport,
+    rolling_origin_backtest,
+)
 
 from scoped_correspondence.errors import ScopeViolationError
 from scoped_correspondence.validation.core import ValidationReport, rmse
@@ -234,6 +252,60 @@ def run_noaa_temp_pilot(
     return report, fit
 
 
+# --- Rolling-origin backtest (NONSTATIONARY_ROADMAP.md package 1) ----------
+
+ROLLING_ORIGIN_YEARS: Tuple[int, ...] = tuple(range(1969, 2020, 5))  # 1969,1974,...,2019
+ROLLING_ORIGIN_HORIZON_YEARS = 5
+
+
+def _ols_intercept_slope(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
+    x_mean = float(x.mean())
+    y_mean = float(y.mean())
+    sxx = float(((x - x_mean) ** 2).sum())
+    sxy = float(((x - x_mean) * (y - y_mean)).sum())
+    slope = sxy / sxx
+    intercept = y_mean - slope * x_mean
+    return intercept, slope
+
+
+def _persistence_predictor(calib_x: np.ndarray, calib_y: np.ndarray, test_x: np.ndarray) -> np.ndarray:
+    return np.full(test_x.shape, calib_y[-1], dtype=float)
+
+
+def _expanding_linear_predictor(calib_x: np.ndarray, calib_y: np.ndarray, test_x: np.ndarray) -> np.ndarray:
+    origin = calib_x[-1]
+    intercept, slope = _ols_intercept_slope(calib_x - origin, calib_y)
+    return intercept + slope * (test_x - origin)
+
+
+def _last_30_years_linear_predictor(calib_x: np.ndarray, calib_y: np.ndarray, test_x: np.ndarray) -> np.ndarray:
+    origin = calib_x[-1]
+    mask = calib_x >= origin - 29
+    intercept, slope = _ols_intercept_slope(calib_x[mask] - origin, calib_y[mask])
+    return intercept + slope * (test_x - origin)
+
+
+def run_noaa_rolling_origin_backtest(data_path: str | Path) -> RollingOriginReport:
+    """11 origins (1969..2019, step 5), 5-year horizon each: persistence vs.
+    expanding-window linear vs. last-30-years linear, all refit at every
+    origin from data up to and including that origin only.
+    """
+    points = load_annual_anomalies(data_path)
+    years = np.array([p.year for p in points], dtype=float)
+    temps = np.array([p.anomaly_c for p in points], dtype=float)
+    return rolling_origin_backtest(
+        years,
+        temps,
+        origins=ROLLING_ORIGIN_YEARS,
+        horizon=ROLLING_ORIGIN_HORIZON_YEARS,
+        predictors={
+            "persistence": _persistence_predictor,
+            "expanding": _expanding_linear_predictor,
+            "last30": _last_30_years_linear_predictor,
+        },
+    )
+
+
 __all__ = [
     "CALIB_START_YEAR",
     "CALIB_END_YEAR",
@@ -248,4 +320,7 @@ __all__ = [
     "predict_linear_trend",
     "run_noaa_temp_pilot",
     "split_by_year",
+    "ROLLING_ORIGIN_YEARS",
+    "ROLLING_ORIGIN_HORIZON_YEARS",
+    "run_noaa_rolling_origin_backtest",
 ]

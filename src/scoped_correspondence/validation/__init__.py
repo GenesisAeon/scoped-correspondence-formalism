@@ -51,18 +51,26 @@ from scoped_correspondence.validation.covid_pilot import (
     split_by_date,
     split_by_date_short_window,
 )
+from scoped_correspondence.validation.rolling_origin import (
+    OriginResult,
+    RollingOriginReport,
+    rolling_origin_backtest,
+)
 from scoped_correspondence.validation.noaa_temp_pilot import (
     CALIB_END_YEAR as TEMP_CALIB_END_YEAR,
     CALIB_START_YEAR as TEMP_CALIB_START_YEAR,
     DATA_PROVENANCE_NOTE as TEMP_DATA_PROVENANCE_NOTE,
     HOLDOUT_END_YEAR as TEMP_HOLDOUT_END_YEAR,
     HOLDOUT_START_YEAR as TEMP_HOLDOUT_START_YEAR,
+    ROLLING_ORIGIN_HORIZON_YEARS as TEMP_ROLLING_ORIGIN_HORIZON_YEARS,
+    ROLLING_ORIGIN_YEARS as TEMP_ROLLING_ORIGIN_YEARS,
     FittedLinearTrend,
     YearlyAnomaly,
     fit_linear_trend,
     load_annual_anomalies,
     persistence_baseline_temp,
     predict_linear_trend,
+    run_noaa_rolling_origin_backtest,
     run_noaa_temp_pilot,
     split_by_year as split_by_year_temp,
 )
@@ -141,6 +149,13 @@ __all__ = [
     "predict_linear_trend",
     "run_noaa_temp_pilot",
     "split_by_year_temp",
+    "TEMP_ROLLING_ORIGIN_YEARS",
+    "TEMP_ROLLING_ORIGIN_HORIZON_YEARS",
+    "run_noaa_rolling_origin_backtest",
+    # M6e rolling_origin (generic backtest utility, NONSTATIONARY_ROADMAP.md package 1)
+    "OriginResult",
+    "RollingOriginReport",
+    "rolling_origin_backtest",
     # M6d earthquake_pilot (USGS M>=6.0 annual counts, verified real data)
     "QUAKE_CALIB_START_YEAR",
     "QUAKE_CALIB_END_YEAR",
