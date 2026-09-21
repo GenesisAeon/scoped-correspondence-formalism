@@ -107,8 +107,16 @@ Pufferfall"):
 generisch. Für das kanonische Beispiel aus Paket 3 sind D_u x*=1 und der
 Abstand stabiler↔instabiler Zweig=1 exakte Konstanten, also
 χ_max=r/2 in geschlossener Form. `chi_diagnostic_for_cubic_example(r)`
-zeigt: χ_max≥0,5 sagt exakt das bereits verifizierte Kipp-Verhalten
-voraus, über den gesamten getesteten Ratenbereich (r=0,05 bis 5).
+zeigt: χ steigt monoton mit der Rate und sagt die Richtung des
+Kipp-Verhaltens über den gesamten getesteten Bereich (r=0,05 bis 5)
+korrekt voraus. **Korrektur (2026-09-21, externe Zweitprüfung durch
+Astra):** die ursprünglich genannte präzise Schwelle χ_max≥0,5 war nur
+grob durch das ursprüngliche Punktraster eingegrenzt (r=0,5→χ=0,25→Nein
+vs. r=1,0→χ=0,5→Ja); ein feineres, unabhängig nachgerechnetes Raster
+zeigt den tatsächlichen Übergang zwischen r=0,7 (χ=0,35, Nein) und r=0,8
+(χ=0,40, Ja) — nicht bei 0,5. χ bleibt ein korrekt gerichteter lokaler
+Indikator, aber kein bewiesener präziser Schwellenwert. Details in
+`docs/rate_dependent_tipping.md`.
 
 **Teil B — Puffer-Lastspitzenfall** (neues Modul
 `viability/rate_dependent_buffer.py`, Milestone 43): dasselbe Skalar-
@@ -127,10 +135,23 @@ schärfere Sicherheitsschwelle b bricht, großzügigere nicht — scharfer
 anwendbar (setzt voraus, dass der eingefrorene Pfad die Grenze nie
 überschreitet) — als expliziter Scope-Hinweis dokumentiert.
 
-`verify_rate_viability_control_cases.py`: 4/4 bestanden (χ-Korrelation
+`verify_rate_viability_control_cases.py`: 5/5 bestanden (χ-Korrelation
 mit dem Kippverhalten, Tempo-Dimension mit unabhängiger Hand-
-Nachintegration, Reserve-Dimension, Scope-Verletzungen). `has_safe_transfer`
-wird nur aufgerufen, nicht verändert. Dokumentiert in
+Nachintegration, Reserve-Dimension, Gleichlast-Gegenfall, Scope-
+Verletzungen). `has_safe_transfer` wird nur aufgerufen, nicht verändert.
+
+**Korrektur (2026-09-21, externe Zweitprüfung durch Astra):** das
+"schnellere Spitzen sind sicherer"-Ergebnis gilt nur bei FESTER
+Spitzenhöhe — dabei sinkt mit kürzerem τ auch die insgesamt gelieferte
+Zusatzlast (das Integral der Gaußspitze, Höhe·√π·τ). Bei stattdessen
+FESTER Gesamtlast (`equal_total_load_height`, neue Funktion in
+`rate_dependent_buffer.py`) kehrt sich die Aussage um: kürzere Spitzen
+sind hier GEFÄHRLICHER, da dieselbe Gesamtlast in kürzerer Zeit
+konzentriert wird und den Puffer überfordert, bevor er reagieren kann.
+Keine der beiden Aussagen ist falsch — sie beantworten unterschiedliche
+Fragen (spitzenwert- vs. gesamtenergiebegrenzte Störung); eine einzelne
+"schneller ist sicherer/gefährlicher"-Aussage ohne Angabe der
+Randbedingung ist nicht identifiziert. Details in
 `docs/rate_dependent_tipping.md`.
 
 ### Paket 5 — Umsetzung (2026-09-21)
@@ -157,16 +178,36 @@ Dokumentiert in `docs/covid_renewal.md`.
 CO2-Strahlungsantrieb `F=5,35·ln(CO2/CO2_ref)` (Myhre et al. 1998) mit
 echten Mauna-Loa-CO2-Jahresmitteln (neu geladen,
 `data/noaa_mauna_loa_co2_annual_1959_2025.txt`, NOAA GML, sha256 in
-`data/real_data_manifest.json`). Fit an die echte NOAA-Temperaturreihe
-1959–2025: RMSE 0,154 °C, alle vier Raten-/Kapazitätsparameter strikt
-positiv. **Ehrlicher Befund:** das Modell unterschätzt die Erwärmung im
-jüngsten Jahrzehnt (2016–2025: mittleres Residuum +0,24 °C) stärker als im
-ältesten (1959–1968: +0,10 °C) — konsistent mit dem dokumentierten Effekt
-sinkender Aerosolkühlung ("Unmasking"), die ein reines CO2-Modell nicht
-erfassen kann. Verbindet damit dieselbe "einfaches Modell unterschätzt
-spätere Beschleunigung"-Beobachtung aus Pilot A und dem ursprünglichen
-NOAA-Trendfit mit einer konkreten physikalischen Ursache.
-`verify_energy_balance.py`: 4/4 bestanden. Dokumentiert in
+`data/real_data_manifest.json`). `verify_energy_balance.py`: 4/4 bestanden.
+Dokumentiert in `docs/energy_balance.md`.
+
+**Korrektur (2026-09-21, externe Zweitprüfung durch Astra):** der zuerst
+gemeldete Fit (RMSE 0,154 °C, unbeschränktes `least_squares(method="lm")`
+ab 4 Startwerten) erwies sich als schlecht konvergiertes lokales Optimum
+— derselbe unveränderte Code konvergierte in einer anderen Umgebung
+(neueres scipy/numpy) ab denselben Startwerten auf RMSE 0,119 °C, eine
+gründlichere Suche erreichte RMSE ~0,090 °C. Behoben durch (a) exakte
+Matrixexponential-Fortschreibung derselben linearen ODE statt
+`solve_ivp` im Optimierer-Kern (unabhängig gegen `solve_ivp` rückbestätigt,
+maximale Abweichung 8,1·10⁻⁸ °C — dieselbe Physik, kein anderes Modell)
+und (b) explizite, physikalisch motivierte Parametergrenzen
+(`PARAM_BOUNDS`) plus mehrere verschiedene Startwerte, die jetzt
+zuverlässig zum selben Optimum konvergieren (RMSE 0,0904 °C). **Der
+eigentliche ehrliche Befund ist nicht die bessere RMSE, sondern dass
+`alpha` selbst unter dieser physikalisch motivierten unteren Grenze
+(0,3 W/m²/K) exakt an dieser Grenze landet** — ein unbeschränkter Refit
+(nur als externe Diagnose gerechnet, nicht ausgeliefert) läuft sogar bis
+`alpha≈4,5·10⁻⁵` (praktisch keine Strahlungsrückkopplung), ein klassisches
+Überanpassungs-/Identifizierbarkeitsartefakt, kein besseres Klimamodell.
+Die ursprünglich berichtete "Aerosol-Unmasking"-Asymmetrie (+0,10 °C früh
+vs. +0,24 °C spät) schrumpft unter dem korrigierten Fit um etwa eine
+Größenordnung (-0,009 °C vs. +0,026 °C) und wird hiermit **zurückgezogen**
+— sie war größtenteils ein Artefakt der schlechten Konvergenz, nicht in
+erster Linie ein reales physikalisches Signal. Zusätzlich dokumentiert:
+`F` bezieht sich auf CO2 von 1959, die Temperaturreihe auf den Mittelwert
+1901–2000 — zwei unterschiedliche Referenzniveaus, bewusst nicht durch
+einen sechsten freien Parameter aufgelöst, angesichts der bereits
+dokumentierten schwachen Identifizierbarkeit. Details in
 `docs/energy_balance.md`.
 
 **Teil C — ETAS-Erdbeben** (`dynamics/etas.py`, Milestone 46): Ogata-1988-
@@ -192,6 +233,22 @@ unabhängige Doppelschleifen-Nachrechnung der Log-Likelihood an einem
 synthetischen Katalog, geschlossene Poisson-Null-Formel, echter
 Katalog-Fit). Dokumentiert in `docs/etas_earthquakes.md`, verlinkt aus
 `docs/earthquake_pilot.md`.
+
+**Korrektur (2026-09-21, externe Zweitprüfung durch Astra):** die
+Verzweigungsrate ist fragiler als oben dargestellt. Ihr Kernzeitintegral
+läuft bis unendlich; beim gefitteten p=1,0249 liegen nur ≈30,0 % dieser
+Masse innerhalb der Kataloglänge von 9756 Tagen — der Rest stammt aus
+einem weit über die Daten hinaus extrapolierten Ausläufer. Eine reine
+Sensitivitätsrechnung (nur p verändert, übrige Parameter unverändert,
+kein Refit) ergibt Verzweigungsraten von 1,62 (p=1,015) bis 0,51
+(p=1,06) — winzige Änderungen an p kippen die Interpretation zwischen
+deutlich über- und unterkritisch. Da p selbst plausibel ein
+Mischungsartefakt ist (siehe oben), wird die "genau an der
+Kritikalitätsschwelle"-Aussage hiermit auf illustrativ zurückgestuft; der
+belastbare Befund bleibt der AIC-Vorsprung, nicht der konkrete
+Verzweigungsraten-Wert. Ebenfalls korrigiert: `docs/etas_earthquakes.md`
+sprach fälschlich von "multiple Nelder-Mead starts" — Standard ist ein
+einzelner Startpunkt (siehe oben).
 
 **Wichtige Scope-Grenze für alle drei Teile:** jedes Modell ist bewusst
 vereinfacht (COVID-Renewal nutzt dieselbe Weltaggregat-Grenze wie Pilot A;

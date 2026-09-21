@@ -18,17 +18,30 @@ safety reserve (b), which neither frozen check alone can decide.
 
 Checks:
   1. chi_diagnostic_for_cubic_example: closed-form chi_max = r/2 matches a
-     hand computation; chi_max exceeds/stays below 0.5 exactly where
-     rate_induced_tipping_cubic_example switches/tracks (r=0.05..5.0).
+     hand computation; chi is a monotone, correctly-directioned separator
+     of switching/tracking outcomes (r=0.05..5.0, including a finer
+     r=0.6..0.9 bracket). CORRECTED (2026-09-21, external review by
+     Astra): no longer asserts the specific value chi_max>=0.5 as an exact
+     threshold -- the finer grid narrows the true transition to roughly
+     [0.35, 0.40], not 0.5; the check now verifies the weaker,
+     actually-supported monotone-separator property plus that the bracket
+     narrowed below the original grid's width.
   2. buffer_spike_viability_report: baseline always frozen-safe, peak
      always frozen-unsafe (by construction); transient_breach transitions
      from False to True as tau increases past a threshold between 0.5 and
-     1.0 (tempo dimension) -- hand-verified against directly re-integrating
-     the ODE with scipy independently of the module's own solve_ivp call.
+     1.0 (tempo dimension, fixed PEAK height) -- hand-verified against
+     directly re-integrating the ODE with scipy independently of the
+     module's own solve_ivp call.
   3. Same tau, varying b: transient_breach transitions from True to False
      as the reserve (|b|) increases past the trajectory's own minimum
      (reserve dimension).
-  4. run_buffer_spike_trajectory raises ScopeViolationError for r<=0 and
+  4. CORRECTION (2026-09-21, external review by Astra): a genuine second
+     control case holding total EXTRA load fixed instead of peak height
+     (equal_total_load_height) REVERSES check 2's conclusion -- shorter
+     pulses become MORE dangerous, not less, since they must be taller to
+     carry the same total load. Verified directly (monotone reversal),
+     not just claimed in prose.
+  5. run_buffer_spike_trajectory raises ScopeViolationError for r<=0 and
      tau<=0; local_chi_diagnostic raises for non-positive restoring_rate
      or distance_to_boundary.
 """
@@ -59,6 +72,7 @@ from scoped_correspondence.dynamics.rate_dependent import (  # noqa: E402
 )
 from scoped_correspondence.viability.rate_dependent_buffer import (  # noqa: E402
     buffer_spike_viability_report,
+    equal_total_load_height,
     run_buffer_spike_trajectory,
 )
 
@@ -74,14 +88,34 @@ def near(a, b, atol=1e-6):
 
 
 def check_chi_diagnostic_correlates_with_switching():
-    rates = [0.05, 0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0]
+    """CORRECTED (2026-09-21, external review by Astra): the original coarse
+    grid only bracketed the transition loosely between r=0.5 (chi=0.25) and
+    r=1.0 (chi=0.5) -- any threshold in that whole interval fit equally
+    well, so asserting "chi_max>=0.5 predicts switching" was an overclaim
+    about precision. This now includes the finer bracket (r=0.6..0.9) that
+    narrows the actual transition to chi_max between 0.35 and 0.40, and
+    checks the WEAKER, actually-supported property directly: chi is a
+    monotone, correctly-directioned separator (there exists SOME threshold
+    that exactly separates switched from non-switched on the tested rates),
+    without committing to a specific numeric value as the true threshold.
+    """
+    rates = [0.05, 0.1, 0.2, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3.0, 5.0]
     rows = []
     for r in rates:
         res = chi_diagnostic_for_cubic_example(r)
         near(res.chi_max, r / 2.0, atol=1e-9)  # hand closed-form: chi_max = r/2
         rows.append({"r": r, "chi_max": res.chi_max, "switched": res.switched})
-    require(all(row["switched"] == (row["chi_max"] >= 0.5) for row in rows), "chi_max>=0.5 must exactly predict switching for this model")
+
+    switched_chis = [row["chi_max"] for row in rows if row["switched"]]
+    not_switched_chis = [row["chi_max"] for row in rows if not row["switched"]]
+    require(switched_chis and not_switched_chis, "sweep must span both tracking and switching")
+    require(min(switched_chis) > max(not_switched_chis), "chi must be a monotone, correctly-directioned separator (no overlap)")
+    critical_lower = max(not_switched_chis)
+    critical_upper = min(switched_chis)
     require(not rows[0]["switched"] and rows[-1]["switched"], "sweep must span both tracking and switching")
+    # Not required to equal exactly [0.35, 0.40] -- but must NOT be as loose as the
+    # originally (over)claimed single value 0.5, confirming the finer grid actually narrowed it.
+    require(critical_upper - critical_lower < 0.1, f"finer grid should narrow the bracket below the original [0.25,0.5] width; got [{critical_lower!r}, {critical_upper!r}]")
 
     below = False
     try:
@@ -96,7 +130,7 @@ def check_chi_diagnostic_correlates_with_switching():
         below2 = True
     require(below2, "expected ScopeViolationError for distance_to_boundary<=0")
 
-    return {"rows": rows, "critical_chi_between": [0.25, 0.5], "raised_on_nonpositive_inputs": True}
+    return {"rows": rows, "critical_chi_between": [critical_lower, critical_upper], "raised_on_nonpositive_inputs": True}
 
 
 def check_buffer_spike_tempo_dimension():
@@ -145,6 +179,41 @@ def check_buffer_spike_reserve_dimension():
     return {"rows": rows, "fixed_tau": tau}
 
 
+def check_buffer_equal_total_load_reverses_conclusion():
+    """CORRECTION (2026-09-21, external review by Astra): the tempo-dimension
+    check above holds the PEAK height fixed while tau varies -- which also
+    means shorter (smaller-tau) pulses carry LESS total load. Holding the
+    total extra load fixed instead (via equal_total_load_height) is a
+    genuine second control case, and it REVERSES the conclusion: shorter
+    pulses become MORE dangerous here, not less. Neither framing is wrong;
+    they answer different questions (peak-limited vs. total-energy-limited
+    disturbances) -- this check exists so that reversal is verified, not
+    just claimed in prose.
+    """
+    r, z_eq, U, W0, total_load = 1.0, 0.0, 0.0, 0.0, 1.0
+    rows = []
+    for tau in [0.05, 0.2, 0.5, 1.0, 2.0, 5.0]:
+        height = equal_total_load_height(total_load, tau)
+        traj = run_buffer_spike_trajectory(r, z_eq, U, W0, height, tau)
+        rows.append({"tau": tau, "height": height, "z_min": traj.z_min})
+    z_mins = [row["z_min"] for row in rows]
+    require(
+        all(a <= b for a, b in zip(z_mins, z_mins[1:])),
+        "under equal total load, z_min must increase (become safer) monotonically with tau -- i.e. SHORTER pulses are MORE dangerous here",
+    )
+    require(rows[0]["z_min"] < rows[-1]["z_min"] - 0.5, "the reversal must be substantial, not a rounding artifact")
+    return {
+        "rows": rows,
+        "interpretation": (
+            "Direction reverses vs. the fixed-peak-height tempo check: under "
+            "equal total load, shorter pulses are MORE dangerous (more "
+            "concentrated), not less. A single 'faster is safer/more "
+            "dangerous' claim is not identified without saying what is held "
+            "fixed."
+        ),
+    }
+
+
 def check_scope_violations():
     r_le_0 = False
     try:
@@ -167,6 +236,7 @@ CHECKS = [
     ("chi_diagnostic_correlates_with_switching", check_chi_diagnostic_correlates_with_switching),
     ("buffer_spike_tempo_dimension", check_buffer_spike_tempo_dimension),
     ("buffer_spike_reserve_dimension", check_buffer_spike_reserve_dimension),
+    ("buffer_equal_total_load_reverses_conclusion", check_buffer_equal_total_load_reverses_conclusion),
     ("scope_violations", check_scope_violations),
 ]
 

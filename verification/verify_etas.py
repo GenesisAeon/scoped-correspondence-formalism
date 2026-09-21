@@ -22,9 +22,16 @@ Checks (all numbers from this script run):
      N*ln(N/T) - N directly.
   4. fit_etas_model on the real catalog: optimizer converges to a
      self-exciting fit (K, alpha > 0, p > 1) whose AIC beats the
-     homogeneous-Poisson null by a wide margin -- a mechanistic explanation
-     for the overdispersion already found in docs/earthquake_pilot.md.
-     branching_ratio is finite and non-negative.
+     homogeneous-Poisson null by a wide margin -- A sufficient (not proven
+     unique) explanation for the overdispersion already found in
+     docs/earthquake_pilot.md. branching_ratio is finite and non-negative.
+  5. CORRECTION (2026-09-21, external review by Astra): the branching
+     ratio's kernel-time-integral runs to infinity; only a minority of
+     that mass falls within the observed catalog span, and a small change
+     in p swings the branching ratio between clearly super- and
+     sub-critical. Quantified directly rather than left as an implicit
+     assumption -- the specific branching-ratio value should not be read
+     as a validated criticality finding.
 
 IMPORTANT SCOPE LIMITATION: temporal-only ETAS on a pooled GLOBAL
 multi-region catalog -- see dynamics/etas.py module docstring. Not a
@@ -189,10 +196,53 @@ def check_real_catalog_fit(result):
         "branching_ratio": result.branching_ratio,
         "interpretation": (
             "ETAS self-excitation decisively outperforms an equal-rate Poisson "
-            "null on AIC -- a mechanistic explanation for the overdispersion "
-            "(Fano factor 3.16) already documented in docs/earthquake_pilot.md, "
-            "consistent with real aftershock clustering in the pooled global "
-            "catalog (see SCOPE_WARNING for the temporal-only/global-pooling caveat)."
+            "null on AIC against the overdispersion (Fano factor 3.16) already "
+            "documented in docs/earthquake_pilot.md. CORRECTED (2026-09-21, "
+            "external review by Astra): this shows self-excitation is A "
+            "sufficient explanation, not THE only one -- a time-varying "
+            "background rate or Cox process could also generate clustering, "
+            "and was not compared here. See check_branching_ratio_tail_sensitivity "
+            "for why the specific branching_ratio value above should not be "
+            "over-interpreted."
+        ),
+    }
+
+
+def check_branching_ratio_tail_sensitivity(result):
+    """The branching ratio's kernel-time-integral runs to infinity; on this
+    finite-length catalog, most of that mass is extrapolated far beyond
+    anything observed (external review, Astra 2026-09-21). This check
+    quantifies exactly how much, and how sensitive the branching ratio is
+    to small changes in p -- NOT a refit, a pure sensitivity probe with all
+    other fitted parameters held fixed.
+    """
+    p = result.params
+    times, mags = load_catalog(ROOT / "data" / "usgs_earthquakes_m6plus_2000_2026.csv", m0=6.0)
+    T = result.T_days
+
+    finite_mass = compensator_g(np.array([T]), p.c, p.p)[0]
+    infinite_mass = p.c ** (1 - p.p) / (p.p - 1)
+    fraction_observed = float(finite_mass / infinite_mass)
+    require(0.0 < fraction_observed < 1.0, "observed fraction of kernel mass must lie strictly between 0 and 1")
+    require(fraction_observed < 0.5, f"expected most kernel mass to be UNOBSERVED tail given p close to 1; got fraction_observed={fraction_observed!r}")
+
+    sensitivity = []
+    for test_p in (1.015, p.p, 1.04, 1.06):
+        br = etas_branching_ratio(p.K, p.c, test_p, p.alpha, mags, 6.0)
+        sensitivity.append({"p": test_p, "branching_ratio": br})
+    require(sensitivity[0]["branching_ratio"] > 1.0, "at p=1.015 the branching ratio should read super-critical")
+    require(sensitivity[-1]["branching_ratio"] < 1.0, "at p=1.06 the branching ratio should read sub-critical")
+
+    return {
+        "fraction_of_kernel_mass_within_catalog_span": fraction_observed,
+        "sensitivity_fixed_other_params_not_refit": sensitivity,
+        "interpretation": (
+            "Only a minority of the branching ratio's kernel mass falls within "
+            "the observed catalog span; the rest is an extrapolated tail. A "
+            "sub-1%-level change in p swings the branching ratio between "
+            "clearly super- and sub-critical -- the specific branching-ratio "
+            "value is fragile and should not be read as a validated "
+            "criticality finding."
         ),
     }
 
@@ -212,7 +262,10 @@ def main():
 
     catalog_path = args.catalog.resolve()
     fit_result = fit_etas_model(catalog_path)  # fit ONCE, reuse below
-    checks = CHECKS + [("real_catalog_fit", lambda: check_real_catalog_fit(fit_result))]
+    checks = CHECKS + [
+        ("real_catalog_fit", lambda: check_real_catalog_fit(fit_result)),
+        ("branching_ratio_tail_sensitivity", lambda: check_branching_ratio_tail_sensitivity(fit_result)),
+    ]
 
     report = {
         "package": "NONSTATIONARY_ROADMAP.md package 5c (ETAS self-exciting point process)",

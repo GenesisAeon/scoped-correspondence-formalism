@@ -41,12 +41,27 @@ separate, as requested:
 dx/dt = (x - u) - (x - u)^3,    u(t) = 1 + tanh(r*t)
 ```
 
-Substituting `z = x - u` gives the autonomous pitchfork normal form
-`dz/dt = z - z^3`: equilibria `z=0` (unstable, local derivative `+1`) and
-`z=+-1` (stable, local derivative `-2`), translated back to `x=u`,
-`x=u+1`, `x=u-1`. **The local derivative does not depend on `u` at all** —
-there is no frozen bifurcation anywhere along any driver path for this
-model. `u(t)` is bounded and S-shaped; no exponential driver is needed.
+**Correction (2026-09-21, external review by Astra):** substituting
+`z = x - u(t)` for the ACTUAL time-dependent driver gives
+`dz/dt = z - z^3 - u_dot(t)`, not the bare autonomous pitchfork form —
+the earlier text here dropped the `-u_dot(t)` term, and that term is
+exactly the rate-dependent tipping mechanism: it is what can push the
+trajectory off the frozen branch it would otherwise track. The
+implementation was never affected by this — `integrate_trajectory`
+integrates the original, correct `x`-equation directly with the real
+`u(t)`; only this explanatory shorthand was wrong.
+
+The `z = x - u` substitution IS exactly `dz/dt = z - z^3` only for the
+**frozen** analysis (`u` held constant, i.e. `u_dot = 0`), which is what
+`frozen_equilibria_shifted_pitchfork` computes: equilibria `z=0`
+(unstable, local derivative `+1`) and `z=+-1` (stable, local derivative
+`-2`), translated back to `x=u`, `x=u+1`, `x=u-1`. **The local derivative
+does not depend on `u` at all** — there is no frozen bifurcation anywhere
+along any driver path for this model. `u(t)` is bounded and S-shaped; no
+exponential driver is needed. The *actual* trajectory's tracking/switching
+behavior is governed by the dropped `-u_dot(t)` term against this frozen
+background, exactly as the rate-dependent-tipping literature (Ashwin et
+al. 2012; Wieczorek et al. 2023) describes.
 
 The system starts near the upper branch (`x-u = +1`) well before the
 driver begins moving and is integrated well after it has finished:
@@ -115,10 +130,27 @@ actual outcome:
 | 2.00 | 1.000 | Yes |
 | 5.00 | 2.500 | Yes |
 
-`chi_max >= 0.5` predicts switching exactly, for every rate tested. This
-is a genuine, quantitatively precise validation of the diagnostic on the
-one model where it can be computed in exact closed form — not a claim
-that 0.5 is a universal critical `chi` value for other models.
+**Correction (2026-09-21, external review by Astra):** the table above
+only brackets the transition loosely between `r=0.5` (chi=0.25, No) and
+`r=1.0` (chi=0.5, Yes) — any threshold in that whole interval would fit
+the coarse grid equally well, so "`chi_max >= 0.5` predicts switching
+exactly" was an overclaim about precision, not a wrong direction. An
+independently-verified finer sweep narrows it further:
+
+| `r` | `chi_max = r/2` | Switched? |
+|---:|---:|---|
+| 0.6 | 0.30 | No |
+| 0.7 | 0.35 | No |
+| **0.8** | **0.40** | **Yes** |
+| 0.9 | 0.45 | Yes |
+
+The actual critical rate for this model sits between `r=0.7` and `r=0.8`
+(critical `chi_max` between 0.35 and 0.40), not at 0.5. `chi` remains a
+useful, correctly-directioned LOCAL diagnostic — larger `chi` reliably
+means closer to switching — but identifying its precise critical value
+would need continuation/interval search near the transition, not a
+handful of grid points. Not a claim that 0.5 (or any other single number)
+is a universal critical `chi` value for this or any other model.
 
 ### A mirror-image buffer case (`viability/rate_dependent_buffer.py`, Milestone 43)
 
@@ -148,17 +180,49 @@ returning to `W0`. With `r=1`, `z_eq=0`, `U=0`, `W0=0`, `spike_height=1`,
 | 2.00 | -0.858 | Yes |
 | 5.00 (slow) | -0.965 | Yes |
 
-**This is the MIRROR IMAGE of the rate-induced tipping result above:**
-there, faster driving was MORE dangerous (the trajectory couldn't keep
-up with a moving multistable equilibrium and tipped to the wrong
-attractor). Here, faster (shorter) spikes are LESS dangerous — the
-buffer's own relaxation acts as a low-pass filter and attenuates brief
-disturbances, never letting the state get close to the instantaneous
-frozen worst case; only spikes long enough relative to `1/r` let the
-buffer catch up toward that worst case. Checking only the frozen peak
-load ("this load, sustained, would be unsafe") is needlessly conservative
-for a genuinely brief spike; checking only the frozen baseline/endpoint
-loads misses the risk from a sufficiently sustained one.
+**This is the MIRROR IMAGE of the rate-induced tipping result above —
+under FIXED PEAK HEIGHT:** there, faster driving was MORE dangerous (the
+trajectory couldn't keep up with a moving multistable equilibrium and
+tipped to the wrong attractor). Here, with the spike's peak height held
+fixed while its width `tau` varies, faster (shorter) spikes are LESS
+dangerous — the buffer's own relaxation acts as a low-pass filter and
+attenuates brief disturbances, never letting the state get close to the
+instantaneous frozen worst case; only spikes long enough relative to
+`1/r` let the buffer catch up toward that worst case. Checking only the
+frozen peak load ("this load, sustained, would be unsafe") is needlessly
+conservative for a genuinely brief spike; checking only the frozen
+baseline/endpoint loads misses the risk from a sufficiently sustained one.
+
+**Correction (2026-09-21, external review by Astra): this conclusion
+depends entirely on what is held fixed, and reverses under a different,
+equally natural choice.** Holding the spike's peak height fixed while
+`tau` shrinks also means the total EXTRA load delivered (`height *
+sqrt(pi) * tau`, the Gaussian's integral) shrinks too — shorter pulses in
+that table are not just faster, they are also *smaller* overall. Holding
+the TOTAL extra load fixed instead (`equal_total_load_height(total_load,
+tau) = total_load / (sqrt(pi) * tau)`, so shorter pulses must be taller
+to deliver the same total) gives the opposite ranking, independently
+verified:
+
+| Spike width `tau` | Height (equal total load = 1) | `z_min` |
+|---:|---:|---:|
+| 0.05 (fast) | 11.28 | **-0.912** |
+| 0.20 | 2.82 | -0.747 |
+| 0.50 | 1.13 | -0.558 |
+| 1.00 | 0.56 | -0.392 |
+| 2.00 | 0.28 | -0.242 |
+| 5.00 (slow) | 0.11 | **-0.109** |
+
+Under equal total load, **shorter pulses are MORE dangerous** — a
+short, concentrated pulse packs the same total load into less time,
+overwhelming the buffer's relaxation before it can absorb it, while a
+long, gentle pulse delivering the same total load lets the buffer keep
+up. **Neither table is wrong; they answer different questions** (a
+peak-limited disturbance vs. a total-energy-limited one), and a single
+"faster is safer/more dangerous" claim, without saying which quantity is
+held fixed, is not a well-posed statement for this system. A full
+characterization would need a response surface over amplitude AND
+duration jointly, not a single 1D sweep in either direction alone.
 
 The **reserve** dimension, at fixed `tau=1.0` (`z_min=-0.695`): `b=-0.3`
 and `b=-0.5` breach, `b=-0.7` and `b=-0.9` do not — a sharp transition

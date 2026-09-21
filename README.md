@@ -61,7 +61,7 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
 
 ### Status, Prüfungen und offene Punkte
 
-- **51 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
+- **62 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
   aktuell alle grün (`python audit_review/run_all_local.py` — Skript nicht
   eingecheckt, siehe [VERIFICATION.md](VERIFICATION.md) für die
   eingecheckten Einzelläufe und ihre Aussagekraft).

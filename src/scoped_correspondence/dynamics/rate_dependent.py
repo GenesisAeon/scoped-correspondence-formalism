@@ -35,16 +35,25 @@ SCF_Nichtstationaere_Treiber_und_Kippen.md section 5.1):
 
     dx/dt = (x - u) - (x - u)^3,   u(t) = 1 + tanh(r*t)
 
-Substituting z = x - u gives dz/dt = z - z^3 (the autonomous pitchfork
-normal form) -- the frozen equilibria are z=0 (unstable) and z=+-1
-(stable), i.e. x = u, x = u+1, x = u-1, with local derivative exactly -2
-at both stable branches and +1 at the unstable one, INDEPENDENT of u:
-there is no frozen bifurcation anywhere along this driver's path. u(t)
-is bounded and S-shaped (an unbounded/exponential driver is not needed
-for rate-induced tipping). Whether the real trajectory tracks the upper
-branch (x-u -> +1) or switches to the lower branch (x-u -> -1) as the
-driver moves from u~0 to u~2 depends only on how FAST the driver moves
-(the rate r), not on any change in frozen stability.
+CORRECTION (2026-09-21, external review by Astra): for the actual
+time-dependent u(t), substituting z = x - u(t) gives
+dz/dt = z - z^3 - u_dot(t), NOT the bare autonomous pitchfork form -- the
+dropped -u_dot(t) term is exactly the rate-dependent tipping mechanism.
+rate_induced_tipping_cubic_example/integrate_trajectory were never
+affected by this (they integrate the original, correct x-equation
+directly with the real u(t)); only this docstring's explanatory shorthand
+was wrong. The z=x-u substitution IS exactly dz/dt=z-z^3 only for the
+FROZEN analysis (u held constant, u_dot=0), which is what
+frozen_equilibria_shifted_pitchfork computes: frozen equilibria z=0
+(unstable) and z=+-1 (stable), i.e. x = u, x = u+1, x = u-1, with local
+derivative exactly -2 at both stable branches and +1 at the unstable one,
+INDEPENDENT of u: there is no frozen bifurcation anywhere along this
+driver's path. u(t) is bounded and S-shaped (an unbounded/exponential
+driver is not needed for rate-induced tipping). Whether the real
+trajectory tracks the upper branch (x-u -> +1) or switches to the lower
+branch (x-u -> -1) as the driver moves from u~0 to u~2 depends on the
+dropped -u_dot(t) term against this frozen background -- i.e. on how FAST
+the driver moves (the rate r), not on any change in frozen stability.
 
 Sources
 -------

@@ -163,6 +163,28 @@ def run_buffer_spike_trajectory(
     )
 
 
+def equal_total_load_height(total_extra_load: float, tau: float) -> float:
+    """Spike height so that the total EXTRA load (integral of spike_height*exp(-(t/tau)^2)
+    over all t) equals ``total_extra_load``, since that integral is
+    spike_height*sqrt(pi)*tau.
+
+    CORRECTION (2026-09-21, external review by Astra): the module's
+    existing "shorter pulses are safer" finding holds the PEAK height
+    fixed while tau varies -- which means shorter pulses also carry LESS
+    total load. Holding the total load fixed instead (via this height)
+    is a genuine second control case, and REVERSES the conclusion: see
+    ``docs/rate_dependent_tipping.md``. Neither framing is wrong; they
+    answer different questions (peak-limited vs. total-energy-limited
+    disturbances), and a single "faster is safer/more dangerous" claim
+    without saying which is held fixed is not identified.
+    """
+    if total_extra_load <= 0:
+        raise ScopeViolationError(f"equal_total_load_height: total_extra_load must be > 0; got {total_extra_load!r}")
+    if tau <= 0:
+        raise ScopeViolationError(f"equal_total_load_height: tau must be > 0; got {tau!r}")
+    return float(total_extra_load / (np.sqrt(np.pi) * tau))
+
+
 def buffer_spike_viability_report(
     r: float,
     z_eq: float,
@@ -198,4 +220,5 @@ __all__ = [
     "BufferSpikeViabilityReport",
     "run_buffer_spike_trajectory",
     "buffer_spike_viability_report",
+    "equal_total_load_height",
 ]

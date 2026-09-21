@@ -1,10 +1,35 @@
 {
-  "count": 4,
+  "count": 5,
   "errors": [],
   "failed": 0,
-  "passed": 4,
+  "passed": 5,
   "report": {
     "checks": {
+      "branching_ratio_tail_sensitivity": {
+        "detail": {
+          "fraction_of_kernel_mass_within_catalog_span": 0.2995604233120064,
+          "interpretation": "Only a minority of the branching ratio's kernel mass falls within the observed catalog span; the rest is an extrapolated tail. A sub-1%-level change in p swings the branching ratio between clearly super- and sub-critical -- the specific branching-ratio value is fragile and should not be read as a validated criticality finding.",
+          "sensitivity_fixed_other_params_not_refit": [
+            {
+              "branching_ratio": 1.6177317368954987,
+              "p": 1.015
+            },
+            {
+              "branching_ratio": 1.0242760001402262,
+              "p": 1.0249207287200637
+            },
+            {
+              "branching_ratio": 0.6891706497089679,
+              "p": 1.04
+            },
+            {
+              "branching_ratio": 0.5087995453516454,
+              "p": 1.06
+            }
+          ]
+        },
+        "status": "passed"
+      },
       "compensator_g_hand_check": {
         "detail": {
           "closed_form_g": 3.130437454226321,
@@ -37,7 +62,7 @@
           "aic_gap_null_minus_etas": 1304.2468352952928,
           "aic_null_poisson": 15088.45674513637,
           "branching_ratio": 1.0242760001402262,
-          "interpretation": "ETAS self-excitation decisively outperforms an equal-rate Poisson null on AIC -- a mechanistic explanation for the overdispersion (Fano factor 3.16) already documented in docs/earthquake_pilot.md, consistent with real aftershock clustering in the pooled global catalog (see SCOPE_WARNING for the temporal-only/global-pooling caveat).",
+          "interpretation": "ETAS self-excitation decisively outperforms an equal-rate Poisson null on AIC against the overdispersion (Fano factor 3.16) already documented in docs/earthquake_pilot.md. CORRECTED (2026-09-21, external review by Astra): this shows self-excitation is A sufficient explanation, not THE only one -- a time-varying background rate or Cox process could also generate clustering, and was not compared here. See check_branching_ratio_tail_sensitivity for why the specific branching_ratio value above should not be over-interpreted.",
           "log_lik_etas": -6887.104954920538,
           "log_lik_null_poisson": -7543.228372568185,
           "n_events": 3974,
@@ -61,6 +86,6 @@
     "scipy": "1.15.3",
     "scope_warning": "Temporal-only ETAS on a pooled global catalog is a qualitative self-excitation test, not a calibrated regional hazard model.",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-21T15:08:10+02:00"
+    "timestamp": "2026-09-21T18:35:54+02:00"
   }
 }

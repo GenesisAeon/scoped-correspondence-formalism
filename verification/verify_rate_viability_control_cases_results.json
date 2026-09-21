@@ -1,10 +1,48 @@
 {
-  "count": 4,
+  "count": 5,
   "errors": [],
   "failed": 0,
-  "passed": 4,
+  "passed": 5,
   "report": {
     "checks": {
+      "buffer_equal_total_load_reverses_conclusion": {
+        "detail": {
+          "interpretation": "Direction reverses vs. the fixed-peak-height tempo check: under equal total load, shorter pulses are MORE dangerous (more concentrated), not less. A single 'faster is safer/more dangerous' claim is not identified without saying what is held fixed.",
+          "rows": [
+            {
+              "height": 11.283791670955125,
+              "tau": 0.05,
+              "z_min": -0.9117057179675
+            },
+            {
+              "height": 2.8209479177387813,
+              "tau": 0.2,
+              "z_min": -0.7473200531081177
+            },
+            {
+              "height": 1.1283791670955126,
+              "tau": 0.5,
+              "z_min": -0.5581163632614266
+            },
+            {
+              "height": 0.5641895835477563,
+              "tau": 1.0,
+              "z_min": -0.3919723223761097
+            },
+            {
+              "height": 0.28209479177387814,
+              "tau": 2.0,
+              "z_min": -0.24193748968608353
+            },
+            {
+              "height": 0.11283791670955128,
+              "tau": 5.0,
+              "z_min": -0.10894125953383993
+            }
+          ]
+        },
+        "status": "passed"
+      },
       "buffer_spike_reserve_dimension": {
         "detail": {
           "fixed_tau": 1.0,
@@ -76,8 +114,8 @@
       "chi_diagnostic_correlates_with_switching": {
         "detail": {
           "critical_chi_between": [
-            0.25,
-            0.5
+            0.35,
+            0.4
           ],
           "raised_on_nonpositive_inputs": true,
           "rows": [
@@ -100,6 +138,26 @@
               "chi_max": 0.25,
               "r": 0.5,
               "switched": false
+            },
+            {
+              "chi_max": 0.3,
+              "r": 0.6,
+              "switched": false
+            },
+            {
+              "chi_max": 0.35,
+              "r": 0.7,
+              "switched": false
+            },
+            {
+              "chi_max": 0.4,
+              "r": 0.8,
+              "switched": true
+            },
+            {
+              "chi_max": 0.45,
+              "r": 0.9,
+              "switched": true
             },
             {
               "chi_max": 0.5,
@@ -145,6 +203,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-21T13:15:53+02:00"
+    "timestamp": "2026-09-21T18:36:45+02:00"
   }
 }

@@ -24,6 +24,7 @@ from scoped_correspondence.viability.rate_dependent_buffer import (
     BufferSpikeTrajectory,
     BufferSpikeViabilityReport,
     buffer_spike_viability_report,
+    equal_total_load_height,
     run_buffer_spike_trajectory,
 )
 from scoped_correspondence.viability.control_barrier import (
@@ -73,4 +74,5 @@ __all__ = [
     "BufferSpikeViabilityReport",
     "buffer_spike_viability_report",
     "run_buffer_spike_trajectory",
+    "equal_total_load_height",
 ]

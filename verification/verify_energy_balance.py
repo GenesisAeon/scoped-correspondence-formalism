@@ -15,17 +15,25 @@ Checks (all numbers from this script run):
      year, sha256 matches the recorded manifest-independent local copy,
      values lie in a physically plausible range (300-450 ppm).
   3. fit_energy_balance_model on the real 1959-2025 overlap: optimizer
-     reports success; RMSE is at least as good as the ORIGINAL (full
-     1880-1999 window) NOAA linear-trend Pilot A's RMSE (a low bar, since
-     that pilot's window and problem differ, used only as a sanity floor);
-     all fitted parameters are strictly positive (physically required for
-     a stable relaxation system).
-  4. The model UNDERSHOOTS observed warming more in the most recent
-     decade than in the earliest decade of the overlap -- consistent
-     with the well-documented effect of declining aerosol cooling being
-     unmasked in recent decades, which this CO2-only model cannot
-     capture. This is reported as an expected, honest limitation, not
-     hidden or explained away.
+     reports success, the exact-propagation vs solve_ivp cross-check
+     agrees tightly, all parameters lie within PARAM_BOUNDS, RMSE reaches
+     the corrected robust optimum (~0.090, not the originally-shipped
+     poorly-converged 0.154 -- see CORRECTION below), and alpha's
+     lower-bound saturation is reported (not hidden).
+  4. CORRECTION (2026-09-21, external review by Astra): the previously
+     reported "aerosol-unmasking" residual asymmetry was largely an
+     artifact of a poorly-converged, environment-sensitive fit (the
+     SAME unbounded code was independently found to converge to
+     RMSE 0.119 or 0.090 in a different environment/with a broader
+     search, vs the 0.154 originally shipped here). Fixed via an exact
+     matrix-exponential integrator (replacing solve_ivp inside the
+     optimizer's hot loop) plus explicit physically-motivated bounds and
+     several diverse starts, which now converges to the SAME optimum
+     regardless of starting point. The residual asymmetry shrinks by
+     roughly an order of magnitude under the corrected fit; the more
+     important honest finding is that alpha still saturates its
+     physically-motivated lower bound -- a real identifiability warning,
+     not something to explain away.
   5. Hand re-integration of the fitted model, independent of the module's
      own solve_ivp call, confirms the reported RMSE.
 """
@@ -52,6 +60,7 @@ from scoped_correspondence.errors import ScopeViolationError  # noqa: E402
 from scoped_correspondence.dynamics.energy_balance import (  # noqa: E402
     CO2_FORCING_COEFFICIENT,
     DATA_PROVENANCE_NOTE,
+    PARAM_BOUNDS,
     co2_radiative_forcing,
     fit_energy_balance_model,
     load_annual_co2,
@@ -101,28 +110,56 @@ def check_load_annual_co2(path):
     return {"first_year": years[0], "last_year": years[-1], "n_years": len(years)}
 
 
-def check_fit_and_undershoot(result):
+def check_fit_robust_and_bounded(result):
+    """Optimizer robustness + honest identifiability reporting (correction, Astra 2026-09-21).
+
+    Does NOT require optimizer_success alone as a quality bar (external
+    review showed this is insufficient -- a poorly-converged fit also
+    reports success=True). Instead checks: (a) the exact-propagation vs
+    solve_ivp cross-check agrees tightly (same physics, not a different
+    model), (b) all parameters lie within PARAM_BOUNDS by construction,
+    (c) the RMSE is close to the independently-confirmed corrected value
+    (~0.090, not the originally-shipped, poorly-converged 0.154), (d)
+    alpha saturating its lower bound is reported, not hidden.
+    """
     require(result.optimizer_success, "optimizer must report success")
+    require(result.solve_ivp_cross_check_max_diff < 1e-3, "exact propagation and solve_ivp must agree (same physics)")
     p = result.params
     require(p.C_s > 0 and p.C_d > 0 and p.alpha > 0 and p.gamma > 0, "all rate/capacity parameters must be strictly positive")
+    for name in ("C_s", "C_d", "alpha", "gamma", "T0"):
+        lo, hi = PARAM_BOUNDS[name]
+        value = getattr(p, name)
+        require(lo <= value <= hi, f"{name}={value!r} must lie within PARAM_BOUNDS={PARAM_BOUNDS[name]!r}")
+    require(
+        result.rmse < 0.11,
+        f"corrected fit should reach RMSE well below the originally-shipped 0.154 (found a robust optimum around 0.090); got {result.rmse!r}",
+    )
+    require("alpha" in result.at_bound, "alpha is expected to saturate its lower bound here -- this IS the identifiability finding, not a bug to hide")
 
     obs = np.array(result.observed_Ts)
     pred = np.array(result.predicted_Ts)
     early_residual = float(np.mean(obs[:10] - pred[:10]))
     recent_residual = float(np.mean(obs[-10:] - pred[-10:]))
-    require(
-        recent_residual > early_residual,
-        f"model must undershoot MORE in recent years than early years (aerosol-unmasking signature); "
-        f"got early={early_residual!r}, recent={recent_residual!r}",
-    )
 
     return {
         "params": p.to_dict(),
         "rmse": result.rmse,
         "n_years": len(result.years),
+        "at_bound": list(result.at_bound),
+        "solve_ivp_cross_check_max_diff": result.solve_ivp_cross_check_max_diff,
         "early_residual_obs_minus_pred": early_residual,
         "recent_residual_obs_minus_pred": recent_residual,
-        "interpretation": "recent undershoot exceeds early undershoot, consistent with declining aerosol cooling unmasked in recent decades -- not captured by CO2-only forcing",
+        "interpretation": (
+            "CORRECTED (2026-09-21): the previously reported strong "
+            "early-vs-recent residual asymmetry (attributed to aerosol "
+            "unmasking) was largely an artifact of a poorly-converged fit. "
+            "Under this robust, physically-bounded fit the asymmetry "
+            "shrinks by roughly an order of magnitude and is far too small "
+            "to confidently attribute to any specific omitted forcing. "
+            "alpha saturating its lower bound (0.3) is the more important, "
+            "honestly-reported finding: this CO2-only model is weakly "
+            "identified even under a physically-motivated constraint."
+        ),
     }
 
 
@@ -173,7 +210,7 @@ def main():
     fit_result = fit_energy_balance_model(co2_path, temp_path)  # fit ONCE, reuse below
     checks = CHECKS + [
         ("load_annual_co2_real_data", lambda: check_load_annual_co2(co2_path)),
-        ("fit_and_aerosol_undershoot", lambda: check_fit_and_undershoot(fit_result)),
+        ("fit_robust_and_bounded", lambda: check_fit_robust_and_bounded(fit_result)),
         ("hand_reintegration", lambda: check_hand_reintegration(fit_result, co2_path, temp_path)),
     ]
 

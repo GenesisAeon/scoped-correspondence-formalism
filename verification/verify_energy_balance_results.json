@@ -14,27 +14,31 @@
         },
         "status": "passed"
       },
-      "fit_and_aerosol_undershoot": {
+      "fit_robust_and_bounded": {
         "detail": {
-          "early_residual_obs_minus_pred": 0.1049465632542234,
-          "interpretation": "recent undershoot exceeds early undershoot, consistent with declining aerosol cooling unmasked in recent decades -- not captured by CO2-only forcing",
+          "at_bound": [
+            "alpha"
+          ],
+          "early_residual_obs_minus_pred": -0.009216708357732115,
+          "interpretation": "CORRECTED (2026-09-21): the previously reported strong early-vs-recent residual asymmetry (attributed to aerosol unmasking) was largely an artifact of a poorly-converged fit. Under this robust, physically-bounded fit the asymmetry shrinks by roughly an order of magnitude and is far too small to confidently attribute to any specific omitted forcing. alpha saturating its lower bound (0.3) is the more important, honestly-reported finding: this CO2-only model is weakly identified even under a physically-motivated constraint.",
           "n_years": 67,
           "params": {
-            "C_d": 97.16234126636246,
-            "C_s": 6.907399675627155,
-            "T0": -0.19996364146023773,
-            "alpha": 0.979406799345127,
-            "gamma": 0.697806597280166
+            "C_d": 63.860850146722825,
+            "C_s": 7.366689505715288,
+            "T0": -0.018904094967600277,
+            "alpha": 0.30000000000000004,
+            "gamma": 1.5693955827253008
           },
-          "recent_residual_obs_minus_pred": 0.23516555723728977,
-          "rmse": 0.15420319486201395
+          "recent_residual_obs_minus_pred": 0.02625691783341726,
+          "rmse": 0.09036389480478792,
+          "solve_ivp_cross_check_max_diff": 8.11340552520079e-08
         },
         "status": "passed"
       },
       "hand_reintegration": {
         "detail": {
-          "hand_rmse": 0.15420320443940713,
-          "module_rmse": 0.15420319486201395
+          "hand_rmse": 0.09036389481955456,
+          "module_rmse": 0.09036389480478792
         },
         "status": "passed"
       },
@@ -55,6 +59,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-21T14:25:54+02:00"
+    "timestamp": "2026-09-21T18:34:44+02:00"
   }
 }

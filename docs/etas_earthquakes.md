@@ -34,9 +34,16 @@ dataset needed. 3974 events, 2000-01 through 2026-09 (partial).
 ## Fit
 
 `fit_etas_model()` fits `(mu, K, c, p, alpha)` via maximum likelihood
-(multiple Nelder-Mead starts on a log/logit-parametrized objective, best
-log-likelihood kept), and compares against the closed-form MLE
-homogeneous-Poisson null (`mu_hat = N/T`) via AIC.
+(Nelder-Mead on a log/logit-parametrized objective). **Correction
+(2026-09-21, external review by Astra):** the default is a SINGLE
+informed starting point, not multiple starts — this text previously said
+"multiple Nelder-Mead starts," which was inaccurate. A single start is
+used deliberately to fit within the verification suite's per-script time
+budget (see `fit_etas_model`'s PERFORMANCE NOTE for why this is still
+reliable: 140/250/~1400-evaluation budgets, and a second independently
+written implementation, all land within 0.3 nats of the same optimum).
+The fit is compared against the closed-form MLE homogeneous-Poisson null
+(`mu_hat = N/T`) via AIC.
 
 | Quantity | Value |
 |---|---:|
@@ -77,6 +84,32 @@ within the verification suite's per-script time limit.
    this number should be read as "the pooled catalog exhibits about as
    much apparent self-excitation as a critical branching process," not as
    a precise physical branching-ratio estimate for global seismicity.
+
+**Correction (2026-09-21, external review by Astra): the branching ratio
+is far more fragile than finding 2 above suggested, and this needed
+stating explicitly.** The branching ratio's kernel-time-integral
+`c^(1-p)/(p-1)` runs to infinity; at the fitted `p=1.0249`, only
+**≈30.0%** of that integral's mass falls within the catalog's own
+9756-day span — roughly 70% comes from an extrapolated tail far beyond
+anything the data actually observes. A pure sensitivity check (varying
+only `p`, other fitted parameters held fixed — NOT a refit, NOT a
+confidence interval) shows how much this matters:
+
+| `p` | branching ratio |
+|---:|---:|
+| 1.015 | 1.62 |
+| 1.0249 (fitted) | 1.02 |
+| 1.04 | 0.69 |
+| 1.06 | 0.51 |
+
+A change in `p` of a few thousandths swings the branching ratio between
+clearly super-critical and clearly sub-critical. Given finding 1 (that
+`p` itself is plausibly a pooling artifact, not a well-identified
+physical decay rate), **the "right at criticality" framing above should
+be read as illustrative, not as a validated criticality claim** — the
+robust part of this module's finding is the AIC comparison (self-excitation
+present, decisively better than a Poisson null), not the specific
+branching-ratio value.
 
 ## IMPORTANT SCOPE LIMITATION
 
