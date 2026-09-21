@@ -113,6 +113,16 @@ from scoped_correspondence.dynamics.rate_dependent import (
     local_chi_diagnostic,
     rate_induced_tipping_cubic_example,
 )
+from scoped_correspondence.dynamics.energy_balance import (
+    CO2_FORCING_COEFFICIENT,
+    SOURCE as ENERGY_BALANCE_SOURCE,
+    DATA_PROVENANCE_NOTE as ENERGY_BALANCE_DATA_PROVENANCE_NOTE,
+    EnergyBalanceFitResult,
+    EnergyBalanceParams,
+    co2_radiative_forcing,
+    fit_energy_balance_model,
+    load_annual_co2,
+)
 
 __all__ = [
     "CubicNormalForm",
@@ -186,4 +196,13 @@ __all__ = [
     "ChiDiagnosticResult",
     "chi_diagnostic_for_cubic_example",
     "local_chi_diagnostic",
+    # M45 two-layer energy balance model (NONSTATIONARY_ROADMAP.md package 5b)
+    "CO2_FORCING_COEFFICIENT",
+    "ENERGY_BALANCE_SOURCE",
+    "ENERGY_BALANCE_DATA_PROVENANCE_NOTE",
+    "EnergyBalanceFitResult",
+    "EnergyBalanceParams",
+    "co2_radiative_forcing",
+    "fit_energy_balance_model",
+    "load_annual_co2",
 ]

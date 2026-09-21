@@ -67,6 +67,23 @@
       "filter_applied": "location in ('China','World') AND date in [2020-01-22, 2020-03-25] (client-side row filter on the same public source file as owid_covid_world_daily_2020_2023; same source file hash c07ddfe8... confirmed unchanged since 2026-09-20 retrieval)",
       "suggested_modules": ["validation.covid_country_decomposition (NONSTATIONARY_ROADMAP.md package 2: decompose the World Pilot A aggregate into China vs. Rest-of-World components and test how much of the apparent effective-rate change is explained by shifting country composition vs. genuine within-component rate change)"],
       "notes": "64 dates x 2 locations = 128 rows; no values altered, estimated, or interpolated. China's first date (2020-01-22) has an empty new_cases field in the source file (kept as-is, not imputed)."
+    },
+    {
+      "id": "noaa_mauna_loa_co2_annual_1959_2025",
+      "file": "data/noaa_mauna_loa_co2_annual_1959_2025.txt",
+      "sha256": "3eea72f254116cd43275fa33b0ed201b14550e6ba21e4d6b4482c24a95f98ab7",
+      "source_name": "NOAA Global Monitoring Laboratory (GML), Mauna Loa Observatory annual mean atmospheric CO2",
+      "source_url": "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_mlo.txt",
+      "retrieved_at_utc": "2026-09-21T12:05:40Z",
+      "license": "U.S. Government work; public domain (NOAA data policy); NOAA requests citation of the data providers (see the file's own header) in publications.",
+      "attribution_required": false,
+      "row_count_excluding_header_and_comments": 67,
+      "columns": ["year", "mean_ppm", "uncertainty_ppm"],
+      "date_range": ["1959", "2025"],
+      "units": "Annual mean atmospheric CO2 mole fraction, parts per million (ppm), Mauna Loa Observatory.",
+      "filter_applied": "none (full published annual series)",
+      "suggested_modules": ["dynamics.energy_balance (NONSTATIONARY_ROADMAP.md package 5b: CO2-only radiative forcing F=5.35*ln(CO2/CO2_ref), Myhre et al. 1998, driving a two-layer energy balance model calibrated against noaa_global_temp_anomaly_1880_2025)"],
+      "notes": "Raw bytes as returned by NOAA, including NOAA's own '#'-prefixed header comment lines, unmodified. CO2-only forcing is a major documented simplification (aerosols, other GHGs, volcanic/solar forcing all omitted) -- see docs/energy_balance.md."
     }
   ]
 }

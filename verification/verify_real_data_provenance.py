@@ -153,12 +153,30 @@ def check_owid_covid_china_world():
     }
 
 
+def check_noaa_mauna_loa_co2():
+    """NOAA's own comment header, 67 annual rows, strictly increasing years, plausible ppm range."""
+    path = DATA / "noaa_mauna_loa_co2_annual_1959_2025.txt"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    comment_lines = [ln for ln in lines if ln.startswith("#")]
+    require(len(comment_lines) >= 3, "expected NOAA's own comment header lines")
+    data_lines = [ln for ln in lines if ln.strip() and not ln.startswith("#")]
+    rows = [ln.split() for ln in data_lines]
+    require(len(rows) == 67, f"expected 67 annual rows, got {len(rows)}")
+    years = [int(r[0]) for r in rows]
+    require(years == sorted(years), "years must be strictly increasing")
+    require(years[0] == 1959 and years[-1] == 2025, f"unexpected year range: {years[0]}-{years[-1]}")
+    values = [float(r[1]) for r in rows]
+    require(all(300.0 < v < 450.0 for v in values), "CO2 values out of plausible ppm range")
+    return {"row_count": len(rows), "year_range": [years[0], years[-1]], "value_range_ppm": [min(values), max(values)]}
+
+
 CHECKS = [
     ("manifest_sha256", check_manifest_hashes),
     ("usgs_earthquakes_sanity", check_usgs_earthquakes),
     ("noaa_temp_anomaly_sanity", check_noaa_temp_anomaly),
     ("owid_covid_world_sanity", check_owid_covid_world),
     ("owid_covid_china_world_sanity", check_owid_covid_china_world),
+    ("noaa_mauna_loa_co2_sanity", check_noaa_mauna_loa_co2),
 ]
 
 

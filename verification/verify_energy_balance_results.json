@@ -1,0 +1,60 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "co2_forcing_hand_check": {
+        "detail": {
+          "F_350_to_450_hand_check": 2.1692383283786794,
+          "F_at_ref": 0.0,
+          "raised_on_bad_co2": true,
+          "raised_on_bad_ref": true
+        },
+        "status": "passed"
+      },
+      "fit_and_aerosol_undershoot": {
+        "detail": {
+          "early_residual_obs_minus_pred": 0.1049465632542234,
+          "interpretation": "recent undershoot exceeds early undershoot, consistent with declining aerosol cooling unmasked in recent decades -- not captured by CO2-only forcing",
+          "n_years": 67,
+          "params": {
+            "C_d": 97.16234126636246,
+            "C_s": 6.907399675627155,
+            "T0": -0.19996364146023773,
+            "alpha": 0.979406799345127,
+            "gamma": 0.697806597280166
+          },
+          "recent_residual_obs_minus_pred": 0.23516555723728977,
+          "rmse": 0.15420319486201395
+        },
+        "status": "passed"
+      },
+      "hand_reintegration": {
+        "detail": {
+          "hand_rmse": 0.15420320443940713,
+          "module_rmse": 0.15420319486201395
+        },
+        "status": "passed"
+      },
+      "load_annual_co2_real_data": {
+        "detail": {
+          "first_year": 1959,
+          "last_year": 2025,
+          "n_years": 67
+        },
+        "status": "passed"
+      }
+    },
+    "data_provenance_note": "Real per-row data: data/noaa_mauna_loa_co2_annual_1959_2025.txt (NOAA GML Mauna Loa annual-mean CO2, public domain) and data/noaa_global_temp_anomaly_1880_2025.csv (see data/real_data_manifest.json). CO2-ONLY forcing is a major documented simplification -- see module docstring.",
+    "disclaimer": "CO2-only forcing; fitted parameters do not claim to recover true physical climate-system constants (aerosols, other GHGs, volcanic, solar forcing all omitted). See module docstring.",
+    "numpy": "2.2.6",
+    "package": "NONSTATIONARY_ROADMAP.md package 5b (two-layer energy balance model)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
+    "timestamp": "2026-09-21T14:25:54+02:00"
+  }
+}

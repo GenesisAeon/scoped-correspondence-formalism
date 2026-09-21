@@ -1,13 +1,13 @@
 {
-  "count": 5,
+  "count": 6,
   "errors": [],
   "failed": 0,
-  "passed": 5,
+  "passed": 6,
   "report": {
     "checks": {
       "manifest_sha256": {
         "detail": {
-          "entries_checked": 4,
+          "entries_checked": 5,
           "results": [
             {
               "file": "data/usgs_earthquakes_m6plus_2000_2026.csv",
@@ -28,7 +28,26 @@
               "file": "data/owid_covid_china_world_daily_2020.csv",
               "id": "owid_covid_china_world_daily_2020",
               "sha256": "b79b7e1c7616a1b5a70f5af82a07fcc153faa5f6690d4db75ac61bf17c92d8ec"
+            },
+            {
+              "file": "data/noaa_mauna_loa_co2_annual_1959_2025.txt",
+              "id": "noaa_mauna_loa_co2_annual_1959_2025",
+              "sha256": "3eea72f254116cd43275fa33b0ed201b14550e6ba21e4d6b4482c24a95f98ab7"
             }
+          ]
+        },
+        "status": "passed"
+      },
+      "noaa_mauna_loa_co2_sanity": {
+        "detail": {
+          "row_count": 67,
+          "value_range_ppm": [
+            315.98,
+            427.35
+          ],
+          "year_range": [
+            1959,
+            2025
           ]
         },
         "status": "passed"
@@ -89,6 +108,6 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "purpose": "provenance + sanity checks for data/real_data_manifest.json entries",
     "python": "3.11.9",
-    "timestamp": "2026-09-21T12:33:34+02:00"
+    "timestamp": "2026-09-21T14:27:01+02:00"
   }
 }
