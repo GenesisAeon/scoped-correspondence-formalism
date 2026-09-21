@@ -1,0 +1,57 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "generation_interval_hand_check": {
+        "detail": {
+          "hand_checked_w3": 0.16612101981683755,
+          "w0": 0.0,
+          "weights_sum": 1.0
+        },
+        "status": "passed"
+      },
+      "real_data_r_t_shape": {
+        "detail": {
+          "dip_window_min_Rt": 0.31877038243308725,
+          "late_window_max_Rt": 1.929026699717396,
+          "late_window_min_Rt": 1.818986607790033,
+          "n_dates": 58
+        },
+        "status": "passed"
+      },
+      "self_consistency_exponential_growth": {
+        "detail": {
+          "instantaneous_r_tail_mean": 1.546091976603574,
+          "matches": true,
+          "r_true": 0.1,
+          "wallinga_lipsitch_R": 1.5460919766035732
+        },
+        "status": "passed"
+      },
+      "wallinga_lipsitch_cross_check": {
+        "detail": {
+          "directly_computed_late_Rt_range": [
+            1.818986607790033,
+            1.929026699717396
+          ],
+          "fitted_r_pilot_a": 0.00743587084687687,
+          "fitted_r_pilot_b": 0.12100440474795542,
+          "wallinga_lipsitch_R_pilot_a": 1.0355475091742674,
+          "wallinga_lipsitch_R_pilot_b": 1.6802804550292165
+        },
+        "status": "passed"
+      }
+    },
+    "data_provenance_note": "Real per-row data (see data/real_data_manifest.json entry owid_covid_world_daily_2020_2023); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' Incidence proxy is cases_7day_avg (smoothed), not raw daily counts -- inherits the moving-average autocorrelation caveat from the early-warning discussion.",
+    "numpy": "2.2.6",
+    "package": "NONSTATIONARY_ROADMAP.md package 5a (COVID renewal-equation R_t)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
+    "timestamp": "2026-09-21T14:02:10+02:00"
+  }
+}

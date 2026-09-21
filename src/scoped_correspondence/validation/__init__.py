@@ -94,6 +94,18 @@ from scoped_correspondence.validation.earthquake_pilot import (
     run_earthquake_pilot,
     split_by_year as split_by_year_quake,
 )
+from scoped_correspondence.validation.covid_renewal import (
+    DEFAULT_S_MAX,
+    GENERATION_INTERVAL_MEAN_DAYS,
+    GENERATION_INTERVAL_SD_DAYS,
+    SOURCE as RENEWAL_SOURCE,
+    DATA_PROVENANCE_NOTE as RENEWAL_DATA_PROVENANCE_NOTE,
+    RenewalReport,
+    discretized_generation_interval,
+    instantaneous_r,
+    run_covid_renewal_analysis,
+    wallinga_lipsitch_r,
+)
 from scoped_correspondence.validation.covid_country_decomposition import (
     CALIB_END as DECOMP_CALIB_END,
     CALIB_START as DECOMP_CALIB_START,
@@ -198,6 +210,17 @@ __all__ = [
     "load_china_world_series",
     "mixture_effective_rate_diagnostic",
     "run_covid_country_decomposition",
+    # M44 covid_renewal (Cori et al. 2013 instantaneous R_t, NONSTATIONARY_ROADMAP.md package 5a)
+    "DEFAULT_S_MAX",
+    "GENERATION_INTERVAL_MEAN_DAYS",
+    "GENERATION_INTERVAL_SD_DAYS",
+    "RENEWAL_SOURCE",
+    "RENEWAL_DATA_PROVENANCE_NOTE",
+    "RenewalReport",
+    "discretized_generation_interval",
+    "instantaneous_r",
+    "run_covid_renewal_analysis",
+    "wallinga_lipsitch_r",
     # M13 split conformal (Lei et al. 2018)
     "COVERAGE_MARGINAL_EXCHANGEABLE",
     "SplitConformalReport",
