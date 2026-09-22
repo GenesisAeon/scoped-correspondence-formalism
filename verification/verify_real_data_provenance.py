@@ -29,6 +29,7 @@ import csv
 import datetime as dt
 import hashlib
 import json
+import math
 import platform
 import sys
 from pathlib import Path
@@ -170,6 +171,36 @@ def check_noaa_mauna_loa_co2():
     return {"row_count": len(rows), "year_range": [years[0], years[-1]], "value_range_ppm": [min(values), max(values)]}
 
 
+def check_owid_covid_germany_usa():
+    """Header, only Germany/United States rows, dates within declared range."""
+    path = DATA / "owid_covid_germany_usa_daily_2020.csv"
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    require(len(rows) == 123, f"expected 123 rows, got {len(rows)}")
+    require(all(r["location"] in ("Germany", "United States") for r in rows), "every row must be Germany or United States")
+    dates = [r["date"] for r in rows]
+    require(min(dates) == "2020-01-22", f"unexpected earliest date: {min(dates)}")  # United States' first reported case
+    require(max(dates) == "2020-03-25", f"unexpected latest date: {max(dates)}")
+    return {"row_count": len(rows), "date_range": [min(dates), max(dates)]}
+
+
+def check_climateindicator_erf():
+    """276 annual rows 1750-2025, CO2/total columns present and plausible."""
+    path = DATA / "climateindicator_erf_best_aggregates_1750_2025.csv"
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    require(len(rows) == 276, f"expected 276 rows, got {len(rows)}")
+    years = [int(float(r["time"])) for r in rows]
+    require(years == sorted(years), "years must be strictly increasing")
+    require(years[0] == 1750 and years[-1] == 2025, f"unexpected year range: {years[0]}-{years[-1]}")
+    co2 = [float(r["CO2"]) for r in rows]
+    total = [float(r["total"]) for r in rows]
+    require(co2[0] == 0.0, "CO2 forcing must be 0 at the 1750 baseline")
+    require(co2[-1] > 2.0, "CO2 forcing by 2025 must be substantially positive")
+    require(all(math.isfinite(v) for v in total), "total forcing values must be finite")
+    return {"row_count": len(rows), "year_range": [years[0], years[-1]], "co2_1750": co2[0], "co2_2025": co2[-1], "total_2025": total[-1]}
+
+
 CHECKS = [
     ("manifest_sha256", check_manifest_hashes),
     ("usgs_earthquakes_sanity", check_usgs_earthquakes),
@@ -177,6 +208,8 @@ CHECKS = [
     ("owid_covid_world_sanity", check_owid_covid_world),
     ("owid_covid_china_world_sanity", check_owid_covid_china_world),
     ("noaa_mauna_loa_co2_sanity", check_noaa_mauna_loa_co2),
+    ("owid_covid_germany_usa_sanity", check_owid_covid_germany_usa),
+    ("climateindicator_erf_sanity", check_climateindicator_erf),
 ]
 
 

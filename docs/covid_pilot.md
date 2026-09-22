@@ -248,6 +248,12 @@ split is the unique or best decomposition -- it tests the qualitative
 hypothesis using the two largest, best-documented parts of the actual
 historical story.
 
+**Follow-up (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 5):**
+this pilot's own exponential-growth procedure, applied UNCHANGED to
+Germany and the United States over the same window, fails outright (a
+genuine, informative result, not a bug) — see
+[docs/covid_multi_country.md](covid_multi_country.md).
+
 ## Verify
 
 ```bash

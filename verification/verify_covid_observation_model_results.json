@@ -1,0 +1,253 @@
+{
+  "count": 3,
+  "errors": [],
+  "failed": 0,
+  "passed": 3,
+  "report": {
+    "checks": {
+      "fit_neg_binom_dispersion_recovery": {
+        "detail": {
+          "fitted_dispersion": 0.07808423071402198,
+          "n_simulated": 3000,
+          "raised_on_mismatched_lengths": true,
+          "true_dispersion": 0.08
+        },
+        "status": "passed"
+      },
+      "neg_binom_log_score_hand_checks": {
+        "detail": {
+          "hand_poisson_score": 2.0919247153964378,
+          "poisson_limit_score": 2.0919247153964378,
+          "raised_on_bad_count": true,
+          "raised_on_bad_mean": true,
+          "raised_on_negative_dispersion": true
+        },
+        "status": "passed"
+      },
+      "real_data_overdispersion": {
+        "detail": {
+          "fitted_dispersion": 0.5390235131968575,
+          "mean_neg_binom_log_score_holdout": 9.707038888832598,
+          "mean_poisson_log_score_holdout": 944.5185328833833,
+          "n_calib": 29,
+          "n_holdout": 29,
+          "neg_binom_wins": true,
+          "per_holdout_day": [
+            {
+              "date": "2020-02-26",
+              "neg_binom_log_score": 7.565101327304864,
+              "observed": 973,
+              "poisson_log_score": 18.08783394264549,
+              "predicted_mean": 818.5714285714286
+            },
+            {
+              "date": "2020-02-27",
+              "neg_binom_log_score": 8.000657220324893,
+              "observed": 1344,
+              "poisson_log_score": 85.218999105943,
+              "predicted_mean": 930.4285714285714
+            },
+            {
+              "date": "2020-02-28",
+              "neg_binom_log_score": 8.015654453328516,
+              "observed": 1424,
+              "poisson_log_score": 66.62592144901987,
+              "predicted_mean": 1043.857142857143
+            },
+            {
+              "date": "2020-02-29",
+              "neg_binom_log_score": 8.554677225006483,
+              "observed": 1871,
+              "poisson_log_score": 257.2335103489993,
+              "predicted_mean": 1059.4285714285713
+            },
+            {
+              "date": "2020-03-01",
+              "neg_binom_log_score": 8.797389763368344,
+              "observed": 2379,
+              "poisson_log_score": 327.73680775385174,
+              "predicted_mean": 1344.7142857142858
+            },
+            {
+              "date": "2020-03-02",
+              "neg_binom_log_score": 8.307338017751562,
+              "observed": 1980,
+              "poisson_log_score": 60.49744346010698,
+              "predicted_mean": 1546.4285714285713
+            },
+            {
+              "date": "2020-03-03",
+              "neg_binom_log_score": 8.669834248085309,
+              "observed": 2612,
+              "poisson_log_score": 166.47561675531074,
+              "predicted_mean": 1797.5714285714287
+            },
+            {
+              "date": "2020-03-04",
+              "neg_binom_log_score": 8.440155993749887,
+              "observed": 2344,
+              "poisson_log_score": 33.961951541998815,
+              "predicted_mean": 1993.4285714285713
+            },
+            {
+              "date": "2020-03-05",
+              "neg_binom_log_score": 8.620110082386681,
+              "observed": 2740,
+              "poisson_log_score": 68.0760798601782,
+              "predicted_mean": 2192.8571428571427
+            },
+            {
+              "date": "2020-03-06",
+              "neg_binom_log_score": 9.156610900044884,
+              "observed": 3984,
+              "poisson_log_score": 343.8991032878812,
+              "predicted_mean": 2558.5714285714284
+            },
+            {
+              "date": "2020-03-07",
+              "neg_binom_log_score": 9.11948497008469,
+              "observed": 4137,
+              "poisson_log_score": 245.42761954541174,
+              "predicted_mean": 2882.285714285714
+            },
+            {
+              "date": "2020-03-08",
+              "neg_binom_log_score": 8.939936464943063,
+              "observed": 3798,
+              "poisson_log_score": 81.73145863462196,
+              "predicted_mean": 3085.0
+            },
+            {
+              "date": "2020-03-09",
+              "neg_binom_log_score": 9.072461962914865,
+              "observed": 4295,
+              "poisson_log_score": 109.64969144357337,
+              "predicted_mean": 3415.714285714286
+            },
+            {
+              "date": "2020-03-10",
+              "neg_binom_log_score": 9.183274466835568,
+              "observed": 4759,
+              "poisson_log_score": 137.683384411298,
+              "predicted_mean": 3722.4285714285716
+            },
+            {
+              "date": "2020-03-11",
+              "neg_binom_log_score": 9.87874294392913,
+              "observed": 7504,
+              "poisson_log_score": 865.9100771578169,
+              "predicted_mean": 4459.571428571428
+            },
+            {
+              "date": "2020-03-12",
+              "neg_binom_log_score": 9.561624304593153,
+              "observed": 6756,
+              "poisson_log_score": 271.29643720449985,
+              "predicted_mean": 5033.285714285715
+            },
+            {
+              "date": "2020-03-13",
+              "neg_binom_log_score": 10.78501221058393,
+              "observed": 13194,
+              "poisson_log_score": 2811.6100744986325,
+              "predicted_mean": 6349.0
+            },
+            {
+              "date": "2020-03-14",
+              "neg_binom_log_score": 10.118406644274398,
+              "observed": 10888,
+              "poisson_log_score": 763.8647732804011,
+              "predicted_mean": 7313.428571428572
+            },
+            {
+              "date": "2020-03-15",
+              "neg_binom_log_score": 10.06948572160941,
+              "observed": 11233,
+              "poisson_log_score": 445.4499596624173,
+              "predicted_mean": 8375.57142857143
+            },
+            {
+              "date": "2020-03-16",
+              "neg_binom_log_score": 10.40414581838196,
+              "observed": 14567,
+              "poisson_log_score": 991.9493079337408,
+              "predicted_mean": 9843.0
+            },
+            {
+              "date": "2020-03-17",
+              "neg_binom_log_score": 10.369260816804896,
+              "observed": 15174,
+              "poisson_log_score": 594.2127856885036,
+              "predicted_mean": 11330.857142857143
+            },
+            {
+              "date": "2020-03-18",
+              "neg_binom_log_score": 10.532967012264688,
+              "observed": 17560,
+              "poisson_log_score": 810.0680891239517,
+              "predicted_mean": 12767.42857142857
+            },
+            {
+              "date": "2020-03-19",
+              "neg_binom_log_score": 11.197422884615262,
+              "observed": 27087,
+              "poisson_log_score": 3412.5430443145287,
+              "predicted_mean": 15671.857142857143
+            },
+            {
+              "date": "2020-03-20",
+              "neg_binom_log_score": 11.217356398494857,
+              "observed": 29532,
+              "poisson_log_score": 3091.6864957430917,
+              "predicted_mean": 18005.85714285714
+            },
+            {
+              "date": "2020-03-21",
+              "neg_binom_log_score": 11.241058143472012,
+              "observed": 32433,
+              "poisson_log_score": 2624.9256808738246,
+              "predicted_mean": 21083.714285714286
+            },
+            {
+              "date": "2020-03-22",
+              "neg_binom_log_score": 11.213234256454564,
+              "observed": 34178,
+              "poisson_log_score": 1761.5336648130979,
+              "predicted_mean": 24361.571428571428
+            },
+            {
+              "date": "2020-03-23",
+              "neg_binom_log_score": 11.488569763028417,
+              "observed": 42551,
+              "poisson_log_score": 3079.5528403919634,
+              "predicted_mean": 28359.285714285714
+            },
+            {
+              "date": "2020-03-24",
+              "neg_binom_log_score": 11.367846542099894,
+              "observed": 41888,
+              "poisson_log_score": 1343.5258644536443,
+              "predicted_mean": 32175.571428571428
+            },
+            {
+              "date": "2020-03-25",
+              "neg_binom_log_score": 11.616307219409094,
+              "observed": 51480,
+              "poisson_log_score": 2520.602936937161,
+              "predicted_mean": 37021.28571428572
+            }
+          ]
+        },
+        "status": "passed"
+      }
+    },
+    "data_provenance_note": "Real per-row data (see data/real_data_manifest.json entry owid_covid_world_daily_2020_2023); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' Raw new_cases (NOT cases_7day_avg) is the observed count here -- the whole point of this module.",
+    "numpy": "2.2.6",
+    "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 5 (COVID observation model)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
+    "timestamp": "2026-09-22T12:42:24+02:00"
+  }
+}

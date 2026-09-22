@@ -1,0 +1,123 @@
+{
+  "count": 4,
+  "errors": [],
+  "failed": 0,
+  "passed": 4,
+  "report": {
+    "checks": {
+      "all_pilots_run_together": {
+        "detail": {
+          "germany_2020_pilotA_window": {
+            "baseline_rmse_holdout": null,
+            "baseline_value": null,
+            "calib_end": "2020-03-11",
+            "calib_start": "2020-01-27",
+            "fit_failed": true,
+            "fit_failure_reason": "fit_exponential_growth: cases_7day_avg must be > 0 for log-fit, got 0.0 on 2020-02-18",
+            "fitted": null,
+            "holdout_end": "2020-03-25",
+            "holdout_start": "2020-03-12",
+            "label": "germany_2020_pilotA_window",
+            "location": "Germany",
+            "model_beats_baseline": null,
+            "model_rmse_holdout": null,
+            "n_calib": 40,
+            "n_holdout": 14
+          },
+          "united_states_2020_pilotA_window": {
+            "baseline_rmse_holdout": null,
+            "baseline_value": null,
+            "calib_end": "2020-03-11",
+            "calib_start": "2020-01-27",
+            "fit_failed": true,
+            "fit_failure_reason": "fit_exponential_growth: cases_7day_avg must be > 0 for log-fit, got 0.0 on 2020-02-20",
+            "fitted": null,
+            "holdout_end": "2020-03-25",
+            "holdout_start": "2020-03-12",
+            "label": "united_states_2020_pilotA_window",
+            "location": "United States",
+            "model_beats_baseline": null,
+            "model_rmse_holdout": null,
+            "n_calib": 44,
+            "n_holdout": 14
+          },
+          "world_2021_omicron_window": {
+            "baseline_rmse_holdout": 42841.44793241778,
+            "baseline_value": 566405.1428571428,
+            "calib_end": "2021-11-26",
+            "calib_start": "2021-10-13",
+            "fit_failed": false,
+            "fit_failure_reason": null,
+            "fitted": {
+              "cases0": 389166.6782172975,
+              "ln_cases0": 12.871763009537501,
+              "n_calib": 45,
+              "note": "fitted_parameters estimated exclusively on calibration days",
+              "r": 0.007923894919376917,
+              "t_ref": "2021-10-13"
+            },
+            "holdout_end": "2021-12-10",
+            "holdout_start": "2021-11-27",
+            "label": "world_2021_omicron_window",
+            "location": "World",
+            "model_beats_baseline": true,
+            "model_rmse_holdout": 19180.71132095867,
+            "n_calib": 45,
+            "n_holdout": 14
+          }
+        },
+        "status": "passed"
+      },
+      "country_pilots_honest_failure": {
+        "detail": {
+          "germany": {
+            "fit_failed": true,
+            "n_calib": 40,
+            "reason": "fit_exponential_growth: cases_7day_avg must be > 0 for log-fit, got 0.0 on 2020-02-18"
+          },
+          "interpretation": "Individual-country early-2020 counts include zero/near-zero days that the World AGGREGATE smooths over -- fit_exponential_growth correctly refuses these, an honest generalization-failure finding, not a bug and not silently worked around by adjusting the window per-country.",
+          "usa": {
+            "fit_failed": true,
+            "n_calib": 44,
+            "reason": "fit_exponential_growth: cases_7day_avg must be > 0 for log-fit, got 0.0 on 2020-02-20"
+          }
+        },
+        "status": "passed"
+      },
+      "load_country_daily": {
+        "detail": {
+          "germany_rows": 54,
+          "raised_on_missing_location": true,
+          "usa_rows": 58
+        },
+        "status": "passed"
+      },
+      "world_omicron_window": {
+        "detail": {
+          "anchor": "2021-11-26",
+          "baseline_rmse_holdout": 42841.44793241778,
+          "calib_window": [
+            "2021-10-13",
+            "2021-11-26"
+          ],
+          "fitted_r": 0.007923894919376917,
+          "hand_rmse": 19180.71132095867,
+          "holdout_window": [
+            "2021-11-27",
+            "2021-12-10"
+          ],
+          "model_beats_baseline": true,
+          "model_rmse_holdout": 19180.71132095867
+        },
+        "status": "passed"
+      }
+    },
+    "data_provenance_note": "Germany/United States: real per-row data (see data/real_data_manifest.json entry owid_covid_germany_usa_daily_2020); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' Omicron-window World data reuses the already-stored, already-verified data/owid_covid_world_daily_2020_2023.csv -- no new fetch.",
+    "numpy": "2.2.6",
+    "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 5 (COVID multi-country/multi-window generalization)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "source": "Applies validation.covid_pilot's existing, unchanged exponential-growth fitting procedure to new countries and a new time window, per Astra's 2026-09-21 review of commit f8e249f (SCF_Review_f8e249f.md).",
+    "timestamp": "2026-09-22T12:42:22+02:00"
+  }
+}

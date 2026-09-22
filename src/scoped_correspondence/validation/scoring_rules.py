@@ -26,6 +26,14 @@ distribution or a count-model mean), not a full predictive density:
   this is used only as a COMMON, shared reference distribution across
   ETAS/persistence/constant-rate so scores are directly comparable, not
   as a claim that any of them is truly Poisson-distributed).
+- ``neg_binom_log_score`` / ``fit_neg_binom_dispersion``: the NB2
+  parametrization (mean ``mu``, dispersion ``alpha``, variance
+  ``mu + alpha*mu^2``) used by
+  ``validation.covid_observation_model`` (MECHANISTIC_VALIDATION_ROADMAP.md
+  package 5) to TEST whether real raw daily COVID case counts are
+  overdispersed relative to Poisson, rather than assuming it a priori
+  (Astra, 2026-09-21: "Notwendigkeit über Residuen/Prognosescores
+  prüfen, nicht a priori annehmen").
 
 CONFORMAL_EXCHANGEABILITY_WARNING: ``validation.conformal`` (split
 conformal, Lei et al. 2018) already documents its own coverage as
@@ -46,6 +54,9 @@ from __future__ import annotations
 
 from typing import Sequence, Tuple
 
+import numpy as np
+from scipy.optimize import minimize_scalar
+from scipy.stats import nbinom as nbinom_dist
 from scipy.stats import poisson as poisson_dist
 
 from scoped_correspondence.errors import ScopeViolationError
@@ -130,6 +141,60 @@ def poisson_prediction_interval(predicted_mean: float, coverage: float) -> Tuple
     return lower, upper
 
 
+def _nb_mean_dispersion_to_n_p(mean: float, dispersion: float) -> Tuple[float, float]:
+    """NB2 parametrization (mean, dispersion; variance = mean + dispersion*mean^2)
+    converted to scipy.stats.nbinom's (n, p) parametrization
+    (mean = n(1-p)/p, variance = n(1-p)/p^2 = mean/p)."""
+    p = 1.0 / (1.0 + dispersion * mean)
+    n = mean * p / (1.0 - p)
+    return n, p
+
+
+def neg_binom_log_score(observed_count: int, predicted_mean: float, dispersion: float) -> float:
+    """Negative log-likelihood of ``observed_count`` under NB2(predicted_mean, dispersion).
+
+    ``dispersion=0`` is the Poisson limit (variance=mean); ``dispersion>0``
+    allows variance > mean (overdispersion). Lower is better.
+    """
+    if predicted_mean <= 0:
+        raise ScopeViolationError(f"neg_binom_log_score: predicted_mean must be > 0; got {predicted_mean!r}")
+    if dispersion < 0:
+        raise ScopeViolationError(f"neg_binom_log_score: dispersion must be >= 0; got {dispersion!r}")
+    if observed_count < 0 or int(observed_count) != observed_count:
+        raise ScopeViolationError(f"neg_binom_log_score: observed_count must be a non-negative integer; got {observed_count!r}")
+    if dispersion == 0.0:
+        return poisson_log_score(observed_count, predicted_mean)
+    n, p = _nb_mean_dispersion_to_n_p(predicted_mean, dispersion)
+    return -float(nbinom_dist.logpmf(int(observed_count), n, p))
+
+
+def fit_neg_binom_dispersion(observed_counts: Sequence[int], predicted_means: Sequence[float]) -> float:
+    """MLE dispersion (NB2) given fixed per-observation predicted means.
+
+    A single shared ``dispersion`` is fit across all (observed, predicted)
+    pairs by 1-D maximum likelihood (``scipy.optimize.minimize_scalar`` on
+    ``log(dispersion)`` for positivity) -- the means themselves are taken
+    as given (e.g. an already-fitted smoothed rate), not refit here.
+    """
+    observed_counts = np.asarray(observed_counts)
+    predicted_means = np.asarray(predicted_means, dtype=float)
+    if len(observed_counts) != len(predicted_means):
+        raise ScopeViolationError("fit_neg_binom_dispersion: observed_counts and predicted_means must have the same length")
+    if len(observed_counts) < 2:
+        raise ScopeViolationError("fit_neg_binom_dispersion: need >= 2 observations")
+    if np.any(predicted_means <= 0):
+        raise ScopeViolationError("fit_neg_binom_dispersion: all predicted_means must be > 0")
+
+    def neg_ll(log_dispersion: float) -> float:
+        dispersion = float(np.exp(log_dispersion))
+        return float(sum(neg_binom_log_score(int(o), float(m), dispersion) for o, m in zip(observed_counts, predicted_means)))
+
+    result = minimize_scalar(neg_ll, bounds=(-20.0, 20.0), method="bounded")
+    if not result.success:
+        raise ScopeViolationError(f"fit_neg_binom_dispersion: 1-D MLE failed to converge: {result.message}")
+    return float(np.exp(result.x))
+
+
 __all__ = [
     "SOURCE",
     "CONFORMAL_EXCHANGEABILITY_WARNING",
@@ -137,4 +202,6 @@ __all__ = [
     "empirical_coverage",
     "poisson_log_score",
     "poisson_prediction_interval",
+    "neg_binom_log_score",
+    "fit_neg_binom_dispersion",
 ]

@@ -24,7 +24,7 @@ unverändert stehen (neue Erkenntnisse ergänzen, nicht überschreiben).
 | 2 | Gemeinsame zeitliche Prognoseprüfung (alle Mechanismus-Module) | ✅ erledigt |
 | 3 | Probabilistische Ergebnisse (Vorhersageintervalle, Scoring-Regeln) | ✅ erledigt |
 | 4 | Zwei neue Strukturbrücken (Impulsantwort; Kern/Verzweigung) | ✅ erledigt |
-| 5 | Beobachtungs- und Zustandsmodelle (COVID Negativ-Binomial, Mehrländer) | ⏸ geplant |
+| 5 | Beobachtungs- und Zustandsmodelle (COVID Negativ-Binomial, Mehrländer) | ✅ erledigt |
 | 6 | Mehrdimensionale R-Tipping-/Viabilitätskarten | ⏸ geplant |
 
 ## Paket 1 — Umsetzung (2026-09-21)
@@ -244,23 +244,61 @@ Bridge-Card-Schema-Anwendung), verlinkt aus `docs/energy_balance.md`,
 `docs/rate_dependent_tipping.md`, `docs/covid_renewal.md` und
 `docs/etas_earthquakes.md`.
 
-## Paket 5 — Beobachtungs- und Zustandsmodelle
+## Paket 5 — Umsetzung (2026-09-22)
 
-Konkret für COVID (Astras Priorität 5): latente Dynamik (wahre
-Infektionen), Messprozess (gemeldete, verzögerte, untererfasste Fälle) und
-tatsächliche Prognoseaufgabe explizit trennen, statt sie in einem
-deterministischen Punktschätzer zu vermengen:
-- Echte tägliche Rohzahlen statt überlappender Siebentagesmittel als
-  Zählmodell-Eingabe.
-- Negativ-Binomial-Beobachtungsmodell für Überdispersion (Notwendigkeit
-  über Residuen/Prognosescores prüfen, nicht a priori annehmen).
-- Mehrere unabhängige Länder- und Zeitfenster mit unverändertem Verfahren
-  (nicht nur die bereits bekannte China/Rest-Zerlegung auf demselben
-  März-2020-Fenster).
-- Für die Energiebilanz: die 2026 veröffentlichten "Indicators of Global
-  Climate Change 2025" (Forster et al. 2026, Zenodo-archiviert) als
-  nächste reale Datenquelle für vollständigeres Forcing (CO2-only vs.
-  Gesamtforcing-Vergleich).
+Vier Teile, wie von Astra angefragt:
+
+**Teil A — COVID-Beobachtungsmodell** (`validation/covid_observation_model.py`,
+Milestone 52): echte tägliche Rohzahlen (`new_cases`, nicht `cases_7day_avg`)
+als Zählmodell-Eingabe. `cases_7day_avg` dient als gegebener Referenzmittelwert
+μ_t (bewusst NICHT selbst modelliert — ein vollständiges Latent-State-
+/Beobachtungsprozess-Modell wäre ein größeres, zurückgestelltes Vorhaben).
+Neue Funktionen in `scoring_rules.py` (Milestone 49, erweitert):
+`neg_binom_log_score`/`fit_neg_binom_dispersion` (NB2-Parametrisierung).
+Dispersion wird auf einer Kalibrierhälfte des Fensters gefittet und auf
+der disjunkten Holdout-Hälfte bewertet (kein Zirkelschluss). **Ergebnis:
+deutliche, nicht nur marginale Überdispersion** — mittlerer Poisson-
+Log-Score 944,5 vs. Negativ-Binomial-Log-Score 9,71 (Faktor ~100),
+gefittete Dispersion α=0,539. Physikalisch plausibel: rohe Tageszahlen
+tragen starke Wochentags-Meldeartefakte, die `cases_7day_avg` per
+Konstruktion glättet.
+
+**Teil B — Mehrländer/Mehrfenster** (`validation/covid_multi_country.py`,
+Milestone 51): `covid_pilot.py`s Exponentialwachstums-Prozedur
+UNVERÄNDERT auf Deutschland und die USA über Pilot As exaktes
+Original-Fenster angewendet — neue echte Daten frisch geladen
+(`data/owid_covid_germany_usa_daily_2020.csv`, sha256 in
+`data/real_data_manifest.json`). **Beide Fits scheitern korrekt** (ein
+Null-Tageswert in beiden Kalibrierfenstern, für die der Log-linear-Fit
+undefiniert ist) — ein ehrlicher, informativer Befund: einzelne Länder
+haben in der frühesten Phase Null-/Beinahe-Null-Tage, die das
+Weltaggregat wegglättet; kein Bug, keine stillschweigende Fensteranpassung
+pro Land. Zusätzlich dasselbe Verfahren auf das Weltaggregat in einem
+NEUEN, unabhängigen Zeitfenster angewendet (verankert an der WHO-Omikron-
+VOC-Einstufung 2021-11-26, dieselbe Kalibrier-/Holdout-Länge wie Pilot A):
+**dieser Fit gelingt und schlägt die Baseline** (RMSE 19181 vs. 42841).
+
+**Teil C — Energiebilanz, vollständiges Forcing** (`validation/energy_balance_full_forcing.py`,
+Milestone 53): echte Daten aus "Indicators of Global Climate Change 2025"
+(Forster, Smith, Walsh, Gillett et al., DOI 10.5281/zenodo.7883757, Git-Tag
+`v2026.06.02` — derselbe Stand wie in Astras Zitat), frisch geladen
+(`data/climateindicator_erf_best_aggregates_1750_2025.csv`). Nutzt
+`fit_energy_balance_model_from_series` UNVERÄNDERT mit drei verschiedenen
+echten Forcing-Eingaben. Gegenprüfung: die beiden unabhängig ermittelten
+CO2-only-Forcing-Reihen (dieser Datensatz vs. Myhre-Formel aus Mauna-Loa-
+Konzentrationen) stimmen nach Referenzierung auf dasselbe Basisjahr gut
+überein (max. Abweichung 0,056 W/m² über 67 Jahre). **Ergebnis:** reales
+Gesamtforcing verbessert den Fit gegenüber CO2-only spürbar, aber nicht
+dramatisch (RMSE 0,0879 vs. 0,0938/0,0904) — eine echte, datengestützte
+Antwort auf Astras CO2-only-vs-Gesamtforcing-Frage.
+
+`verify_covid_observation_model.py`: 3/3 bestanden.
+`verify_covid_multi_country.py`: 4/4 bestanden.
+`verify_energy_balance_full_forcing.py`: 3/3 bestanden.
+`verify_real_data_provenance.py`: 8/8 bestanden (zwei neue Datensätze).
+Dokumentiert in `docs/covid_observation_model.md`,
+`docs/covid_multi_country.md` und einem neuen Abschnitt in
+`docs/energy_balance.md`.
 
 ## Paket 6 — Mehrdimensionale R-Tipping-/Viabilitätskarten
 

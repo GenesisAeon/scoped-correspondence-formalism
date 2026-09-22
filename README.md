@@ -61,7 +61,7 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
 
 ### Status, Prüfungen und offene Punkte
 
-- **65 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
+- **68 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
   aktuell alle grün (`python audit_review/run_all_local.py` — Skript nicht
   eingecheckt, siehe [VERIFICATION.md](VERIFICATION.md) für die
   eingecheckten Einzelläufe und ihre Aussagekraft).
@@ -145,12 +145,19 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   schlägt die Persistenz-Baseline NICHT — ehrlich berichtet) und Paket 3
   (echte Vorhersageintervalle + Scoring-Regeln: Punktgenauigkeit ≠
   Intervallqualität — das Energiebilanzmodell gewinnt Paket 2s RMSE, hat
-  aber den SCHLECHTESTEN Intervall-Score aller vier Prädiktoren) und
+  aber den SCHLECHTESTEN Intervall-Score aller vier Prädiktoren),
   Paket 4 (zwei neue Strukturbrücken B7/B8 in
   [docs/structural_relations.md](docs/structural_relations.md): Energiebilanz
   und Puffer sind beide Faltungs-/Impulsantwort-Systeme; COVID-Renewals
   Reproduktionszahl R und ETAS' Verzweigungsrate sind bei konstantem R
-  exakt dieselbe Größe nach Hawkes & Oakes 1974) sind umgesetzt.
+  exakt dieselbe Größe nach Hawkes & Oakes 1974) und Paket 5
+  (Beobachtungsmodelle: rohe COVID-Tageszahlen sind deutlich
+  überdispers gegenüber Poisson, getestet statt angenommen, Faktor ~100
+  im Log-Score; Deutschland/USA scheitern ehrlich an Pilot As exaktem
+  2020-Fenster wegen echter Null-Tage, dasselbe Verfahren gewinnt aber
+  auf einem neuen 2021-Omikron-Fenster; reales Gesamtforcing aus den
+  "Indicators of Global Climate Change 2025" verbessert die Energiebilanz
+  spürbar gegenüber CO2-only) sind umgesetzt.
 
 ---
 

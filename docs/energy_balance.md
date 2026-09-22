@@ -172,7 +172,49 @@ form is a genuine convolution/impulse-response system, sharing that exact
 structure with `viability.rate_dependent_buffer`'s scalar buffer — see
 [docs/structural_relations.md](structural_relations.md#b7--linear-impulse-response-systems-energy-balance--rate-dependent-buffer).
 
+## CO2-only vs. real full forcing (2026-09-21, package 5)
+
+Astra's review recommended the "Indicators of Global Climate Change 2025"
+(Forster, Smith, Walsh, Gillett et al., DOI 10.5281/zenodo.7883757) as
+the next real data source to test CO2-only forcing against the ACTUAL
+full historical forcing (all anthropogenic + natural components).
+`validation.energy_balance_full_forcing` fetches this dataset fresh
+(pinned to git tag `v2026.06.02`, matching Astra's cited version — see
+`data/real_data_manifest.json` entry
+`climateindicator_erf_best_aggregates_1750_2025`) and refits the SAME,
+UNCHANGED `fit_energy_balance_model_from_series` with three different
+real forcing inputs over the 1959–2025 overlap:
+
+| Forcing input | RMSE (°C) |
+|---|---:|
+| CO2-only (this dataset's own CO2 column) | 0.0938 |
+| CO2-only (original Myhre-formula, Mauna Loa concentrations) | 0.0904 |
+| **Total (all anthropogenic + natural forcings)** | **0.0879 (best)** |
+
+**Cross-check:** the two independently-sourced CO2-only forcing
+estimates (this dataset's own radiative-transfer-model CO2 column vs. the
+Myhre logarithmic formula from Mauna Loa concentrations) agree closely
+once both are re-referenced to the same baseline year (max difference
+0.056 W/m² over the full 67-year range) — confirming both are measuring
+the same real physical quantity, not an artifact of parsing or units.
+
+**Honest interpretation:** the real total forcing modestly — not
+dramatically — improves the fit. The CO2-only approximation used
+throughout this repository's earlier work was already a reasonably close
+proxy; adding the real aerosol, other-GHG, ozone, land-use, solar, and
+volcanic components helps, but does not transform the result. This is a
+genuine, real-data-grounded answer to the CO2-only-vs-full-forcing
+question Astra posed, not an assumption either way.
+
 ## Verify
+
+```bash
+PYTHONPATH=src python verification/verify_energy_balance_full_forcing.py
+```
+
+JSON report: `verification/verify_energy_balance_full_forcing_results.json`.
+
+## Verify (original CO2-only fit)
 
 ```bash
 PYTHONPATH=src python verification/verify_energy_balance.py

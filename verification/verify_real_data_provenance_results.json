@@ -1,13 +1,26 @@
 {
-  "count": 6,
+  "count": 8,
   "errors": [],
   "failed": 0,
-  "passed": 6,
+  "passed": 8,
   "report": {
     "checks": {
+      "climateindicator_erf_sanity": {
+        "detail": {
+          "co2_1750": 0.0,
+          "co2_2025": 2.370924636,
+          "row_count": 276,
+          "total_2025": 3.365685139,
+          "year_range": [
+            1750,
+            2025
+          ]
+        },
+        "status": "passed"
+      },
       "manifest_sha256": {
         "detail": {
-          "entries_checked": 5,
+          "entries_checked": 7,
           "results": [
             {
               "file": "data/usgs_earthquakes_m6plus_2000_2026.csv",
@@ -33,6 +46,16 @@
               "file": "data/noaa_mauna_loa_co2_annual_1959_2025.txt",
               "id": "noaa_mauna_loa_co2_annual_1959_2025",
               "sha256": "3eea72f254116cd43275fa33b0ed201b14550e6ba21e4d6b4482c24a95f98ab7"
+            },
+            {
+              "file": "data/owid_covid_germany_usa_daily_2020.csv",
+              "id": "owid_covid_germany_usa_daily_2020",
+              "sha256": "732cfbb7781855b97504ef585a72eb9f4f4dfd7a84734418f37e55c8b9563ede"
+            },
+            {
+              "file": "data/climateindicator_erf_best_aggregates_1750_2025.csv",
+              "id": "climateindicator_erf_best_aggregates_1750_2025",
+              "sha256": "a417eb171097a1013f51f92538c5af5ebddacc3cfc946157620f73accd360ddd"
             }
           ]
         },
@@ -78,6 +101,16 @@
         },
         "status": "passed"
       },
+      "owid_covid_germany_usa_sanity": {
+        "detail": {
+          "date_range": [
+            "2020-01-22",
+            "2020-03-25"
+          ],
+          "row_count": 123
+        },
+        "status": "passed"
+      },
       "owid_covid_world_sanity": {
         "detail": {
           "all_rows_world_only": true,
@@ -108,6 +141,6 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "purpose": "provenance + sanity checks for data/real_data_manifest.json entries",
     "python": "3.11.9",
-    "timestamp": "2026-09-21T14:27:01+02:00"
+    "timestamp": "2026-09-22T12:48:17+02:00"
   }
 }

@@ -93,6 +93,11 @@ SAME general quantity as `etas.py`'s `etas_branching_ratio` for a
 structurally different kernel. See
 [docs/structural_relations.md](structural_relations.md#b8--positive-kernels--branching-operators-covid-renewal--etas-hawkes).
 
+**Follow-up (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 5):**
+the real raw daily case counts underlying this analysis are decisively
+overdispersed relative to Poisson (tested, not assumed) — see
+[docs/covid_observation_model.md](covid_observation_model.md).
+
 ## Verify
 
 ```bash
