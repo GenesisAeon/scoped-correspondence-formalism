@@ -105,12 +105,22 @@ compatibility are not proven by this algebra alone.
 
 ## 5. Pilot bridges (implemented and checked)
 
-Two pilots are implemented as a runnable, hand-checkable verify script:
-`verification/verify_structural_bridges_b1_b2.py`. Both use **only existing
-repo APIs** (`chemical_organization.core.is_reaction_closed`,
+Four pilots are implemented, each as a runnable, hand-checkable verify
+script, none introducing a new production module or shared base
+class/API. B1/B2 (2026-09-20): `verification/verify_structural_bridges_b1_b2.py`,
+using **only existing repo APIs**
+(`chemical_organization.core.is_reaction_closed`,
 `membership.formal_concept_analysis.derive_up/derive_down`,
-`membership.core.MembershipMatrix`, `closure.core.is_exact_closure`) —
-no new production module, no mutation of any existing Baustein.
+`membership.core.MembershipMatrix`, `closure.core.is_exact_closure`).
+B7/B8 (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 4):
+`verification/verify_structural_bridges_b7_b8.py`, using **only existing
+repo APIs** (`dynamics.energy_balance.fit_energy_balance_model` /
+`integrate_energy_balance_trajectory`,
+`viability.rate_dependent_buffer.run_buffer_spike_trajectory`,
+`validation.covid_renewal.discretized_generation_interval` /
+`wallinga_lipsitch_r`, `dynamics.etas.etas_branching_ratio`). The B3-B6
+numbers are reserved for the concept document's own deferred bridges (see
+section 6) — B7/B8 continue the sequence rather than reuse them.
 
 ### B1 — Reaction closure ↔ Formal Concept Analysis
 
@@ -183,6 +193,183 @@ B4 in the source concept document — deferred, tracked in
 **Source:** Koopman (1931), DOI 10.1073/pnas.17.5.315; Brunton et al.
 (2016), DOI 10.1371/journal.pone.0150171, for the operator perspective this
 finite stochastic case specializes.
+
+### B7 — Linear impulse-response systems: energy balance ↔ rate-dependent buffer
+
+**Relation kind:** shared structure schema (linear time-invariant systems
+driven by an external input), strengthened to an exact representation
+(the trajectory of each system equals a convolution with its own impulse
+response) on each system's own fixed-coefficient regime.
+
+**Origin:** `prompts/Answers/nicht_stationäre_Treiber/SCF_Review_f8e249f.md`
+(Astra, 2026-09-21), "Die mathematisch ergiebigste neue Verbindung":
+"EBM/Puffer über Impulsantworten" — MECHANISTIC_VALIDATION_ROADMAP.md
+package 4.
+
+**Objects:** `dynamics.energy_balance`'s two-layer model, a 2-state linear
+system `dx/dt = Ax + BF(t)`, `T_s = Cx` with
+`A = [[-(alpha+gamma)/C_s, gamma/C_s], [gamma/C_d, -gamma/C_d]]`,
+`B = [1/C_s, 0]^T`, `C = [1, 0]`; `viability.rate_dependent_buffer`'s
+scalar buffer, a 1-state linear system `dx/dt = -r*x + u(t)`, `z = x + z_eq`
+with `u(t) = U - W(t)`.
+
+**Construction:** for a linear time-invariant system, the solution
+decomposes as `x(t) = C e^{At} x(0) + ∫_0^t [C e^{A(t-s)} B] * input(s) ds`
+— a homogeneous (initial-condition decay) term plus a CONVOLUTION of the
+input with the system's own impulse response `h(t) = C e^{At} B`. For the
+buffer (1-D), `h(t) = e^{-rt}` exactly — a single relaxation timescale.
+For the energy balance model (2-D), `h(t)` is a sum of two real decaying
+exponentials `w_1 e^{lambda_1 t} + w_2 e^{lambda_2 t}` via the eigendecomposition
+of `A` — a genuine fast/slow relaxation, not assumed but *checked*: for
+the currently-shipped fit, eigenvalues are real and negative
+(-0.2747, -0.00364), giving timescales ≈3.64 years (fast, surface) and
+≈274 years (slow, deep ocean) — a 75x separation. The Laplace-domain
+transfer function `G(s) = C(sI-A)^-1 B` for the energy balance model
+matches Astra's own closed-form formula
+`G(s) = (C_d*s+gamma) / ((C_s*s+alpha+gamma)(C_d*s+gamma) - gamma^2)`
+exactly (checked at `s ∈ {0.1, 0.5, 1.0, 2.3}`, agreement to machine
+precision).
+
+**Claim:** both systems' production-function trajectories are
+independently reproduced via direct convolution (homogeneous term +
+numerical quadrature, NOT calling `solve_ivp`/`scipy.linalg.expm` again)
+and agree with `integrate_energy_balance_trajectory` / the buffer's own
+`z_min` to `1e-6`–`1e-11`.
+
+**Scope:** each system's own FIXED coefficients (the currently-fitted
+`(C_s, C_d, alpha, gamma)` for the energy balance model; the constant `r`
+for the buffer) over the checked time range.
+
+**Assumptions:** linearity and time-invariance of `A`/`B`/`C` — stated
+and checked (both models are genuinely linear ODEs with constant
+coefficients as already implemented; no new assumption is introduced by
+this bridge).
+
+**Preserved:** the exact trajectory (both homogeneous and forced
+response); the transfer-function representation; the fast/slow
+decomposition for the 2-state case.
+
+**Lost / out of scope:** parameter IDENTIFIABILITY is a separate question
+(package 1 already found `C_s`, `C_d`, `alpha` practically unidentified
+for the energy balance model — this bridge says nothing new about that,
+it only concerns the exact input-output MAP for whatever coefficients are
+given). Nothing here claims the buffer and the energy balance model are
+the SAME system — only that they are both instances of the same linear
+convolution structure, at different state dimension.
+
+**Failure witness:** a time-varying relaxation rate (`r=1` for `t<0`,
+`r=2` for `t>=0` in the buffer) breaks the FIXED-impulse-response
+convolution by a large margin (checked: true trajectory at `t=3` is
+`-0.0123`; the WRONG fixed-`r=1` convolution gives `-0.1133`, a
+difference of `0.101` — three orders of magnitude larger than the
+same-system agreement above). Confirms the bridge genuinely requires
+time-invariance, not just "any linear-looking system."
+
+**Evidence:** `verification/verify_structural_bridges_b7_b8.py`,
+check `B7_impulse_response_representation` (2/2 total, this script).
+Uses only `dynamics.energy_balance.fit_energy_balance_model` /
+`integrate_energy_balance_trajectory` and
+`viability.rate_dependent_buffer.run_buffer_spike_trajectory` — no new
+production module, no shared "impulse-response API".
+
+**Transfer rules:** licenses treating both models' forced responses as
+convolutions when reasoning about memory/filtering behavior (e.g. why a
+brief load spike is attenuated by a buffer with fast relaxation, or why
+the energy balance model has a decades-long "committed warming" tail from
+its slow eigenmode) — does NOT license transferring parameter estimates,
+identifiability results, or stability conclusions between the two models.
+
+### B8 — Positive kernels / branching operators: COVID renewal ↔ ETAS-Hawkes
+
+**Relation kind:** shared structure schema (both are self-exciting /
+renewal processes driven by a nonnegative kernel over past events),
+strengthened to an exact quantitative identity for the renewal case under
+a stationarity assumption (Hawkes & Oakes 1974).
+
+**Origin:** `prompts/Answers/nicht_stationäre_Treiber/SCF_Review_f8e249f.md`
+(Astra, 2026-09-21): "Renewal/ETAS-Hawkes über positive Kerne und
+Verzweigungsoperatoren [...] für ein stationäres lineares Hawkes-Modell
+[...] ist die Gesamtmasse seines mittleren Kerns die erwartete Zahl
+direkter Nachkommen" — MECHANISTIC_VALIDATION_ROADMAP.md package 4.
+
+**Objects:** `validation.covid_renewal`'s renewal equation
+`Lambda_t = Σ_s w_s I_{t-s}`, `I_t = R_t Λ_t`, generation-interval weights
+`w_s` (`Σ_s w_s = 1`); `dynamics.etas`'s self-exciting kernel
+`Σ_i K exp(alpha(M_i-M0)) / (t-t_i+c)^p` with branching ratio
+`n = K E[exp(alpha(M-M0))] c^(1-p)/(p-1)` (`etas_branching_ratio`).
+
+**Construction:** for CONSTANT `R`, the renewal recursion
+`I_t = R Σ_s w_s I_{t-s}` is exactly a stationary linear Hawkes/branching
+recursion with reproduction kernel `phi_s = R w_s`. Its total mass
+`Σ_s phi_s = R Σ_s w_s = R` (checked: `Σ_s w_s = 1` exactly;
+`R * Σ_s w_s = R` exactly for `R=1.68`, Pilot B's Wallinga-Lipsitch-implied
+value). By Hawkes & Oakes (1974, *A cluster process representation of a
+self-exciting process*, J. Appl. Probab. 11:493-503, DOI 10.2307/3212693),
+this total kernel mass IS the expected number of direct offspring per
+event — i.e. **`R` itself is the branching ratio**, computed by the exact
+same general principle (total kernel mass = expected direct offspring
+count) that `etas_branching_ratio` already implements for the
+structurally different Omori-Utsu kernel.
+
+**Claim:** the renewal model's `R` and ETAS's `n` are the same KIND of
+quantity (total mass of a nonnegative offspring kernel) under a
+stationarity assumption, not merely similarly-named numbers.
+
+**Scope:** the renewal side of this identity holds only while `R` is
+genuinely constant over the window considered (a stationary linear
+process); the ETAS side already integrates its kernel over an infinite
+horizon by construction (`etas_branching_ratio`'s own docstring).
+
+**Assumptions:** stationarity of `R` (checked to be the load-bearing one
+below); a well-defined, integrable kernel on each side (checked:
+`Σ_s w_s` converges by construction — `s_max` truncation; ETAS's kernel
+integral is finite exactly when `p>1`, already enforced by
+`etas_branching_ratio`'s own `ScopeViolationError`).
+
+**Preserved:** the total-kernel-mass identity itself, and (for the
+renewal case) the round-trip consistency with `wallinga_lipsitch_r`
+(checked: solving for the growth rate `r` implied by `R=1.68` and
+reconverting reproduces `R=1.68` to `1e-9`).
+
+**Lost / out of scope:** no claim that COVID incidence and earthquake
+occurrence are the same PHENOMENON — only that a scalar summary of "how
+much a process's own past feeds its future" is computed by the same
+general formula in both domains. Multi-type branching (a nonnegative
+matrix, spectral radius as the threshold) is NOT implemented here — noted
+by Astra as a further, deferred extension.
+
+**Failure witnesses (by reference to already-verified results elsewhere
+in this repo, not recomputed here — both are the SAME kind of quantity
+failing for DIFFERENT structural reasons):**
+1. Real `R_t` is NOT constant: `covid_renewal.py`'s own directly-computed
+   series dips below 1 (late Feb 2020) and rises above 1.5 (mid-March
+   2020) within the same window (`docs/covid_renewal.md`) — exactly why
+   `project_incidence_constant_r` (package 2) had to explicitly ASSUME
+   constant `R`, and its real-data forecast errors
+   (`docs/mechanistic_rolling_origin.md`,
+   `docs/mechanistic_probabilistic_evaluation.md`) are the visible cost
+   of that assumption not holding exactly.
+2. ETAS's own branching ratio is fragile for a DIFFERENT reason: only
+   ~30% of its kernel's total mass falls within the observed catalog
+   span (package 1, `docs/etas_earthquakes.md`) — a power-law-tail
+   truncation issue that the renewal model's exponential-family
+   (Gamma-distributed) generation interval, compactly summed to
+   `s_max=20` days, does not share.
+
+**Evidence:** `verification/verify_structural_bridges_b7_b8.py`, check
+`B8_positive_kernel_branching_operator` (2/2 total, this script). Uses
+only `validation.covid_renewal.discretized_generation_interval` /
+`wallinga_lipsitch_r` and `dynamics.etas.etas_branching_ratio` — no new
+production module, no shared "kernel API" (Astra's explicit caution
+against one).
+
+**Transfer rules:** licenses interpreting `R` (under a
+constant-R/stationarity reading) and ETAS's `n` as instances of the same
+general branching-ratio concept when discussing near-critical dynamics
+across domains — does NOT license treating COVID's compactly-supported
+generation interval and ETAS's power-law Omori-Utsu tail as
+interchangeable, and does NOT extend to the multi-type / spectral-radius
+generalization, which remains unimplemented.
 
 ## 6. Deferred (tracked, not implemented here)
 

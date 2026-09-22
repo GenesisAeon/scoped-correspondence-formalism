@@ -167,6 +167,11 @@ tested directly — see
 beats every statistical baseline (persistence, expanding-window and
 last-30-years linear trends) at every tested lead year, 1 through 5.
 
+**Structural bridge B7 (2026-09-21):** this model's linear state-space
+form is a genuine convolution/impulse-response system, sharing that exact
+structure with `viability.rate_dependent_buffer`'s scalar buffer — see
+[docs/structural_relations.md](structural_relations.md#b7--linear-impulse-response-systems-energy-balance--rate-dependent-buffer).
+
 ## Verify
 
 ```bash

@@ -1,0 +1,96 @@
+{
+  "count": 2,
+  "errors": [],
+  "failed": 0,
+  "passed": 2,
+  "report": {
+    "checks": {
+      "B7_impulse_response_representation": {
+        "detail": {
+          "buffer_convolution_check": {
+            "convolution_z_min": -0.6947528522578583,
+            "diff": 4.208888793044707e-11,
+            "module_z_min": -0.6947528522999472
+          },
+          "convolution_vs_production_checks": [
+            {
+              "convolution": 0.2921569833358652,
+              "diff": 1.0776826531166961e-07,
+              "production": 0.2921568755675999,
+              "year_index": 30
+            },
+            {
+              "convolution": 1.112987693240247,
+              "diff": 1.3575844486357624e-06,
+              "production": 1.1129863356557983,
+              "year_index": 66
+            }
+          ],
+          "eigenvalues": [
+            -0.2746952529135597,
+            -0.003643304457099268
+          ],
+          "energy_balance_params": {
+            "C_d": 63.860850146722825,
+            "C_s": 7.366689505715288,
+            "T0": -0.018904094967600277,
+            "alpha": 0.30000000000000004,
+            "gamma": 1.5693955827253008
+          },
+          "failure_witness_time_varying_rate": {
+            "diff": 0.1009581392804455,
+            "true_trajectory_at_t3": -0.012327988795070336,
+            "wrong_fixed_impulse_response_convolution_at_t3": -0.11328612807551584
+          },
+          "fast_timescale_years": 3.64039782047008,
+          "slow_timescale_years": 274.476100412476,
+          "transfer_function_checks": [
+            {
+              "G_astra_formula": 0.4354516270081574,
+              "G_state_space": 0.4354516270081574,
+              "s": 0.1
+            },
+            {
+              "G_astra_formula": 0.18250781316004772,
+              "G_state_space": 0.18250781316004774,
+              "s": 0.5
+            },
+            {
+              "G_astra_formula": 0.10871406374216892,
+              "G_state_space": 0.10871406374216891,
+              "s": 1.0
+            },
+            {
+              "G_astra_formula": 0.05320227156161681,
+              "G_state_space": 0.05320227156161684,
+              "s": 2.3
+            }
+          ]
+        },
+        "status": "passed"
+      },
+      "B8_positive_kernel_branching_operator": {
+        "detail": {
+          "R_roundtrip_check": 1.6799999999999968,
+          "R_test": 1.68,
+          "etas_branching_ratio_example": 0.7439458494851384,
+          "failure_witness_etas_kernel_fragility": "NOT recomputed here -- by reference to package 1: only ~30% of the ETAS kernel's total mass falls within the observed catalog span (docs/etas_earthquakes.md), a structurally DIFFERENT fragility (power-law vs. exponential-family kernel tail) from the renewal case's time-varying-R issue -- both are the SAME kind of quantity (total kernel mass) failing for different underlying reasons.",
+          "failure_witness_time_varying_R": "NOT recomputed here -- by reference to already-verified results: covid_renewal.py's own directly-computed R_t dips below 1 (late Feb 2020) and rises above 1.5 (mid-March 2020) within the SAME window (docs/covid_renewal.md); project_incidence_constant_r (package 2) had to explicitly ASSUME constant R for exactly this reason, and its real-data forecast errors (docs/mechanistic_rolling_origin.md, docs/mechanistic_probabilistic_evaluation.md) are the visible cost of that assumption not holding exactly.",
+          "generation_interval_total_mass_at_R1": 1.0,
+          "r_from_R_roundtrip": 0.1209616288810214,
+          "renewal_kernel_total_mass": 1.68
+        },
+        "status": "passed"
+      }
+    },
+    "concept_origin": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Review_f8e249f.md",
+    "disclaimer": "Two additional bridges (B7, B8), continuing docs/structural_relations.md's B1/B2 numbering. Uses only existing repo APIs; no new production module; no shared kernel API (Astra's explicit caution); does not mutate dynamics/, viability/, or validation/.",
+    "numpy": "2.2.6",
+    "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 4 (structural bridges B7, B8)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source_document": "docs/structural_relations.md",
+    "timestamp": "2026-09-22T12:01:56+02:00"
+  }
+}

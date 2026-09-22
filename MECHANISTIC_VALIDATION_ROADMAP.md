@@ -23,7 +23,7 @@ unverändert stehen (neue Erkenntnisse ergänzen, nicht überschreiben).
 | 1 | Numerisch zuverlässige Kalibrierung + Profile-Likelihood-Anschluss | ✅ erledigt |
 | 2 | Gemeinsame zeitliche Prognoseprüfung (alle Mechanismus-Module) | ✅ erledigt |
 | 3 | Probabilistische Ergebnisse (Vorhersageintervalle, Scoring-Regeln) | ✅ erledigt |
-| 4 | Zwei neue Strukturbrücken (Impulsantwort; Kern/Verzweigung) | ⏸ geplant |
+| 4 | Zwei neue Strukturbrücken (Impulsantwort; Kern/Verzweigung) | ✅ erledigt |
 | 5 | Beobachtungs- und Zustandsmodelle (COVID Negativ-Binomial, Mehrländer) | ⏸ geplant |
 | 6 | Mehrdimensionale R-Tipping-/Viabilitätskarten | ⏸ geplant |
 
@@ -190,31 +190,59 @@ Hand-Nachrechnung eines Leave-One-Origin-Out-Intervalls an einem
 synthetischen Beispiel, alle drei Domänen). Dokumentiert in
 `docs/mechanistic_probabilistic_evaluation.md`.
 
-## Paket 4 — Zwei neue Strukturbrücken
+## Paket 4 — Umsetzung (2026-09-21)
 
 Astras eigene mathematische Beobachtung (Abschnitt "Die mathematisch
 ergiebigste neue Verbindung"): mehrere neue Module verarbeiten eine
 Vorgeschichte mit einem zeitlichen Kern — eine präzise strukturelle
-Verwandtschaft, die im bestehenden `structural_bridges`-Schema (Quelle/Ziel,
-Kernabbildung, Einheiten/Positivität, erhaltene Größe, Gegenbeispiel bei
-verletzten Voraussetzungen — wie B1/B2) dokumentiert werden sollte, NICHT
-als vorschnelle gemeinsame Kernel-API:
+Verwandtschaft, dokumentiert im bestehenden Bridge-Card-Schema aus
+`docs/structural_relations.md` (Quelle/Ziel, Kernabbildung, Skalierung,
+erhaltene Größe, Gegenbeispiel bei verletzten Voraussetzungen — wie
+B1/B2), NICHT als vorschnelle gemeinsame Kernel-API. Zwei neue Brücken
+(B7, B8, Nummerierung von B1/B2 fortgesetzt — B3-B6 bleiben für das
+ursprüngliche Konzeptdokument reserviert), beide OHNE neues
+Produktionsmodul, nur mit bereits vorhandenen Repo-APIs:
 
-1. **EBM/Puffer über Impulsantworten**: für das lineare Energiebilanzmodell
-   ist die Übertragungsfunktion `G(s) = (C_d*s+γ)/((C_s*s+α+γ)(C_d*s+γ)-γ²)`
-   direkt herleitbar; der lineare Puffer (`viability/rate_dependent_buffer.py`)
-   ist eine Faltung mit `exp(-rt)`. Gemeinsame Struktur: lineares
-   Impulsantwort-System, schnelle/langsame Relaxation, Gedächtnis- und
-   Filterwirkung.
-2. **Renewal/ETAS-Hawkes über positive Kerne und Verzweigungsoperatoren**:
-   `covid_renewal.py`s gewichtete Summe vergangener Inzidenzen und
-   `etas.py`s selbsterregender Kern teilen die Struktur "nichtnegative
-   Kernabbildung über eine Vorgeschichte"; für ein stationäres lineares
-   Hawkes-Modell ist die Gesamtmasse des mittleren Kerns die erwartete Zahl
-   direkter Nachkommen (Hawkes & Oakes 1974) — bei mehreren Typen wird
-   daraus eine nichtnegative Matrix, deren Spektralradius die relevante
-   Schwellenstruktur ist. Anschluss an die vorhandenen baumartigen
-   Perkolationsbeispiele.
+**B7 — Impulsantwort-Systeme: Energiebilanz ↔ Puffer.** Für das
+Energiebilanzmodell hat die Zustandsmatrix A zwei reelle, negative
+Eigenwerte (kein gedämpftes Schwingen) — Zeitskalen ≈3,64 Jahre (schnell,
+Oberfläche) und ≈274 Jahre (langsam, Tiefsee), ein 75-facher Abstand,
+exakt geprüft statt nur behauptet. Die Übertragungsfunktion
+`G(s)=C(sI-A)⁻¹B` stimmt mit Astras Formel
+`(C_d·s+γ)/((C_s·s+α+γ)(C_d·s+γ)-γ²)` auf Maschinengenauigkeit überein
+(vier getestete s-Werte). Beide Modelle werden unabhängig über direkte
+Faltung (Homogenlösung + numerische Quadratur, NICHT erneuter Aufruf von
+`solve_ivp`/`scipy.linalg.expm`) rekonstruiert und stimmen mit den
+Produktionsfunktionen auf `1e-6`–`1e-11` überein. **Gegenbeispiel:** eine
+zeitveränderliche Relaxationsrate im Puffer bricht die
+Faltungsdarstellung um das ~1000-fache stärker als die
+Übereinstimmungsgenauigkeit oben (0,101 vs. `1e-6`–`1e-11`) — bestätigt,
+dass die Brücke echte Zeitinvarianz braucht, nicht nur "irgendein linear
+aussehendes System."
+
+**B8 — Positive Kerne / Verzweigungsoperatoren: COVID-Renewal ↔
+ETAS-Hawkes.** Bei konstantem R ist die Renewal-Rekursion exakt ein
+stationärer linearer Hawkes-Prozess mit Reproduktionskern `R·w_s`; dessen
+Gesamtmasse ist exakt R (geprüft: `Σw_s=1`, `R·Σw_s=R` für R=1,68).
+Nach Hawkes & Oakes (1974) IST diese Gesamtmasse die erwartete Zahl
+direkter Nachkommen — R selbst ist also die Verzweigungsrate, berechnet
+nach demselben allgemeinen Prinzip wie `etas_branching_ratio` für den
+strukturell anderen Omori-Utsu-Kern. Rückwärts-Konsistenzprüfung über
+`wallinga_lipsitch_r` bestätigt das Roundtrip auf `1e-9`.
+**Gegenbeispiele (durch Verweis auf bereits verifizierte Ergebnisse,
+nicht neu berechnet):** echtes R_t ist NICHT konstant (fällt unter 1,
+steigt über 1,5 im selben Fenster) — genau deshalb musste
+`project_incidence_constant_r` (Paket 2) konstantes R annehmen, dessen
+Prognosefehler sind die sichtbaren Kosten davon. ETAS' eigene
+Verzweigungsrate ist aus einem STRUKTURELL ANDEREN Grund fragil (nur
+~30 % der Kernmasse innerhalb der Kataloglänge, Paket 1) — dieselbe Art
+Größe scheitert aus verschiedenen Gründen.
+
+`verify_structural_bridges_b7_b8.py`: 2/2 bestanden. Dokumentiert als
+neue Abschnitte B7/B8 in `docs/structural_relations.md` (fortlaufende
+Bridge-Card-Schema-Anwendung), verlinkt aus `docs/energy_balance.md`,
+`docs/rate_dependent_tipping.md`, `docs/covid_renewal.md` und
+`docs/etas_earthquakes.md`.
 
 ## Paket 5 — Beobachtungs- und Zustandsmodelle
 

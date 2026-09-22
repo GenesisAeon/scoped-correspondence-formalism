@@ -235,6 +235,12 @@ here (its ScopeViolationError on a non-positive `distance_to_boundary`
 guards exactly this case) since the frozen peak is unsafe by
 construction, outside the diagnostic's stated scope.
 
+**Structural bridge B7 (2026-09-21):** this buffer's trajectory is exactly
+a convolution with its own impulse response `e^{-rt}` — the same linear
+structure as `dynamics.energy_balance`'s two-layer model (a 2-exponential
+impulse response there, instead of this buffer's single exponential). See
+[docs/structural_relations.md](structural_relations.md#b7--linear-impulse-response-systems-energy-balance--rate-dependent-buffer).
+
 ## Verify
 
 ```bash

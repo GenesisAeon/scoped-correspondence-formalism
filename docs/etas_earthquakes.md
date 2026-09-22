@@ -150,6 +150,11 @@ homogeneous-Poisson constant-rate baseline. The calib-only branching
 ratio (0.854) also differs materially from the full-catalog value (1.02)
 above — a further sign of this quantity's fragility.
 
+**Structural bridge B8 (2026-09-21):** the branching ratio here is the
+SAME kind of quantity (total mass of a nonnegative offspring kernel,
+Hawkes & Oakes 1974) as COVID renewal's reproduction number `R` — see
+[docs/structural_relations.md](structural_relations.md#b8--positive-kernels--branching-operators-covid-renewal--etas-hawkes).
+
 ## Verify
 
 ```bash

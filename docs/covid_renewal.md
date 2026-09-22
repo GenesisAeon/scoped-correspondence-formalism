@@ -87,6 +87,12 @@ forward assuming R stays constant at its last calib estimate — beats both
 persistence and a simple exponential extrapolation baseline. See
 [docs/mechanistic_rolling_origin.md](mechanistic_rolling_origin.md).
 
+**Structural bridge B8 (2026-09-21):** for constant `R`, this renewal
+kernel's total mass IS the Hawkes & Oakes (1974) branching ratio — the
+SAME general quantity as `etas.py`'s `etas_branching_ratio` for a
+structurally different kernel. See
+[docs/structural_relations.md](structural_relations.md#b8--positive-kernels--branching-operators-covid-renewal--etas-hawkes).
+
 ## Verify
 
 ```bash
