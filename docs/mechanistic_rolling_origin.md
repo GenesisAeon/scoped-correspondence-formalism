@@ -112,6 +112,15 @@ Two things worth noting honestly:
   calib-only fit landed at or above criticality (see
   `etas_expected_count_first_order`'s own docstring).
 
+**Follow-up (2026-09-21, MECHANISTIC_VALIDATION_ROADMAP.md package 3):**
+these point forecasts are now scored with genuine predictive
+uncertainty (prediction intervals, proper scoring rules) — see
+[docs/mechanistic_probabilistic_evaluation.md](mechanistic_probabilistic_evaluation.md).
+Headline finding: the energy-balance model's point-forecast win above
+does **not** carry over to interval quality — its prediction intervals
+are the least efficient of the four tested, a genuine illustration of
+why point accuracy and predictive uncertainty are different questions.
+
 ## Verify
 
 ```bash

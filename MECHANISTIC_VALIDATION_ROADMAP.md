@@ -22,7 +22,7 @@ unverändert stehen (neue Erkenntnisse ergänzen, nicht überschreiben).
 |---|---|---|
 | 1 | Numerisch zuverlässige Kalibrierung + Profile-Likelihood-Anschluss | ✅ erledigt |
 | 2 | Gemeinsame zeitliche Prognoseprüfung (alle Mechanismus-Module) | ✅ erledigt |
-| 3 | Probabilistische Ergebnisse (Vorhersageintervalle, Scoring-Regeln) | ⏸ geplant |
+| 3 | Probabilistische Ergebnisse (Vorhersageintervalle, Scoring-Regeln) | ✅ erledigt |
 | 4 | Zwei neue Strukturbrücken (Impulsantwort; Kern/Verzweigung) | ⏸ geplant |
 | 5 | Beobachtungs- und Zustandsmodelle (COVID Negativ-Binomial, Mehrländer) | ⏸ geplant |
 | 6 | Mehrdimensionale R-Tipping-/Viabilitätskarten | ⏸ geplant |
@@ -145,19 +145,50 @@ Werte). `verify_covid_renewal.py`: 5/5 bestanden (neuer Hand-Check für
 `project_incidence_constant_r`). Dokumentiert in
 `docs/mechanistic_rolling_origin.md`.
 
-## Paket 3 — Probabilistische Ergebnisse
+## Paket 3 — Umsetzung (2026-09-21)
 
-Bisher liefern alle Module Punktschätzungen (RMSE, AIC). Astra verlangt
-echte Vorhersageverteilungen:
-- Vorhersageintervalle (z.B. aus Parameterunsicherheit via Paket 1, oder
-  aus Residualstreuung) mit ausgewiesener Deckung (coverage) und Breite auf
-  Holdout-Daten.
-- Log-Score für Zähl-/Ereignismodelle (ETAS, COVID-Fallzahlen), CRPS oder
-  Intervall-Score für kontinuierliche Ziele (Energiebilanz-Temperatur)
-  (Gneiting & Raftery 2007).
-- Ausdrücklicher Hinweis: `conformal_prediction`-Modul existiert bereits,
-  aber seine Austauschbarkeitsannahme gilt NICHT ungeprüft für
-  nichtstationäre, abhängige Zeitreihen — erst prüfen, dann anwenden.
+Bisher lieferten alle Module nur Punktschätzungen (RMSE, AIC). Zwei neue
+additive Module: `validation/scoring_rules.py` (Milestone 49: Intervall-
+Score und Poisson-Log-Score, Gneiting & Raftery 2007, plus
+`empirical_coverage`) und `validation/mechanistic_probabilistic_evaluation.py`
+(Milestone 50: wendet das auf alle drei Paket-2-Domänen an). Neue Funktion
+`rolling_origin.raw_predictions_by_horizon_step` (additiv, ergänzt
+`error_by_horizon_step` um die rohen vorzeichenbehafteten Residuen, die
+für Quantil-Intervalle gebraucht werden).
+
+**Warum nicht `validation/conformal.py`?** Dessen eigene Dokumentation
+nennt die Deckung bereits "marginal unter Austauschbarkeit" — aber die
+Rolling-Origin-Residuen hier stammen aus ÜBERLAPPENDEN, seriell
+korrelierten Kalibrierfenstern auf ausdrücklich nichtstationären Reihen,
+genau der Situation, in der Austauschbarkeit keine sichere
+Standardannahme ist (Astras expliziter Hinweis, Paket 3). Statt eine
+nicht anwendbare Garantie überzustülpen, nutzt dieses Paket
+Leave-One-Origin-Out-Quantile (kontinuierliche Ziele) bzw. ein Poisson-
+Intervall (ETAS-Zähldaten), mit EMPIRISCH berichteter Deckung.
+
+**Kernbefund: Punktgenauigkeit ≠ Intervallqualität.** Das Energiebilanz-
+Modell schlägt in Paket 2 jede Baseline bei der Punktprognose — sauber
+bewertet kehrt sich das um: sein Intervall-Score (0,4665) ist der
+SCHLECHTESTE aller vier Prädiktoren (Persistenz 0,4076, expanding 0,4382,
+last30 0,4211). Kein Widerspruch, sondern genau das, wofür echte
+Scoring-Regeln da sind: ein Modell kann im Mittel genauer sein und
+trotzdem eine weniger effiziente Unsicherheitsschätzung haben. Bei COVID
+stimmen beide Rankings dagegen überein (`renewal_constant_R` gewinnt
+RMSE UND Intervall-Score, 3796 vs. 9052/20241). Bei ETAS bestätigt der
+Poisson-Log-Score ebenfalls Paket 2s Befund: Persistenz gewinnt (5,356
+vs. 6,131/6,360), keine Nachjustierung.
+
+**Ehrlicher Kleinstichproben-Hinweis:** Leave-One-Origin-Out-Quantile
+nutzen nur 10 (Energiebilanz) bzw. 5 (COVID) andere Ursprünge je
+Vorlaufzeit — dünne Dezile, explizit als exploratorisch ausgewiesen, nicht
+als belastbare Schwanzquantile.
+
+`verify_mechanistic_probabilistic_evaluation.py`: 5/5 bestanden
+(Hand-Nachrechnung von `interval_score`/`poisson_log_score`/
+`poisson_prediction_interval` direkt gegen scipy, unabhängige
+Hand-Nachrechnung eines Leave-One-Origin-Out-Intervalls an einem
+synthetischen Beispiel, alle drei Domänen). Dokumentiert in
+`docs/mechanistic_probabilistic_evaluation.md`.
 
 ## Paket 4 — Zwei neue Strukturbrücken
 

@@ -18,7 +18,15 @@ M48: additive ``mechanistic_rolling_origin`` module -- applies
 forecasting target (MECHANISTIC_VALIDATION_ROADMAP.md package 2). Also
 adds ``rolling_origin.error_by_horizon_step`` (additive; the original
 ``rolling_origin_backtest`` is unchanged).
-None of M6b/M6c/M6d/M6e/M6f/M48 mutate ``validation/core.py`` or
+M49/M50: additive ``scoring_rules`` + ``mechanistic_probabilistic_evaluation``
+modules -- prediction intervals and proper scoring rules (interval score,
+Poisson log score; Gneiting & Raftery 2007) for the same 3 mechanistic
+models (MECHANISTIC_VALIDATION_ROADMAP.md package 3). Also adds
+``rolling_origin.raw_predictions_by_horizon_step`` (additive).
+Explicitly does NOT invoke ``validation.conformal`` for these
+non-stationary, dependent time series -- see
+``scoring_rules.CONFORMAL_EXCHANGEABILITY_WARNING``.
+None of M6b/M6c/M6d/M6e/M6f/M48/M49/M50 mutate ``validation/core.py`` or
 covid_pilot.py's original Pilot A/B/C.
 M13: split conformal prediction (Lei et al. 2018); additive ``conformal`` module.
 Does not mutate ``validation/core.py``.
@@ -66,8 +74,10 @@ from scoped_correspondence.validation.covid_pilot import (
 from scoped_correspondence.validation.rolling_origin import (
     HorizonStepReport,
     OriginResult,
+    RawHorizonPrediction,
     RollingOriginReport,
     error_by_horizon_step,
+    raw_predictions_by_horizon_step,
     rolling_origin_backtest,
 )
 from scoped_correspondence.validation.mechanistic_rolling_origin import (
@@ -77,6 +87,22 @@ from scoped_correspondence.validation.mechanistic_rolling_origin import (
     run_covid_renewal_rolling_origin_backtest,
     run_energy_balance_rolling_origin_analysis,
     run_etas_forecast_check,
+)
+from scoped_correspondence.validation.scoring_rules import (
+    SOURCE as SCORING_RULES_SOURCE,
+    CONFORMAL_EXCHANGEABILITY_WARNING,
+    empirical_coverage,
+    interval_score,
+    poisson_log_score,
+    poisson_prediction_interval,
+)
+from scoped_correspondence.validation.mechanistic_probabilistic_evaluation import (
+    DEFAULT_INTERVAL_ALPHA,
+    LeaveOneOutIntervalReport,
+    leave_one_origin_out_intervals,
+    run_covid_renewal_probabilistic_evaluation,
+    run_energy_balance_probabilistic_evaluation,
+    run_etas_probabilistic_evaluation,
 )
 from scoped_correspondence.validation.noaa_temp_pilot import (
     CALIB_END_YEAR as TEMP_CALIB_END_YEAR,
@@ -204,6 +230,8 @@ __all__ = [
     "rolling_origin_backtest",
     "HorizonStepReport",
     "error_by_horizon_step",
+    "RawHorizonPrediction",
+    "raw_predictions_by_horizon_step",
     # M48 mechanistic_rolling_origin (MECHANISTIC_VALIDATION_ROADMAP.md package 2)
     "MECHANISTIC_ROLLING_ORIGIN_SOURCE",
     "run_energy_balance_rolling_origin_analysis",
@@ -211,6 +239,19 @@ __all__ = [
     "run_covid_renewal_rolling_origin_backtest",
     "COVID_RENEWAL_ORIGINS_DAY_INDEX",
     "COVID_RENEWAL_HORIZON_DAYS",
+    # M49/M50 scoring_rules + mechanistic_probabilistic_evaluation (MECHANISTIC_VALIDATION_ROADMAP.md package 3)
+    "SCORING_RULES_SOURCE",
+    "CONFORMAL_EXCHANGEABILITY_WARNING",
+    "interval_score",
+    "empirical_coverage",
+    "poisson_log_score",
+    "poisson_prediction_interval",
+    "DEFAULT_INTERVAL_ALPHA",
+    "LeaveOneOutIntervalReport",
+    "leave_one_origin_out_intervals",
+    "run_energy_balance_probabilistic_evaluation",
+    "run_covid_renewal_probabilistic_evaluation",
+    "run_etas_probabilistic_evaluation",
     # M6d earthquake_pilot (USGS M>=6.0 annual counts, verified real data)
     "QUAKE_CALIB_START_YEAR",
     "QUAKE_CALIB_END_YEAR",

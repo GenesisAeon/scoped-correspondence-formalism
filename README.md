@@ -61,7 +61,7 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
 
 ### Status, Prüfungen und offene Punkte
 
-- **63 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
+- **64 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
   aktuell alle grün (`python audit_review/run_all_local.py` — Skript nicht
   eingecheckt, siehe [VERIFICATION.md](VERIFICATION.md) für die
   eingecheckten Einzelläufe und ihre Aussagekraft).
@@ -139,10 +139,13 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   [MECHANISTIC_VALIDATION_ROADMAP.md](MECHANISTIC_VALIDATION_ROADMAP.md).
   Paket 1 (Profile-Likelihood-Anschluss: `energy_balance.py`s C_s/C_d/alpha
   sind praktisch nicht identifizierbar, rigoros bestätigt statt nur
-  behauptet) und Paket 2 (gemeinsame Rolling-Origin-Prognoseprüfung: das
+  behauptet), Paket 2 (gemeinsame Rolling-Origin-Prognoseprüfung: das
   Energiebilanzmodell schlägt jede statistische Baseline an jedem
   Vorlaufjahr; die COVID-Renewal-Projektion schlägt beide Baselines; ETAS
-  schlägt die Persistenz-Baseline NICHT — ehrlich berichtet) sind
+  schlägt die Persistenz-Baseline NICHT — ehrlich berichtet) und Paket 3
+  (echte Vorhersageintervalle + Scoring-Regeln: Punktgenauigkeit ≠
+  Intervallqualität — das Energiebilanzmodell gewinnt Paket 2s RMSE, hat
+  aber den SCHLECHTESTEN Intervall-Score aller vier Prädiktoren) sind
   umgesetzt.
 
 ---

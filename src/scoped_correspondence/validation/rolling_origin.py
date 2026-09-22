@@ -224,4 +224,76 @@ def error_by_horizon_step(
     )
 
 
-__all__ = ["OriginResult", "RollingOriginReport", "rolling_origin_backtest", "HorizonStepReport", "error_by_horizon_step"]
+@dataclass(frozen=True)
+class RawHorizonPrediction:
+    origin: float
+    step: int
+    observed: float
+    predicted: float
+
+    def to_dict(self) -> Dict[str, object]:
+        return {"origin": self.origin, "step": self.step, "observed": self.observed, "predicted": self.predicted}
+
+
+def raw_predictions_by_horizon_step(
+    x: Sequence[float],
+    y: Sequence[float],
+    *,
+    origins: Sequence[float],
+    max_horizon_steps: int,
+    step_size: float,
+    predictors: Dict[str, Predictor],
+) -> Dict[str, List[RawHorizonPrediction]]:
+    """Same origin/step structure as :func:`error_by_horizon_step`, but returns the
+    RAW (origin, step, observed, predicted) tuples per predictor instead of
+    pooling into an RMSE -- MECHANISTIC_VALIDATION_ROADMAP.md package 3
+    needs the signed per-origin residuals to build leave-one-origin-out
+    empirical prediction intervals, which a pooled RMSE cannot supply.
+    ``error_by_horizon_step`` itself is untouched by this addition.
+    """
+    x_arr = np.asarray(x, dtype=float)
+    y_arr = np.asarray(y, dtype=float)
+    if x_arr.shape != y_arr.shape:
+        raise ScopeViolationError("raw_predictions_by_horizon_step: x and y must have the same shape")
+    if not np.all(np.diff(x_arr) > 0):
+        raise ScopeViolationError("raw_predictions_by_horizon_step: x must be strictly increasing")
+    if not predictors:
+        raise ScopeViolationError("raw_predictions_by_horizon_step: need at least one predictor")
+    if max_horizon_steps < 1:
+        raise ScopeViolationError("raw_predictions_by_horizon_step: max_horizon_steps must be >= 1")
+    if step_size <= 0:
+        raise ScopeViolationError("raw_predictions_by_horizon_step: step_size must be > 0")
+    if not origins:
+        raise ScopeViolationError("raw_predictions_by_horizon_step: need at least one origin")
+
+    out: Dict[str, List[RawHorizonPrediction]] = {name: [] for name in predictors}
+    for origin in origins:
+        if not np.any(x_arr == origin):
+            raise ScopeViolationError(f"raw_predictions_by_horizon_step: origin {origin!r} not present in x")
+        calib_mask = x_arr <= origin
+        calib_x = x_arr[calib_mask]
+        calib_y = y_arr[calib_mask]
+        for k in range(1, max_horizon_steps + 1):
+            target_x = origin + k * step_size
+            matches = np.where(np.isclose(x_arr, target_x, atol=1e-9))[0]
+            if len(matches) == 0:
+                raise ScopeViolationError(f"raw_predictions_by_horizon_step: step target {target_x!r} (origin={origin!r}, k={k!r}) not present in x")
+            test_x = x_arr[matches[:1]]
+            test_y = y_arr[matches[:1]]
+            for name, fn in predictors.items():
+                pred = np.asarray(fn(calib_x, calib_y, test_x), dtype=float)
+                if pred.shape != test_x.shape:
+                    raise ScopeViolationError(f"raw_predictions_by_horizon_step: predictor {name!r} must return one prediction per test point")
+                out[name].append(RawHorizonPrediction(origin=float(origin), step=k, observed=float(test_y[0]), predicted=float(pred[0])))
+    return out
+
+
+__all__ = [
+    "OriginResult",
+    "RollingOriginReport",
+    "rolling_origin_backtest",
+    "HorizonStepReport",
+    "error_by_horizon_step",
+    "RawHorizonPrediction",
+    "raw_predictions_by_horizon_step",
+]
