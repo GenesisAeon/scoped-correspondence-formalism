@@ -8,11 +8,15 @@
       "full_comparison": {
         "detail": {
           "co2_forcing_cross_check_max_abs_diff": 0.05605274695481599,
-          "interpretation": "Real total forcing (all anthropogenic + natural components) modestly improves the fit over CO2-only forcing -- a genuine, real-data-grounded answer to the CO2-only-vs-full-forcing question, not a dramatic difference: the CO2-only approximation was already reasonably close.",
-          "rmse_co2_only_erf": 0.09378318274626073,
-          "rmse_co2_only_myhre": 0.09036389480478792,
-          "rmse_total_forcing": 0.08793262795042515,
-          "total_forcing_beats_co2_only": true,
+          "interpretation": "The CO2-only-vs-total-forcing RMSE ranking DEPENDS on which forcing reference-level convention is used: with each series' own native baseline (ERF columns relative to 1750, Myhre relative to 1959), total forcing modestly beats CO2-only (0.08793 < 0.09378); with all three series consistently re-referenced to zero in the first overlap year, CO2-only instead beats total forcing (0.09025 < 0.09425). Neither variant is a physically fully-corrected re-initialization (that would need an explicit forcing/observation offset or a physically motivated deep-ocean initial condition, per Astra's review) -- both are reported so the small RMSE differences here are not over-interpreted as a robust finding either way.",
+          "rmse_co2_only_erf_raw_reference": 0.09378318274626073,
+          "rmse_co2_only_erf_rereferenced": 0.09024719400110363,
+          "rmse_co2_only_myhre_raw_reference": 0.09036389480478792,
+          "rmse_co2_only_myhre_rereferenced": 0.09036389480478792,
+          "rmse_total_forcing_raw_reference": 0.08793262795042515,
+          "rmse_total_forcing_rereferenced": 0.09425493179145847,
+          "total_forcing_beats_co2_only_raw_reference": true,
+          "total_forcing_beats_co2_only_rereferenced": false,
           "years_range": [
             1959,
             2025
@@ -48,6 +52,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "Smith, Walsh, Gillett, Hausfather, Palmer, von Schuckmann, Ribes, Forster et al., Indicators of Global Climate Change 2025, DOI 10.5281/zenodo.7883757 (effective radiative forcing best-estimate aggregates, ClimateIndicator/data repository, pinned git tag v2026.06.02).",
-    "timestamp": "2026-09-22T12:43:00+02:00"
+    "timestamp": "2026-09-23T07:56:09+02:00"
   }
 }

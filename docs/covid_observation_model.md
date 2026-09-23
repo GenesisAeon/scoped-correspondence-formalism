@@ -36,29 +36,59 @@ Dispersion (NB2 parametrization: mean `μ`, variance `μ + α·μ²`) is fit by
 maximum likelihood on a CALIB half of the analysis window and evaluated
 (Poisson vs. negative-binomial log-score) on a disjoint HOLDOUT half —
 the same window split in half by day count as `covid_renewal.py`'s own
-window (2020-01-28 to 2020-03-25), calib ending 2020-02-25. This
-anti-leak split means the comparison is not circular: the dispersion
-parameter is never fit on the same days it is scored against.
+window (2020-01-28 to 2020-03-25), calib ending 2020-02-25.
 
-## Result: decisive, not marginal, overdispersion
+**Correction (2026-09-23, response to
+[`SCF_Review_3e8dce3.md`](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md),
+Astra, finding 2):** the sentence that used to stand here — "this
+anti-leak split means the comparison is not circular" — was wrong. The
+calib/holdout split protects the *dispersion* parameter from circularity,
+but the reference mean `μ_t` originally used (`cases_7day_avg`) is OWID's
+OWN trailing 7-day average, which **includes the day being scored** on
+both calib and holdout days regardless of the split. Astra's concrete
+counterexample: on 2020-03-12 (observation 6,756, reference mean
+5,033.29), increasing only that day's count by 700 (with weekly
+aggregates updated consistently) raises its own "predicted mean" by
+exactly 100 — a day cannot un-circularly predict itself. **Fixed** by
+introducing a genuinely forward-only reference mean: the average of
+`new_cases` over the 7 calendar days *strictly before* the scored day
+(`_lagged_means`, `LAGGED_MEAN_WINDOW_DAYS`), which never uses the
+scored day's own count. Six early-window calib days (2020-01-28 through
+2020-02-02) cannot get a full 7-day lookback from the loaded raw series
+and are honestly excluded rather than padded (see
+`n_calib_dropped_insufficient_lookback`).
 
-| Quantity | Value |
-|---|---:|
-| n_calib / n_holdout | 29 / 29 |
-| Fitted dispersion α | 0.539 |
-| Mean Poisson log-score (holdout) | 944.5 |
-| Mean negative-binomial log-score (holdout) | 9.71 |
+## Result: decisive, not marginal, overdispersion — survives the fix
 
-The negative-binomial model wins by roughly two orders of magnitude. This
-is not a marginal statistical refinement — a naive Poisson-around-the-
-smoothed-mean model is a catastrophically bad description of real raw
-daily counts. This makes physical sense: raw daily case counts carry
-strong day-of-week reporting artifacts (weekend reporting lags, batch
-corrections) that `cases_7day_avg` smooths away by construction — so of
-course the *smoothed* mean, treated as if it were a Poisson mean for the
-*raw* count, looks wildly overdispersed. Astra's suspicion is confirmed
-resoundingly, and the dispersion was genuinely TESTED (via a disjoint
-calib/holdout split), not assumed.
+| Quantity | Forward-only lagged mean (PRIMARY, non-circular) | Retrospective `cases_7day_avg` (kept for comparison only) |
+|---|---:|---:|
+| n_calib / n_holdout | 23 / 29 | 23 / 29 |
+| Fitted dispersion α | 0.750 | 0.503 |
+| Mean Poisson log-score (holdout) | 1692.76 | 944.52 |
+| Mean negative-binomial log-score (holdout) | 9.95 | 9.68 |
+
+Fixing the circularity does not weaken the finding — it strengthens it.
+With a genuine forward-only mean, the raw Poisson misfit is actually
+**worse** than the original (circular) numbers suggested (1692.76 vs.
+944.52): the retrospective mean partially "cheats" by already knowing
+part of the answer, which flatters Poisson's apparent fit. The
+negative-binomial model still wins decisively either way (α fitted
+positive and significant, log-score improves by two orders of magnitude
+in both columns) — this is not a marginal statistical refinement. This
+makes physical sense: raw daily case counts carry strong day-of-week
+reporting artifacts (weekend reporting lags, batch corrections) that any
+7-day averaging smooths away by construction — so of course a Poisson
+model built around either kind of smoothed mean looks wildly
+overdispersed for the *raw* count. Astra's original overdispersion
+suspicion is confirmed resoundingly, and now on a genuinely
+circularity-free forecast-quality basis, not merely a descriptive one.
+
+**Retained for transparency, explicitly relabeled:** the
+`cases_7day_avg`-based comparison (right column) is kept as a
+**descriptive** view of dispersion around a retrospective smoothing
+value — informative about the raw/smoothed variance relationship, but
+NOT a circularity-free forecast-quality result, and not the number this
+module leads with going forward.
 
 **What this does NOT establish:** this result does not by itself
 disentangle true epidemiological overdispersion (e.g. superspreading

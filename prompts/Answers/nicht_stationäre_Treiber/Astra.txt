@@ -1,0 +1,32 @@
+Ja, fertig. **Die Umsetzung ist deutlich vorangekommen. Mein nächster Schritt wäre jetzt: Validierung absichern, danach Paket 6 ausbauen.**
+
+Geprüft habe ich Commit [`3e8dce3`](https://github.com/GenesisAeon/scoped-correspondence-formalism/commit/3e8dce358e37017b375aaaae5b6f0bfe63f4d94f). **Alle 66 ausgeführten mathematischen Verifikationsskripte bestehen.** Zwei Dokumentationsprüfungen blieben wegen einer lokal fehlenden DOCX-Datei aus.
+
+Besonders gelungen sind der reparierte Klimafit, der Puffervergleich bei gleicher Gesamtlast und die gemeinsame Auswertung mehrerer Prognosemodelle. Auch die Strukturbrücke zwischen Energiebilanz und Puffer über Wirkungskerne ist ein tragfähiger Anschluss an deine Ausgangsidee.
+
+**Fünf Punkte würde ich vor weiteren Ergebnisaussagen korrigieren:**
+
+| Priorität | Befund                                                                       | Nächster Schritt                                                            |
+| --------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Hoch      | Prognoseintervalle verwenden Fehler aus späteren Prognoseursprüngen.         | Nur bereits verfügbare Zielbeobachtungen zur Kalibrierung zulassen.         |
+| Hoch      | Der COVID-Referenzmittelwert enthält den Tageswert, den er vorhersagen soll. | Mittelwert ausschließlich aus vorher verfügbaren Daten erzeugen.            |
+| Hoch      | B8 setzt konstantes \(R\) mit einem stationären Hawkes-Prozess gleich.       | Kernmasse, Erwartungswertgleichung und Prozessstationarität sauber trennen. |
+| Mittel    | Ein am Scanrand offenes Parameterprofil wird als unbeschränkt bezeichnet.    | „Im untersuchten Bereich nicht eingegrenzt“ als eigenen Status ausweisen.   |
+| Mittel    | Die Klimavergleiche verwenden unterschiedliche Forcing-Referenzniveaus.      | Forcing, Temperaturreferenz und Anfangszustände konsistent modellieren.     |
+
+Das sind **konkret nachgerechnete Befunde**. Beispielsweise verändert allein eine spätere Beobachtung ein früheres Prognoseintervall von `[1,2; 2,8]` auf `[1,2; 80,4]`. Der zentrale neue Regressionstest sollte deshalb lauten: **Spätere Daten dürfen frühere Prognosen nicht verändern.** Das entspricht der zeitlichen Trennung bei Prognosevalidierung. ([otexts.com][1])
+
+Bei B8 bleibt die mathematische Verwandtschaft erhalten: Die Masse eines Nachkommenkerns beschreibt die erwartete Zahl direkter Nachkommen. Stationarität mit positiver Immigration und endlicher mittlerer Rate verlangt beim linearen Hawkes-Modell jedoch \(n<1\); das verwendete \(R=1{,}68\) erfüllt diese Bedingung nicht. ([www.researchgate.net][2])
+
+**Danach passt Paket 6 sehr gut:** Kipp- und Viabilitätskarten über Amplitude, Änderungsrate, Pulsdauer und Reserve – mit Vergleichen bei gleicher Spitzenlast und gleicher Gesamtlast.
+
+Als neue mathematische Erweiterung empfehle ich **zeitabhängige Wirkungskerne**. Sie erfassen, wie die gesamte Treibergeschichte mit der jeweils vorhandenen Erholung zusammenwirkt. Damit wird deine Beobachtung präziser untersuchbar: *Welche Kombination aus Belastungsverlauf, Erholung und Reserve führt zum Grenzübertritt?* Für globale Kippschwellen passt anschließend die vorhandene Verbindung zu Kanten-Zuständen und verbindenden Orbits. ([arxiv.org][3])
+
+Der vollständige Bericht enthält Fundstellen, Gegenbeispiele und konkrete Abnahmekriterien:
+
+* [SCF_Review_3e8dce3.md](sandbox:/workspace/scratch/bc86442eb021/review_sep22/SCF_Review_3e8dce3.md)
+* [SCF_Review_3e8dce3_Rechenbelege.zip](sandbox:/workspace/scratch/bc86442eb021/review_sep22/SCF_Review_3e8dce3_Rechenbelege.zip)
+
+[1]: https://otexts.com/fpp3/tscv.html?utm_source=chatgpt.com "5.10 Time series cross-validation"
+[2]: https://www.researchgate.net/publication/248498983_A_cluster_process_representation_of_a_self-exciting_process?utm_source=chatgpt.com "(PDF) A cluster process representation of a self-exciting process"
+[3]: https://arxiv.org/abs/2111.15497?utm_source=chatgpt.com "[2111.15497] Rate-Induced Tipping: Thresholds, Edge States and Connecting Orbits"

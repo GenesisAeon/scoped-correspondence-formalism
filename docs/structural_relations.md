@@ -283,8 +283,11 @@ identifiability results, or stability conclusions between the two models.
 
 **Relation kind:** shared structure schema (both are self-exciting /
 renewal processes driven by a nonnegative kernel over past events),
-strengthened to an exact quantitative identity for the renewal case under
-a stationarity assumption (Hawkes & Oakes 1974).
+strengthened to an exact quantitative identity: total kernel mass equals
+expected direct offspring count (Hawkes & Oakes 1974). This identity
+needs **no stationarity assumption** — see the 2026-09-23 correction
+below for what stationarity actually requires and why `R=1.68` does not
+have it.
 
 **Origin:** `prompts/Answers/nicht_stationäre_Treiber/SCF_Review_f8e249f.md`
 (Astra, 2026-09-21): "Renewal/ETAS-Hawkes über positive Kerne und
@@ -299,9 +302,8 @@ direkter Nachkommen" — MECHANISTIC_VALIDATION_ROADMAP.md package 4.
 `n = K E[exp(alpha(M-M0))] c^(1-p)/(p-1)` (`etas_branching_ratio`).
 
 **Construction:** for CONSTANT `R`, the renewal recursion
-`I_t = R Σ_s w_s I_{t-s}` is exactly a stationary linear Hawkes/branching
-recursion with reproduction kernel `phi_s = R w_s`. Its total mass
-`Σ_s phi_s = R Σ_s w_s = R` (checked: `Σ_s w_s = 1` exactly;
+`I_t = R Σ_s w_s I_{t-s}` has reproduction kernel `phi_s = R w_s`, with
+total mass `Σ_s phi_s = R Σ_s w_s = R` (checked: `Σ_s w_s = 1` exactly;
 `R * Σ_s w_s = R` exactly for `R=1.68`, Pilot B's Wallinga-Lipsitch-implied
 value). By Hawkes & Oakes (1974, *A cluster process representation of a
 self-exciting process*, J. Appl. Probab. 11:493-503, DOI 10.2307/3212693),
@@ -309,16 +311,62 @@ this total kernel mass IS the expected number of direct offspring per
 event — i.e. **`R` itself is the branching ratio**, computed by the exact
 same general principle (total kernel mass = expected direct offspring
 count) that `etas_branching_ratio` already implements for the
-structurally different Omori-Utsu kernel.
+structurally different Omori-Utsu kernel. **This part requires only that
+`R` be constant over the recursion, not that the resulting process be
+stationary.**
 
-**Claim:** the renewal model's `R` and ETAS's `n` are the same KIND of
-quantity (total mass of a nonnegative offspring kernel) under a
-stationarity assumption, not merely similarly-named numbers.
+**Correction (2026-09-23, response to
+[`SCF_Review_3e8dce3.md`](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md),
+Astra, finding 3):** an earlier version of this section additionally
+claimed that constant `R` makes the renewal recursion "exactly a
+**stationary** linear Hawkes/branching recursion." That additional claim
+is **wrong** and has been removed. Constant coefficients do not by
+themselves guarantee a stationary process distribution. For a linear
+Hawkes process with positive immigration `mu` and finite stationary mean,
+the mean-value equation
 
-**Scope:** the renewal side of this identity holds only while `R` is
-genuinely constant over the window considered (a stationary linear
-process); the ETAS side already integrates its kernel over an infinite
-horizon by construction (`etas_branching_ratio`'s own docstring).
+```
+lambda_bar = mu + n * lambda_bar   =>   lambda_bar = mu / (1 - n)
+```
+
+requires the **subcritical** case `n < 1` — only then does the classical
+stationary cluster representation (Hawkes & Oakes 1974) apply. The
+`R=1.68` value checked above is **superctitical** (`n > 1`): plugging it
+into the formula above with `mu=1` gives `1 / (1 - 1.68) ≈ -1.4706` — a
+**negative** mean rate, which is impossible for a point-process
+intensity. `R=1.68` is therefore a **counterexample** to the stationarity
+claim, not supporting evidence for it; as a model of **nonstationary
+branching growth** (a genuinely super-critical, still-growing epidemic
+phase), `R=1.68` remains entirely sensible. A genuinely subcritical value
+such as `R=0.8` DOES give a finite, positive stationary mean
+(`1/(1-0.8)=5.0` for `mu=1`) — see
+`verification/verify_structural_bridges_b7_b8.py`'s
+`subcritical_example` / `superctitical_counterexample` fields for both
+computed side by side.
+
+Two further distinctions the original text elided, now made explicit:
+a **deterministic** incidence recursion (as implemented in
+`covid_renewal.py`) is not itself a stochastic point process — a precise
+bridge must state whether it preserves kernel mass, a mean-value
+equation, a conditional intensity, or the full process distribution (this
+section only ever claimed the first: kernel mass). The renewal side also
+runs in **discrete** time while the Hawkes/ETAS side is continuous-time;
+this document does not construct an explicit discrete-to-continuous-time
+correspondence, and none is claimed.
+
+**Claim (corrected):** the renewal model's `R` and ETAS's `n` are the
+same KIND of quantity (total mass of a nonnegative offspring kernel) —
+this holds for ANY constant `R`, subcritical or supercritical. Reading
+`R`/`n` additionally as branching ratios of a *stationary* cluster
+process requires the separate, stricter subcritical condition `n < 1`,
+which `R=1.68` does not satisfy.
+
+**Scope:** the kernel-mass identity holds while `R` is genuinely constant
+over the window considered; the stationary-process reading holds
+additionally only in the subcritical case (`R<1`, `n<1`). The ETAS side
+already integrates its kernel over an infinite horizon by construction
+(`etas_branching_ratio`'s own docstring), independent of this
+correction.
 
 **Assumptions:** stationarity of `R` (checked to be the load-bearing one
 below); a well-defined, integrable kernel on each side (checked:

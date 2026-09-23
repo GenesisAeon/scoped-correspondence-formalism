@@ -232,6 +232,41 @@ def check_b8_positive_kernel_branching_operator():
     n_etas = etas_branching_ratio(K, c, p_etas, alpha_etas, mags, m0)
     require(n_etas > 0, "etas_branching_ratio must be positive (a genuine offspring-count quantity)")
 
+    # Corrected 2026-09-23 in response to
+    # prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md
+    # (Astra, finding 3): the kernel-mass identity above (R * sum(w) == R)
+    # is correct and needs no stationarity assumption. What was WRONG in
+    # docs/structural_relations.md was the FURTHER claim that constant R
+    # makes the renewal recursion "exactly a stationary linear Hawkes
+    # process" -- constant coefficients do not by themselves guarantee a
+    # stationary process distribution. For a linear Hawkes process with
+    # positive immigration mu and finite stationary mean, the mean
+    # equation lambda_bar = mu + n*lambda_bar => lambda_bar = mu/(1-n)
+    # requires the SUBCRITICAL case n < 1 (Hawkes & Oakes 1974). R_test =
+    # 1.68 is SUPERCRITICAL (n > 1): plugging it into the "stationary"
+    # formula with mu=1 gives a NEGATIVE mean rate -- mathematically
+    # impossible for a point-process intensity -- which is exactly why
+    # R=1.68 is a COUNTEREXAMPLE to the stationarity claim, not supporting
+    # evidence for it. A genuinely subcritical R=0.8 gives a finite,
+    # positive stationary mean, as the theory requires.
+    mu_immigration = 1.0
+    R_subcritical = 0.8
+    stationary_mean_subcritical = mu_immigration / (1.0 - R_subcritical)
+    require(
+        np.isfinite(stationary_mean_subcritical) and stationary_mean_subcritical > 0.0,
+        "subcritical R=0.8 must give a finite, positive stationary mean",
+    )
+    near(stationary_mean_subcritical, 5.0, atol=1e-12)  # 1.0 / (1 - 0.8) = 5.0 exactly
+
+    stationary_mean_at_R_test = mu_immigration / (1.0 - R_test)  # R_test=1.68, superctitical
+    require(
+        stationary_mean_at_R_test < 0.0,
+        "R_test=1.68 (superctitical) must give a NEGATIVE 'stationary mean' -- the "
+        "mathematical impossibility that shows constant R does NOT imply a stationary "
+        "process here (this is the counterexample, not a supporting computation)",
+    )
+    near(stationary_mean_at_R_test, -1.0 / 0.68, atol=1e-9)  # matches Astra's -1.4706 by hand
+
     return {
         "generation_interval_total_mass_at_R1": total_mass_at_R1,
         "R_test": R_test,
@@ -239,6 +274,23 @@ def check_b8_positive_kernel_branching_operator():
         "r_from_R_roundtrip": r_from_R,
         "R_roundtrip_check": R_roundtrip,
         "etas_branching_ratio_example": n_etas,
+        "subcritical_example": {
+            "R": R_subcritical,
+            "mu_immigration": mu_immigration,
+            "stationary_mean": stationary_mean_subcritical,
+            "interpretation": "genuinely stationary (n<1): finite positive mean, as theory requires",
+        },
+        "superctitical_counterexample": {
+            "R": R_test,
+            "mu_immigration": mu_immigration,
+            "would_be_stationary_mean": stationary_mean_at_R_test,
+            "interpretation": (
+                "R=1.68 is superctitical (n>1): the 'stationary mean' formula gives an "
+                "impossible negative rate -- constant R does NOT make this a stationary "
+                "Hawkes process; the kernel-mass identity (R*sum(w)=R) still holds and needs "
+                "no stationarity, but the stationarity CLAIM in the prior docs text was wrong"
+            ),
+        },
         "failure_witness_time_varying_R": (
             "NOT recomputed here -- by reference to already-verified results: "
             "covid_renewal.py's own directly-computed R_t dips below 1 (late Feb 2020) "

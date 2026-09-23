@@ -82,7 +82,11 @@ class ForcingComparisonReport:
     fit_co2_only_erf: EnergyBalanceFitResult
     fit_total_forcing: EnergyBalanceFitResult
     fit_co2_only_myhre: EnergyBalanceFitResult
-    total_forcing_beats_co2_only: bool
+    total_forcing_beats_co2_only_raw_reference: bool
+    fit_co2_only_erf_rereferenced: EnergyBalanceFitResult
+    fit_total_forcing_rereferenced: EnergyBalanceFitResult
+    fit_co2_only_myhre_rereferenced: EnergyBalanceFitResult
+    total_forcing_beats_co2_only_rereferenced: bool
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -91,7 +95,11 @@ class ForcingComparisonReport:
             "fit_co2_only_erf": self.fit_co2_only_erf.to_dict(),
             "fit_total_forcing": self.fit_total_forcing.to_dict(),
             "fit_co2_only_myhre": self.fit_co2_only_myhre.to_dict(),
-            "total_forcing_beats_co2_only": self.total_forcing_beats_co2_only,
+            "total_forcing_beats_co2_only_raw_reference": self.total_forcing_beats_co2_only_raw_reference,
+            "fit_co2_only_erf_rereferenced": self.fit_co2_only_erf_rereferenced.to_dict(),
+            "fit_total_forcing_rereferenced": self.fit_total_forcing_rereferenced.to_dict(),
+            "fit_co2_only_myhre_rereferenced": self.fit_co2_only_myhre_rereferenced.to_dict(),
+            "total_forcing_beats_co2_only_rereferenced": self.total_forcing_beats_co2_only_rereferenced,
         }
 
 
@@ -103,6 +111,34 @@ def run_co2_vs_full_forcing_comparison(erf_path: str | Path, co2_path: str | Pat
     Mauna Loa concentrations) -- (a) and (c) are cross-checked for rough
     agreement (both are independently-sourced CO2-only estimates) before
     comparing (a)/(b)'s RMSE.
+
+    Reports BOTH a "raw_reference" comparison (each series' own native
+    baseline: ERF columns relative to 1750, Myhre relative to 1959) AND a
+    "rereferenced" comparison (all three series shifted so F=0 in the
+    first overlap year, matching the Myhre convention already used
+    elsewhere in this repo) side by side.
+
+    Fixed 2026-09-23 in response to
+    prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md
+    (Astra, finding 5): the original version aligned reference levels ONLY
+    for the co2_forcing_cross_check_max_abs_diff sanity check above, but
+    fed the UN-aligned (raw-baseline) series into the actual fits used for
+    the total_forcing_beats_co2_only headline comparison. Astra's
+    sensitivity check (unchanged fit function, only re-referencing each
+    series to its own 1959 value) showed the original ranking can already
+    REVERSE under a reasonable alternative reference convention -- so the
+    original single "total forcing beats CO2-only" claim was not robust to
+    a choice this module never made explicit or consistent.
+
+    This is NOT a full physically-consistent re-initialization (Astra
+    notes the model's transformation T'=T-delta strictly requires
+    F'=F-alpha*delta, not just F zeroed at t=0; a fully principled fix
+    would model an explicit forcing/observation offset or a physically
+    motivated deep-ocean initial condition instead) -- both variants are
+    reported so neither is silently treated as the sole correct answer,
+    and the reference-dependence itself is now a visible, checked number
+    (see verify_energy_balance_full_forcing.py) rather than a hidden
+    assumption.
     """
     from scoped_correspondence.dynamics.energy_balance import _load_overlap_series
 
@@ -135,13 +171,27 @@ def run_co2_vs_full_forcing_comparison(erf_path: str | Path, co2_path: str | Pat
     fit_total = fit_energy_balance_model_from_series(years, Tobs, F_total)
     fit_co2_myhre = fit_energy_balance_model_from_series(years, Tobs, F_co2_myhre)
 
+    # Consistent-baseline variant: every series shifted to F=0 in the first
+    # overlap year (years[0]), so the three fits differ ONLY in forcing
+    # composition/shape, not in an arbitrary absolute-level choice.
+    F_co2_erf_ref = F_co2_erf - F_co2_erf[0]
+    F_total_ref = F_total - F_total[0]
+    F_co2_myhre_ref = F_co2_myhre - F_co2_myhre[0]
+    fit_co2_erf_ref = fit_energy_balance_model_from_series(years, Tobs, F_co2_erf_ref)
+    fit_total_ref = fit_energy_balance_model_from_series(years, Tobs, F_total_ref)
+    fit_co2_myhre_ref = fit_energy_balance_model_from_series(years, Tobs, F_co2_myhre_ref)
+
     return ForcingComparisonReport(
         years=tuple(years),
         co2_forcing_cross_check_max_abs_diff=cross_check_diff,
         fit_co2_only_erf=fit_co2_erf,
         fit_total_forcing=fit_total,
         fit_co2_only_myhre=fit_co2_myhre,
-        total_forcing_beats_co2_only=bool(fit_total.rmse < fit_co2_erf.rmse),
+        total_forcing_beats_co2_only_raw_reference=bool(fit_total.rmse < fit_co2_erf.rmse),
+        fit_co2_only_erf_rereferenced=fit_co2_erf_ref,
+        fit_total_forcing_rereferenced=fit_total_ref,
+        fit_co2_only_myhre_rereferenced=fit_co2_myhre_ref,
+        total_forcing_beats_co2_only_rereferenced=bool(fit_total_ref.rmse < fit_co2_erf_ref.rmse),
     )
 
 

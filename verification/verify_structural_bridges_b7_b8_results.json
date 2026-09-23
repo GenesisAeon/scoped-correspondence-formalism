@@ -78,7 +78,19 @@
           "failure_witness_time_varying_R": "NOT recomputed here -- by reference to already-verified results: covid_renewal.py's own directly-computed R_t dips below 1 (late Feb 2020) and rises above 1.5 (mid-March 2020) within the SAME window (docs/covid_renewal.md); project_incidence_constant_r (package 2) had to explicitly ASSUME constant R for exactly this reason, and its real-data forecast errors (docs/mechanistic_rolling_origin.md, docs/mechanistic_probabilistic_evaluation.md) are the visible cost of that assumption not holding exactly.",
           "generation_interval_total_mass_at_R1": 1.0,
           "r_from_R_roundtrip": 0.1209616288810214,
-          "renewal_kernel_total_mass": 1.68
+          "renewal_kernel_total_mass": 1.68,
+          "subcritical_example": {
+            "R": 0.8,
+            "interpretation": "genuinely stationary (n<1): finite positive mean, as theory requires",
+            "mu_immigration": 1.0,
+            "stationary_mean": 5.000000000000001
+          },
+          "superctitical_counterexample": {
+            "R": 1.68,
+            "interpretation": "R=1.68 is superctitical (n>1): the 'stationary mean' formula gives an impossible negative rate -- constant R does NOT make this a stationary Hawkes process; the kernel-mass identity (R*sum(w)=R) still holds and needs no stationarity, but the stationarity CLAIM in the prior docs text was wrong",
+            "mu_immigration": 1.0,
+            "would_be_stationary_mean": -1.4705882352941178
+          }
         },
         "status": "passed"
       }
@@ -91,6 +103,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source_document": "docs/structural_relations.md",
-    "timestamp": "2026-09-22T12:01:56+02:00"
+    "timestamp": "2026-09-23T08:01:55+02:00"
   }
 }

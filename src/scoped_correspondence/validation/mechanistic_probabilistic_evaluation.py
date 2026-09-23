@@ -32,6 +32,7 @@ of surfacing small-N limitations rather than dressing them up.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -81,9 +82,11 @@ class LeaveOneOutIntervalReport:
     predictor_name: str
     alpha: float
     n_trials: int
+    n_skipped_insufficient_lookback: int
     empirical_coverage_value: float
     mean_interval_score: float
     per_trial: Tuple[Dict[str, float], ...]
+    skipped_trials: Tuple[Dict[str, float], ...]
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -91,29 +94,56 @@ class LeaveOneOutIntervalReport:
             "alpha": self.alpha,
             "nominal_coverage": 1.0 - self.alpha,
             "n_trials": self.n_trials,
+            "n_skipped_insufficient_lookback": self.n_skipped_insufficient_lookback,
             "empirical_coverage": self.empirical_coverage_value,
             "mean_interval_score": self.mean_interval_score,
             "per_trial": [dict(t) for t in self.per_trial],
+            "skipped_trials": [dict(t) for t in self.skipped_trials],
         }
 
 
 def leave_one_origin_out_intervals(
     raw_predictions: Dict[str, List[RawHorizonPrediction]],
     *,
+    step_size: float,
     alpha: float = DEFAULT_INTERVAL_ALPHA,
 ) -> Dict[str, LeaveOneOutIntervalReport]:
     """Leave-one-origin-out empirical-quantile (1-alpha) intervals, per predictor.
 
-    For each (origin, step) prediction, the interval is built from the
-    alpha/2 and 1-alpha/2 empirical quantiles of that SAME predictor's
-    residuals (observed-predicted) at the SAME step from every OTHER
-    origin -- never including the trial's own residual (anti-leak, mirrors
-    this repository's calib/holdout discipline elsewhere). NOT an
-    exchangeability-based (conformal) guarantee -- see
+    For each (origin, step) trial, the interval is built from the alpha/2
+    and 1-alpha/2 empirical quantiles of that SAME predictor's residuals
+    (observed-predicted) at the SAME step from every OTHER origin whose
+    OWN target time (``origin' + step * step_size``) was already
+    available AT the current trial's origin -- i.e. ``origin' + step *
+    step_size <= origin`` (strictly earlier origins only; a later origin's
+    residual, even at the same step, encodes information not yet
+    observable when the current trial's forecast would have been issued).
+
+    Fixed 2026-09-23 in response to
+    prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md
+    (Astra): the prior version pooled residuals from ALL other origins
+    regardless of time order, so a LATER origin's observation could change
+    an EARLIER origin's already-reported interval -- demonstrated
+    concretely by Astra with a 4-origin synthetic example where changing
+    only the last origin's observed value moved the FIRST origin's
+    interval from [1.2, 2.8] to [1.2, 80.4]. That is retrospective
+    leave-one-out, not a real forecast interval. See
+    ``verify_mechanistic_probabilistic_evaluation.py`` for the same
+    regression test (later data must not change earlier
+    predictions/intervals) plus the fixed real-data application.
+
+    Trials without >= ``MIN_LOO_RESIDUALS`` time-eligible residuals are
+    SKIPPED (not silently dropped, not a hard failure of the whole
+    report) and listed in ``skipped_trials`` -- an explicit
+    "insufficient lookback history" status, per Astra's request, rather
+    than either faking an interval or aborting the entire predictor.
+    NOT an exchangeability-based (conformal) guarantee -- see
     ``scoring_rules.CONFORMAL_EXCHANGEABILITY_WARNING``.
     """
     if not (0.0 < alpha < 1.0):
         raise ScopeViolationError(f"leave_one_origin_out_intervals: alpha must be in (0,1); got {alpha!r}")
+    if not (math.isfinite(step_size) and step_size > 0.0):
+        raise ScopeViolationError(f"leave_one_origin_out_intervals: step_size must be finite and > 0; got {step_size!r}")
 
     out: Dict[str, LeaveOneOutIntervalReport] = {}
     for name, preds in raw_predictions.items():
@@ -124,13 +154,24 @@ def leave_one_origin_out_intervals(
         intervals: List[Tuple[float, float]] = []
         observed_list: List[float] = []
         per_trial: List[Dict[str, float]] = []
+        skipped: List[Dict[str, float]] = []
         for p in preds:
-            loo_residuals = [r for (o, r) in residuals_by_step[p.step] if o != p.origin]
+            loo_residuals = [
+                r
+                for (o, r) in residuals_by_step[p.step]
+                if o != p.origin and (o + p.step * step_size) <= p.origin
+            ]
             if len(loo_residuals) < MIN_LOO_RESIDUALS:
-                raise ScopeViolationError(
-                    f"leave_one_origin_out_intervals: only {len(loo_residuals)} LOO residuals for "
-                    f"{name!r} step {p.step!r}, need >= {MIN_LOO_RESIDUALS}"
+                skipped.append(
+                    {
+                        "origin": p.origin,
+                        "step": p.step,
+                        "reason": "insufficient_lookback",
+                        "n_time_eligible_residuals": len(loo_residuals),
+                        "min_required": MIN_LOO_RESIDUALS,
+                    }
                 )
+                continue
             lo_q = float(np.quantile(loo_residuals, alpha / 2.0))
             hi_q = float(np.quantile(loo_residuals, 1.0 - alpha / 2.0))
             lower, upper = p.predicted + lo_q, p.predicted + hi_q
@@ -143,13 +184,22 @@ def leave_one_origin_out_intervals(
                 {"origin": p.origin, "step": p.step, "lower": lower, "upper": upper, "observed": p.observed, "interval_score": score}
             )
 
+        if not per_trial:
+            raise ScopeViolationError(
+                f"leave_one_origin_out_intervals: {name!r} has zero trials with sufficient "
+                f"time-eligible lookback (all {len(skipped)} skipped) -- widen the origin set "
+                "or reduce max_horizon_steps"
+            )
+
         out[name] = LeaveOneOutIntervalReport(
             predictor_name=name,
             alpha=alpha,
             n_trials=len(per_trial),
+            n_skipped_insufficient_lookback=len(skipped),
             empirical_coverage_value=empirical_coverage(intervals, observed_list),
             mean_interval_score=float(np.mean([t["interval_score"] for t in per_trial])),
             per_trial=tuple(per_trial),
+            skipped_trials=tuple(skipped),
         )
     return out
 
@@ -176,7 +226,7 @@ def run_energy_balance_probabilistic_evaluation(
             "energy_balance_mechanistic": predictor,
         },
     )
-    return leave_one_origin_out_intervals(raw, alpha=alpha)
+    return leave_one_origin_out_intervals(raw, alpha=alpha, step_size=1.0)
 
 
 def run_covid_renewal_probabilistic_evaluation(
@@ -198,7 +248,7 @@ def run_covid_renewal_probabilistic_evaluation(
             "renewal_constant_R": _covid_renewal_predictor_factory(),
         },
     )
-    return leave_one_origin_out_intervals(raw, alpha=alpha)
+    return leave_one_origin_out_intervals(raw, alpha=alpha, step_size=1.0)
 
 
 def run_etas_probabilistic_evaluation(catalog_path: str | Path, *, coverage: float = 0.9) -> Dict[str, Dict[str, Any]]:

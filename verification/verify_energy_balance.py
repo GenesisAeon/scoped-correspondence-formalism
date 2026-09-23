@@ -40,11 +40,21 @@ Checks (all numbers from this script run):
      profile_energy_balance_identifiability profiles all 5 parameters via
      identifiability.profile_likelihood_nlp (a general bounded-NLP
      profiler generalizing identifiability.profile_likelihood's 1-free-
-     parameter algebraic scope). Confirms C_s, C_d, and alpha are
-     PRACTICALLY UNIDENTIFIED (unbounded likelihood interval) on a +-50%
-     scan even after normalizing by the reduced-chi-square noise estimate
-     -- a rigorous confirmation of the identifiability caveat already
-     documented in prose, not just an assertion.
+     parameter algebraic scope). Confirms C_s, C_d, and alpha are NOT
+     BOUNDED within a +-50% scan even after normalizing by the
+     reduced-chi-square noise estimate.
+  7. CORRECTED (2026-09-23, external review by Astra,
+     SCF_Review_3e8dce3.md finding 4): the prior wording here and in
+     docs/energy_balance.md called this "practically unidentified (fully
+     flat)". That overstated what the code found:
+     classify_identifiability actually returns "identifiable" (curved)
+     for all 5 parameters on this scan, and likelihood_interval's
+     unbounded_reason is "open_at_grid_boundary" -- the confidence set's
+     endpoint lies beyond the scanned range, not absent. Corrected to:
+     weakly constrained beyond a +-50% neighborhood of the fit, not
+     proven flat/unidentified in any absolute sense (that would require
+     widening the scan until it either closes or a wide-span variance
+     test itself calls it flat).
 """
 from __future__ import annotations
 
@@ -216,7 +226,19 @@ def check_profile_likelihood_identifiability(fit_result, co2_path, temp_path):
         li = by_name[name].likelihood_interval
         require(
             not li["bounded"],
-            f"{name} is expected to be practically unidentified (unbounded likelihood interval) on a +-50% scan -- got bounded={li['bounded']!r}",
+            f"{name} is expected to be open at the edge of a +-50% scan -- got bounded={li['bounded']!r}",
+        )
+        # Corrected 2026-09-23 (Astra, SCF_Review_3e8dce3.md finding 4): NOT
+        # asserting classification == "flat" here -- classify_identifiability
+        # actually returns "identifiable" (curved) for all 5 parameters on
+        # this scan; li["unbounded_reason"] == "open_at_grid_boundary" means
+        # the interval's endpoint lies BEYOND the scanned range, which is a
+        # weaker, more honest claim than "flat profile / fully unidentified".
+        require(
+            li["unbounded_reason"] == "open_at_grid_boundary",
+            f"{name}: expected unbounded_reason='open_at_grid_boundary', got {li['unbounded_reason']!r} "
+            "-- if this ever becomes 'flat_profile', the doc's stronger non-identifiability claim would "
+            "actually be justified and should be reinstated with that evidence",
         )
 
     for name in ("gamma", "T0"):
@@ -230,12 +252,17 @@ def check_profile_likelihood_identifiability(fit_result, co2_path, temp_path):
         "chi2_at_fit_normalized": report.chi2_at_fit,
         "profiles": {name: p.to_dict() for name, p in by_name.items()},
         "interpretation": (
-            "C_s, C_d, and alpha are practically unidentified (flat likelihood "
-            "profile, unbounded interval) on this +-50% scan even after "
-            "normalizing by the reduced-chi-square noise estimate -- a "
-            "rigorous confirmation, not just an assertion, of this model's "
-            "documented weak-identifiability caveat. gamma and T0 show "
-            "partial (one-sided) curvature."
+            "C_s, C_d, and alpha are NOT bounded within a +-50% scan around their "
+            "fitted values, even after normalizing by the reduced-chi-square noise "
+            "estimate -- classify_identifiability calls all three 'identifiable' "
+            "(chi2 genuinely curves across the grid), and likelihood_interval's "
+            "unbounded_reason is 'open_at_grid_boundary', i.e. the confidence set's "
+            "endpoint lies beyond the scanned range, NOT that the profile is flat. "
+            "This is weaker than 'practically unidentified' -- it says these "
+            "parameters are weakly constrained beyond a +-50% neighborhood of the "
+            "fit, not that they are unconstrained. gamma and T0 show one-sided "
+            "curvature within the same scan. (Corrected 2026-09-23, Astra "
+            "SCF_Review_3e8dce3.md finding 4 -- see docs/energy_balance.md.)"
         ),
     }
 

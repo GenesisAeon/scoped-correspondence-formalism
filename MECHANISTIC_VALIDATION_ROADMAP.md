@@ -287,10 +287,12 @@ Milestone 53): echte Daten aus "Indicators of Global Climate Change 2025"
 echten Forcing-Eingaben. Gegenprüfung: die beiden unabhängig ermittelten
 CO2-only-Forcing-Reihen (dieser Datensatz vs. Myhre-Formel aus Mauna-Loa-
 Konzentrationen) stimmen nach Referenzierung auf dasselbe Basisjahr gut
-überein (max. Abweichung 0,056 W/m² über 67 Jahre). **Ergebnis:** reales
-Gesamtforcing verbessert den Fit gegenüber CO2-only spürbar, aber nicht
-dramatisch (RMSE 0,0879 vs. 0,0938/0,0904) — eine echte, datengestützte
-Antwort auf Astras CO2-only-vs-Gesamtforcing-Frage.
+überein (max. Abweichung 0,056 W/m² über 67 Jahre). **Ursprüngliches
+Ergebnis:** reales Gesamtforcing verbessert den Fit gegenüber CO2-only
+spürbar, aber nicht dramatisch (RMSE 0,0879 vs. 0,0938/0,0904).
+**Korrektur (Paket 7, siehe unten):** dieses Ranking erwies sich als nicht
+robust gegenüber der Referenzniveau-Wahl der drei Forcing-Reihen und
+kehrt sich unter konsistenter Referenzierung um.
 
 `verify_covid_observation_model.py`: 3/3 bestanden.
 `verify_covid_multi_country.py`: 4/4 bestanden.
@@ -299,6 +301,84 @@ Antwort auf Astras CO2-only-vs-Gesamtforcing-Frage.
 Dokumentiert in `docs/covid_observation_model.md`,
 `docs/covid_multi_country.md` und einem neuen Abschnitt in
 `docs/energy_balance.md`.
+
+## Paket 7 — Astra-Review-Korrekturen (Commit `3e8dce3`, 2026-09-23)
+
+Antwort auf `prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md`
+(Astra, Review des Pakets-5-Commits). Fünf Befunde, alle unabhängig am
+Code nachgeprüft (nicht nur der Review vertraut) und behoben:
+
+1. **Data-Leakage in Prognoseintervallen** (hoch, `mechanistic_probabilistic_evaluation.py`,
+   `leave_one_origin_out_intervals`): Kalibrierungsresiduen stammten aus
+   ALLEN anderen Ursprüngen, auch späteren. Astras Gegenbeispiel
+   reproduziert: ein früheres Intervall `[1,2; 2,8]` wurde durch Ändern
+   nur des letzten Ursprungs zu `[1,2; 80,4]`. **Fix:** neuer
+   Pflichtparameter `step_size`, Kalibrierung nur noch aus Ursprüngen mit
+   bereits verfügbarer Zielbeobachtung (`origin' + step*step_size <=
+   origin`); Versuche mit zu wenig Vorgeschichte werden jetzt explizit als
+   `skipped_trials` (Grund `insufficient_lookback`) ausgewiesen statt die
+   ganze Auswertung abzubrechen oder die Lücke zu verschleiern. Neuer
+   zentraler Regressionstest exakt nach Astras Vorschlag: „Spätere Daten
+   dürfen frühere Prognosen nicht verändern." Ergebnis: Energiebilanz
+   40/55, COVID-Renewal 19/42 zeitlich zulässige Versuche (Rest ehrlich
+   als „nicht genug Vorgeschichte" markiert, nicht stillschweigend
+   fallengelassen).
+2. **Zirkulärer COVID-Referenzmittelwert** (hoch, `covid_observation_model.py`):
+   `predicted_mean` (`cases_7day_avg`) enthielt den eigenen Zielwert.
+   Astras Gegenbeispiel (12.3.2020, +700 Tageszählung → Referenzmittelwert
+   +100) reproduziert. **Fix:** neue vorwärtsgerichtete Referenzgröße
+   `_lagged_means` (7-Tage-Mittel ausschließlich aus den Tagen VOR dem
+   bewerteten Tag). Ergebnis überlebt die Korrektur und wird sogar
+   deutlicher: Poisson-Fehlanpassung 1692,76 (vorher 944,5, da der
+   zirkuläre Mittelwert Poisson künstlich begünstigte),
+   Negativ-Binomial-Score bleibt bei ~9,95 — die Überdispersion ist jetzt
+   auf einer echt zirkelfreien Basis bestätigt. Alte
+   `cases_7day_avg`-Variante bleibt als explizit „retrospektiv, deskriptiv"
+   gekennzeichneter Vergleichswert erhalten.
+3. **B8-Stationaritätsbehauptung mathematisch falsch** (hoch für den
+   Formalismus, `docs/structural_relations.md`): die Kernmassen-Identität
+   (`R * Σw = R`) ist korrekt und braucht keine Stationarität; die
+   ZUSÄTZLICHE Behauptung, konstantes `R` mache die Rekursion zu einem
+   „stationären" Hawkes-Prozess, ist falsch. `R=1,68` ist superkritisch
+   (`n>1`); mit `μ=1` ergibt die Stationaritätsformel `μ/(1-n) ≈ -1,47`,
+   eine unmögliche negative Rate. **Fix:** Behauptung entfernt/korrigiert,
+   subkritisches Gegenbeispiel `R=0,8` (Mittel `5,0`, korrekt stationär)
+   und `R=1,68` explizit als Gegenbeispiel zur Stationarität (nicht als
+   Beleg dafür) ergänzt, in Doku und `verify_structural_bridges_b7_b8.py`.
+4. **Offenes Scan-Ende ≠ bewiesene Unbeschränktheit** (mittel,
+   `docs/energy_balance.md`): die Identifizierbarkeits-Tabelle nannte
+   `C_s`, `C_d`, `alpha` „unbounded (fully flat — practically
+   unidentified)". Direkt nachgeprüft: `classify_identifiability`
+   klassifiziert alle fünf Parameter tatsächlich als `"identifiable"`
+   (gekrümmt, nicht flach); `likelihood_interval`s `unbounded_reason` ist
+   für alle fünf `"open_at_grid_boundary"` — das Intervallende liegt
+   außerhalb des gescannten ±50%-Fensters, nicht: es existiert nicht.
+   **Fix:** Tabelle und Interpretation in `docs/energy_balance.md` sowie
+   die zugehörigen Prüf-/Interpretationstexte in
+   `verify_energy_balance.py` korrigiert auf „innerhalb des ±50%-Fensters
+   nicht eingegrenzt", mit explizitem Verweis auf die tatsächliche
+   Klassifikation.
+5. **Inkonsistente Forcing-Referenzniveaus** (Klimavergleich,
+   `energy_balance_full_forcing.py`): der Cross-Check glich Referenzniveaus
+   an, die drei eigentlichen Fits erhielten aber die unangeglichenen
+   Reihen. Astras Sensitivitätsprüfung reproduziert: unter konsistenter
+   Referenzierung (alle drei Reihen auf `F=0` im ersten Überlappungsjahr)
+   **kehrt sich die Rangfolge um** — CO2-only schlägt dann Gesamtforcing
+   (0,0902 vs. 0,0943), statt umgekehrt (0,0879 vs. 0,0938 in der
+   ursprünglichen, nicht angeglichenen Fassung). **Fix:** beide Varianten
+   (`_raw_reference` und `_rereferenced`) werden jetzt parallel berechnet
+   und berichtet; `verify_energy_balance_full_forcing.py` prüft explizit,
+   dass die beiden Konventionen aktuell widersprechen, statt eine
+   Richtung als Tatsache zu behaupten. Keine vollständige physikalische
+   Neuinitialisierung (bräuchte einen explizit modellierten
+   Forcing-/Beobachtungsoffset) — als Folgearbeit vermerkt, nicht verdeckt.
+
+Alle fünf Fixes einzeln mit `verify_mechanistic_probabilistic_evaluation.py`
+(5/5), `verify_covid_observation_model.py` (3/3),
+`verify_structural_bridges_b7_b8.py` (2/2), `verify_energy_balance.py`
+(5/5) und `verify_energy_balance_full_forcing.py` (3/3) bestätigt; volle
+Suiten-Regression (`audit_review/run_all_local.py`) am selben Tag
+gefahren.
 
 ## Paket 6 — Mehrdimensionale R-Tipping-/Viabilitätskarten
 

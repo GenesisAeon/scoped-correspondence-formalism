@@ -145,68 +145,122 @@ def check_scoring_rules_hand_checks():
 
 
 def check_leave_one_origin_out_intervals_hand_check():
-    """A tiny synthetic case, hand-computed independently of the module."""
-    # Predictor "p": step=1 predictions at 5 origins, residuals (observed-predicted)
-    # deliberately chosen so we can hand-verify one trial's LOO quantiles.
-    origins = [0.0, 1.0, 2.0, 3.0, 4.0]
-    predicted = [10.0, 10.0, 10.0, 10.0, 10.0]
-    observed = [11.0, 9.0, 12.0, 8.0, 10.5]  # residuals: 1, -1, 2, -2, 0.5
-    raw = {
-        "p": [
-            RawHorizonPrediction(origin=o, step=1, observed=obs, predicted=pred)
-            for o, obs, pred in zip(origins, observed, predicted)
-        ]
-    }
-    alpha = 0.4
-    reports = leave_one_origin_out_intervals(raw, alpha=alpha)
-    report = reports["p"]
-    require(report.n_trials == 5, "expected 5 trials")
+    """A tiny synthetic case, hand-computed independently of the module.
 
-    # Hand-check trial for origin=0.0 (residual=1): LOO residuals are the other 4:
-    # [-1, 2, -2, 0.5]. Interval = predicted + quantile(loo, [0.2, 0.8]).
-    loo = [-1.0, 2.0, -2.0, 0.5]
+    Fixed 2026-09-23 in response to
+    prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md
+    (Astra, finding 1): 7 origins now (not 5), because the fixed function
+    only calibrates a trial from STRICTLY EARLIER origins -- the first 3
+    origins here lack enough earlier history and are skipped, and a new
+    regression check (Astra's own suggested test) verifies that changing
+    a LATER origin's observation does NOT change an EARLIER origin's
+    already-reported interval.
+    """
+    origins = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+    predicted = [10.0] * 7
+    observed = [11.0, 9.0, 12.0, 8.0, 10.5, 13.0, 7.0]  # residuals: 1,-1,2,-2,0.5,3,-3
+    step_size = 1.0
+    alpha = 0.4
+
+    def build_raw(obs):
+        return {
+            "p": [
+                RawHorizonPrediction(origin=o, step=1, observed=ob, predicted=pred)
+                for o, ob, pred in zip(origins, obs, predicted)
+            ]
+        }
+
+    reports = leave_one_origin_out_intervals(build_raw(observed), alpha=alpha, step_size=step_size)
+    report = reports["p"]
+    # Origins 0,1,2 each have < 3 strictly-earlier same-step residuals
+    # (origin=2 has only origins 0,1 earlier -> 2 < MIN_LOO_RESIDUALS=3) and
+    # are skipped; origins 3,4,5,6 each have >= 3 earlier origins.
+    require(report.n_skipped_insufficient_lookback == 3, f"expected 3 skipped trials, got {report.n_skipped_insufficient_lookback!r}")
+    require(report.n_trials == 4, f"expected 4 trials (origins 3,4,5,6), got {report.n_trials!r}")
+
+    # Hand-check trial for origin=3.0 (residual=-2): eligible LOO residuals
+    # are ONLY from STRICTLY EARLIER origins (o' + step*step_size <= 3.0,
+    # i.e. o' <= 2.0): origins 0,1,2 -> residuals [1, -1, 2]. Origins 4,5,6
+    # (later) must NOT contribute, even though they share the same step.
+    loo = [1.0, -1.0, 2.0]
     hand_lo = 10.0 + float(np.quantile(loo, 0.2))
     hand_hi = 10.0 + float(np.quantile(loo, 0.8))
-    trial0 = next(t for t in report.per_trial if t["origin"] == 0.0)
-    near(trial0["lower"], hand_lo, atol=1e-10)
-    near(trial0["upper"], hand_hi, atol=1e-10)
-    hand_score = interval_score(hand_lo, hand_hi, 11.0, alpha)
-    near(trial0["interval_score"], hand_score, atol=1e-10)
+    trial3 = next(t for t in report.per_trial if t["origin"] == 3.0)
+    near(trial3["lower"], hand_lo, atol=1e-10)
+    near(trial3["upper"], hand_hi, atol=1e-10)
+    hand_score = interval_score(hand_lo, hand_hi, 8.0, alpha)
+    near(trial3["interval_score"], hand_score, atol=1e-10)
+
+    # CENTRAL REGRESSION TEST (Astra's own recommendation): "Spätere Daten
+    # dürfen frühere Prognosen nicht verändern." Mutate the LATEST origin's
+    # observation drastically and confirm origin=3's interval/score are
+    # bit-identical -- this is exactly the failure mode Astra demonstrated
+    # against the pre-fix code (an earlier interval moving from [1.2, 2.8]
+    # to [1.2, 80.4] purely from a later origin's observation changing).
+    mutated_observed = list(observed)
+    mutated_observed[6] = 999.0
+    reports_mutated = leave_one_origin_out_intervals(build_raw(mutated_observed), alpha=alpha, step_size=step_size)
+    trial3_mutated = next(t for t in reports_mutated["p"].per_trial if t["origin"] == 3.0)
+    later_data_changed_earlier_interval = (
+        trial3_mutated["lower"] != trial3["lower"] or trial3_mutated["upper"] != trial3["upper"] or trial3_mutated["interval_score"] != trial3["interval_score"]
+    )
+    require(not later_data_changed_earlier_interval, "later origin's observation changed an earlier origin's interval -- data leakage regressed")
 
     too_few = False
     try:
         tiny_raw = {"p": [RawHorizonPrediction(origin=0.0, step=1, observed=1.0, predicted=1.0), RawHorizonPrediction(origin=1.0, step=1, observed=1.0, predicted=1.0)]}
-        leave_one_origin_out_intervals(tiny_raw, alpha=0.2)
+        leave_one_origin_out_intervals(tiny_raw, alpha=0.2, step_size=1.0)
     except ScopeViolationError:
         too_few = True
-    require(too_few, "expected ScopeViolationError for too few LOO residuals")
+    require(too_few, "expected ScopeViolationError when zero trials have sufficient lookback")
 
     return {
         "n_trials": report.n_trials,
-        "hand_lower_origin0": hand_lo,
-        "hand_upper_origin0": hand_hi,
-        "hand_interval_score_origin0": hand_score,
-        "module_lower_origin0": trial0["lower"],
-        "module_upper_origin0": trial0["upper"],
-        "raised_on_too_few_loo_residuals": too_few,
+        "n_skipped_insufficient_lookback": report.n_skipped_insufficient_lookback,
+        "hand_lower_origin3": hand_lo,
+        "hand_upper_origin3": hand_hi,
+        "hand_interval_score_origin3": hand_score,
+        "module_lower_origin3": trial3["lower"],
+        "module_upper_origin3": trial3["upper"],
+        "later_data_changed_earlier_interval": later_data_changed_earlier_interval,
+        "raised_on_zero_valid_trials": too_few,
     }
 
 
 def check_energy_balance_probabilistic(co2_path, temp_path):
+    """55 raw (origin, step) pairs (11 origins x 5 lead years) exist, but per
+    the finding-1 fix (SCF_Review_3e8dce3.md), only trials with >= 3
+    STRICTLY EARLIER same-step origins are actually scored: origins are 5
+    years apart (1969..2019), so origin index i has exactly i earlier
+    origins available regardless of step -- the first 3 origins (i=0,1,2:
+    1969,1974,1979) never reach the >=3 threshold for ANY step, so exactly
+    3 origins x 5 steps = 15 trials are honestly skipped, leaving 40.
+    """
     reports = run_energy_balance_probabilistic_evaluation(co2_path, temp_path)
     require(set(reports) == {"persistence", "expanding", "last30", "energy_balance_mechanistic"}, "unexpected predictor set")
     for name, rep in reports.items():
-        require(rep.n_trials == 55, f"{name}: expected 55 trials (11 origins x 5 lead years), got {rep.n_trials!r}")
+        require(rep.n_trials == 40, f"{name}: expected 40 time-eligible trials (55 raw - 15 insufficient-lookback), got {rep.n_trials!r}")
+        require(rep.n_skipped_insufficient_lookback == 15, f"{name}: expected 15 skipped trials, got {rep.n_skipped_insufficient_lookback!r}")
         require(0.0 <= rep.empirical_coverage_value <= 1.0, f"{name}: coverage out of range")
         require(np.isfinite(rep.mean_interval_score) and rep.mean_interval_score > 0, f"{name}: interval score must be finite and positive")
     return {name: rep.to_dict() for name, rep in reports.items()}
 
 
 def check_covid_renewal_probabilistic(data_path):
+    """42 raw (origin, step) pairs (6 origins x 7 days) exist; per the
+    finding-1 fix, origins are 5 days apart (day-index 25..50), horizon
+    1-7 days. For steps 1-5, origin index i needs i earlier origins (>=3
+    means index >=3: origins 40,45,50 qualify, 25/30/35 do not); for steps
+    6-7, origin index i needs i-1 earlier origins that are also >= one
+    full step-size gap away (>=3 means index >=4: origins 45,50 qualify).
+    That is (3 origins x 5 steps) + (4 origins x 2 steps) = 23 skipped,
+    leaving 19.
+    """
     reports = run_covid_renewal_probabilistic_evaluation(data_path)
     require(set(reports) == {"persistence", "exponential_extrapolation", "renewal_constant_R"}, "unexpected predictor set")
     for name, rep in reports.items():
-        require(rep.n_trials == 42, f"{name}: expected 42 trials (6 origins x 7 days), got {rep.n_trials!r}")
+        require(rep.n_trials == 19, f"{name}: expected 19 time-eligible trials (42 raw - 23 insufficient-lookback), got {rep.n_trials!r}")
+        require(rep.n_skipped_insufficient_lookback == 23, f"{name}: expected 23 skipped trials, got {rep.n_skipped_insufficient_lookback!r}")
         require(0.0 <= rep.empirical_coverage_value <= 1.0, f"{name}: coverage out of range")
         require(np.isfinite(rep.mean_interval_score) and rep.mean_interval_score > 0, f"{name}: interval score must be finite and positive")
     return {name: rep.to_dict() for name, rep in reports.items()}

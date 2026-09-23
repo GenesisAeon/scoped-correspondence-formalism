@@ -93,26 +93,58 @@ def check_full_comparison(erf_path, co2_path, temp_path):
         f"expected the two independently-sourced CO2-only forcing series to roughly agree; max diff={report.co2_forcing_cross_check_max_abs_diff!r}",
     )
 
-    for fit_name, fit in (("co2_only_erf", report.fit_co2_only_erf), ("total_forcing", report.fit_total_forcing), ("co2_only_myhre", report.fit_co2_only_myhre)):
+    for fit_name, fit in (
+        ("co2_only_erf", report.fit_co2_only_erf),
+        ("total_forcing", report.fit_total_forcing),
+        ("co2_only_myhre", report.fit_co2_only_myhre),
+        ("co2_only_erf_rereferenced", report.fit_co2_only_erf_rereferenced),
+        ("total_forcing_rereferenced", report.fit_total_forcing_rereferenced),
+        ("co2_only_myhre_rereferenced", report.fit_co2_only_myhre_rereferenced),
+    ):
         require(np.isfinite(fit.rmse) and fit.rmse > 0, f"{fit_name}: RMSE must be finite and positive")
 
+    # Corrected 2026-09-23 in response to
+    # prompts/Answers/nicht_stationäre_Treiber/SCF_Review_3e8dce3.md
+    # (Astra, finding 5): the raw-baseline comparison (each series' own
+    # native reference level) and the consistently-rereferenced comparison
+    # (all three series zeroed at years[0]) here ACTUALLY DISAGREE on
+    # which forcing input wins -- Astra's own sensitivity check found the
+    # same reversal. Rather than assert one direction as ground truth,
+    # this check confirms the reversal itself is real and reproducible
+    # (the headline finding is now "this ranking is not robust to a
+    # reasonable re-referencing choice", not "total forcing wins").
     require(
-        report.total_forcing_beats_co2_only,
-        f"expected real total forcing to beat CO2-only forcing; co2_only_erf={report.fit_co2_only_erf.rmse!r} total={report.fit_total_forcing.rmse!r}",
+        report.total_forcing_beats_co2_only_raw_reference != report.total_forcing_beats_co2_only_rereferenced,
+        "expected the raw-baseline and rereferenced comparisons to currently DISAGREE on the "
+        "CO2-only-vs-total-forcing ranking (the documented fragility) -- if they now agree, the "
+        "fragility finding below is stale and should be re-examined, not silently kept",
     )
 
     return {
         "years_range": [report.years[0], report.years[-1]],
         "co2_forcing_cross_check_max_abs_diff": report.co2_forcing_cross_check_max_abs_diff,
-        "rmse_co2_only_erf": report.fit_co2_only_erf.rmse,
-        "rmse_total_forcing": report.fit_total_forcing.rmse,
-        "rmse_co2_only_myhre": report.fit_co2_only_myhre.rmse,
-        "total_forcing_beats_co2_only": report.total_forcing_beats_co2_only,
+        "rmse_co2_only_erf_raw_reference": report.fit_co2_only_erf.rmse,
+        "rmse_total_forcing_raw_reference": report.fit_total_forcing.rmse,
+        "rmse_co2_only_myhre_raw_reference": report.fit_co2_only_myhre.rmse,
+        "total_forcing_beats_co2_only_raw_reference": report.total_forcing_beats_co2_only_raw_reference,
+        "rmse_co2_only_erf_rereferenced": report.fit_co2_only_erf_rereferenced.rmse,
+        "rmse_total_forcing_rereferenced": report.fit_total_forcing_rereferenced.rmse,
+        "rmse_co2_only_myhre_rereferenced": report.fit_co2_only_myhre_rereferenced.rmse,
+        "total_forcing_beats_co2_only_rereferenced": report.total_forcing_beats_co2_only_rereferenced,
         "interpretation": (
-            "Real total forcing (all anthropogenic + natural components) modestly "
-            "improves the fit over CO2-only forcing -- a genuine, real-data-grounded "
-            "answer to the CO2-only-vs-full-forcing question, not a dramatic "
-            "difference: the CO2-only approximation was already reasonably close."
+            "The CO2-only-vs-total-forcing RMSE ranking DEPENDS on which forcing "
+            "reference-level convention is used: with each series' own native "
+            "baseline (ERF columns relative to 1750, Myhre relative to 1959), total "
+            "forcing modestly beats CO2-only "
+            f"({report.fit_total_forcing.rmse:.5f} < {report.fit_co2_only_erf.rmse:.5f}); with all three "
+            "series consistently re-referenced to zero in the first overlap year, "
+            "CO2-only instead beats total forcing "
+            f"({report.fit_co2_only_erf_rereferenced.rmse:.5f} < {report.fit_total_forcing_rereferenced.rmse:.5f}). "
+            "Neither variant is a physically fully-corrected re-initialization "
+            "(that would need an explicit forcing/observation offset or a "
+            "physically motivated deep-ocean initial condition, per Astra's "
+            "review) -- both are reported so the small RMSE differences here are "
+            "not over-interpreted as a robust finding either way."
         ),
     }
 

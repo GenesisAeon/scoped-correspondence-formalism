@@ -26,217 +26,309 @@
       },
       "real_data_overdispersion": {
         "detail": {
-          "fitted_dispersion": 0.5390235131968575,
-          "mean_neg_binom_log_score_holdout": 9.707038888832598,
-          "mean_poisson_log_score_holdout": 944.5185328833833,
-          "n_calib": 29,
+          "fitted_dispersion": 0.7503495977941842,
+          "mean_neg_binom_log_score_holdout": 9.953268444018043,
+          "mean_poisson_log_score_holdout": 1692.7641953362545,
+          "n_calib": 23,
+          "n_calib_dropped_insufficient_lookback": 6,
           "n_holdout": 29,
           "neg_binom_wins": true,
           "per_holdout_day": [
             {
               "date": "2020-02-26",
-              "neg_binom_log_score": 7.565101327304864,
+              "neg_binom_log_score": 7.76662916780897,
               "observed": 973,
-              "poisson_log_score": 18.08783394264549,
-              "predicted_mean": 818.5714285714286
+              "poisson_log_score": 34.34522902054323,
+              "predicted_mean": 751.0,
+              "retrospective_neg_binom_log_score": 7.529780518845685,
+              "retrospective_poisson_log_score": 18.08783394264549,
+              "retrospective_predicted_mean": 818.5714285714286
             },
             {
               "date": "2020-02-27",
-              "neg_binom_log_score": 8.000657220324893,
+              "neg_binom_log_score": 8.23508489459713,
               "observed": 1344,
-              "poisson_log_score": 85.218999105943,
-              "predicted_mean": 930.4285714285714
+              "poisson_log_score": 145.50762428655537,
+              "predicted_mean": 818.5714285714286,
+              "retrospective_neg_binom_log_score": 7.9733741993203875,
+              "retrospective_poisson_log_score": 85.218999105943,
+              "retrospective_predicted_mean": 930.4285714285714
             },
             {
               "date": "2020-02-28",
-              "neg_binom_log_score": 8.015654453328516,
+              "neg_binom_log_score": 8.238142465124419,
               "observed": 1424,
-              "poisson_log_score": 66.62592144901987,
-              "predicted_mean": 1043.857142857143
+              "poisson_log_score": 117.00379128106658,
+              "predicted_mean": 930.4285714285714,
+              "retrospective_neg_binom_log_score": 7.9853144105945795,
+              "retrospective_poisson_log_score": 66.62592144901987,
+              "retrospective_predicted_mean": 1043.857142857143
             },
             {
               "date": "2020-02-29",
-              "neg_binom_log_score": 8.554677225006483,
+              "neg_binom_log_score": 8.649437283888199,
               "observed": 1871,
-              "poisson_log_score": 257.2335103489993,
-              "predicted_mean": 1059.4285714285713
+              "poisson_log_score": 269.36604511289056,
+              "predicted_mean": 1043.857142857143,
+              "retrospective_neg_binom_log_score": 8.543342912106652,
+              "retrospective_poisson_log_score": 257.2335103489993,
+              "retrospective_predicted_mean": 1059.4285714285713
             },
             {
               "date": "2020-03-01",
-              "neg_binom_log_score": 8.797389763368344,
+              "neg_binom_log_score": 9.192825007199234,
               "observed": 2379,
-              "poisson_log_score": 327.73680775385174,
-              "predicted_mean": 1344.7142857142858
+              "poisson_log_score": 609.7281262214772,
+              "predicted_mean": 1059.4285714285713,
+              "retrospective_neg_binom_log_score": 8.786243250211724,
+              "retrospective_poisson_log_score": 327.73680775385174,
+              "retrospective_predicted_mean": 1344.7142857142858
             },
             {
               "date": "2020-03-02",
-              "neg_binom_log_score": 8.307338017751562,
+              "neg_binom_log_score": 8.541883787567217,
               "observed": 1980,
-              "poisson_log_score": 60.49744346010698,
-              "predicted_mean": 1546.4285714285713
+              "poisson_log_score": 135.5209491662913,
+              "predicted_mean": 1344.7142857142858,
+              "retrospective_neg_binom_log_score": 8.274290010258284,
+              "retrospective_poisson_log_score": 60.49744346010698,
+              "retrospective_predicted_mean": 1546.4285714285713
             },
             {
               "date": "2020-03-03",
-              "neg_binom_log_score": 8.669834248085309,
+              "neg_binom_log_score": 8.924535923890693,
               "observed": 2612,
-              "poisson_log_score": 166.47561675531074,
-              "predicted_mean": 1797.5714285714287
+              "poisson_log_score": 308.40851976043155,
+              "predicted_mean": 1546.4285714285713,
+              "retrospective_neg_binom_log_score": 8.64289732396533,
+              "retrospective_poisson_log_score": 166.47561675531074,
+              "retrospective_predicted_mean": 1797.5714285714287
             },
             {
               "date": "2020-03-04",
-              "neg_binom_log_score": 8.440155993749887,
+              "neg_binom_log_score": 8.648078147233315,
               "observed": 2344,
-              "poisson_log_score": 33.961951541998815,
-              "predicted_mean": 1993.4285714285713
+              "poisson_log_score": 80.52013756336896,
+              "predicted_mean": 1797.5714285714287,
+              "retrospective_neg_binom_log_score": 8.40453954397221,
+              "retrospective_poisson_log_score": 33.961951541998815,
+              "retrospective_predicted_mean": 1993.4285714285713
             },
             {
               "date": "2020-03-05",
-              "neg_binom_log_score": 8.620110082386681,
+              "neg_binom_log_score": 8.827921473901846,
               "observed": 2740,
-              "poisson_log_score": 68.0760798601782,
-              "predicted_mean": 2192.8571428571427
+              "poisson_log_score": 129.90450416588897,
+              "predicted_mean": 1993.4285714285713,
+              "retrospective_neg_binom_log_score": 8.586199300747271,
+              "retrospective_poisson_log_score": 68.0760798601782,
+              "retrospective_predicted_mean": 2192.8571428571427
             },
             {
               "date": "2020-03-06",
-              "neg_binom_log_score": 9.156610900044884,
+              "neg_binom_log_score": 9.41971918358761,
               "observed": 3984,
-              "poisson_log_score": 343.8991032878812,
-              "predicted_mean": 2558.5714285714284
+              "poisson_log_score": 592.6918858586228,
+              "predicted_mean": 2192.8571428571427,
+              "retrospective_neg_binom_log_score": 9.134296911363975,
+              "retrospective_poisson_log_score": 343.8991032878812,
+              "retrospective_predicted_mean": 2558.5714285714284
             },
             {
               "date": "2020-03-07",
-              "neg_binom_log_score": 9.11948497008469,
+              "neg_binom_log_score": 9.346408693224745,
               "observed": 4137,
-              "poisson_log_score": 245.42761954541174,
-              "predicted_mean": 2882.285714285714
+              "poisson_log_score": 414.57302158243783,
+              "predicted_mean": 2558.5714285714284,
+              "retrospective_neg_binom_log_score": 9.091822232367731,
+              "retrospective_poisson_log_score": 245.42761954541174,
+              "retrospective_predicted_mean": 2882.285714285714
             },
             {
               "date": "2020-03-08",
-              "neg_binom_log_score": 8.939936464943063,
+              "neg_binom_log_score": 9.134933108872701,
               "observed": 3798,
-              "poisson_log_score": 81.73145863462196,
-              "predicted_mean": 3085.0
+              "poisson_log_score": 137.15974018833776,
+              "predicted_mean": 2882.285714285714,
+              "retrospective_neg_binom_log_score": 8.90554810957738,
+              "retrospective_poisson_log_score": 81.73145863462196,
+              "retrospective_predicted_mean": 3085.0
             },
             {
               "date": "2020-03-09",
-              "neg_binom_log_score": 9.072461962914865,
+              "neg_binom_log_score": 9.283879168430422,
               "observed": 4295,
-              "poisson_log_score": 109.64969144357337,
-              "predicted_mean": 3415.714285714286
+              "poisson_log_score": 216.31662360154587,
+              "predicted_mean": 3085.0,
+              "retrospective_neg_binom_log_score": 9.038756664420635,
+              "retrospective_poisson_log_score": 109.64969144357337,
+              "retrospective_predicted_mean": 3415.714285714286
             },
             {
               "date": "2020-03-10",
-              "neg_binom_log_score": 9.183274466835568,
+              "neg_binom_log_score": 9.38684609780323,
               "observed": 4759,
-              "poisson_log_score": 137.683384411298,
-              "predicted_mean": 3722.4285714285716
+              "poisson_log_score": 240.1939127355031,
+              "predicted_mean": 3415.714285714286,
+              "retrospective_neg_binom_log_score": 9.150157692400168,
+              "retrospective_poisson_log_score": 137.683384411298,
+              "retrospective_predicted_mean": 3722.4285714285716
             },
             {
               "date": "2020-03-11",
-              "neg_binom_log_score": 9.87874294392913,
+              "neg_binom_log_score": 10.179560112636784,
               "observed": 7504,
-              "poisson_log_score": 865.9100771578169,
-              "predicted_mean": 4459.571428571428
+              "poisson_log_score": 1484.5627163120507,
+              "predicted_mean": 3722.4285714285716,
+              "retrospective_neg_binom_log_score": 9.862798053650266,
+              "retrospective_poisson_log_score": 865.9100771578169,
+              "retrospective_predicted_mean": 4459.571428571428
             },
             {
               "date": "2020-03-12",
-              "neg_binom_log_score": 9.561624304593153,
+              "neg_binom_log_score": 9.787768535229455,
               "observed": 6756,
-              "poisson_log_score": 271.29643720449985,
-              "predicted_mean": 5033.285714285715
+              "poisson_log_score": 515.1954685672254,
+              "predicted_mean": 4459.571428571428,
+              "retrospective_neg_binom_log_score": 9.530507781686087,
+              "retrospective_poisson_log_score": 271.29643720449985,
+              "retrospective_predicted_mean": 5033.285714285715
             },
             {
               "date": "2020-03-13",
-              "neg_binom_log_score": 10.78501221058393,
+              "neg_binom_log_score": 11.200689064445424,
               "observed": 13194,
-              "poisson_log_score": 2811.6100744986325,
-              "predicted_mean": 6349.0
+              "poisson_log_score": 4559.863543630131,
+              "predicted_mean": 5033.285714285715,
+              "retrospective_neg_binom_log_score": 10.793531254686712,
+              "retrospective_poisson_log_score": 2811.6100744986325,
+              "retrospective_predicted_mean": 6349.0
             },
             {
               "date": "2020-03-14",
-              "neg_binom_log_score": 10.118406644274398,
+              "neg_binom_log_score": 10.366222456177548,
               "observed": 10888,
-              "poisson_log_score": 763.8647732804011,
-              "predicted_mean": 7313.428571428572
+              "poisson_log_score": 1339.1612893704005,
+              "predicted_mean": 6349.0,
+              "retrospective_neg_binom_log_score": 10.092981772890539,
+              "retrospective_poisson_log_score": 763.8647732804011,
+              "retrospective_predicted_mean": 7313.428571428572
             },
             {
               "date": "2020-03-15",
-              "neg_binom_log_score": 10.06948572160941,
+              "neg_binom_log_score": 10.305805187387946,
               "observed": 11233,
-              "poisson_log_score": 445.4499596624173,
-              "predicted_mean": 8375.57142857143
+              "poisson_log_score": 906.5818482026871,
+              "predicted_mean": 7313.428571428572,
+              "retrospective_neg_binom_log_score": 10.038329801663153,
+              "retrospective_poisson_log_score": 445.4499596624173,
+              "retrospective_predicted_mean": 8375.57142857143
             },
             {
               "date": "2020-03-16",
-              "neg_binom_log_score": 10.40414581838196,
+              "neg_binom_log_score": 10.67095102564818,
               "observed": 14567,
-              "poisson_log_score": 991.9493079337408,
-              "predicted_mean": 9843.0
+              "poisson_log_score": 1876.2352356851425,
+              "predicted_mean": 8375.57142857143,
+              "retrospective_neg_binom_log_score": 10.378338351305558,
+              "retrospective_poisson_log_score": 991.9493079337408,
+              "retrospective_predicted_mean": 9843.0
             },
             {
               "date": "2020-03-17",
-              "neg_binom_log_score": 10.369260816804896,
+              "neg_binom_log_score": 10.609164651093497,
               "observed": 15174,
-              "poisson_log_score": 594.2127856885036,
-              "predicted_mean": 11330.857142857143
+              "poisson_log_score": 1242.3872110178927,
+              "predicted_mean": 9843.0,
+              "retrospective_neg_binom_log_score": 10.338037111008774,
+              "retrospective_poisson_log_score": 594.2127856885036,
+              "retrospective_predicted_mean": 11330.857142857143
             },
             {
               "date": "2020-03-18",
-              "neg_binom_log_score": 10.532967012264688,
+              "neg_binom_log_score": 10.759033900384276,
               "observed": 17560,
-              "poisson_log_score": 810.0680891239517,
-              "predicted_mean": 12767.42857142857
+              "poisson_log_score": 1469.5910190812847,
+              "predicted_mean": 11330.857142857143,
+              "retrospective_neg_binom_log_score": 10.503007321692134,
+              "retrospective_poisson_log_score": 810.0680891239517,
+              "retrospective_predicted_mean": 12767.42857142857
             },
             {
               "date": "2020-03-19",
-              "neg_binom_log_score": 11.197422884615262,
+              "neg_binom_log_score": 11.535941314277077,
               "observed": 27087,
-              "poisson_log_score": 3412.5430443145287,
-              "predicted_mean": 15671.857142857143
+              "poisson_log_score": 6060.1173656866795,
+              "predicted_mean": 12767.42857142857,
+              "retrospective_neg_binom_log_score": 11.183992439118967,
+              "retrospective_poisson_log_score": 3412.5430443145287,
+              "retrospective_predicted_mean": 15671.857142857143
             },
             {
               "date": "2020-03-20",
-              "neg_binom_log_score": 11.217356398494857,
+              "neg_binom_log_score": 11.464284822449748,
               "observed": 29532,
-              "poisson_log_score": 3091.6864957430917,
-              "predicted_mean": 18005.85714285714
+              "poisson_log_score": 4857.629903462117,
+              "predicted_mean": 15671.857142857143,
+              "retrospective_neg_binom_log_score": 11.199169304830475,
+              "retrospective_poisson_log_score": 3091.6864957430917,
+              "retrospective_predicted_mean": 18005.85714285714
             },
             {
               "date": "2020-03-21",
-              "neg_binom_log_score": 11.241058143472012,
+              "neg_binom_log_score": 11.507319413801312,
               "observed": 32433,
-              "poisson_log_score": 2624.9256808738246,
-              "predicted_mean": 21083.714285714286
+              "poisson_log_score": 4665.119373876758,
+              "predicted_mean": 18005.85714285714,
+              "retrospective_neg_binom_log_score": 11.217862912971315,
+              "retrospective_poisson_log_score": 2624.9256808738246,
+              "retrospective_predicted_mean": 21083.714285714286
             },
             {
               "date": "2020-03-22",
-              "neg_binom_log_score": 11.213234256454564,
+              "neg_binom_log_score": 11.460061414863308,
               "observed": 34178,
-              "poisson_log_score": 1761.5336648130979,
-              "predicted_mean": 24361.571428571428
+              "poisson_log_score": 3422.6040137854543,
+              "predicted_mean": 21083.714285714286,
+              "retrospective_neg_binom_log_score": 11.184298838359993,
+              "retrospective_poisson_log_score": 1761.5336648130979,
+              "retrospective_predicted_mean": 24361.571428571428
             },
             {
               "date": "2020-03-23",
-              "neg_binom_log_score": 11.488569763028417,
+              "neg_binom_log_score": 11.747102210562867,
               "observed": 42551,
-              "poisson_log_score": 3079.5528403919634,
-              "predicted_mean": 28359.285714285714
+              "poisson_log_score": 5547.359420411878,
+              "predicted_mean": 24361.571428571428,
+              "retrospective_neg_binom_log_score": 11.463656546380879,
+              "retrospective_poisson_log_score": 3079.5528403919634,
+              "retrospective_predicted_mean": 28359.285714285714
             },
             {
               "date": "2020-03-24",
-              "neg_binom_log_score": 11.367846542099894,
+              "neg_binom_log_score": 11.595541034326125,
               "observed": 41888,
-              "poisson_log_score": 1343.5258644536443,
-              "predicted_mean": 32175.571428571428
+              "poisson_log_score": 2815.72574608753,
+              "predicted_mean": 28359.285714285714,
+              "retrospective_neg_binom_log_score": 11.335419281789083,
+              "retrospective_poisson_log_score": 1343.5258644536443,
+              "retrospective_predicted_mean": 32175.571428571428
             },
             {
               "date": "2020-03-25",
-              "neg_binom_log_score": 11.616307219409094,
+              "neg_binom_log_score": 11.859015330109978,
               "observed": 51480,
-              "poisson_log_score": 2520.602936937161,
-              "predicted_mean": 37021.28571428572
+              "poisson_log_score": 4896.787399029192,
+              "predicted_mean": 32175.571428571428,
+              "retrospective_neg_binom_log_score": 11.586904199517065,
+              "retrospective_poisson_log_score": 2520.602936937161,
+              "retrospective_predicted_mean": 37021.28571428572
             }
-          ]
+          ],
+          "retrospective_fitted_dispersion": 0.503029789419644,
+          "retrospective_mean_neg_binom_log_score_holdout": 9.681220622472518,
+          "retrospective_mean_poisson_log_score_holdout": 944.5185328833833,
+          "retrospective_neg_binom_wins": true
         },
         "status": "passed"
       }
@@ -248,6 +340,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
-    "timestamp": "2026-09-22T12:42:24+02:00"
+    "timestamp": "2026-09-23T07:55:30+02:00"
   }
 }
