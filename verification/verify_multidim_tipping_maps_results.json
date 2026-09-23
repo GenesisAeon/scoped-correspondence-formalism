@@ -1,0 +1,180 @@
+{
+  "count": 6,
+  "errors": [],
+  "failed": 0,
+  "passed": 6,
+  "report": {
+    "checks": {
+      "buffer_equal_peak_height": {
+        "detail": {
+          "outcomes": [
+            "tracking",
+            "tracking",
+            "tracking",
+            "switched",
+            "switched",
+            "switched"
+          ],
+          "taus": [
+            0.05,
+            0.2,
+            0.5,
+            1.0,
+            2.0,
+            5.0
+          ],
+          "z_min": [
+            -0.08079781553520922,
+            -0.2649180611925072,
+            -0.4946177486891923,
+            -0.6947528522999472,
+            -0.8576460705475706,
+            -0.965466774905735
+          ]
+        },
+        "status": "passed"
+      },
+      "buffer_equal_total_load": {
+        "detail": {
+          "heights": [
+            11.283791670955125,
+            2.8209479177387813,
+            1.1283791670955126,
+            0.5641895835477563,
+            0.28209479177387814,
+            0.11283791670955128
+          ],
+          "outcomes": [
+            "switched",
+            "switched",
+            "switched",
+            "tracking",
+            "tracking",
+            "tracking"
+          ],
+          "taus": [
+            0.05,
+            0.2,
+            0.5,
+            1.0,
+            2.0,
+            5.0
+          ],
+          "z_min": [
+            -0.9117057179675,
+            -0.7473200531081177,
+            -0.5581163632614266,
+            -0.3919723223761097,
+            -0.24193748968608353,
+            -0.10894125953383993
+          ]
+        },
+        "status": "passed"
+      },
+      "buffer_out_of_scope": {
+        "detail": {
+          "b_edge": 0.0,
+          "b_unsafe": 0.1,
+          "outcome_edge": "switched",
+          "outcome_unsafe": "out_of_scope"
+        },
+        "status": "passed"
+      },
+      "cubic_known_points": {
+        "detail": {
+          "0.1": {
+            "final_relative_x": 0.9999999999916112,
+            "outcome": "tracking",
+            "r": 0.1,
+            "refinement_max_difference": 1.4874657061625385e-10,
+            "x0_offset": 1.0
+          },
+          "2.0": {
+            "final_relative_x": -1.0000000000000002,
+            "outcome": "switched",
+            "r": 2.0,
+            "refinement_max_difference": 1.3642750706921447e-08,
+            "x0_offset": 1.0
+          }
+        },
+        "status": "passed"
+      },
+      "cubic_reserve_axis": {
+        "detail": {
+          "margin_10_row_r_0.8": {
+            "0.05": "switched",
+            "0.2": "switched",
+            "0.4": "switched",
+            "0.6": "switched",
+            "0.8": "switched",
+            "1.0": "switched",
+            "1.5": "switched",
+            "2.0": "switched"
+          },
+          "margin_3_row_r_0.75": {
+            "0.05": "switched",
+            "0.2": "switched",
+            "0.4": "switched",
+            "0.6": "unresolved",
+            "0.8": "tracking",
+            "1.0": "tracking",
+            "1.5": "tracking",
+            "2.0": "tracking"
+          }
+        },
+        "status": "passed"
+      },
+      "reserve_frontier": {
+        "detail": {
+          "U": 0.0,
+          "W0": 0.0,
+          "critical_b": -0.6947528522999472,
+          "points": [
+            {
+              "b": -0.3,
+              "margin_to_boundary": -0.3947528522999472,
+              "outcome": "switched"
+            },
+            {
+              "b": -0.5,
+              "margin_to_boundary": -0.1947528522999472,
+              "outcome": "switched"
+            },
+            {
+              "b": -0.7,
+              "margin_to_boundary": 0.0052471477000527456,
+              "outcome": "tracking"
+            },
+            {
+              "b": -0.9,
+              "margin_to_boundary": 0.2052471477000528,
+              "outcome": "tracking"
+            }
+          ],
+          "r": 1.0,
+          "refinement_max_difference": 3.283545657595255e-10,
+          "spike_height": 1.0,
+          "tau": 1.0,
+          "z_eq": 0.0,
+          "z_min": -0.6947528522999472
+        },
+        "status": "passed"
+      }
+    },
+    "disclaimer": "INTEGRATION_ERROR is defensively coded (try/except around every grid cell) but not empirically triggered by any grid run in this script -- a genuine solve_ivp failure was only reproducible via a pathologically slow (near-hanging) parameter combination, which was deliberately not adopted as a test case.",
+    "numpy": "2.2.6",
+    "outcome_states": [
+      "tracking",
+      "switched",
+      "unresolved",
+      "out_of_scope",
+      "integration_error"
+    ],
+    "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 6 (multidimensional R-tipping / viability maps)",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "scipy": "1.15.3",
+    "source": "Ashwin, Wieczorek, Vitolo & Cox 2012, Phil. Trans. R. Soc. A 370, 1166-1184, DOI 10.1098/rsta.2011.0306; Wieczorek, Xie & Ashwin 2023, Nonlinearity 36, 3238-3293, DOI 10.1088/1361-6544/accb37.",
+    "timestamp": "2026-09-23T09:00:02+02:00"
+  }
+}

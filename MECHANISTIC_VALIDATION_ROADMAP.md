@@ -380,16 +380,50 @@ Alle fünf Fixes einzeln mit `verify_mechanistic_probabilistic_evaluation.py`
 Suiten-Regression (`audit_review/run_all_local.py`) am selben Tag
 gefahren.
 
-## Paket 6 — Mehrdimensionale R-Tipping-/Viabilitätskarten
+## Paket 6 — Mehrdimensionale R-Tipping-/Viabilitätskarten ✅ erledigt (2026-09-23)
 
 Erweitert Paket 3/4 der ersten Roadmap (bereits mit der
-Gleichlast-Gegenkontrolle in Commit `20efc63` begonnen): Amplitude, Dauer,
-Pulsform UND Reserve getrennt als eigene Achsen variieren (Antwortfläche
-statt einzelner 1D-Sweeps), unterschiedliche Normierungen explizit
-dokumentieren, Grenzfälle und Endhorizonte prüfen. Für das
-rate-induced-tipping-Beispiel: Anschluss an Wieczorek, Xie & Ashwin (2023)
-— globale Schwellengeometrie (Kanten-Zustände, verbindende Orbits) statt
-nur des bereits vorhandenen lokalen χ-Indikators.
+Gleichlast-Gegenkontrolle in Commit `20efc63` begonnen) und schließt den
+in `docs/rate_dependent_tipping.md` offen benannten Punkt ("A full
+characterization would need a response surface over amplitude AND
+duration jointly").
+
+Neues Modul `viability/multidim_tipping_maps.py` (Milestone 54), setzt
+`viability/rate_dependent_buffer.py` und `dynamics/rate_dependent.py`
+UNVERÄNDERT zu echten 2D-Antwortflächen zusammen, mit fünf statt zwei
+Ergebniszuständen (`tracking`, `switched`, `unresolved`, `out_of_scope`,
+`integration_error` — genau Astras geforderte Kategorien):
+
+- **`buffer_response_surface`**: reproduziert beide bekannten 1D-Tabellen
+  (gleiche Spitzenlast, gleiche integrierte Last) exakt als
+  Einzel-Spalten-Schnitte derselben Funktion, dann echt mehrdimensional.
+- **Reserve-Achse fast geschenkt:** `b` kommt in der Puffer-ODE gar nicht
+  vor, nur im Grenzwertvergleich danach — die kritische Reserve ist daher
+  exakt `critical_b = z_min` derselben einen Trajektorie, ohne
+  Nachintegration oder Nullstellensuche (`buffer_reserve_frontier`).
+  `out_of_scope` echt ausgelöst (nicht nur defensiv programmiert) durch
+  eine Grenze oberhalb der frozen-sicheren Basislast.
+- **`tracking_response_surface`** (kubisches Beispiel): `x0_offset` als
+  echte zweite (Reserve-)Achse neben der Rate `r`. Ehrliches Nullresultat
+  bei der Standard-Vorlaufzeit `margin=10` (Achse wirkt sich gar nicht
+  aus — das System vergisst seinen Startpunkt vollständig, bevor der
+  eigentliche Treiber sich bewegt), aber echter, gemessener Effekt bei
+  kürzerer Vorlaufzeit `margin=3` nahe der kritischen Rate — inklusive
+  eines echten, nicht konstruierten `unresolved`-Falls (r=0,75,
+  x0_offset=0,6: Trajektorie hat sich bis t1 nicht innerhalb der Toleranz
+  eingependelt).
+- **Bewusst offen gelassen:** globale Schwellengeometrie (Kanten-Zustände,
+  verbindende Orbits, Wieczorek/Xie/Ashwin 2023) für eine bewiesene
+  globale Charakterisierung statt empirisch bestimmter Gitter-Grenzen;
+  `integration_error` ist defensiv programmiert, aber in keinem
+  getesteten Gitter tatsächlich ausgelöst (ein echter Solver-Fehler war
+  nur über eine pathologisch langsame, fast hängende Parameterkombination
+  reproduzierbar — bewusst nicht als Testfall übernommen); Astras
+  zeitabhängige-Wirkungskerne-Erweiterung bleibt dokumentierter
+  Ausbauvorschlag, nicht implementiert.
+
+`verify_multidim_tipping_maps.py`: 6/6 bestanden. Dokumentiert in einem
+neuen Abschnitt in `docs/rate_dependent_tipping.md`.
 
 ## Arbeitsweise
 

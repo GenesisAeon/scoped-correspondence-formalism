@@ -241,13 +241,127 @@ structure as `dynamics.energy_balance`'s two-layer model (a 2-exponential
 impulse response there, instead of this buffer's single exponential). See
 [docs/structural_relations.md](structural_relations.md#b7--linear-impulse-response-systems-energy-balance--rate-dependent-buffer).
 
+## Package 6 — a genuine response surface, not a single 1-D sweep (2026-09-23)
+
+Directly closes the open item above ("a full characterization would need
+a response surface over amplitude AND duration jointly") and Astra's
+package-6 request (`SCF_Review_3e8dce3.md`): "Schnitte bei gleicher
+Spitzenlast und bei gleicher integrierter Last [...] Ergebniszustände
+sollten mindestens Tracking, Wechsel, noch nicht entschieden, außerhalb
+des Scopes und Integrationsfehler unterscheiden."
+
+`viability.multidim_tipping_maps` composes the buffer and cubic modules
+above UNCHANGED into genuine 2-D grids, classified into five outcome
+states instead of a bare boolean: `tracking`, `switched`, `unresolved`
+(numerically too close to the boundary to trust, given the trajectory's
+own coarse/fine refinement error), `out_of_scope` (the frozen baseline
+itself is not safe — not a valid "brief spike over a safe baseline"
+scenario), and `integration_error` (the underlying solver itself failed).
+
+### The two amplitude conventions, now on the SAME grid
+
+`buffer_response_surface(..., amplitude_mode="peak_height" | "total_load")`
+reproduces both of the 1-D tables above exactly as single-amplitude-column
+slices of one function, confirming the new machinery is not silently
+different from the already-verified 1-D case — then genuinely extends to
+multiple amplitude values per call, which the 1-D sweeps never did.
+
+### The reserve axis is (almost) free
+
+**Hand-verified simplification:** the boundary `b` never appears in
+`run_buffer_spike_trajectory`'s ODE — only in the after-the-fact
+`z_min < b` check. So the critical reserve is EXACTLY the trajectory's
+own minimum, `critical_b = z_min`, with no re-integration and no
+root-finding needed per `b` value: `buffer_reserve_frontier` computes ONE
+trajectory and classifies any number of `b` values from it directly. This
+reproduces the doc's "sharp transition exactly at the trajectory's own
+minimum" claim as an exact identity, not an observation:
+`critical_b = -0.6947528523...` for `tau=1.0`, matching `z_min` to full
+float precision.
+
+**A genuine `out_of_scope` case:** setting `b=0.1` (above the frozen-safe
+baseline threshold `b<=0` for these parameters) is correctly classified
+`out_of_scope`, not silently forced into `tracking` or `switched` — the
+scenario itself ("a brief spike over a safe baseline") does not apply
+when even the baseline is unsafe. `b=0.0`, exactly at the threshold,
+remains `tracking` (the frozen-safety condition uses `>=`, not `>`).
+
+### The cubic model's reserve axis: a real null result, then a real effect
+
+`tracking_response_surface(rs, x0_offsets)` adds `x0_offset` (how far onto
+the stable branch the trajectory starts, i.e. its distance from the
+unstable branch / decision boundary at `t0`) as a genuine second, reserve-like
+axis alongside the rate `r`.
+
+**At the module's own default `margin=10`** (the long pre-driving
+relaxation window used throughout the canonical worked example above),
+this axis is **empirically inert** — an honest null result, checked, not
+assumed: at `r=0.8` (just past the critical rate), EVERY `x0_offset` from
+0.05 to 2.0 switches identically. The mechanism: with `t0=-margin/r`, the
+system has ~10 relaxation times to forget its initial condition and
+settle onto the correct quasi-static branch trajectory before the driver
+`u(t)=1+tanh(rt)` even begins moving substantially — so the starting
+offset carries no memory into the decision.
+
+**At a shorter `margin=3`**, real dependence appears near the critical
+rate (`r=0.75`):
+
+| `x0_offset` | Outcome | Final relative state `x-u` |
+|---:|---|---:|
+| 0.05 | switched | −1.000002 |
+| 0.20 | switched | −1.000000 |
+| 0.40 | switched | −0.999847 |
+| **0.60** | **unresolved** | *(not settled by `t1`)* |
+| 0.80 | tracking | +0.999666 |
+| 1.00 | tracking | +0.999794 |
+| 2.00 | tracking | +0.999874 |
+
+The `unresolved` cell at `x0_offset=0.6` is a REAL, non-manufactured case
+— `classify_tracking` genuinely raises because the trajectory has not
+settled within its `1e-3` tolerance by `t1` (final `x-u≈0.978`, just
+outside tolerance of the `+1` branch), correctly distinguished from a
+genuine solver failure by this module (both raise the same exception type
+from the reused, unmodified `dynamics.rate_dependent` module; this module
+tells them apart by message content since the underlying module was not
+edited to expose a structured failure reason).
+
+**Reading:** reserve (how far onto a branch a trajectory starts) DOES
+matter for rate-induced tipping — but only when the pre-driving
+relaxation window is short enough that the system has not already
+forgotten its initial condition. A sufficiently long "settling-in" period
+before the real driving begins erases the effect entirely. Neither
+finding is more "correct" than the other; they characterize different
+regimes of the SAME model, exactly the kind of joint dependency a single
+1-D sweep in either `r` or `x0_offset` alone would have missed.
+
+### Scope
+
+- Numerical maps are empirically determined boundaries from finite grids
+  of independently-integrated trajectories — not a proven global
+  threshold geometry. Wieczorek, Xie & Ashwin (2023)'s edge states and
+  connecting orbits (referenced throughout this document's sources) would
+  be the appropriate mathematical follow-up for a GLOBAL characterization
+  of the tipping/tracking boundary; not attempted here.
+- `integration_error` is defensively coded (a try/except around every
+  grid cell) but not empirically triggered by any grid in this package —
+  a genuine `solve_ivp` failure was only reproducible via a
+  pathologically slow (near-hanging) parameter combination, deliberately
+  not adopted as a test case.
+- Astra's proposed further mathematical extension — time-dependent
+  impulse-response kernels `G(t,s)=exp(-∫_s^t r(v)dv)` connecting buffer,
+  energy-balance, timescale and tracking-error dynamics into one
+  framework — remains a documented derivation/expansion proposal, not
+  implemented or empirically validated here.
+
 ## Verify
 
 ```bash
 PYTHONPATH=src python verification/verify_rate_dependent.py
 PYTHONPATH=src python verification/verify_rate_viability_control_cases.py
+PYTHONPATH=src python verification/verify_multidim_tipping_maps.py
 ```
 
-JSON reports: `verification/verify_rate_dependent_results.json` and
-`verification/verify_rate_viability_control_cases_results.json` — all
-numbers from **those** runs.
+JSON reports: `verification/verify_rate_dependent_results.json`,
+`verification/verify_rate_viability_control_cases_results.json`, and
+`verification/verify_multidim_tipping_maps_results.json` — all numbers
+from **those** runs.
