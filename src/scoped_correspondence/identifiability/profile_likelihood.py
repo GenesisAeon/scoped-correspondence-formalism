@@ -324,14 +324,33 @@ def likelihood_interval(
     Flat profiles (variance of ``chi2_min`` below a tight default) are
     reported as **explicitly unbounded** — no finite lower/upper endpoint.
 
+    CORRECTION (2026-09-23, external follow-up review by Astra,
+    SCF_Followup_1231f64.md): ``unbounded=True`` is set for THREE distinct
+    reasons (``flat_profile``, ``open_at_grid_boundary``,
+    ``unresolved_in_scan``), but only ``flat_profile`` is an ESTABLISHED
+    finding (a wide-enough scan whose variance genuinely fails to
+    distinguish from flat) — the other two mean only "no finite endpoint
+    was found WITHIN this scan", which is a weaker, inconclusive claim, not
+    a positive finding of unboundedness. The new ``established_unbounded``
+    field makes this distinction machine-readable: ``True`` only for
+    ``flat_profile``; ``False`` for ``open_at_grid_boundary`` and
+    ``unresolved_in_scan`` (and, trivially, for the bounded case).
+    ``unbounded`` itself is UNCHANGED for backward compatibility (it still
+    means "no finite two-sided interval was resolved from this call") —
+    callers that need the stronger, established claim should check
+    ``established_unbounded``, not ``unbounded``, per Astra's point that a
+    scan-boundary status "should not simultaneously assert an established
+    unboundedness."
+
     Returns
     -------
     dict
         ``bounded`` (bool), ``lower`` / ``upper`` (float or None),
         ``chi2_star``, ``threshold``, ``values_in_set`` (list of fixed
-        values inside the set), ``unbounded`` (bool), ``unbounded_reason``
-        (``\"flat_profile\"`` | ``\"open_at_grid_boundary\"`` | None),
-        ``classification``, ``source``.
+        values inside the set), ``unbounded`` (bool), ``established_unbounded``
+        (bool — True only for ``unbounded_reason == "flat_profile"``),
+        ``unbounded_reason`` (``\"flat_profile\"`` | ``\"open_at_grid_boundary\"``
+        | ``\"unresolved_in_scan\"`` | None), ``classification``, ``source``.
     """
     if len(profile) < 1:
         raise ScopeViolationError("likelihood_interval: empty profile")
@@ -363,6 +382,7 @@ def likelihood_interval(
         return {
             "bounded": False,
             "unbounded": True,
+            "established_unbounded": False,
             "unbounded_reason": "unresolved_in_scan",
             "lower": None,
             "upper": None,
@@ -384,6 +404,7 @@ def likelihood_interval(
         return {
             "bounded": False,
             "unbounded": True,
+            "established_unbounded": True,
             "unbounded_reason": "flat_profile",
             "lower": None,
             "upper": None,
@@ -399,6 +420,7 @@ def likelihood_interval(
         return {
             "bounded": True,
             "unbounded": False,
+            "established_unbounded": False,
             "unbounded_reason": None,
             "lower": None,
             "upper": None,
@@ -430,6 +452,7 @@ def likelihood_interval(
         return {
             "bounded": False,
             "unbounded": True,
+            "established_unbounded": False,
             "unbounded_reason": "open_at_grid_boundary",
             "lower": None if open_lo else lower,
             "upper": None if open_hi else upper,
@@ -445,6 +468,7 @@ def likelihood_interval(
     return {
         "bounded": True,
         "unbounded": False,
+        "established_unbounded": False,
         "unbounded_reason": None,
         "lower": lower,
         "upper": upper,

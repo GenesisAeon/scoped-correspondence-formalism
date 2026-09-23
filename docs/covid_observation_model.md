@@ -73,15 +73,27 @@ With a genuine forward-only mean, the raw Poisson misfit is actually
 944.52): the retrospective mean partially "cheats" by already knowing
 part of the answer, which flatters Poisson's apparent fit. The
 negative-binomial model still wins decisively either way (α fitted
-positive and significant, log-score improves by two orders of magnitude
-in both columns) — this is not a marginal statistical refinement. This
-makes physical sense: raw daily case counts carry strong day-of-week
-reporting artifacts (weekend reporting lags, batch corrections) that any
-7-day averaging smooths away by construction — so of course a Poisson
-model built around either kind of smoothed mean looks wildly
+positive — 0.750 in the primary, forward-only column — with a
+log-score improvement of two orders of magnitude in both columns) — this
+is not a marginal statistical refinement. **Correction (2026-09-23,
+Astra, `SCF_Followup_1231f64.md`):** the fitted dispersion being positive
+is not itself a significance test, and this comparison is made **at a
+given, externally supplied mean** (the lagged or retrospective reference
+mean) — it does not by itself rule out that part of the negative-binomial
+advantage reflects a misspecified mean curve or reporting-delay/trend-lag
+effects rather than epidemiological overdispersion alone. The wording
+here previously said "positive and significant," which claimed a formal
+inference test that was never run; corrected. What makes physical sense
+and remains well supported: raw daily case counts carry strong
+day-of-week reporting artifacts (weekend reporting lags, batch
+corrections) that any 7-day averaging smooths away by construction — so
+a Poisson model built around either kind of smoothed mean looks wildly
 overdispersed for the *raw* count. Astra's original overdispersion
-suspicion is confirmed resoundingly, and now on a genuinely
-circularity-free forecast-quality basis, not merely a descriptive one.
+suspicion is confirmed resoundingly at this given mean, and now on a
+genuinely circularity-free forecast-quality basis, not merely a
+descriptive one — separating that overdispersion cleanly from a possible
+mean-specification error remains a documented open question (see the
+"What this does NOT establish" scope note above).
 
 **Retained for transparency, explicitly relabeled:** the
 `cases_7day_avg`-based comparison (right column) is kept as a

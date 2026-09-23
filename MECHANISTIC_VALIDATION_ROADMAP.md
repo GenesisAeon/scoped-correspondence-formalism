@@ -425,6 +425,57 @@ Ergebniszuständen (`tracking`, `switched`, `unresolved`, `out_of_scope`,
 `verify_multidim_tipping_maps.py`: 6/6 bestanden. Dokumentiert in einem
 neuen Abschnitt in `docs/rate_dependent_tipping.md`.
 
+## Paket 8 — Astra-Folgereview (Commit `1231f64`, 2026-09-23)
+
+Antwort auf `prompts/Answers/nicht_stationäre_Treiber/SCF_Followup_1231f64.md`
+(Astra, Nachprüfung von Paket 7 + Paket 6). Bestätigt: alle drei
+Hauptbefunde der letzten Review (Intervall-Leck, COVID-Zirkularität,
+B8-Stationarität) sind „für die aktuelle Annahme sofort verfügbarer
+Beobachtungen repariert" bzw. „behoben". Zwei neue, unabhängig
+nachgeprüfte Befunde:
+
+1. **Echter numerischer Bug in Paket 6** (`rate_dependent_buffer.py`,
+   `run_buffer_spike_trajectory`): Das Trajektorien-Minimum wurde nur auf
+   einem festen 4001-Punkte-Raster gesucht. Astras exakte geschlossene
+   Faltungsformel (r=τ=Spitzenhöhe=1, z_eq=U=W₀=0) zeigt: das wahre
+   kontinuierliche Minimum (−0,6947532811) weicht vom Raster-Minimum
+   (−0,6947528523) um 4,29·10⁻⁷ ab — mehr als das Hundertfache der
+   verwendeten Unsicherheitsspanne (3,28·10⁻⁹). An einer Grenze knapp
+   zwischen beiden Werten klassifizierte die Karte fälschlich `tracking`,
+   obwohl die kontinuierliche Lösung eine echte Grenzverletzung ist.
+   **Fix:** `z_min` wird jetzt per kontinuierlicher Optimierung auf der
+   dichten ODE-Lösung bestimmt, nicht per Raster-Argmin;
+   `z_min_ode_uncertainty` (ODE-Toleranz exakt am gefundenen Minimum) statt
+   der globalen Raster-Differenz für die Klassifikation;
+   `z_min_grid_search_error` macht die Größe des behobenen Fehlers
+   transparent. Astras geschlossene Formel ist jetzt als unabhängiger
+   Regressionstest in `verify_multidim_tipping_maps.py` verankert
+   (`buffer_continuous_minimum_regression`), inklusive der exakten
+   Neuklassifikation von Astras Grenzfall auf `switched`.
+2. **Entscheidende Unterdeckung der Prognoseintervalle** (Paket 3,
+   nach dem Leck-Fix neu berechnet): Energiebilanz-Modell 52,5 % statt
+   nomineller 80 % Abdeckung (21/40 bewertete Versuche), COVID-Renewal nur
+   26,3 % (5/19). Das ist jetzt das Hauptergebnis von Paket 3, nicht nur
+   eine Randnotiz — dokumentiert in
+   [docs/mechanistic_probabilistic_evaluation.md](docs/mechanistic_probabilistic_evaluation.md).
+
+Weitere kleinere Korrekturen: `profile_likelihood.py`s `likelihood_interval`
+liefert jetzt zusätzlich `established_unbounded` (nur bei echtem
+`flat_profile` `True`), damit `open_at_grid_boundary` nicht länger
+gleichzeitig eine festgestellte Unbeschränktheit suggeriert (Astras
+`chi2=θ²`-Gegenbeispiel jetzt als eigener Verify-Check verankert);
+vertauschtes „above"/„below" im `buffer_reserve_frontier`-Docstring
+korrigiert (Implementierung war immer richtig); „positive and
+significant"-Überclaim in `docs/covid_observation_model.md` auf das
+tatsächlich Gezeigte zurückgestuft. Klimareferenz-Frage bleibt bewusst
+offen (bereits transparent dokumentiert, keine vollständige physikalische
+Neuinitialisierung vorgenommen).
+
+`verify_multidim_tipping_maps.py`: 7/7 (neuer Regressionstest),
+`verify_profile_likelihood_core.py`: 5/5 (neuer Check), sowie
+`verify_rate_viability_control_cases.py`, `verify_structural_bridges_b7_b8.py`,
+`verify_rate_dependent.py`, `verify_energy_balance.py` weiterhin grün.
+
 ## Arbeitsweise
 
 - Wie bei `NONSTATIONARY_ROADMAP.md`: additive Module, echte Daten wo neu

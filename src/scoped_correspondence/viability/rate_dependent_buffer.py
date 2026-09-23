@@ -44,6 +44,7 @@ from typing import Any, Dict
 
 import numpy as np
 from scipy.integrate import solve_ivp
+from scipy.optimize import minimize_scalar
 
 from scoped_correspondence.errors import ScopeViolationError
 from scoped_correspondence.viability.core import has_safe_transfer
@@ -62,6 +63,8 @@ class BufferSpikeTrajectory:
     z_min: float
     z_min_time: float
     refinement_max_difference: float
+    z_min_ode_uncertainty: float
+    z_min_grid_search_error: float
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -76,6 +79,8 @@ class BufferSpikeTrajectory:
             "z_min": self.z_min,
             "z_min_time": self.z_min_time,
             "refinement_max_difference": self.refinement_max_difference,
+            "z_min_ode_uncertainty": self.z_min_ode_uncertainty,
+            "z_min_grid_search_error": self.z_min_grid_search_error,
         }
 
 
@@ -121,6 +126,27 @@ def run_buffer_spike_trajectory(
     (t1 = span_taus*tau + margin). Refines the integration tolerance and
     reports the max difference between a coarse and a much finer solve, as
     an explicit numerical-convergence check.
+
+    z_min is the TRUE CONTINUOUS minimum of the fine solution's dense
+    output, found by bounded scalar minimization -- NOT a grid argmin.
+
+    Fixed 2026-09-23 in response to
+    prompts/Answers/nicht_stationäre_Treiber/SCF_Followup_1231f64.md
+    (Astra): the previous version located the minimum via
+    ``np.argmin`` over a fixed 4001-point grid. Astra found a closed-form
+    counterexample (r=tau=spike_height=1, z_eq=U=W0=0, a Gaussian-pulse
+    convolution integral) where the true continuous minimum
+    (-0.6947532810...) differs from the grid-based minimum
+    (-0.6947528523...) by 4.29e-7 -- more than 100x the ODE-tolerance-based
+    uncertainty band (3.28e-9) that was being used to decide whether a
+    boundary classification was trustworthy. Near a safety boundary set
+    close to the trajectory's own minimum, this let a genuine breach be
+    misclassified as safe. ``z_min_ode_uncertainty`` (coarse vs. fine
+    solution difference EVALUATED AT the located minimum's time, not a
+    global grid-max) is now the uncertainty proxy classification code
+    should use; ``z_min_grid_search_error`` records the size of the fixed
+    bug for transparency (the gap between the old grid method and the new
+    continuous one on THIS call).
     """
     if r <= 0:
         raise ScopeViolationError(f"run_buffer_spike_trajectory: r must be > 0; got {r!r}")
@@ -147,7 +173,23 @@ def run_buffer_spike_trajectory(
     z_fine = fine.sol(grid)[0]
     refinement_max_diff = float(np.max(np.abs(z_coarse - z_fine)))
 
-    i_min = int(np.argmin(z_coarse))
+    # Old (buggy) grid-based minimum, kept only to quantify the fixed error.
+    i_min_grid = int(np.argmin(z_coarse))
+    z_min_grid = float(z_coarse[i_min_grid])
+
+    # TRUE continuous minimum: bounded scalar minimization of the FINE
+    # solution's dense (continuous) output -- not a grid search.
+    opt = minimize_scalar(lambda t: float(fine.sol(t)[0]), bounds=(t0, t1), method="bounded", options={"xatol": 1e-12})
+    if not opt.success:
+        raise ScopeViolationError(f"run_buffer_spike_trajectory: continuous minimum search failed: {opt.message}")
+    z_min = float(opt.fun)
+    z_min_time = float(opt.x)
+
+    # ODE-tolerance uncertainty EVALUATED AT the located minimum's time
+    # (not a global grid-max difference) -- the uncertainty that actually
+    # matters for trusting a boundary classification near this minimum.
+    z_min_ode_uncertainty = float(abs(float(coarse.sol(z_min_time)[0]) - float(fine.sol(z_min_time)[0])))
+
     return BufferSpikeTrajectory(
         r=r,
         z_eq=z_eq,
@@ -157,9 +199,11 @@ def run_buffer_spike_trajectory(
         tau=tau,
         t0=t0,
         t1=t1,
-        z_min=float(z_coarse[i_min]),
-        z_min_time=float(grid[i_min]),
+        z_min=z_min,
+        z_min_time=z_min_time,
         refinement_max_difference=refinement_max_diff,
+        z_min_ode_uncertainty=z_min_ode_uncertainty,
+        z_min_grid_search_error=float(abs(z_min_grid - z_min)),
     )
 
 

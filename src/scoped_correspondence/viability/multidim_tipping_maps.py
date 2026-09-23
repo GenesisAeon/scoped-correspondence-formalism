@@ -38,6 +38,23 @@ Global threshold geometry (edge states, connecting orbits; Wieczorek, Xie
 determined boundaries from a finite grid of trajectories, not a proven
 global geometric characterization. Flagged as follow-up, not silently
 implied.
+
+CORRECTION (2026-09-23, external follow-up review by Astra,
+SCF_Followup_1231f64.md): the initial version of this module classified
+buffer cells using a GLOBAL grid-max ODE-refinement difference as the
+uncertainty proxy, while ``run_buffer_spike_trajectory`` located the
+trajectory minimum via a fixed 4001-point grid argmin. A closed-form
+counterexample showed the grid-based minimum can differ from the true
+continuous minimum by ~100x the uncertainty band being used to decide
+trustworthiness -- enough to misclassify a genuine boundary breach as
+safe right at the margin. Fixed at the source
+(``rate_dependent_buffer.run_buffer_spike_trajectory`` now finds the
+TRUE continuous minimum via bounded scalar optimization on the dense ODE
+solution) and classification here now uses the ODE uncertainty EVALUATED
+AT that minimum's own time (``z_min_ode_uncertainty``), not a global grid
+maximum. See ``verify_multidim_tipping_maps.py``'s
+``buffer_continuous_minimum_regression`` check, which uses Astra's own
+closed-form Gaussian-pulse convolution as an independent oracle.
 """
 
 from __future__ import annotations
@@ -89,7 +106,8 @@ class BufferMapCell:
     spike_height: float
     z_min: float
     outcome: str
-    refinement_max_difference: float
+    z_min_ode_uncertainty: float
+    z_min_grid_search_error: float
     margin_to_boundary: float
 
     def to_dict(self) -> Dict[str, Any]:
@@ -99,7 +117,8 @@ class BufferMapCell:
             "spike_height": self.spike_height,
             "z_min": self.z_min,
             "outcome": self.outcome,
-            "refinement_max_difference": self.refinement_max_difference,
+            "z_min_ode_uncertainty": self.z_min_ode_uncertainty,
+            "z_min_grid_search_error": self.z_min_grid_search_error,
             "margin_to_boundary": self.margin_to_boundary,
         }
 
@@ -140,16 +159,24 @@ class BufferResponseSurface:
 
 def _classify_buffer_cell(
     z_min: float,
-    refinement_max_difference: float,
+    z_min_uncertainty: float,
     b: float,
     *,
     baseline_frozen_safe: bool,
     unresolved_safety_factor: float,
 ) -> str:
+    """Classify by margin = z_min - b against an uncertainty-scaled tolerance.
+
+    ``z_min_uncertainty`` must be the uncertainty of ``z_min`` ITSELF (its
+    ODE-tolerance error at the located minimum's time -- see
+    ``BufferSpikeTrajectory.z_min_ode_uncertainty``), not a global,
+    grid-max refinement difference that need not bound the error AT the
+    minimum specifically (Astra, SCF_Followup_1231f64.md).
+    """
     if not baseline_frozen_safe:
         return OUT_OF_SCOPE
     margin = z_min - b
-    tol = unresolved_safety_factor * refinement_max_difference
+    tol = unresolved_safety_factor * z_min_uncertainty
     if abs(margin) <= tol:
         return UNRESOLVED
     return TRACKING if margin > 0 else SWITCHED
@@ -178,12 +205,13 @@ def _buffer_cell(
             spike_height=spike_height,
             z_min=float("nan"),
             outcome=INTEGRATION_ERROR,
-            refinement_max_difference=float("nan"),
+            z_min_ode_uncertainty=float("nan"),
+            z_min_grid_search_error=float("nan"),
             margin_to_boundary=float("nan"),
         )
     outcome = _classify_buffer_cell(
         traj.z_min,
-        traj.refinement_max_difference,
+        traj.z_min_ode_uncertainty,
         b,
         baseline_frozen_safe=baseline_safe,
         unresolved_safety_factor=unresolved_safety_factor,
@@ -194,7 +222,8 @@ def _buffer_cell(
         spike_height=spike_height,
         z_min=traj.z_min,
         outcome=outcome,
-        refinement_max_difference=traj.refinement_max_difference,
+        z_min_ode_uncertainty=traj.z_min_ode_uncertainty,
+        z_min_grid_search_error=traj.z_min_grid_search_error,
         margin_to_boundary=traj.z_min - b,
     )
 
@@ -277,7 +306,8 @@ class ReserveFrontierReport:
     tau: float
     z_min: float
     critical_b: float
-    refinement_max_difference: float
+    z_min_ode_uncertainty: float
+    z_min_grid_search_error: float
     points: Tuple[ReserveFrontierPoint, ...]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -285,7 +315,8 @@ class ReserveFrontierReport:
             "r": self.r, "z_eq": self.z_eq, "U": self.U, "W0": self.W0,
             "spike_height": self.spike_height, "tau": self.tau,
             "z_min": self.z_min, "critical_b": self.critical_b,
-            "refinement_max_difference": self.refinement_max_difference,
+            "z_min_ode_uncertainty": self.z_min_ode_uncertainty,
+            "z_min_grid_search_error": self.z_min_grid_search_error,
             "points": [p.to_dict() for p in self.points],
         }
 
@@ -302,9 +333,15 @@ def buffer_reserve_frontier(
     the after-the-fact boundary comparison -- so the critical reserve is
     EXACTLY the trajectory's own minimum, ``critical_b = z_min``, with no
     root-finding needed. This is verified directly against a sign check at
-    each supplied ``b`` value (all above ``z_min`` must classify TRACKING,
-    all below must classify SWITCHED, up to the numerical refinement
-    tolerance) rather than assumed.
+    each supplied ``b`` value: since ``margin = z_min - b``, a boundary
+    BELOW ``z_min`` leaves positive margin (TRACKING), a boundary ABOVE
+    ``z_min`` leaves negative margin (SWITCHED) -- up to the numerical
+    uncertainty tolerance -- rather than assumed.
+
+    Corrected 2026-09-23 (Astra, SCF_Followup_1231f64.md): this docstring
+    previously swapped "above"/"below" relative to ``z_min``; the
+    implementation and its verify-script sign check always had the
+    direction right, only this text was wrong.
     """
     if len(b_values) < 1:
         raise ScopeViolationError("buffer_reserve_frontier: b_values must be non-empty")
@@ -313,7 +350,7 @@ def buffer_reserve_frontier(
     for b in b_values:
         baseline = has_safe_transfer(r, z_eq, float(b), U, W0)
         outcome = _classify_buffer_cell(
-            traj.z_min, traj.refinement_max_difference, float(b),
+            traj.z_min, traj.z_min_ode_uncertainty, float(b),
             baseline_frozen_safe=bool(baseline["ok"]),
             unresolved_safety_factor=unresolved_safety_factor,
         )
@@ -321,7 +358,8 @@ def buffer_reserve_frontier(
     return ReserveFrontierReport(
         r=r, z_eq=z_eq, U=U, W0=W0, spike_height=spike_height, tau=tau,
         z_min=traj.z_min, critical_b=traj.z_min,
-        refinement_max_difference=traj.refinement_max_difference,
+        z_min_ode_uncertainty=traj.z_min_ode_uncertainty,
+        z_min_grid_search_error=traj.z_min_grid_search_error,
         points=tuple(points),
     )
 

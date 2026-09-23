@@ -71,6 +71,7 @@ def check_nonid_product_flat():
         interval["unbounded_reason"] == "flat_profile",
         f"reason={interval.get('unbounded_reason')!r}",
     )
+    require(interval["established_unbounded"] is True, "a genuine flat_profile IS an established unboundedness finding")
     require(interval["lower"] is None and interval["upper"] is None, "ends None")
     require("10.1093/bioinformatics/btp358" in str(interval["source"]), "DOI")
 
@@ -122,6 +123,7 @@ def check_id_quadratic_finite():
     interval = likelihood_interval(profile, threshold=threshold)
     require(interval["unbounded"] is False, "must be bounded")
     require(interval["bounded"] is True, "bounded True")
+    require(interval["established_unbounded"] is False, "a bounded interval cannot be established_unbounded")
     near(interval["lower"], 2.0)
     near(interval["upper"], 4.0)
     near(interval["chi2_star"], 0.0)
@@ -143,6 +145,49 @@ def check_id_quadratic_finite():
             "upper": interval["upper"],
             "chi2_star": interval["chi2_star"],
             "values_in_set": interval["values_in_set"],
+        },
+    }
+
+
+def check_open_at_grid_boundary_not_established():
+    """Astra's exact adversarial example (SCF_Review_3e8dce3.md finding 4,
+    SCF_Followup_1231f64.md): chi2=theta^2, threshold=1, scan only at
+    {-0.5, 0, 0.5}. The TRUE global interval at this threshold is exactly
+    [-1, 1] -- the narrow scan cannot see that. The API must still report
+    ``unbounded=True`` (no finite endpoint was found WITHIN this scan,
+    unchanged for backward compatibility) but must NOT claim
+    ``established_unbounded=True`` -- that would assert a positive finding
+    of non-identifiability that this narrow scan never established.
+    Classification itself must be "identifiable" (curved), not "flat".
+    """
+
+    def chi2(theta):
+        return float(theta[0]) ** 2
+
+    fixed = [-0.5, 0.0, 0.5]
+    profile = profile_parameter(chi2, 0, [0.0], fixed)
+    classification = classify_identifiability(profile, atol=1e-8)
+    require(classification == "identifiable", f"expected identifiable (curved), got {classification!r}")
+
+    interval = likelihood_interval(profile, threshold=1.0)
+    require(interval["unbounded"] is True, "no finite endpoint found within this narrow scan")
+    require(interval["bounded"] is False, "must not be bounded")
+    require(interval["unbounded_reason"] == "open_at_grid_boundary", f"reason={interval.get('unbounded_reason')!r}")
+    require(
+        interval["established_unbounded"] is False,
+        "open_at_grid_boundary must NOT simultaneously assert an established finding of unboundedness",
+    )
+
+    return {
+        "chi2": "theta^2",
+        "fixed_values": fixed,
+        "true_global_interval_at_threshold_1": [-1.0, 1.0],
+        "classification": classification,
+        "interval": {
+            "bounded": interval["bounded"],
+            "unbounded": interval["unbounded"],
+            "established_unbounded": interval["established_unbounded"],
+            "unbounded_reason": interval["unbounded_reason"],
         },
     }
 
@@ -203,6 +248,7 @@ def main():
     checks = [
         ("nonid_product_flat", check_nonid_product_flat),
         ("id_quadratic_finite", check_id_quadratic_finite),
+        ("open_at_grid_boundary_not_established", check_open_at_grid_boundary_not_established),
         ("scope_guards", check_scope_guards),
         ("source_doi", check_source_doi),
     ]

@@ -1,10 +1,21 @@
 {
-  "count": 6,
+  "count": 7,
   "errors": [],
   "failed": 0,
-  "passed": 6,
+  "passed": 7,
   "report": {
     "checks": {
+      "buffer_continuous_minimum_regression": {
+        "detail": {
+          "b_adversarial": -0.694753066685,
+          "outcome_at_adversarial_b": "switched",
+          "z_min_closed_form": -0.6947532810696938,
+          "z_min_grid_search_error": 4.287696168114863e-07,
+          "z_min_module": -0.694753281069564,
+          "z_min_ode_uncertainty": 5.2899240543524684e-11
+        },
+        "status": "passed"
+      },
       "buffer_equal_peak_height": {
         "detail": {
           "outcomes": [
@@ -24,12 +35,12 @@
             5.0
           ],
           "z_min": [
-            -0.08079781553520922,
-            -0.2649180611925072,
-            -0.4946177486891923,
-            -0.6947528522999472,
-            -0.8576460705475706,
-            -0.965466774905735
+            -0.08080045469376695,
+            -0.2649184322137898,
+            -0.49461860288817494,
+            -0.694753281069564,
+            -0.857648449479881,
+            -0.9654689201488897
           ]
         },
         "status": "passed"
@@ -61,12 +72,12 @@
             5.0
           ],
           "z_min": [
-            -0.9117057179675,
-            -0.7473200531081177,
-            -0.5581163632614266,
-            -0.3919723223761097,
-            -0.24193748968608353,
-            -0.10894125953383993
+            -0.9117354976828672,
+            -0.7473210997249169,
+            -0.5581173271576949,
+            -0.39197256431526545,
+            -0.24193816077125496,
+            -0.10894150159742293
           ]
         },
         "status": "passed"
@@ -128,35 +139,36 @@
         "detail": {
           "U": 0.0,
           "W0": 0.0,
-          "critical_b": -0.6947528522999472,
+          "critical_b": -0.694753281069564,
           "points": [
             {
               "b": -0.3,
-              "margin_to_boundary": -0.3947528522999472,
+              "margin_to_boundary": -0.39475328106956403,
               "outcome": "switched"
             },
             {
               "b": -0.5,
-              "margin_to_boundary": -0.1947528522999472,
+              "margin_to_boundary": -0.19475328106956402,
               "outcome": "switched"
             },
             {
               "b": -0.7,
-              "margin_to_boundary": 0.0052471477000527456,
+              "margin_to_boundary": 0.005246718930435934,
               "outcome": "tracking"
             },
             {
               "b": -0.9,
-              "margin_to_boundary": 0.2052471477000528,
+              "margin_to_boundary": 0.205246718930436,
               "outcome": "tracking"
             }
           ],
           "r": 1.0,
-          "refinement_max_difference": 3.283545657595255e-10,
           "spike_height": 1.0,
           "tau": 1.0,
           "z_eq": 0.0,
-          "z_min": -0.6947528522999472
+          "z_min": -0.694753281069564,
+          "z_min_grid_search_error": 4.287696168114863e-07,
+          "z_min_ode_uncertainty": 5.2899240543524684e-11
         },
         "status": "passed"
       }
@@ -175,6 +187,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "Ashwin, Wieczorek, Vitolo & Cox 2012, Phil. Trans. R. Soc. A 370, 1166-1184, DOI 10.1098/rsta.2011.0306; Wieczorek, Xie & Ashwin 2023, Nonlinearity 36, 3238-3293, DOI 10.1088/1361-6544/accb37.",
-    "timestamp": "2026-09-23T09:00:02+02:00"
+    "timestamp": "2026-09-23T14:21:28+02:00"
   }
 }

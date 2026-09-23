@@ -1,0 +1,34 @@
+**Geprüft: Die wichtigsten Korrekturen greifen.** Am Stand [`1231f64`](https://github.com/GenesisAeon/scoped-correspondence-formalism/commit/1231f64530110e9ca8e9fceea55d180c9a61ce39) bestehen **67 von 67 ausgeführten mathematischen Prüfskripten**. Die zwei Dokumentationsprüfungen blieben wegen der lokal fehlenden DOCX-Datei aus.
+
+Meine unabhängigen Gegenproben bestätigen:
+
+* **Intervalle:** Spätere Beobachtungen verändern frühere Intervalle nicht mehr – auch bei mehrschrittigen Prognosen.
+* **COVID:** Der Tageswert beeinflusst seinen eigenen Prognosemittelwert nicht mehr.
+* **B8:** Kernmasse, Stationarität und stochastischer Prozess sind jetzt wesentlich sauberer getrennt.
+
+**Zwei frühere Punkte bleiben teilweise offen:** Die Profil-API liefert am Rand eines begrenzten Scans weiterhin `unbounded=True`. Beim Klimamodell ist die Referenzabhängigkeit nun transparent dokumentiert; eine physikalisch konsistente Referenzierung und Initialisierung steht noch aus.
+
+Die korrigierten Unsicherheitsauswertungen zeigen außerdem ein wichtiges Ergebnis:
+
+| Modell              | Nominelle Abdeckung | Tatsächlich abgedeckt |
+| ------------------- | ------------------: | --------------------: |
+| Energiebilanzmodell |                80 % |        52,5 % – 21/40 |
+| COVID-Renewal       |                80 % |         26,3 % – 5/19 |
+
+Die Intervalle sind damit in diesen kleinen, zeitlich abhängigen Stichproben deutlich zu wenig verlässlich. Das ist jetzt ein konkreter Ansatzpunkt für die weitere Modellarbeit.
+
+**Bei Paket 6 habe ich einen neuen, eng begrenzten Fehler gefunden:** Das Pufferminimum wird nur auf 4001 Zeitpunkten gesucht. Zwei präzise ODE-Lösungen können dabei dasselbe Minimum zwischen den Rasterpunkten übersehen.
+
+In meiner Gegenrechnung meldet die Karte unmittelbar an der Grenze `tracking`, obwohl die kontinuierliche Lösung die Sicherheitsgrenze knapp verletzt. Der Rasterfehler liegt bei etwa \(4{,}29·10^{-7}\), das verwendete Unsicherheitsband nur bei \(3{,}28·10^{-9}\). Die deutlich getrennten bisherigen Tabellenpunkte werden dadurch nicht widerlegt; **die Genauigkeit direkt an der Grenze wird aber überschätzt.**
+
+Meine nächste Reihenfolge wäre:
+
+1. **Kontinuierliches Minimum bestimmen**, etwa über Extremstellen oder Minimierung der dichten ODE-Ausgabe; den analytischen Gegenfall als Regressionstest aufnehmen.
+2. **Profilstatus in der API korrigieren.**
+3. **Intervallkalibrierung auf weiteren vorab festgelegten Zeitfenstern prüfen.**
+4. Danach Klimareferenzmodell und zeitabhängige Wirkungskerne weiterführen.
+
+Der Bericht enthält Fundstellen, Zahlen und Abnahmekriterien:
+
+* [SCF_Followup_1231f64.md](sandbox:/workspace/scratch/bc86442eb021/review_1231f64/SCF_Followup_1231f64.md)
+* [SCF_Followup_1231f64_Rechenbelege.zip](sandbox:/workspace/scratch/bc86442eb021/review_1231f64/SCF_Followup_1231f64_Rechenbelege.zip)

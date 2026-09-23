@@ -24,45 +24,60 @@ empirical residual quantiles (continuous targets) or a Poisson parametric
 interval (ETAS counts), with coverage reported *empirically*, not claimed
 from a theorem that doesn't apply here.
 
-## The headline finding: point accuracy ≠ predictive-interval quality
+## Update (2026-09-23): corrected for the interval-leakage fix — a more decisive undercoverage finding
 
-Package 2 found the energy-balance mechanistic model beats every
-statistical baseline on point-forecast RMSE, at every lead year. Scored
-properly here, the picture flips:
+**Correction (Astra, `SCF_Review_3e8dce3.md` finding 1 /
+`SCF_Followup_1231f64.md`):** `leave_one_origin_out_intervals` originally
+pooled calibration residuals from ALL other origins, including LATER
+ones — a genuine look-ahead-bias bug (see
+[docs/rate_dependent_tipping.md](rate_dependent_tipping.md) and
+`MECHANISTIC_VALIDATION_ROADMAP.md` package 7 for the fix itself). Fixed:
+calibration now uses only origins whose own target observation was
+already available at the trial's origin (`origin' + step*step_size <=
+origin`). Trials without enough such origins are honestly SKIPPED
+(reported as `n_skipped_insufficient_lookback`), not silently included
+or forced. The numbers below are the corrected, re-run results — the
+tables previously here are superseded, not merely updated cosmetically.
 
-| Predictor | Empirical coverage (nominal 80%) | Mean interval score (lower = better) |
-|---|---:|---:|
-| persistence | 0.673 | **0.408** |
-| expanding | 0.673 | 0.438 |
-| last30 | 0.636 | 0.421 |
-| **energy_balance_mechanistic** | 0.655 | **0.466 (worst)** |
+## The headline finding, corrected: intervals are decisively UNDER-covered, not just imperfect
 
-The mechanistic model's LOO prediction intervals are the *least*
-efficient of the four, despite having the *best* point forecasts. This
-is not a contradiction — it is exactly the distinction proper scoring
-rules exist to catch: a model can be more accurate on average while
-having a less well-calibrated or less efficient *uncertainty* estimate
-(here, plausibly because its year-to-year error magnitude varies more
-across origins than the simpler baselines', which a single pooled LOO
-quantile per lead year does not adapt to). Reported honestly, not
-smoothed over — this is a genuinely useful, unforced result.
+| Predictor | Nominal coverage | Observed coverage | Evaluated / skipped trials | Mean interval score (lower = better) |
+|---|---:|---:|---:|---:|
+| persistence | 80% | 67.5% | 40 / 15 | **0.4167 (best)** |
+| last30 | 80% | 57.5% | 40 / 15 | 0.4624 |
+| expanding | 80% | 65.0% | 40 / 15 | 0.4830 |
+| **energy_balance_mechanistic** | 80% | **52.5% (worst)** | 40 / 15 | 0.5191 (worst) |
 
-All four predictors' empirical coverage (0.64–0.67) also falls short of
-the nominal 80% target — consistent with the small-sample caveat below
-(only 10 other origins per lead year to estimate LOO quantiles from).
+The mechanistic model is now worst on **both** interval score AND
+coverage, not merely the least-efficient of four roughly-calibrated
+models as the pre-fix numbers suggested — the corrected, leak-free
+intervals are decisively too narrow for the model with the best point
+forecasts. Point accuracy and predictive-interval quality remain
+different questions; the corrected picture argues that distinction more
+sharply, not more softly.
 
-## COVID renewal: the point-forecast winner is also the interval winner
+## COVID renewal: the point-forecast winner is not the interval winner — and none of the three are close to calibrated
 
-| Predictor | Coverage (nominal 80%) | Mean interval score |
-|---|---:|---:|
-| persistence | 0.643 | 20241 |
-| exponential_extrapolation | 0.667 | 9052 |
-| **renewal_constant_R** | 0.595 | **3796 (best)** |
+| Predictor | Nominal coverage | Observed coverage | Evaluated / skipped trials | Mean interval score |
+|---|---:|---:|---:|---:|
+| persistence | 80% | **5.3% (worst)** | 19 / 23 | 46004.70 (worst) |
+| exponential_extrapolation | 80% | 57.9% | 19 / 23 | 7246.40 |
+| **renewal_constant_R** | 80% | 26.3% | 19 / 23 | **6048.43 (best)** |
 
-Here the two rankings agree: `renewal_constant_R` had the best RMSE in
-package 2 *and* the best interval score here — though its coverage
-(0.595) is the *worst* of the three, another honest small-sample wrinkle
-worth flagging rather than hiding.
+`renewal_constant_R` still has the best interval score, consistent with
+its package-2 RMSE win, but its observed coverage (26.3%) is barely a
+third of the nominal 80% — decisively uncalibrated, not merely a
+small-sample wrinkle. Persistence's coverage (5.3%, essentially always
+missing) makes explicit how poorly a naive baseline's residual spread
+represents genuine forecast uncertainty on this series.
+
+**Reading:** with the leak fixed, more than half of all raw (origin,
+step) trials for COVID (23 of 42) and over a quarter for the energy
+balance (15 of 55) lack enough forward-only history to be scored at all
+— the remaining, honestly-evaluated samples are SMALL (19–40 trials) and
+plainly show underdispersed LOO intervals across every predictor tested.
+This is now the primary, decisive result of this package, not a caveat
+appended to an otherwise-clean calibration story.
 
 ## ETAS: Poisson log-score agrees with the point-forecast ranking
 
@@ -81,11 +96,18 @@ retuning, reported as-is.
 
 ## Honest small-sample caveat
 
-Leave-one-origin-out quantiles use only 10 (energy balance, 11 origins
+Leave-one-origin-out quantiles use AT MOST 10 (energy balance, 11 origins
 total) or 5 (COVID, 6 origins total) other origins per lead time — thin
-deciles, not well-estimated tail quantiles. This is an exploratory
-diagnostic, consistent with this repository's discipline of surfacing
-small-N limitations rather than dressing them up as more than they are.
+deciles even before the leak fix. **Since the fix, the usable count is
+smaller still and varies by step:** only strictly earlier origins (per
+the corrected temporal-eligibility rule above) count, so later-horizon
+steps for early origins are skipped entirely rather than calibrated from
+too little history (`n_skipped_insufficient_lookback` in each report).
+This is an exploratory diagnostic, consistent with this repository's
+discipline of surfacing small-N limitations rather than dressing them up
+as more than they are — and per the corrected coverage table above, the
+diagnostic itself now shows the intervals to be decisively
+under-calibrated, not merely thin.
 
 ## Verify
 

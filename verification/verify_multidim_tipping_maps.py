@@ -30,6 +30,16 @@ Checks (all numbers from this script run):
      trajectory has not settled within tolerance by t1 -- distinguished
      from a genuine solver failure by inspecting the underlying
      ScopeViolationError's message.
+  8. CORRECTION (2026-09-23, Astra, SCF_Followup_1231f64.md): the buffer
+     trajectory minimum is now found by continuous optimization, not a
+     4001-point grid argmin. Checked against Astra's own independent,
+     closed-form Gaussian-pulse convolution solution (r=tau=height=1,
+     z_eq=U=W0=0) -- the module's z_min must match the closed form to
+     high precision, the OLD grid bug's exact size (~4.29e-7) must be
+     reproduced in z_min_grid_search_error (confirming the bug that was
+     fixed, not just asserting the fix), and Astra's adversarial boundary
+     (b=-0.694753066685, between the grid-based and true minimum) must
+     now correctly classify as SWITCHED, not the pre-fix TRACKING.
 
 INTEGRATION_ERROR is defensively coded (a try/except around each grid
 cell) but NOT empirically triggered by any grid in this script -- noted
@@ -47,6 +57,8 @@ from pathlib import Path
 
 import numpy as np
 import scipy
+from scipy.special import erf
+from scipy.optimize import minimize_scalar
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -64,6 +76,7 @@ from scoped_correspondence.viability.multidim_tipping_maps import (  # noqa: E40
     buffer_reserve_frontier,
     tracking_response_surface,
 )
+from scoped_correspondence.viability.rate_dependent_buffer import run_buffer_spike_trajectory  # noqa: E402
 
 
 def require(ok, msg):
@@ -191,6 +204,57 @@ def check_cubic_reserve_axis():
     }
 
 
+def check_buffer_continuous_minimum_regression():
+    """Astra's independent closed-form counterexample (SCF_Followup_1231f64.md):
+    for r=tau=spike_height=1, z_eq=U=W0=0, z(t0)=0, the Gaussian-pulse
+    convolution has an exact closed form. Verifies (a) the module's
+    z_min matches it to high precision, (b) the SIZE of the now-fixed
+    grid-search bug is reproduced exactly (not just "some fix happened"),
+    and (c) Astra's adversarial boundary is now classified correctly.
+    """
+    r = tau = spike_height = 1.0
+    z_eq = U = W0 = 0.0
+    span_taus, margin = 8.0, 5.0
+    t0 = -span_taus * tau - margin
+
+    def z_closed_form(t: float) -> float:
+        # z(t) = -sqrt(pi)/2 * exp(1/4 - t) * [erf(t-1/2) - erf(t0-1/2)]
+        return -np.sqrt(np.pi) / 2.0 * np.exp(0.25 - t) * (erf(t - 0.5) - erf(t0 - 0.5))
+
+    t1 = span_taus * tau + margin
+    closed = minimize_scalar(z_closed_form, bounds=(t0, t1), method="bounded", options={"xatol": 1e-14})
+    z_min_closed_form = float(closed.fun)
+    near(z_min_closed_form, -0.6947532810696938, atol=1e-9)  # independently reproduces Astra's -0.69475328107
+
+    traj = run_buffer_spike_trajectory(r, z_eq, U, W0, spike_height, tau, span_taus=span_taus, margin=margin)
+    near(traj.z_min, z_min_closed_form, atol=1e-8)
+    near(traj.z_min_time, float(closed.x), atol=1e-6)
+
+    # The exact size of the bug that was fixed: Astra reported ~4.2877e-7.
+    near(traj.z_min_grid_search_error, 4.2877e-7, atol=2e-11)
+    require(traj.z_min_ode_uncertainty < 1e-8, f"ODE uncertainty at the minimum should be tiny; got {traj.z_min_ode_uncertainty!r}")
+    require(
+        traj.z_min_grid_search_error > 100 * traj.z_min_ode_uncertainty,
+        "the whole point of the bug: grid-search error must dwarf the ODE-tolerance uncertainty",
+    )
+
+    # Astra's adversarial boundary: between the OLD grid minimum and the TRUE
+    # continuous minimum. Pre-fix this misclassified as tracking; must now
+    # correctly classify as switched (a genuine boundary breach).
+    b_adversarial = -0.694753066685
+    surf = buffer_response_surface(r, z_eq, U, W0, b=b_adversarial, taus=[tau], amplitude_params=[spike_height], amplitude_mode="peak_height")
+    require(surf.cells[0].outcome == SWITCHED, f"expected switched at Astra's adversarial boundary, got {surf.cells[0].outcome!r} (regression of the fixed bug)")
+
+    return {
+        "z_min_closed_form": z_min_closed_form,
+        "z_min_module": traj.z_min,
+        "z_min_grid_search_error": traj.z_min_grid_search_error,
+        "z_min_ode_uncertainty": traj.z_min_ode_uncertainty,
+        "b_adversarial": b_adversarial,
+        "outcome_at_adversarial_b": surf.cells[0].outcome,
+    }
+
+
 CHECKS = [
     ("buffer_equal_peak_height", check_buffer_equal_peak_height),
     ("buffer_equal_total_load", check_buffer_equal_total_load),
@@ -198,6 +262,7 @@ CHECKS = [
     ("buffer_out_of_scope", check_buffer_out_of_scope),
     ("cubic_known_points", check_cubic_known_points),
     ("cubic_reserve_axis", check_cubic_reserve_axis),
+    ("buffer_continuous_minimum_regression", check_buffer_continuous_minimum_regression),
 ]
 
 

@@ -131,7 +131,17 @@ touches the edge of the ±50% scanned window while still within threshold
 statistically indistinguishable from flat). "Open at the grid boundary"
 means the interval's endpoint on that side lies **beyond the scanned
 range, not that no endpoint exists** — a narrow scan can only ever show
-that the boundary wasn't found WITHIN it (the same distinction Astra's
+that the boundary wasn't found WITHIN it. **Follow-up (2026-09-23,
+`SCF_Followup_1231f64.md`):** since `open_at_grid_boundary` still set
+`unbounded=True`, a caller checking only that boolean could still read it
+as an established non-identifiability finding. `likelihood_interval` now
+also returns `established_unbounded` (`True` only for a genuine
+`flat_profile`, `False` here for all five parameters) as the
+machine-readable field that actually distinguishes "no endpoint found in
+this scan" from "positively shown to be unbounded" — see
+`identifiability/profile_likelihood.py` and
+`verify_profile_likelihood_core.py`'s
+`open_at_grid_boundary_not_established` check (the same distinction Astra's
 review demonstrates on a `chi2=theta^2` toy example in
 `identifiability/profile_likelihood.py`'s own module notes). Read
 correctly: `C_s`, `C_d`, and `alpha` are **weakly constrained beyond a
