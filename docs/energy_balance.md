@@ -132,18 +132,24 @@ statistically indistinguishable from flat). "Open at the grid boundary"
 means the interval's endpoint on that side lies **beyond the scanned
 range, not that no endpoint exists** — a narrow scan can only ever show
 that the boundary wasn't found WITHIN it. **Follow-up (2026-09-23,
-`SCF_Followup_1231f64.md`):** since `open_at_grid_boundary` still set
-`unbounded=True`, a caller checking only that boolean could still read it
-as an established non-identifiability finding. `likelihood_interval` now
-also returns `established_unbounded` (`True` only for a genuine
-`flat_profile`, `False` here for all five parameters) as the
-machine-readable field that actually distinguishes "no endpoint found in
-this scan" from "positively shown to be unbounded" — see
+`SCF_Followup_1231f64.md`, refined 2026-09-23 `SCF_Check_2cc4b5b.md`):**
+since `open_at_grid_boundary` still set `unbounded=True`, a caller
+checking only that boolean could still read it as an established
+non-identifiability finding. `likelihood_interval` now also returns
+`established_unbounded`, which is **always `False` from this function**
+— including in the `flat_profile` case, since Astra showed a profile
+that is flat only ON THE SCANNED GRID (e.g. `chi2=max(|theta|-1,0)^2`)
+can still have a perfectly bounded true confidence set just beyond it.
+Establishing global unboundedness needs independent analytic/structural
+evidence this function does not have access to; `flat_in_scanned_range`
+is the new, honestly scan-relative field for what was actually observed.
+For these five parameters specifically, `established_unbounded=False`
+(here for the same underlying reason as everywhere: nothing this
+function computes can establish it) — see
 `identifiability/profile_likelihood.py` and
 `verify_profile_likelihood_core.py`'s
-`open_at_grid_boundary_not_established` check (the same distinction Astra's
-review demonstrates on a `chi2=theta^2` toy example in
-`identifiability/profile_likelihood.py`'s own module notes). Read
+`open_at_grid_boundary_not_established` and
+`flat_in_scanned_range_is_not_global_unboundedness` checks. Read
 correctly: `C_s`, `C_d`, and `alpha` are **weakly constrained beyond a
 ±50% window around their fitted values** — not proven flat/unidentified
 in any absolute sense. Confirming genuine practical non-identifiability

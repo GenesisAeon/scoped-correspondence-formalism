@@ -71,7 +71,19 @@ def check_nonid_product_flat():
         interval["unbounded_reason"] == "flat_profile",
         f"reason={interval.get('unbounded_reason')!r}",
     )
-    require(interval["established_unbounded"] is True, "a genuine flat_profile IS an established unboundedness finding")
+    require(interval["flat_in_scanned_range"] is True, "flat ON THIS SCAN is exactly what was observed")
+    # Corrected 2026-09-23 (Astra, SCF_Check_2cc4b5b.md): likelihood_interval
+    # itself NEVER asserts established_unbounded=True from grid data alone
+    # (see its docstring) -- a flat scan does not prove global unboundedness
+    # (Astra's own max(|theta|-1,0)**2 counterexample is flat on a scan yet
+    # globally BOUNDED). This model's non-identifiability is instead
+    # established STRUCTURALLY, independent of any particular scan: for
+    # theta1*theta2=6, theta2=6/theta1 makes chi2 EXACTLY zero for every
+    # theta1 != 0, an algebraic fact, not a scan artifact.
+    require(interval["established_unbounded"] is False, "likelihood_interval alone must never claim this")
+    for t1 in fixed:
+        require(t1 != 0.0, "test construction assumes theta1 != 0")
+        near((t1 * (6.0 / t1) - 6.0) ** 2, 0.0, atol=1e-12)
     require(interval["lower"] is None and interval["upper"] is None, "ends None")
     require("10.1093/bioinformatics/btp358" in str(interval["source"]), "DOI")
 
@@ -86,12 +98,15 @@ def check_nonid_product_flat():
         "interval": {
             "bounded": interval["bounded"],
             "unbounded": interval["unbounded"],
+            "flat_in_scanned_range": interval["flat_in_scanned_range"],
+            "established_unbounded": interval["established_unbounded"],
             "unbounded_reason": interval["unbounded_reason"],
             "lower": interval["lower"],
             "upper": interval["upper"],
             "chi2_star": interval["chi2_star"],
             "threshold": interval["threshold"],
         },
+        "structural_non_identifiability_check": "theta2=6/theta1 gives chi2=0 exactly for every scanned theta1 -- an algebraic fact, not a scan artifact",
     }
 
 
@@ -123,6 +138,7 @@ def check_id_quadratic_finite():
     interval = likelihood_interval(profile, threshold=threshold)
     require(interval["unbounded"] is False, "must be bounded")
     require(interval["bounded"] is True, "bounded True")
+    require(interval["flat_in_scanned_range"] is False, "a curved, bounded profile is not flat_in_scanned_range")
     require(interval["established_unbounded"] is False, "a bounded interval cannot be established_unbounded")
     near(interval["lower"], 2.0)
     near(interval["upper"], 4.0)
@@ -173,6 +189,7 @@ def check_open_at_grid_boundary_not_established():
     require(interval["unbounded"] is True, "no finite endpoint found within this narrow scan")
     require(interval["bounded"] is False, "must not be bounded")
     require(interval["unbounded_reason"] == "open_at_grid_boundary", f"reason={interval.get('unbounded_reason')!r}")
+    require(interval["flat_in_scanned_range"] is False, "this profile is curved (identifiable), not flat")
     require(
         interval["established_unbounded"] is False,
         "open_at_grid_boundary must NOT simultaneously assert an established finding of unboundedness",
@@ -186,8 +203,79 @@ def check_open_at_grid_boundary_not_established():
         "interval": {
             "bounded": interval["bounded"],
             "unbounded": interval["unbounded"],
+            "flat_in_scanned_range": interval["flat_in_scanned_range"],
             "established_unbounded": interval["established_unbounded"],
             "unbounded_reason": interval["unbounded_reason"],
+        },
+    }
+
+
+def check_flat_in_scanned_range_is_not_global_unboundedness():
+    """Astra's own counterexamples (SCF_Check_2cc4b5b.md): a profile that is
+    exactly (or numerically) flat ON A FINITE SCAN can still have a
+    perfectly BOUNDED true confidence set once the function is evaluated
+    beyond that scan -- "flat_in_scanned_range" must never be conflated
+    with "established_unbounded". Both counterexamples independently
+    executed here, not just asserted.
+    """
+    # (a) chi2(theta) = max(|theta|-1, 0)^2: exactly flat (zero) on [-1,1],
+    # but the TRUE confidence set at threshold=1 is the BOUNDED [-2, 2]
+    # (chi2(+-2) = 1 exactly; chi2 grows immediately beyond +-1 outside the scan).
+    def chi2_capped(theta: float) -> float:
+        return max(abs(theta) - 1.0, 0.0) ** 2
+
+    fixed_a = [-1.0, -0.5, 0.0, 0.5, 1.0]
+    profile_a = [(f, chi2_capped(f)) for f in fixed_a]
+    for _, y in profile_a:
+        near(y, 0.0, atol=1e-15)
+    classification_a = classify_identifiability(profile_a, atol=1e-8)
+    require(classification_a == "flat", f"expected flat on this scan, got {classification_a!r}")
+    interval_a = likelihood_interval(profile_a, threshold=1.0)
+    require(interval_a["flat_in_scanned_range"] is True, "this scan IS exactly flat")
+    require(interval_a["established_unbounded"] is False, "must not claim global unboundedness")
+    # Independent evidence of the TRUE, bounded global set (not from the API):
+    near(chi2_capped(2.0), 1.0, atol=1e-12)
+    near(chi2_capped(-2.0), 1.0, atol=1e-12)
+    require(chi2_capped(3.0) > 1.0, "chi2 exceeds threshold beyond the true bound at theta=3")
+    true_global_set_a = [-2.0, 2.0]
+
+    # (b) chi2(theta) = theta^4 scanned narrowly at [-0.1, 0, 0.1]: variance
+    # ~2.2e-9 is below the default atol=1e-8, so also classified "flat" --
+    # yet the true confidence set at threshold=1 is [-1, 1].
+    def chi2_quartic(theta: float) -> float:
+        return theta ** 4
+
+    fixed_b = [-0.1, 0.0, 0.1]
+    profile_b = [(f, chi2_quartic(f)) for f in fixed_b]
+    variance_b = sum((y - sum(v for _, v in profile_b) / 3) ** 2 for _, y in profile_b) / 3
+    require(variance_b < 1e-8, f"expected this narrow scan to trigger the flat classification; var={variance_b!r}")
+    classification_b = classify_identifiability(profile_b, atol=1e-8)
+    require(classification_b == "flat", f"expected flat on this narrow scan, got {classification_b!r}")
+    interval_b = likelihood_interval(profile_b, threshold=1.0)
+    require(interval_b["flat_in_scanned_range"] is True, "this narrow scan IS classified flat")
+    require(interval_b["established_unbounded"] is False, "must not claim global unboundedness")
+    near(chi2_quartic(1.0), 1.0, atol=1e-12)
+    near(chi2_quartic(-1.0), 1.0, atol=1e-12)
+    require(chi2_quartic(1.5) > 1.0, "chi2 exceeds threshold beyond the true bound at theta=1.5")
+    true_global_set_b = [-1.0, 1.0]
+
+    return {
+        "capped_quadratic": {
+            "chi2": "max(|theta|-1,0)^2",
+            "fixed_values": fixed_a,
+            "classification": classification_a,
+            "flat_in_scanned_range": interval_a["flat_in_scanned_range"],
+            "established_unbounded": interval_a["established_unbounded"],
+            "true_global_confidence_set": true_global_set_a,
+        },
+        "narrow_quartic": {
+            "chi2": "theta^4",
+            "fixed_values": fixed_b,
+            "variance": variance_b,
+            "classification": classification_b,
+            "flat_in_scanned_range": interval_b["flat_in_scanned_range"],
+            "established_unbounded": interval_b["established_unbounded"],
+            "true_global_confidence_set": true_global_set_b,
         },
     }
 
@@ -249,6 +337,7 @@ def main():
         ("nonid_product_flat", check_nonid_product_flat),
         ("id_quadratic_finite", check_id_quadratic_finite),
         ("open_at_grid_boundary_not_established", check_open_at_grid_boundary_not_established),
+        ("flat_in_scanned_range_is_not_global_unboundedness", check_flat_in_scanned_range_is_not_global_unboundedness),
         ("scope_guards", check_scope_guards),
         ("source_doi", check_source_doi),
     ]

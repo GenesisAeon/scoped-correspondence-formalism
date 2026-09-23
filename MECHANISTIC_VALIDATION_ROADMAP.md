@@ -476,6 +476,52 @@ Neuinitialisierung vorgenommen).
 `verify_rate_viability_control_cases.py`, `verify_structural_bridges_b7_b8.py`,
 `verify_rate_dependent.py`, `verify_energy_balance.py` weiterhin grün.
 
+## Paket 9 — Astra-Nachprüfung von Paket 8 (Commit `2cc4b5b`, 2026-09-23)
+
+Antwort auf `prompts/Answers/nicht_stationäre_Treiber/SCF_Check_2cc4b5b.md`
+(Astra, gezielte Nachprüfung). **Bestätigt:** Der Pufferminimum-Fix ist
+korrekt — Astras unabhängige Gegenrechnung (Nullstellensuche der
+Ableitung der analytischen Faltung, weder ODE-Löser noch
+Modul-Optimierungsroutine verwendet) stimmt mit der Implementierung auf
+1,30·10⁻¹³ überein (vorher: 4,29·10⁻⁷ Rasterfehler); der Grenzfall wird
+jetzt korrekt als `switched` erkannt. Unterdeckungs-Darstellung und
+Rücknahme des Signifikanz-Überclaims sind angemessen nachgezogen.
+
+**Ein Punkt war noch nicht vollständig geschlossen und wird hiermit
+behoben:** Das in Paket 8 eingeführte Feld `established_unbounded` setzte
+bei `flat_profile`-Klassifikation automatisch `True` — aber „flach auf
+dem gescannten Gitter" beweist keine globale Unbeschränktheit. Astras
+zwei unabhängig ausgeführte Gegenbeispiele:
+
+1. `χ²(θ) = max(|θ|−1, 0)²`, Scan `[−1,−0,5,0,0,5,1]`: exakt null auf dem
+   gesamten Scan (→ „flat"), aber die wahre Konfidenzmenge bei Schwelle 1
+   ist das **beschränkte** Intervall `[−2, 2]`.
+2. `χ²(θ) = θ⁴`, Scan `[−0,1, 0, 0,1]`: Varianz ~2,2·10⁻⁹ unter dem
+   Standard-`atol`, ebenfalls „flat" klassifiziert, aber die wahre Menge
+   bei Schwelle 1 ist `[−1, 1]`.
+
+**Fix:** `likelihood_interval` behauptet `established_unbounded` jetzt
+**nie mehr** aus reinen Gitterdaten — das Feld bleibt in der
+Rückgabe-Signatur, ist aber von dieser Funktion aus immer `False`
+(reserviert für einen Aufrufer mit unabhängiger analytischer/struktureller
+Evidenz). Neues, ehrlich skopiertes Feld `flat_in_scanned_range` (True
+genau bei `unbounded_reason == "flat_profile"`) beschreibt, was
+tatsächlich beobachtet wurde. Der bestehende Produktmodell-Test
+(`θ₁·θ₂=6`) demonstriert echte Nichtidentifizierbarkeit weiterhin — aber
+jetzt explizit über die algebraische Struktur (für jedes gescannte `θ₁`
+liefert `θ₂=6/θ₁` exakt `χ²=0`), nicht über die generische API-Klassifikation
+allein. Astras beide Gegenbeispiele sind als neuer Verify-Check verankert.
+
+Zusätzlich: redaktionelle Korrektur der COVID-Abschnittsüberschrift in
+`docs/mechanistic_probabilistic_evaluation.md` (widersprach dem eigenen
+Fließtext — `renewal_constant_R` hat weiterhin den besten Intervallscore,
+die Überschrift hatte fälschlich das Gegenteil suggeriert).
+
+`verify_profile_likelihood_core.py`: 6/6 (neuer Check
+`flat_in_scanned_range_is_not_global_unboundedness`, bestehende Checks um
+das neue Feld erweitert). `verify_energy_balance.py` weiterhin grün
+(nutzt das Feld nicht direkt, nur `bounded`/`unbounded_reason`).
+
 ## Arbeitsweise
 
 - Wie bei `NONSTATIONARY_ROADMAP.md`: additive Module, echte Daten wo neu

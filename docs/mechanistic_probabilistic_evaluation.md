@@ -56,7 +56,15 @@ forecasts. Point accuracy and predictive-interval quality remain
 different questions; the corrected picture argues that distinction more
 sharply, not more softly.
 
-## COVID renewal: the point-forecast winner is not the interval winner — and none of the three are close to calibrated
+## COVID renewal: best interval score, but severe undercoverage — for all three predictors
+
+**Correction (2026-09-23, Astra, `SCF_Check_2cc4b5b.md`):** the heading
+here previously read "the point-forecast winner is not the interval
+winner", which contradicted the very next paragraph — `renewal_constant_R`
+IS both the point-forecast winner (package 2) and the interval-score
+winner (here). The editorial error is fixed; the substantive finding
+(severe undercoverage for all three predictors, independent of ranking)
+was already correct and is unchanged.
 
 | Predictor | Nominal coverage | Observed coverage | Evaluated / skipped trials | Mean interval score |
 |---|---:|---:|---:|---:|

@@ -96,6 +96,7 @@
                 "chi2_star": 62.00000000000064,
                 "classification": "identifiable",
                 "established_unbounded": false,
+                "flat_in_scanned_range": false,
                 "lower": null,
                 "open_lower": true,
                 "open_upper": true,
@@ -165,6 +166,7 @@
                 "chi2_star": 61.999999999999986,
                 "classification": "identifiable",
                 "established_unbounded": false,
+                "flat_in_scanned_range": false,
                 "lower": null,
                 "open_lower": true,
                 "open_upper": true,
@@ -234,6 +236,7 @@
                 "chi2_star": 61.11132743335491,
                 "classification": "identifiable",
                 "established_unbounded": false,
+                "flat_in_scanned_range": false,
                 "lower": null,
                 "open_lower": true,
                 "open_upper": false,
@@ -298,6 +301,7 @@
                 "chi2_star": 62.0,
                 "classification": "identifiable",
                 "established_unbounded": false,
+                "flat_in_scanned_range": false,
                 "lower": null,
                 "open_lower": true,
                 "open_upper": true,
@@ -367,6 +371,7 @@
                 "chi2_star": 61.10817324080177,
                 "classification": "identifiable",
                 "established_unbounded": false,
+                "flat_in_scanned_range": false,
                 "lower": 1.3451962137645435,
                 "open_lower": false,
                 "open_upper": true,
@@ -403,6 +408,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-23T14:16:25+02:00"
+    "timestamp": "2026-09-23T20:40:49+02:00"
   }
 }

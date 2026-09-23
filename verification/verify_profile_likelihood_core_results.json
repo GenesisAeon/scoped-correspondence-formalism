@@ -1,10 +1,10 @@
 {
   "milestone": 20,
   "title": "Profile Likelihood",
-  "count": 5,
-  "passed": 5,
+  "count": 6,
+  "passed": 6,
   "failed": 0,
-  "timestamp": "2026-09-23T14:21:56+02:00",
+  "timestamp": "2026-09-23T20:46:27+02:00",
   "platform": "Windows-10-10.0.19045-SP0",
   "python": "3.11.9",
   "source_doi": "10.1093/bioinformatics/btp358",
@@ -59,12 +59,15 @@
         "interval": {
           "bounded": false,
           "unbounded": true,
+          "flat_in_scanned_range": true,
+          "established_unbounded": false,
           "unbounded_reason": "flat_profile",
           "lower": null,
           "upper": null,
           "chi2_star": 0.0,
           "threshold": 1.0
-        }
+        },
+        "structural_non_identifiability_check": "theta2=6/theta1 gives chi2=0 exactly for every scanned theta1 -- an algebraic fact, not a scan artifact"
       }
     },
     {
@@ -155,8 +158,48 @@
         "interval": {
           "bounded": false,
           "unbounded": true,
+          "flat_in_scanned_range": false,
           "established_unbounded": false,
           "unbounded_reason": "open_at_grid_boundary"
+        }
+      }
+    },
+    {
+      "name": "flat_in_scanned_range_is_not_global_unboundedness",
+      "status": "passed",
+      "evidence": {
+        "capped_quadratic": {
+          "chi2": "max(|theta|-1,0)^2",
+          "fixed_values": [
+            -1.0,
+            -0.5,
+            0.0,
+            0.5,
+            1.0
+          ],
+          "classification": "flat",
+          "flat_in_scanned_range": true,
+          "established_unbounded": false,
+          "true_global_confidence_set": [
+            -2.0,
+            2.0
+          ]
+        },
+        "narrow_quartic": {
+          "chi2": "theta^4",
+          "fixed_values": [
+            -0.1,
+            0.0,
+            0.1
+          ],
+          "variance": 2.2222222222222234e-09,
+          "classification": "flat",
+          "flat_in_scanned_range": true,
+          "established_unbounded": false,
+          "true_global_confidence_set": [
+            -1.0,
+            1.0
+          ]
         }
       }
     },

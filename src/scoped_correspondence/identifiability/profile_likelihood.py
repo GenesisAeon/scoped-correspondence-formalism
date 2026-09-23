@@ -327,29 +327,59 @@ def likelihood_interval(
     CORRECTION (2026-09-23, external follow-up review by Astra,
     SCF_Followup_1231f64.md): ``unbounded=True`` is set for THREE distinct
     reasons (``flat_profile``, ``open_at_grid_boundary``,
-    ``unresolved_in_scan``), but only ``flat_profile`` is an ESTABLISHED
-    finding (a wide-enough scan whose variance genuinely fails to
-    distinguish from flat) — the other two mean only "no finite endpoint
-    was found WITHIN this scan", which is a weaker, inconclusive claim, not
-    a positive finding of unboundedness. The new ``established_unbounded``
-    field makes this distinction machine-readable: ``True`` only for
-    ``flat_profile``; ``False`` for ``open_at_grid_boundary`` and
-    ``unresolved_in_scan`` (and, trivially, for the bounded case).
-    ``unbounded`` itself is UNCHANGED for backward compatibility (it still
-    means "no finite two-sided interval was resolved from this call") —
-    callers that need the stronger, established claim should check
-    ``established_unbounded``, not ``unbounded``, per Astra's point that a
-    scan-boundary status "should not simultaneously assert an established
-    unboundedness."
+    ``unresolved_in_scan``); none of them, on their own, are a positive,
+    GLOBAL finding of unboundedness — only a description of what a finite
+    scan showed.
+
+    CORRECTION 2 (2026-09-23, external follow-up review by Astra,
+    SCF_Check_2cc4b5b.md): an earlier version of this fix set a new
+    ``established_unbounded`` field to ``True`` whenever
+    ``unbounded_reason == "flat_profile"``. Astra showed this is ALSO
+    wrong with two independently-executed counterexamples: (a)
+    ``chi2(theta) = max(|theta|-1, 0)**2`` scanned at
+    ``[-1,-0.5,0,0.5,1]`` is exactly zero everywhere on that grid (hence
+    classified "flat"), yet its TRUE confidence set at threshold=1 is the
+    BOUNDED interval ``[-2, 2]`` — the function rises again immediately
+    outside the scanned window; (b) ``chi2(theta) = theta**4`` scanned at
+    ``[-0.1, 0, 0.1]`` has variance ~2.2e-9 (below the default ``atol``),
+    hence also classified "flat", yet its true confidence set at
+    threshold=1 is ``[-1, 1]``. A flat profile ON THE SCANNED GRID can
+    never, by itself, establish that the profile stays flat (or even
+    non-increasing) beyond that grid — "flat" here is exactly as
+    scan-relative a finding as "open at the grid boundary" or
+    "unresolved in scan". Genuinely establishing global unboundedness
+    needs additional analytic or structural evidence beyond any finite
+    grid (e.g. the product-model example in
+    ``verify_profile_likelihood_core.py`` is TRULY non-identifiable
+    because ``theta1*theta2=6`` has a solution for every ``theta1``, an
+    algebraic fact independent of which grid was scanned — not because
+    five sampled points happened to look flat).
+
+    Consequently: this function NEVER reports ``established_unbounded =
+    True`` from grid data alone — it is always ``False`` when returned
+    from here, regardless of classification. The field is kept in the
+    return contract (rather than removed) so that a CALLER who has
+    independent structural/analytic evidence of true global
+    unboundedness has a documented place to record that conclusion
+    without overloading ``unbounded`` or ``classification``; this
+    function itself makes no such claim. ``flat_in_scanned_range`` is the
+    new, honestly-scoped, purely descriptive field for what
+    ``classify_identifiability`` actually found (``True`` iff
+    ``unbounded_reason == "flat_profile"``). ``unbounded`` and
+    ``unbounded_reason`` are UNCHANGED for backward compatibility.
 
     Returns
     -------
     dict
         ``bounded`` (bool), ``lower`` / ``upper`` (float or None),
         ``chi2_star``, ``threshold``, ``values_in_set`` (list of fixed
-        values inside the set), ``unbounded`` (bool), ``established_unbounded``
-        (bool — True only for ``unbounded_reason == "flat_profile"``),
-        ``unbounded_reason`` (``\"flat_profile\"`` | ``\"open_at_grid_boundary\"``
+        values inside the set), ``unbounded`` (bool),
+        ``flat_in_scanned_range`` (bool — True only for
+        ``unbounded_reason == "flat_profile"``; a SCAN-RELATIVE
+        observation, not a global claim), ``established_unbounded``
+        (bool — ALWAYS ``False`` from this function; reserved for a
+        caller with independent structural evidence), ``unbounded_reason``
+        (``\"flat_profile\"`` | ``\"open_at_grid_boundary\"``
         | ``\"unresolved_in_scan\"`` | None), ``classification``, ``source``.
     """
     if len(profile) < 1:
@@ -382,6 +412,7 @@ def likelihood_interval(
         return {
             "bounded": False,
             "unbounded": True,
+            "flat_in_scanned_range": False,
             "established_unbounded": False,
             "unbounded_reason": "unresolved_in_scan",
             "lower": None,
@@ -404,7 +435,8 @@ def likelihood_interval(
         return {
             "bounded": False,
             "unbounded": True,
-            "established_unbounded": True,
+            "flat_in_scanned_range": True,
+            "established_unbounded": False,
             "unbounded_reason": "flat_profile",
             "lower": None,
             "upper": None,
@@ -413,6 +445,14 @@ def likelihood_interval(
             "values_in_set": list(in_set),
             "classification": classification,
             "source": SOURCE,
+            "note": (
+                "flat ON THE SCANNED GRID ONLY -- NOT a proof of global "
+                "unboundedness (Astra, SCF_Check_2cc4b5b.md): e.g. "
+                "chi2(theta)=max(|theta|-1,0)**2 is exactly flat on "
+                "[-1,1] yet has a BOUNDED confidence set [-2,2] at "
+                "threshold=1; widen fixed_values or supply independent "
+                "analytic/structural evidence to claim more than this"
+            ),
         }
 
     if not in_set:
@@ -420,6 +460,7 @@ def likelihood_interval(
         return {
             "bounded": True,
             "unbounded": False,
+            "flat_in_scanned_range": False,
             "established_unbounded": False,
             "unbounded_reason": None,
             "lower": None,
@@ -452,6 +493,7 @@ def likelihood_interval(
         return {
             "bounded": False,
             "unbounded": True,
+            "flat_in_scanned_range": False,
             "established_unbounded": False,
             "unbounded_reason": "open_at_grid_boundary",
             "lower": None if open_lo else lower,
@@ -468,6 +510,7 @@ def likelihood_interval(
     return {
         "bounded": True,
         "unbounded": False,
+        "flat_in_scanned_range": False,
         "established_unbounded": False,
         "unbounded_reason": None,
         "lower": lower,

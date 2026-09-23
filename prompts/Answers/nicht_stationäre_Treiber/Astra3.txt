@@ -1,0 +1,28 @@
+**Den wichtigsten Fix bestätige ich: Der numerische Puffer-Bug ist behoben.** Ich habe [`2cc4b5b`](https://github.com/GenesisAeon/scoped-correspondence-formalism/commit/2cc4b5b1cd61f40b283bd8f48f9a61479990a7fc) gezielt nachgeprüft.
+
+Die unabhängige analytische Gegenrechnung ergibt:
+
+* Abweichung des Minimums nur noch **\(1{,}3 \times 10^{-13}\)**.
+* Der kritische Grenzfall wird korrekt als **`switched`** erkannt.
+* **5/5 gezielt erneut ausgeführte Prüfskripte bestehen.** Die gesamte 69er-Suite habe ich diesmal nicht wiederholt.
+
+Auch die Darstellung der Unterdeckung und die Rücknahme des Signifikanz-Überclaims passen jetzt.
+
+**Einen Punkt würde ich noch nicht schließen: `established_unbounded`.** Das neue Feld behandelt das alte quadratische Gegenbeispiel richtig, setzt aber bei `flat_profile` weiterhin automatisch `True`. Auch ein exakt flacher Ausschnitt beweist keine globale Unbeschränktheit.
+
+Mein ausgeführtes Gegenbeispiel:
+
+$$
+\chi^2(\theta)=\max(|\theta|-1,0)^2.
+$$
+
+Auf dem Scan \([-1,1]\) sind sämtliche Werte exakt null. Bei Schwelle 1 ist die vollständige Menge trotzdem **\([-2,2]\)** – also beschränkt. Die API meldet dennoch `established_unbounded=True`.
+
+Die kleine, saubere Korrektur wäre: **`flat_in_scanned_range` als numerischen Befund ausgeben; globale Unbeschränktheit nur mit zusätzlichem analytischem oder strukturellem Nachweis behaupten.**
+
+Eine redaktionelle Kleinigkeit: Die neue COVID-Überschrift sagt „not the interval winner“, obwohl Renewal laut Tabelle weiterhin den besten Intervallscore hat. „Best interval score, but severe undercoverage“ trifft das Ergebnis.
+
+Danach würde ich den Schwerpunkt auf die **zeitlich korrekte Intervallkalibrierung in vorab festgelegten weiteren Zeitfenstern** legen. Die Klimareferenzfrage bleibt, wie inzwischen ausdrücklich dokumentiert, ein eigener offener Modellschritt.
+
+* [SCF_Check_2cc4b5b.md](sandbox:/workspace/scratch/bc86442eb021/review_2cc4b5b/SCF_Check_2cc4b5b.md)
+* [SCF_Check_2cc4b5b_Rechenbelege.zip](sandbox:/workspace/scratch/bc86442eb021/review_2cc4b5b/SCF_Check_2cc4b5b_Rechenbelege.zip)
