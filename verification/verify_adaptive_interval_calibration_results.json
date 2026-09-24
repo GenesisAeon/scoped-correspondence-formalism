@@ -1,0 +1,198 @@
+{
+  "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 1 (adaptive interval calibration)",
+  "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
+  "source_aci": "Gibbs, I.; Cand\u00e8s, E. J. (2024): Conformal Inference for Online Prediction with Arbitrary Distribution Shifts. JMLR 25. https://www.jmlr.org/papers/v25/22-1218.html",
+  "source_pid": "Angelopoulos, A. N.; Cand\u00e8s, E. J.; Tibshirani, R. J. (2023): Conformal PID Control for Time Series Prediction. NeurIPS. https://papers.neurips.cc/paper_files/paper/2023/hash/47f2fad8c1111d07f83c91be7870f8db-Abstract-Conference.html",
+  "pid_scope_note": "Implements only the Proportional + Integral terms of Conformal PID Control; the published method's learned scorecaster and bounded saturation link are NOT implemented.",
+  "default_alpha_target": 0.2,
+  "timestamp": "2026-09-24T09:22:30+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "aci_update_hand_arithmetic": {
+      "status": "pass",
+      "detail": {
+        "miss_update": null,
+        "checked": 6
+      }
+    },
+    "pid_update_hand_arithmetic": {
+      "status": "pass",
+      "detail": {
+        "checked": 6
+      }
+    },
+    "aci_recovers_faster_after_regime_shift": {
+      "status": "pass",
+      "detail": {
+        "n_pre": 30,
+        "n_post": 20,
+        "window": [
+          31,
+          40
+        ],
+        "reference_misses": 10,
+        "aci_misses": 4
+      }
+    },
+    "no_lookahead_prefix_replay": {
+      "status": "pass",
+      "detail": {
+        "methods_checked": [
+          "rolling_reference",
+          "aci",
+          "pid"
+        ],
+        "prefix_trials": 34
+      }
+    },
+    "real_data_application": {
+      "status": "pass",
+      "detail": {
+        "energy_balance": {
+          "persistence": {
+            "rolling_reference": {
+              "n_trials": 40,
+              "empirical_coverage": 0.75,
+              "mean_width": 0.3155,
+              "mean_interval_score": 0.498
+            },
+            "aci": {
+              "n_trials": 40,
+              "empirical_coverage": 0.75,
+              "mean_width": 0.3174,
+              "mean_interval_score": 0.5027
+            },
+            "pid": {
+              "n_trials": 40,
+              "empirical_coverage": 0.725,
+              "mean_width": 0.3292,
+              "mean_interval_score": 0.5063
+            }
+          },
+          "expanding": {
+            "rolling_reference": {
+              "n_trials": 40,
+              "empirical_coverage": 0.775,
+              "mean_width": 0.2758,
+              "mean_interval_score": 0.4947
+            },
+            "aci": {
+              "n_trials": 40,
+              "empirical_coverage": 0.725,
+              "mean_width": 0.2739,
+              "mean_interval_score": 0.4882
+            },
+            "pid": {
+              "n_trials": 40,
+              "empirical_coverage": 0.7,
+              "mean_width": 0.2712,
+              "mean_interval_score": 0.4961
+            }
+          },
+          "last30": {
+            "rolling_reference": {
+              "n_trials": 40,
+              "empirical_coverage": 0.85,
+              "mean_width": 0.2598,
+              "mean_interval_score": 0.4061
+            },
+            "aci": {
+              "n_trials": 40,
+              "empirical_coverage": 0.85,
+              "mean_width": 0.2454,
+              "mean_interval_score": 0.4121
+            },
+            "pid": {
+              "n_trials": 40,
+              "empirical_coverage": 0.85,
+              "mean_width": 0.2327,
+              "mean_interval_score": 0.414
+            }
+          },
+          "energy_balance_mechanistic": {
+            "rolling_reference": {
+              "n_trials": 40,
+              "empirical_coverage": 0.725,
+              "mean_width": 0.2698,
+              "mean_interval_score": 0.3686
+            },
+            "aci": {
+              "n_trials": 40,
+              "empirical_coverage": 0.7,
+              "mean_width": 0.2734,
+              "mean_interval_score": 0.3736
+            },
+            "pid": {
+              "n_trials": 40,
+              "empirical_coverage": 0.75,
+              "mean_width": 0.2762,
+              "mean_interval_score": 0.376
+            }
+          }
+        },
+        "covid_renewal": {
+          "persistence": {
+            "rolling_reference": {
+              "n_trials": 19,
+              "empirical_coverage": 0.0,
+              "mean_width": 2471.7023,
+              "mean_interval_score": 50551.0857
+            },
+            "aci": {
+              "n_trials": 19,
+              "empirical_coverage": 0.0,
+              "mean_width": 2977.538,
+              "mean_interval_score": 48527.7426
+            },
+            "pid": {
+              "n_trials": 19,
+              "empirical_coverage": 0.0,
+              "mean_width": 3483.3738,
+              "mean_interval_score": 46504.3994
+            }
+          },
+          "exponential_extrapolation": {
+            "rolling_reference": {
+              "n_trials": 19,
+              "empirical_coverage": 0.5789,
+              "mean_width": 3737.9389,
+              "mean_interval_score": 8244.9452
+            },
+            "aci": {
+              "n_trials": 19,
+              "empirical_coverage": 0.5789,
+              "mean_width": 3735.7055,
+              "mean_interval_score": 8198.3343
+            },
+            "pid": {
+              "n_trials": 19,
+              "empirical_coverage": 0.5263,
+              "mean_width": 3741.3043,
+              "mean_interval_score": 8125.5293
+            }
+          },
+          "renewal_constant_R": {
+            "rolling_reference": {
+              "n_trials": 19,
+              "empirical_coverage": 0.5789,
+              "mean_width": 1568.0315,
+              "mean_interval_score": 5521.6902
+            },
+            "aci": {
+              "n_trials": 19,
+              "empirical_coverage": 0.5789,
+              "mean_width": 1622.2213,
+              "mean_interval_score": 5564.708
+            },
+            "pid": {
+              "n_trials": 19,
+              "empirical_coverage": 0.5789,
+              "mean_width": 1642.8469,
+              "mean_interval_score": 5597.3735
+            }
+          }
+        }
+      }
+    }
+  }
+}

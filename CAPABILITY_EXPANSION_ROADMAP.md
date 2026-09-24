@@ -22,7 +22,7 @@ Arbeitspaketen verdichtet):
 | # | Priorität | Kern | Status |
 |---|---|---|---|
 | 0 | Konsolidierung | README-Überclaims korrigieren, Modulübersicht, eingecheckter Testaufruf + CI | ✅ erledigt |
-| 1 | Adaptive Intervallkalibrierung | Rollierende Referenz vs. Adaptive Conformal Inference / Conformal PID Control | ⏸ geplant |
+| 1 | Adaptive Intervallkalibrierung | Rollierende Referenz vs. Adaptive Conformal Inference / Conformal PID Control | ✅ erledigt |
 | 2 | Dynamik vs. Messprozess | Latentes Infektionsgeschehen (COVID-Pilot), Energiebilanz-Referenzkonsistenz | ⏸ geplant |
 | 3 | Gemeinsame Operatorstrukturen | Mori-Zwanzig-Gedächtnisrahmen für Puffer/Energiebilanz/Renewal/ETAS | ⏸ geplant |
 | 4 | Transiente Verstärkung | Nichtnormale Kopplung, `A=[[-1,k],[0,-1]]`-Beispiel, zwei gekoppelte Puffer | ⏸ geplant |
@@ -96,6 +96,58 @@ eingecheckt.
 - **Ergebnis:** 55/55 math, 14/14 data, 0/0 defekte Links — alle drei
   Kategorien grün, reproduzierbar über die neuen eingecheckten Befehle.
 
-## Paket 1-5
+## Paket 1 — Adaptive Intervallkalibrierung (2026-09-24)
 
-Werden nacheinander begonnen, sobald Paket 0 abgeschlossen und regressionsgetestet ist. Jeweils eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
+Neues Modul `validation/adaptive_interval_calibration.py` (Milestone 55),
+verifiziert in `verify_adaptive_interval_calibration.py` (5/5 Checks).
+Drei Kalibrierungsmethoden teilen dieselbe kausale Quantil-Maschine
+(exakt dieselbe strikte zeitliche Zulässigkeit wie
+`leave_one_origin_out_intervals`) und unterscheiden sich nur darin, wie
+sich das Fehlniveau `alpha_t` über die Zeit entwickelt:
+
+- **`rolling_reference`**: `alpha_t` fest bei `alpha_target` — Astras
+  angeforderte einfache Referenz.
+- **`aci`**: Adaptive Conformal Inference (Gibbs & Candès 2024), Online-
+  Rekursion `alpha_{t+1} = alpha_t + gamma*(alpha_target - err_t)`.
+- **`pid`**: NUR der Proportional+Integral-Anteil von Conformal PID
+  Control (Angelopoulos, Candès & Tibshirani 2023) — der gelernte
+  "Scorecaster" und die begrenzende Sättigungsfunktion des Originalpapers
+  sind bewusst NICHT implementiert, explizit als Scope-Grenze dokumentiert
+  statt stillschweigend approximiert.
+
+**Coverage-Semantik-Warnung** (wie von Astra verlangt): ACIs echte
+Garantie ist eine LANGFRIST-Durchschnittsabdeckung unter beliebigem
+Distribution Shift (Gibbs & Candès 2024, Theorem 1) — keine punktweise
+oder bedingte Abdeckungsgarantie zu jedem einzelnen Zeitpunkt, und für die
+vereinfachte PID-Variante existiert gar keine eigene publizierte Garantie.
+
+**Synthetischer Regressionstest:** ein deterministischer Regimewechsel
+(Residuenbetrag oszilliert 30 Schritte in [0,5, 1,5], dann 20 Schritte in
+[7,5, 8,5]) zeigt den Mechanismus real wirksam: in den ersten 10 Schritten
+nach dem Wechsel unterdeckt die feste Referenz deutlich (≥5/10 Fehltreffer),
+während ACI innerhalb weniger Fehltreffer reagiert und nachweislich
+schneller erholt (strikter quantitativer Vergleich, nicht nur beobachtet).
+Ein zweiter Test (`check_no_lookahead_prefix_replay`) bestätigt: alle drei
+Methoden sind exakt kausal — ein Präfix-Replay reproduziert identische
+Entscheidungen für die überlappenden frühen Versuche.
+
+**Ergebnis auf echten Daten** (nominell 80%, `alpha_target=0,2`, Details:
+[docs/adaptive_interval_calibration.md](docs/adaptive_interval_calibration.md)):
+Energiebilanz (n=40 je Prädiktor/Methode) erreicht mit dieser SYMMETRISCHEN
+Betrags-Quantil-Konstruktion 70-85% Abdeckung — deutlich besser als die
+52,5% der ursprünglichen LOO-Konstruktion (signierte lo/hi-Quantile;
+methodisch verschieden, nicht direkt vergleichbar, beide ehrlich berichtet).
+Keine der drei Methoden dominiert hier klar. COVID-Renewal (n=19):
+`persistence` erreicht 0% Abdeckung bei ALLEN DREI Methoden — die
+Residuen wachsen im 2020-Exponentialfenster monoton, sodass kein aus der
+Vergangenheit gebautes Quantil je aufholen kann; das ist eine Grenze jeder
+reinen Residuen-Quantil-Kalibrierung (adaptiv oder nicht), kein Fehler der
+Rekursionen — ehrlicher Schluss: dieser Prädiktor braucht ein strukturell
+anderes Unsicherheitsmodell (Priorität 2), keinen besseren Kalibrierungs-
+Wrapper. Bei den anderen beiden COVID-Prädiktoren liegen alle drei
+Methoden dicht beieinander; `n=19` ist zu klein für eine belastbare
+Unterscheidung.
+
+## Paket 2-5
+
+Werden nacheinander begonnen. Jeweils eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
