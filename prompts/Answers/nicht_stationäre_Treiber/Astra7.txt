@@ -1,0 +1,15 @@
+Fertig – als ausführliche, direkt weitergebbare Implementierungsspezifikation:
+
+[](sandbox:/workspace/scratch/bc86442eb021/scf_domain_expansion/SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md)
+
+Enthalten sind:
+
+* **Vier ausgearbeitete Piloten:** Warteschlangen, Hydrologie, Batteriealterung und kooperative Agenten.
+* **Acht Hauptpakete** mit Reihenfolge, Schnittstellen, Herleitungen und konkreten Abnahmekriterien.
+* Datenquellen, Baselines, zeitliche Testaufteilungen und Schutz gegen Zukunftslecks.
+* Exakte Kontrollbeispiele; zentrale Formeln und Zahlen habe ich zusätzlich numerisch gegengeprüft.
+* Anschlusskonzepte für Ökologie, Energieversorgung, Verkehr, Lieferketten, Neurowissenschaft und Astronomie.
+
+Der offene Zeiteinheitenfehler ist als **Paket B0** eingeplant. Die Erweiterungen müssen keinen vorgegebenen Modellgewinn erzielen: Auch negative Ergebnisse zählen bei sauberer Prüfung.
+
+**Gib Claude das gesamte Dokument. Abschnitt 17 enthält den fertigen Arbeitsauftrag**, der auf die fachlichen Details verweist.
