@@ -1,0 +1,75 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B5a (capacity degradation)",
+  "timestamp": "2026-09-24T18:44:16+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "exact_synthetic_recovery": {
+      "status": "pass",
+      "detail": {
+        "linear_params": {
+          "C0": 1.9999999999999998,
+          "a": 0.010000000000000005
+        },
+        "power_params": {
+          "C0": 2.0,
+          "a": 0.005000000000000003,
+          "p": 1.4999999999999998
+        }
+      }
+    },
+    "p_equals_one_reduces_to_linear": {
+      "status": "pass",
+      "detail": {
+        "power_params_on_linear_data": {
+          "C0": 2.0,
+          "a": 0.01,
+          "p": 1.0
+        },
+        "max_abs_residual": 0.0
+      }
+    },
+    "observation_ablation": {
+      "status": "pass",
+      "detail": {
+        "phi_independent": -0.02103361442234998,
+        "phi_correlated": 0.7964298469292529,
+        "phi_true": 0.8
+      }
+    },
+    "leakage_guard": {
+      "status": "pass",
+      "detail": {
+        "params": {
+          "C0": 1.999999999999999,
+          "a": 0.019999999999999945
+        }
+      }
+    },
+    "observed_increases_preserved": {
+      "status": "pass",
+      "detail": {
+        "train_capacity": [
+          2.0,
+          1.9,
+          1.95,
+          1.8,
+          1.7
+        ]
+      }
+    },
+    "mean_vs_observed_eol_crossing": {
+      "status": "pass",
+      "detail": {
+        "mean_crossing": 60.000000000000036,
+        "observed_crossing_one_realization": 60.0
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 3,
+        "far_future_negative_extrapolation": -97.99999999999868
+      }
+    }
+  }
+}

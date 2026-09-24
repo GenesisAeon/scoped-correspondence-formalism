@@ -24,10 +24,10 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | B1 | Protokoll, Provenienz, Testzuordnung, diese Roadmap | ✅ erledigt |
 | B2a | Fluidrückstau und Bestandsbrücke | ✅ erledigt |
 | B2b | CTMC-Erstpassage und Queue-Pilot | ✅ erledigt |
-| B3a | Lineare Reservoirs und Gedächtnisbrücke | ⏳ offen |
+| B3a | Lineare Reservoirs und Gedächtnisbrücke | ✅ erledigt |
 | B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⏳ offen |
 | B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ✅ erledigt |
-| B5a | Kapazitätsmodelle und Beobachtungs-Ablation | ⏳ offen |
+| B5a | Kapazitätsmodelle und Beobachtungs-Ablation | ✅ erledigt |
 | B5b | NASA-Batteriedatenpilot (echte externe Daten, Lizenz laut Astra ungeklärt) | ⏳ offen |
 | B6a | Endliche kooperative Agentenaufgaben | ✅ erledigt |
 | B6b | Wiederholte Aufgabe / OpenSpiel | ausdrücklich optional, nicht Teil dieser Runde |
@@ -138,6 +138,48 @@ bei Gleichheit geprüft; Redundanzaufgabe gewinnt bei keinem `lambda>0`.
 Verifiziert: `verify_cooperative_agents_pilot.py` (6/6). Docs:
 `docs/cooperative_agents_pilot.md`.
 
+## B3a — Lineare Reservoirs und Gedächtnisbrücke (erledigt)
+
+`dynamics/linear_reservoirs.py`: exakte Reservoir-Update-Formel
+(`-expm1(-kΔ)/k` statt naivem `(1-exp(-kΔ))/k` zur Vermeidung von
+Auslöschung nahe `k→0`), Kontrollzahlen `S0=3,u=2,k=0.5,Δ=1` →
+`S1≈3.393469340287367`, `q̄≈1.6065306597126332` — unabhängig nachgerechnet
+und gegen `solve_ivp` gegengeprüft. Identifizierbarkeit geprüft: `k1=k2`
+reduziert auf Ein-Speicher-Fall, `alpha2=0` ebenso, Labeltausch `1↔2`
+ändert die Gesamtsumme nicht, verschiedene Anfangsaufteilungen bei
+gleichem `S0` divergieren jedoch messbar (nicht identifizierbar aus der
+Summe allein). Faltungsdarstellung (Mori-Zwanzig-Kernel, spezialisiert auf
+diesen diagonalen Fall) gegen die diskrete Schrittrekursion geprüft (`<1e-8`).
+Die allgemeinere Erweiterung von `linear_memory_projection.py` um einen
+angeregten verborgenen Block wurde gemäß der im Plan explizit erlaubten
+Alternative NICHT gebaut — stattdessen direkt die Hydro-Faltung
+implementiert. Verifiziert: `verify_linear_reservoirs.py` (9/9). Docs:
+`docs/linear_reservoirs.md`.
+
+## B5a — Kapazitätsmodelle und Beobachtungs-Ablation (erledigt)
+
+`dynamics/capacity_degradation.py`: drei phänomenologische Mittelwertmodelle
+(Persistenz, linear, Potenzgesetz) getrennt von einer 2×2-Beobachtungs-
+Ablation (unabhängig vs. AR(1)-Residuen) — bewusst KEINE getrennte
+Identifikation von irreversibler Alterung, reversiblen Effekten und
+Messfehler aus einer einzelnen Reihe (nicht identifizierbar). Exakte
+Rekonstruktion rauschfreier linearer und Potenzgesetz-Kurven; `p=1`
+reduziert exakt auf den linearen Fall (Residuum ~0 bei linear generierten
+Daten). AR-Block ohne vorprogrammierten Gewinn bei unabhängigen Residuen
+(`|phi|<0,15` bei n=500), erkennt echte Korrelation (`phi=0,8`) auf
+`<0,1` genau. Mittelwert-Grenzpunkt und beobachtetes Erstereignis explizit
+getrennt gehalten. Negative Extrapolationen werden offen als
+Modellbereichsverletzung ausgegeben, nicht stillschweigend abgeschnitten;
+beobachtete Kapazitätsanstiege bleiben unangetastet in den Rohdaten.
+Verifiziert: `verify_capacity_degradation.py` (7/7). Docs:
+`docs/capacity_degradation.md`.
+
 ## Nächste Schritte
 
-B3a (lineare Reservoirs, Gedächtnisbrücke) als nächstes.
+B3b (CAMELS-DE) und B5b (NASA-Batteriedaten) benötigen externen
+Datenzugriff. Netzwerktest bestätigt Zugriff möglich; CAMELS-DE liegt
+jedoch nur als ein einziges ~2,18 GB-ZIP auf Zenodo vor (kein
+Teildownload einzelner Einzugsgebiete möglich) — für diese Umgebung nicht
+praktikabel; als offener, konkret benannter Datenblocker geführt (Plan
+Abschnitt 16: "Ein blockierter Datenpilot bleibt offen"). NASA-Batteriedaten
+(~210 MB ZIP) sind praktikabel — B5b wird als nächstes real versucht.
