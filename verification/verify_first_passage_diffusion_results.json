@@ -1,0 +1,77 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B4 (diffusion first-passage)",
+  "timestamp": "2026-09-24T18:34:27+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "plan_control_values": {
+      "status": "pass",
+      "detail": {
+        "p_mu0": 0.3173105078629142,
+        "p_mu1": 0.09041777356648555,
+        "e_x1": 2.0
+      }
+    },
+    "infinite_horizon_ever_hitting": {
+      "status": "pass",
+      "detail": {
+        "p_ever_mu1": 0.1353352832366127,
+        "p_finite_h1_mu1": 0.09041777356648555
+      }
+    },
+    "unit_scaling_invariance": {
+      "status": "pass",
+      "detail": {
+        "base": 0.09041777356648555,
+        "rescaled": {
+          "1e-06": 0.09041777356648555,
+          "0.001": 0.0904177735664855,
+          "1.0": 0.09041777356648555,
+          "1000.0": 0.09041777356648555,
+          "1000000.0": 0.09041777356648555
+        }
+      }
+    },
+    "deterministic_and_edge_cases": {
+      "status": "pass",
+      "detail": {
+        "t_star": 2.0,
+        "checked": 6
+      }
+    },
+    "monotonicity": {
+      "status": "pass",
+      "detail": {
+        "probs_vs_horizon": [
+          0.0012794397103424494,
+          0.12796571341205287,
+          0.2570805907530294,
+          0.5207067077791684,
+          0.6337336898110043
+        ],
+        "probs_vs_x0": [
+          0.732964623280825,
+          0.5207067077791684,
+          0.23694876720323893,
+          0.008628107117660492
+        ]
+      }
+    },
+    "monte_carlo_cross_check": {
+      "status": "pass",
+      "detail": {
+        "exact": 0.09041777356648555,
+        "monte_carlo": 0.085175,
+        "n_paths": 40000,
+        "n_steps": 400,
+        "tolerance": 0.008603380719855933
+      }
+    },
+    "bridge_and_scope_guards": {
+      "status": "pass",
+      "detail": {
+        "bridge_value": 0.1353352832366127,
+        "checked_guards": 6
+      }
+    }
+  }
+}

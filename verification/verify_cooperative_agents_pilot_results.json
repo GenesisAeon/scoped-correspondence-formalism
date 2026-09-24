@@ -1,0 +1,123 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B6a (cooperative agents)",
+  "timestamp": "2026-09-24T18:35:25+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "xor_task": {
+      "status": "pass",
+      "detail": {
+        "task_name": "xor_complementary_information",
+        "success_no_communication": 0.5,
+        "success_with_communication": 1.0,
+        "bits_sent_no_communication": 0.0,
+        "bits_sent_with_communication": 1.0,
+        "pid": {
+          "redundancy": 0.0,
+          "unique_source_1": 0.0,
+          "unique_source_2": 0.0,
+          "synergy": 1.0,
+          "I_joint": 1.0,
+          "method": "broja",
+          "I_r1": 0.0,
+          "I_r2": 0.0,
+          "source": "Bertschinger, Rauh, Olbrich, Jost & Ay 2014, Quantifying Unique Information, Entropy 16(4):2161\u20132183; DOI 10.3390/e16042161",
+          "doi": "10.3390/e16042161",
+          "n_starts": 5,
+          "unq1_optima": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "unq2_optima": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "converged": true
+        }
+      }
+    },
+    "redundancy_task": {
+      "status": "pass",
+      "detail": {
+        "task_name": "redundancy",
+        "success_no_communication": 1.0,
+        "success_with_communication": 1.0,
+        "bits_sent_no_communication": 0.0,
+        "bits_sent_with_communication": 1.0,
+        "pid": {
+          "redundancy": 1.0,
+          "unique_source_1": 0.0,
+          "unique_source_2": 0.0,
+          "synergy": 0.0,
+          "I_joint": 1.0,
+          "method": "broja",
+          "I_r1": 1.0,
+          "I_r2": 1.0,
+          "source": "Bertschinger, Rauh, Olbrich, Jost & Ay 2014, Quantifying Unique Information, Entropy 16(4):2161\u20132183; DOI 10.3390/e16042161",
+          "doi": "10.3390/e16042161",
+          "n_starts": 5,
+          "unq1_optima": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "unq2_optima": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "converged": true
+        }
+      }
+    },
+    "cost_threshold": {
+      "status": "pass",
+      "detail": {
+        "xor_eq_gap_at_0.5": 0.0,
+        "redundancy_never_helps_checked": 4
+      }
+    },
+    "noisy_channel": {
+      "status": "pass",
+      "detail": {
+        "0.0": {
+          "naive": 1.0,
+          "optimal": 1.0
+        },
+        "0.1": {
+          "naive": 0.9,
+          "optimal": 0.9
+        },
+        "0.5": {
+          "naive": 0.5,
+          "optimal": 0.5
+        },
+        "1.0": {
+          "naive": 0.0,
+          "optimal": 1.0
+        }
+      }
+    },
+    "full_enumeration_sums_to_one": {
+      "status": "pass",
+      "detail": {
+        "checked": 5
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 3
+      }
+    }
+  }
+}

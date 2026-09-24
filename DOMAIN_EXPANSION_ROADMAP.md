@@ -26,10 +26,10 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | B2b | CTMC-Erstpassage und Queue-Pilot | ✅ erledigt |
 | B3a | Lineare Reservoirs und Gedächtnisbrücke | ⏳ offen |
 | B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⏳ offen |
-| B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ⏳ offen |
+| B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ✅ erledigt |
 | B5a | Kapazitätsmodelle und Beobachtungs-Ablation | ⏳ offen |
 | B5b | NASA-Batteriedatenpilot (echte externe Daten, Lizenz laut Astra ungeklärt) | ⏳ offen |
-| B6a | Endliche kooperative Agentenaufgaben | ⏳ offen |
+| B6a | Endliche kooperative Agentenaufgaben | ✅ erledigt |
 | B6b | Wiederholte Aufgabe / OpenSpiel | ausdrücklich optional, nicht Teil dieser Runde |
 | B7 | Gemeinsamer Ergebnisvergleich, Fähigkeitsübersicht | ⏳ offen |
 
@@ -102,6 +102,41 @@ während die stochastische Treffwahrscheinlichkeit `≈5,6%` beträgt — ein
 Mittelwertmodell allein wäre hier fälschlich "sicher". Verifiziert:
 `verify_queueing_first_passage.py` (7/7), `verify_queueing_pilot.py` (3/3).
 Docs: `docs/queueing_pilot.md`.
+
+## B4 — Diffusions-Erstpassage (erledigt)
+
+`viability/first_passage_diffusion.py`: exakte Erstpassagewahrscheinlichkeit
+für Brownsche Bewegung mit Drift an einer unteren Schranke, log-raum-stabile
+Kombination (`logsumexp`). Kontrollwerte `x0=1,sigma=1,H=1`: `mu=0` →
+`0.31731050786291415`, `mu=1` → `0.09041777356648555` trotz `E[X_1]=2` —
+unabhängig nachgerechnet, exakter Treffer. Unendlicher Horizont
+(`exp(-2*mu*x0/sigma^2)`) explizit von der endlichen Aussage getrennt.
+Einheiteninvarianz (`t'=t/c, mu'=c*mu, sigma'=sqrt(c)*sigma, H'=H/c`) über
+12 Größenordnungen exakt bestätigt. Deterministischer Grenzfall (`sigma=0`)
+und Randfälle (`H=0`, `x0<=0`) explizit behandelt. Unabhängige
+Euler-Maruyama-Simulation (fester Seed) stimmt innerhalb 6σ-Toleranz
+überein und liegt strukturell als Unterschätzung vor (Gitterpunkte
+übersehen Durchgänge zwischen den Punkten) — dafür zusätzlich die
+Bridge-Formel `exp(-2xy/(sigma^2*Delta))` bereitgestellt. Verifiziert:
+`verify_first_passage_diffusion.py` (7/7). Docs:
+`docs/first_passage_diffusion.md`.
+
+## B6a — Endliche kooperative Agentenaufgaben (erledigt)
+
+`validation/cooperative_agents_pilot.py`: drei vollständig enumerierte
+Kontrollaufgaben, nutzt den vorhandenen BROJA-PID-Löser unverändert (keine
+neue Informationsbibliothek). XOR: `0,5` ohne Nachricht (Ausschöpfung aller
+4 möglichen Entscheidungsregeln), `1,0` mit korrekt übertragenem Bit; PID
+bestätigt die Lehrbuch-Synergie-Signatur (`redundancy=0, unique=0,
+synergy=1 bit`) direkt am Löser, nicht nur behauptet. Redundanzaufgabe:
+`1,0` mit/ohne Kommunikation, PID zeigt reine Redundanz. Fehlerkanal:
+`epsilon ∈ {0, 0,1, 0,5, 1}` für festen (`1-epsilon`) und optimalen
+Dekoder (`max(epsilon,1-epsilon)`) — bei `epsilon=1` ist die
+systematisch invertierte Nachricht vom informierten Dekoder vollständig
+rekonstruierbar. Kostenschwelle `lambda<0,5` für Senden im XOR-Fall exakt
+bei Gleichheit geprüft; Redundanzaufgabe gewinnt bei keinem `lambda>0`.
+Verifiziert: `verify_cooperative_agents_pilot.py` (6/6). Docs:
+`docs/cooperative_agents_pilot.md`.
 
 ## Nächste Schritte
 
