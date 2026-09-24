@@ -1,0 +1,48 @@
+{
+  "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 3 (linear memory projection)",
+  "source": "Chorin, A. J.; Hald, O. H.; Kupferman, R. (2000): Optimal prediction and the Mori-Zwanzig representation of irreversible processes. PNAS 97, 2968-2973.",
+  "timestamp": "2026-09-24T09:55:38+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "kernel_hand_arithmetic": {
+      "status": "pass",
+      "detail": {
+        "checked_u_values": [
+          0.0,
+          0.5,
+          1.0,
+          2.0,
+          3.0
+        ]
+      }
+    },
+    "finite_memory_matches_exact_when_window_covers_full_history": {
+      "status": "pass",
+      "detail": {
+        "max_diff_full_window_vs_exact": 0.0041897920031510605
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 3
+      }
+    },
+    "full_comparison_beats_memoryless_on_all_metrics": {
+      "status": "pass",
+      "detail": {
+        "mean_abs_error_memoryless": 0.7108,
+        "mean_abs_error_finite_memory": 0.1487,
+        "exact_min_value": -2.9463,
+        "exact_min_time": 5.6257,
+        "memoryless_min_value": -3.0695,
+        "memoryless_min_time": 5.5434,
+        "finite_memory_min_value": -3.0062,
+        "finite_memory_min_time": 5.6304,
+        "exact_crossing_time": 5.4953,
+        "memoryless_crossing_time": 5.336,
+        "finite_memory_crossing_time": 5.4391
+      }
+    }
+  }
+}

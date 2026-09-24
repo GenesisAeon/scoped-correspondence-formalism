@@ -47,8 +47,8 @@
       "model_class": "PC=CQ macro-closure, generator lumpability, Chapman-Enskog reduction, propagated error bounds.",
       "assumptions": "Exact closure requires specific lumpability/commutation conditions that are checked, not assumed.",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_closure_core.py", "verify_generator_lumpability_core.py", "verify_error_bounds_core.py", "verify_chapman_enskog_core.py"],
-      "known_limits": "No general data-driven reduction pipeline with automatically identified memory kernels yet (see Priority 3 of CAPABILITY_EXPANSION_ROADMAP.md)."
+      "verification_scripts": ["verify_closure_core.py", "verify_generator_lumpability_core.py", "verify_error_bounds_core.py", "verify_chapman_enskog_core.py", "verify_linear_memory_projection.py"],
+      "known_limits": "No general data-driven reduction pipeline with automatically identified memory kernels. Priority 3 (docs/linear_memory_projection.md) adds an exact Mori-Zwanzig-style memory reduction for LINEAR systems (arbitrary hidden dimension): the memoryless (Markov) approximation is beaten on mean error, minimum value/time, AND boundary-crossing time by a finite-memory approximation on a stable worked example. Nonlinear hidden-state elimination remains out of scope."
     },
     {
       "module": "viability/",

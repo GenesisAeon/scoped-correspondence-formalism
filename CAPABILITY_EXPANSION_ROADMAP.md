@@ -24,7 +24,7 @@ Arbeitspaketen verdichtet):
 | 0 | Konsolidierung | README-Überclaims korrigieren, Modulübersicht, eingecheckter Testaufruf + CI | ✅ erledigt |
 | 1 | Adaptive Intervallkalibrierung | Rollierende Referenz vs. Adaptive Conformal Inference / Conformal PID Control | ✅ erledigt |
 | 2 | Dynamik vs. Messprozess | Latentes Infektionsgeschehen (COVID-Pilot), Energiebilanz-Referenzkonsistenz | ✅ erledigt (COVID-Teil; Energiebilanz-Teil zurückgestellt) |
-| 3 | Gemeinsame Operatorstrukturen | Mori-Zwanzig-Gedächtnisrahmen für Puffer/Energiebilanz/Renewal/ETAS | ⏸ geplant |
+| 3 | Gemeinsame Operatorstrukturen | Mori-Zwanzig-Gedächtnisrahmen für Puffer/Energiebilanz/Renewal/ETAS | ✅ erledigt (allgemeiner linearer Rahmen; domänenspezifische Anwendung auf Puffer/Energiebilanz/Renewal/ETAS zurückgestellt) |
 | 4 | Transiente Verstärkung | Nichtnormale Kopplung, `A=[[-1,k],[0,-1]]`-Beispiel, zwei gekoppelte Puffer | ⏸ geplant |
 | 5 | Begrenzte Eingriffe | Control-Barrier-Function-QPs, zwei Puffer mit gemeinsamem Ressourcenbudget | ⏸ geplant |
 
@@ -216,6 +216,65 @@ Restrukturierung des bestehenden Fits — zurückgestellt zugunsten des
 COVID-Teils, der mit den bereits vorhandenen Daten direkt umsetzbar war.
 Als offener Punkt für eine spätere Runde vermerkt.
 
-## Paket 3-5
+## Paket 3 — Gemeinsame Operatorstrukturen und Gedächtnis (2026-09-24)
+
+Neues Modul `closure/linear_memory_projection.py` (Milestone 57),
+verifiziert in `verify_linear_memory_projection.py` (4/4 Checks).
+
+**Die exakte Reduktion:** ein lineares System mit einem beobachteten
+Skalar `x`, gekoppelt an einen beliebig-dimensionalen versteckten Block
+`z` (`dx/dt = A*x + B@z + f(t)`, `dz/dt = C*x + D@z`), lässt sich exakt
+(Variation der Konstanten) zu einer geschlossenen Integro-Differential-
+gleichung für `x` allein umformen: `dx/dt = A*x(t) + ∫₀ᵗ K(t-s)x(s)ds +
+B@expm(D*t)@z0 + f(t)`, mit exaktem Gedächtniskern `K(u)=B@expm(D*u)@C`.
+Genau die zwei von Chorin, Hald & Kupferman (2000) benannten Effekte des
+Eliminierens verborgener Zustände: ein Gedächtnisterm und ein vom
+verborgenen Anfangszustand abhängiger Restterm. Der im Repo bereits
+verwendete Skalar-Erholungskern `exp[-∫r(v)dv]` ist der Spezialfall
+`n_z=1` dieses `K` — diese Herleitung verallgemeinert ihn statt ihn nur zu
+postulieren, im Sinne von Astras "gemeinsame Operatorstrukturen" statt
+einer Sammlung unverbundener Beispiele. `exact_memory_kernel` gegen eine
+unabhängig hergeleitete geschlossene Form geprüft, sowohl für `n_z=1`
+(einzelne Exponentialfunktion) als auch `n_z=2` mit diagonalem `D` (Summe
+zweier Exponentialfunktionen) — konkrete Instanz von Astras
+"Zwei- und Dreizustandsmodelle mit analytischer Referenz".
+
+**Drei Varianten, vier Vergleichsmetriken** (wie von Astra gefordert, über
+den mittleren Zustandsfehler hinaus): `exact` (volles (x,z)-System,
+hochpräzise integriert), `memoryless` (Kopplung komplett verworfen),
+`finite_memory` (Gedächtnisintegral auf ein endliches Fenster gekürzt,
+fester-Schritt-Euler mit vorberechneter Kern-Lookup-Tabelle). Minimum
+(Wert UND Zeitpunkt) über kontinuierliche Optimierung auf einem Cubic-
+Spline-Interpolanten gefunden — kein Grid-`argmin` (dieselbe Disziplin wie
+nach dem Paket-6-Rasterfehler in `viability.rate_dependent_buffer`);
+Grenzüberschreitungszeitpunkt über Nullstellensuche auf demselben
+Interpolanten.
+
+**Regressionscheck:** mit `z0=0` und einem Gedächtnisfenster, das das
+GESAMTE simulierte Intervall abdeckt, sind beide Vereinfachungen der
+finite-memory-Variante abgeschaltet — sie reproduziert die exakte
+Trajektorie dann auf < 0,01 Abweichung über 20 Zeiteinheiten, unabhängige
+Bestätigung von Kernherleitung UND Euler-Löser.
+
+**Ergebnis am Arbeitsbeispiel** (stabiles System, Eigenwerte {-0,1,-1,4},
+Gedächtnisfenster W=2,0, doppelte Kernabklingzeit): die finite-memory-
+Näherung gewinnt auf ALLEN VIER Metriken — mittlerer Fehler 0,149 vs.
+0,711 (memoryless); Minimum -3,006 vs. -3,069 (exakt: -2,946); Minimum-
+Zeitpunkt 5,630 vs. 5,543 (exakt: 5,626); Grenzüberschreitung (b=-2,9)
+5,439 vs. 5,336 (exakt: 5,495). Interessante Fehlerrichtung: memoryless
+ÜBERSCHÄTZT hier die Einbruchstiefe (sagt früher und tiefer voraus als
+tatsächlich eintritt) — ein "Fehlalarm", keine "übersehene Gefahr"; ehrlich
+als die tatsächlich beobachtete Richtung berichtet, nicht als bevorzugte
+Erzählung ausgewählt.
+
+**Zurückgestellt:** die domänenspezifische Anwendung dieses Rahmens auf
+Puffer-, Energiebilanz-, Renewal- und Hawkes/ETAS-Module (Astras
+eigentlicher Vorschlag, "Positivität, Kernmasse, Gedächtniszeit,
+Verstärkung" als präzise Korrespondenzen zwischen ihnen zu formulieren)
+bleibt offen — der allgemeine lineare Rahmen hier ist die dafür nötige
+Grundlage, aber ihre konkrete Anwendung auf die vier nichtlinearen/
+domänenspezifischen Module ist ein eigener, größerer nächster Schritt.
+
+## Paket 4-5
 
 Werden nacheinander begonnen. Jeweils eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
