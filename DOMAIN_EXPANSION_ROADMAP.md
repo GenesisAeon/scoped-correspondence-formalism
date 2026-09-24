@@ -28,7 +28,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⏳ offen |
 | B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ✅ erledigt |
 | B5a | Kapazitätsmodelle und Beobachtungs-Ablation | ✅ erledigt |
-| B5b | NASA-Batteriedatenpilot (echte externe Daten, Lizenz laut Astra ungeklärt) | ⏳ offen |
+| B5b | NASA-Batteriedatenpilot (echte externe Daten, Lizenz laut Astra ungeklärt) | ✅ erledigt (Lizenz-Blocker sauber behandelt) |
 | B6a | Endliche kooperative Agentenaufgaben | ✅ erledigt |
 | B6b | Wiederholte Aufgabe / OpenSpiel | ausdrücklich optional, nicht Teil dieser Runde |
 | B7 | Gemeinsamer Ergebnisvergleich, Fähigkeitsübersicht | ⏳ offen |
@@ -174,12 +174,29 @@ beobachtete Kapazitätsanstiege bleiben unangetastet in den Rohdaten.
 Verifiziert: `verify_capacity_degradation.py` (7/7). Docs:
 `docs/capacity_degradation.md`.
 
+## B5b — NASA-Batteriedatenpilot (erledigt, Lizenz-Blocker sauber behandelt)
+
+Astras Lizenzbedenken unabhängig bestätigt: NASAs eigene CKAN-API
+(`data.nasa.gov/api/3/action/package_show?id=li-ion-battery-aging-datasets`)
+meldet `license_title: "License not specified"`. Gemäß Plan Abschnitt 5.1
+("lokaler Downloader plus synthetische Parser-Fixture") wurden Rohdaten und
+abgeleitete Zyklenwerte NICHT ins Repo übernommen — kein Manifest-Eintrag
+in `data/real_data_manifest.json` (dessen eigener Prüfer verlangt eine
+tatsächlich vorhandene Datei je Eintrag). `verify_battery_aging_pilot.py`
+läuft vollständig gegen eine synthetische Fixture (6/6, kein Netzwerk
+nötig). Ein echter lokaler Lauf (4 Zellen B0005/6/7/18, ~210 MB ZIP,
+sha256 aller Dateien notiert) wurde dennoch durchgeführt und ehrlich als
+manuelle, nicht CI-gebundene Reproduktion dokumentiert
+(`docs/battery_aging_pilot.md`): gemischtes Ergebnis (linear gewinnt bei
+2 Zellen, Potenzgesetz bei 2 Zellen, Persistenz nie), B0007 zeigt echte
+Rechtszensierung (min. beobachtete Kapazität 1,4005 Ah, nie ≤1,4 Ah
+innerhalb 168 Zyklen). Verifiziert: `verify_battery_aging_pilot.py` (6/6).
+Docs: `docs/battery_aging_pilot.md`.
+
 ## Nächste Schritte
 
-B3b (CAMELS-DE) und B5b (NASA-Batteriedaten) benötigen externen
-Datenzugriff. Netzwerktest bestätigt Zugriff möglich; CAMELS-DE liegt
-jedoch nur als ein einziges ~2,18 GB-ZIP auf Zenodo vor (kein
-Teildownload einzelner Einzugsgebiete möglich) — für diese Umgebung nicht
-praktikabel; als offener, konkret benannter Datenblocker geführt (Plan
-Abschnitt 16: "Ein blockierter Datenpilot bleibt offen"). NASA-Batteriedaten
-(~210 MB ZIP) sind praktikabel — B5b wird als nächstes real versucht.
+B3b (CAMELS-DE) bleibt als offener Datenblocker geführt: die Daten liegen
+nur als ein einziges ~2,18 GB-ZIP auf Zenodo vor (kein Teildownload
+einzelner Einzugsgebiete möglich) — für diese Umgebung nicht praktikabel
+(Plan Abschnitt 16: "Ein blockierter Datenpilot bleibt offen"). B7
+(Konsolidierung) als nächstes.

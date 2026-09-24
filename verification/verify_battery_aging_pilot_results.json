@@ -1,0 +1,79 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B5b (battery aging pilot, synthetic-only CI check)",
+  "timestamp": "2026-09-24T18:54:02+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "parser_filters_cycle_types": {
+      "status": "pass",
+      "detail": {
+        "parsed": [
+          1.856,
+          1.846,
+          1.835
+        ]
+      }
+    },
+    "exact_linear_recovery": {
+      "status": "pass",
+      "detail": {
+        "mae": 3.3306690738754696e-16,
+        "eol": 20.00000000000002
+      }
+    },
+    "censoring": {
+      "status": "pass",
+      "detail": {
+        "cell_id": "SYN_CENSORED",
+        "n_cycles": 20,
+        "n_train": 12,
+        "n_test": 8,
+        "model_results": {
+          "persistence": {
+            "params": {
+              "last_value": 1.989
+            },
+            "mae_holdout": 0.0045000000000000595,
+            "mean_eol_crossing_cycle": null
+          },
+          "linear": {
+            "params": {
+              "C0": 2.000000000000001,
+              "a": 0.0009999999999999877
+            },
+            "mae_holdout": 1.0547118733938987e-15,
+            "mean_eol_crossing_cycle": null
+          },
+          "power": {
+            "params": {
+              "C0": 2.0,
+              "a": 0.0009999999999999907,
+              "p": 1.0
+            },
+            "mae_holdout": 1.1102230246251565e-16,
+            "mean_eol_crossing_cycle": null
+          }
+        },
+        "observed_first_eol_cycle": null,
+        "censored": true
+      }
+    },
+    "leakage_guard": {
+      "status": "pass",
+      "detail": {
+        "checked_models": 3
+      }
+    },
+    "panel_no_cross_cell_leakage": {
+      "status": "pass",
+      "detail": {
+        "cell_A_unaffected": true
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 3
+      }
+    }
+  }
+}
