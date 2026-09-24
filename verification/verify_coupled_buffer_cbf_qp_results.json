@@ -1,0 +1,95 @@
+{
+  "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 5 (coupled buffer CBF-QP)",
+  "source": "Ames, A. D.; Xu, X.; Grizzle, J. W.; Tabuada, P. (2017): Control Barrier Function Based Quadratic Programs for Safety Critical Systems. IEEE TAC 62, 3861-3876, DOI 10.1109/TAC.2016.2638961.",
+  "timestamp": "2026-09-24T10:23:47+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "hand_arithmetic": {
+      "status": "pass",
+      "detail": {
+        "lower_bound": 2.0
+      }
+    },
+    "own_bounds_infeasibility": {
+      "status": "pass",
+      "detail": {
+        "reason": "buffer 0: CBF requires u >= 10, but u_max=5 -- infeasible from this buffer's own bounds alone, independent of the shared budget"
+      }
+    },
+    "budget_infeasibility": {
+      "status": "pass",
+      "detail": {
+        "reason": "sum of per-buffer CBF-minimal controls (2) exceeds the shared budget (1.5) -- the resource itself is insufficient, not a solver failure"
+      }
+    },
+    "feasible_case_against_hand_derived_optimum": {
+      "status": "pass",
+      "detail": {
+        "u": [
+          2.0,
+          0.0
+        ],
+        "cost": 4.0
+      }
+    },
+    "three_way_comparison": {
+      "status": "pass",
+      "detail": {
+        "no_intervention": {
+          "label": "no_intervention",
+          "u": [
+            0.0,
+            0.0
+          ],
+          "margins": [
+            -2.0,
+            3.0
+          ],
+          "safe": false,
+          "admissible": true,
+          "cost": 0.0,
+          "infeasible_problem": false,
+          "infeasibility_reason": null
+        },
+        "fixed_rule": {
+          "label": "fixed_rule",
+          "u": [
+            3.0,
+            2.0
+          ],
+          "margins": [
+            1.0,
+            5.0
+          ],
+          "safe": true,
+          "admissible": false,
+          "cost": 13.0,
+          "infeasible_problem": false,
+          "infeasibility_reason": null
+        },
+        "optimized_qp": {
+          "label": "optimized_qp",
+          "u": [
+            2.0,
+            0.0
+          ],
+          "margins": [
+            0.0,
+            3.0
+          ],
+          "safe": true,
+          "admissible": true,
+          "cost": 4.0,
+          "infeasible_problem": false,
+          "infeasibility_reason": null
+        }
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 3
+      }
+    }
+  }
+}

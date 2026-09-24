@@ -26,7 +26,7 @@ Arbeitspaketen verdichtet):
 | 2 | Dynamik vs. Messprozess | Latentes Infektionsgeschehen (COVID-Pilot), Energiebilanz-Referenzkonsistenz | ✅ erledigt (COVID-Teil; Energiebilanz-Teil zurückgestellt) |
 | 3 | Gemeinsame Operatorstrukturen | Mori-Zwanzig-Gedächtnisrahmen für Puffer/Energiebilanz/Renewal/ETAS | ✅ erledigt (allgemeiner linearer Rahmen; domänenspezifische Anwendung auf Puffer/Energiebilanz/Renewal/ETAS zurückgestellt) |
 | 4 | Transiente Verstärkung | Nichtnormale Kopplung, `A=[[-1,k],[0,-1]]`-Beispiel, zwei gekoppelte Puffer | ✅ erledigt |
-| 5 | Begrenzte Eingriffe | Control-Barrier-Function-QPs, zwei Puffer mit gemeinsamem Ressourcenbudget | ⏸ geplant |
+| 5 | Begrenzte Eingriffe | Control-Barrier-Function-QPs, zwei Puffer mit gemeinsamem Ressourcenbudget | ✅ erledigt |
 
 Astras eigene Arbeitspaket-Verdichtung (Reihenfolge bindend, siehe
 Originaltext): **(1) Konsolidierung** (= Priorität 0) → **(2) Empirischer
@@ -335,6 +335,62 @@ keine Instabilität, kein externer Treiber, verursacht die Verletzung.
 nichtlineare Kopplung und ein echter begrenzter Eingriff (Priorität 5)
 bleiben offen.
 
-## Paket 5
+## Paket 5 — Von Sicherheitskarten zu begrenzten Eingriffen (2026-09-24)
 
-Wird begonnen, sobald Paket 4 regressionsgetestet ist. Eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
+Neues Modul `viability/coupled_buffer_cbf_qp.py` (Milestone 59),
+verifiziert in `verify_coupled_buffer_cbf_qp.py` (6/6 Checks). Erweitert
+das bestehende skalare Identitäts-Kontrollbarriere-Beispiel
+(`viability/control_barrier.py`, `h(x)=x`, `alpha(r)=r`) auf zwei Puffer
+mit konstantem Verbrauch (`x_dot_i=-drain_i+u_i`), begrenzten Stellgrößen
+und einem GEMEINSAMEN Ressourcenbudget (`u1+u2<=budget`).
+
+**Die beantwortete Frage** (Astra wörtlich): "Welcher zulässige Eingriff
+verhindert eine Grenzverletzung — und wann reichen die verfügbaren Mittel
+grundsätzlich nicht aus?" Drei Varianten werden an jedem Arbeitsbeispiel
+verglichen — kein Eingriff, feste Regel (`u_i=drain_i`), CBF-QP-optimiert
+— mit Grenzverletzung, Kosten UND Zulässigkeit für jede einzeln berichtet.
+
+**Machbarkeit wird zuerst analytisch entschieden, nicht dem Löser
+überlassen:** jede CBF-Bedingung faltet sich direkt in eine
+Pro-Puffer-Untergrenze `max(u_min_i, drain_i-x_i)`. Zwei GETRENNTE
+Unzulässigkeitsgründe werden dadurch unabhängig zertifiziert, statt als
+generischer Löser-Fehlschlag zu erscheinen: (1) Eigengrenzen-Unzulässigkeit
+— eine Puffer-Untergrenze übersteigt bereits ihr eigenes `u_max`, unabhängig
+vom Budget; (2) Budget-Unzulässigkeit — jeder Puffer für sich ist zulässig,
+aber die SUMME der Untergrenzen übersteigt das gemeinsame Budget. Erst bei
+nachgewiesener Machbarkeit läuft `scipy.optimize.minimize` (SLSQP)
+tatsächlich, dessen Ergebnis gegen die geschlossene Form geprüft wird
+(`ScopeViolationError`, falls der Löser je etwas Schlechteres als das
+unabhängig hergeleitete Optimum fände).
+
+**Arbeitsbeispiel** (Puffer 1: `drain=3, x=1`, knapp; Puffer 2: `drain=2,
+x=5`, komfortabel; beide `u∈[0,5]`, Budget=3,0):
+
+| Strategie | `u` | Sicher | Zulässig | Kosten |
+|---|---|---|---|---:|
+| Kein Eingriff | (0, 0) | ✗ | ✓ | 0 |
+| Feste Regel | (3, 2) | ✓ | ✗ (5>3 Budget) | 13 |
+| **Optimiert** | **(2, 0)** | ✓ | ✓ | **4** |
+
+Der Optimierer findet exakt das von Hand herleitbare Optimum — Puffer 1
+erhält sein CBF-Minimum `u=2`, Puffer 2 braucht nichts (`u=0`, Marge bei
+`u=0` bereits `+3`) — schlägt die naive feste Regel um mehr als das
+3-fache bei den Kosten UND ist zusätzlich budget-zulässig, wo die feste
+Regel es nicht ist. Bei Budget=1,5 (< Summe der Untergrenzen 2,0):
+explizit als Budget-Unzulässigkeit gemeldet, nicht als stiller
+Löser-Fehlschlag oder unsicherer Kompromiss.
+
+**Scope:** nur zwei Puffer, nur der lineare (Identitäts-Barriere,
+lineares `alpha`) Fall wie im ursprünglichen M16-Beispiel. Mehr als zwei
+Puffer, nichtlineare Barrieren und Modellunsicherheit (Intervalle statt
+exakt bekannter Verbrauchsraten) bleiben offen.
+
+---
+
+**Alle 6 Prioritäten aus `SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md`
+sind damit umgesetzt** (Priorität 0-5, Milestones 54a-59). Zurückgestellte
+Teilaspekte (Energiebilanz-Beobachtungsmodell aus Priorität 2;
+domänenspezifische Mori-Zwanzig-Anwendung auf Puffer/Energiebilanz/
+Renewal/ETAS aus Priorität 3; größere Systeme/nichtlineare Kopplung aus
+Priorität 4; mehr als zwei Puffer/nichtlineare Barrieren aus Priorität 5)
+sind explizit oben vermerkt, nicht stillschweigend fallengelassen.
