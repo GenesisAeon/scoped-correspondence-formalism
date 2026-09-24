@@ -20,6 +20,11 @@ Checks:
      large sample) within a pre-declared tolerance.
   7. Brownian-bridge crossing probability control value and
      ScopeViolationError guards.
+  8. SCF_Review_fcc9a43.md finding R4a: a constant, noiseless path never
+     moves, so it never hits 0 -- checked against the old bug (mu<=0
+     checked before sigma=0).
+  9. SCF_Review_fcc9a43.md finding R5: NaN inputs must be rejected, not
+     silently laundered into a plausible-looking probability via min()/max().
 """
 from __future__ import annotations
 
@@ -115,7 +120,20 @@ def check_monotonicity():
 
 def check_monte_carlo_cross_check():
     """Independent second implementation: coarse Euler-Maruyama simulation with a
-    fixed seed, pre-declared tolerance (5 std devs of a Bernoulli proportion)."""
+    fixed seed, pre-declared tolerance (6 std devs of a Bernoulli proportion).
+
+    **Correction (SCF_Review_fcc9a43.md, minor finding):** a POPULATION-level
+    discrete-time-grid hitting probability is a legitimate lower bound on the
+    true continuous-time probability (a grid can only MISS crossings that
+    happen strictly between two sampled points, never fabricate one) -- but a
+    FINITE Monte Carlo SAMPLE of that population quantity is a random estimate
+    with its own sampling noise, and is NOT guaranteed to fall below the exact
+    value on every run. The old test asserted a strict, near-zero-tolerance
+    one-sided bound (``p_mc <= p_exact + 1e-9``) that conflated the population
+    fact with a per-sample guarantee -- removed here. The two-sided statistical
+    tolerance below already covers "not too far above or below"; no additional
+    directional assertion is made on a single finite sample.
+    """
     x0, mu, sigma, H = 1.0, 1.0, 1.0, 1.0
     p_exact = diffusion_lower_hitting_probability(x0, mu, sigma, H)
 
@@ -133,14 +151,43 @@ def check_monte_carlo_cross_check():
                 break
     p_mc = hits / n_paths
     se = (p_exact * (1 - p_exact) / n_paths) ** 0.5
-    tol = 6 * se  # generous: coarse time grid slightly UNDER-detects crossings between steps
-    require(abs(p_mc - p_exact) < tol,
-            f"Monte Carlo {p_mc} vs exact {p_exact}, tol={tol} (note: discrete-grid MC is a biased "
-            f"lower bound on the true continuous hitting probability, so this also sanity-checks direction)")
-    require(p_mc <= p_exact + 1e-9,
-            f"discrete-time MC (checks only at grid points) should not OVER-count crossings vs continuous exact: "
-            f"got mc={p_mc} > exact={p_exact}")
+    tol = 6 * se
+    require(abs(p_mc - p_exact) < tol, f"Monte Carlo {p_mc} vs exact {p_exact}, tol={tol}")
     return {"exact": p_exact, "monte_carlo": p_mc, "n_paths": n_paths, "n_steps": n_steps, "tolerance": tol}
+
+
+def check_r4a_deterministic_ever_hitting():
+    """SCF_Review_fcc9a43.md finding R4a: a constant, noiseless path (x0=1, mu=0,
+    sigma=0) never moves, so it never hits 0 -- diffusion_ever_hitting_probability
+    must return 0.0, not 1.0 (the old code checked mu<=0 before sigma==0)."""
+    require(diffusion_ever_hitting_probability(1.0, 0.0, 0.0) == 0.0,
+            f"constant path must never hit 0; got {diffusion_ever_hitting_probability(1.0, 0.0, 0.0)}")
+    require(diffusion_ever_hitting_probability(1.0, -1.0, 0.0) == 1.0,
+            "deterministic downward drift must hit 0 in finite time")
+    require(diffusion_ever_hitting_probability(1.0, 0.5, 0.0) == 0.0,
+            "deterministic upward drift must never hit 0")
+    # regressions: genuine diffusion cases unaffected by the reordering
+    require(diffusion_ever_hitting_probability(1.0, 0.0, 1.0) == 1.0, "regression: driftless diffusion hits a.s.")
+    require(diffusion_ever_hitting_probability(1.0, -1.0, 1.0) == 1.0, "regression: negative-drift diffusion hits a.s.")
+    require(abs(diffusion_ever_hitting_probability(1.0, 1.0, 1.0) - np.exp(-2.0)) < 1e-14, "regression: positive-drift value")
+    return {"checked": 6}
+
+
+def check_r5_nan_rejected():
+    """SCF_Review_fcc9a43.md finding R5: NaN inputs must be rejected, not silently
+    laundered into a plausible-looking probability via min()/max()."""
+    for fn, args in (
+        (diffusion_lower_hitting_probability, (float("nan"), 1.0, 1.0, 1.0)),
+        (diffusion_lower_hitting_probability, (1.0, float("nan"), 1.0, 1.0)),
+        (diffusion_ever_hitting_probability, (float("nan"), 1.0, 1.0)),
+        (brownian_bridge_crossing_probability, (float("nan"), 1.0, 1.0, 1.0)),
+    ):
+        try:
+            fn(*args)
+            raise AssertionError(f"{fn.__name__}{args} should reject NaN input")
+        except ScopeViolationError:
+            pass
+    return {"checked": 4}
 
 
 def check_bridge_and_scope_guards():
@@ -180,6 +227,8 @@ CHECKS = [
     ("monotonicity", check_monotonicity),
     ("monte_carlo_cross_check", check_monte_carlo_cross_check),
     ("bridge_and_scope_guards", check_bridge_and_scope_guards),
+    ("r4a_deterministic_ever_hitting", check_r4a_deterministic_ever_hitting),
+    ("r5_nan_rejected", check_r5_nan_rejected),
 ]
 
 

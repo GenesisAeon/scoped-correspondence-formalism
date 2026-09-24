@@ -25,6 +25,17 @@ Checks:
      computed independently from a simulated noisy path.
   7. ScopeViolationError guards, including the negative-extrapolation
      model-domain-violation case (never silently clipped away).
+  8. SCF_Review_fcc9a43.md finding R1: the AR(1) forecast's innovation std
+     (estimated from the AR recursion's own one-step residuals) must not
+     be confused with the total observed residual std -- these differ by
+     a factor of 1/(1-phi^2) in variance for a genuinely correlated
+     process.
+  9. SCF_Review_fcc9a43.md finding R2: a target cycle's forecast
+     distribution must not depend on which OTHER cycles are also
+     requested -- fixed via an explicit origin_cycle and exact d-step
+     AR(1) propagation between consecutive requested points.
+  10. SCF_Review_fcc9a43.md finding R4b: a mean curve already at or below
+      c_eol at cycle 0 must report crossing time 0.0, not None.
 """
 from __future__ import annotations
 
@@ -44,7 +55,7 @@ if str(SRC) not in sys.path:
 from scoped_correspondence.errors import ScopeViolationError  # noqa: E402
 from scoped_correspondence.dynamics.capacity_degradation import (  # noqa: E402
     fit_capacity_trend, mean_capacity, predict_capacity_distribution, first_mean_eol_crossing,
-    MODEL_LINEAR, MODEL_POWER, MODEL_PERSISTENCE,
+    CapacityTrendFit, MODEL_LINEAR, MODEL_POWER, MODEL_PERSISTENCE,
 )
 
 
@@ -136,13 +147,71 @@ def check_mean_vs_observed_eol_crossing():
     # simulate a noisy observed path and find its OWN first observed crossing --
     # generally DIFFERENT from the mean crossing.
     rng = np.random.default_rng(42)
-    future_n = np.arange(0, 100, dtype=float)
-    samples = predict_capacity_distribution(fit, 0.0, future_n, rng, n_samples=1)
+    future_n = np.arange(1, 101, dtype=float)
+    samples = predict_capacity_distribution(fit, 0.0, 0.0, future_n, rng, n_samples=1)
     observed_path = samples[0]
     below = np.where(observed_path <= 1.4)[0]
     observed_crossing = float(future_n[below[0]]) if len(below) > 0 else None
 
     return {"mean_crossing": mean_crossing, "observed_crossing_one_realization": observed_crossing}
+
+
+def check_r1_innovation_std_not_residual_std():
+    """SCF_Review_fcc9a43.md finding R1: the AR(1) forecast must use the innovation
+    std (from the AR recursion's own one-step residuals), NOT the total observed
+    residual std -- these differ by 1/(1-phi^2) in variance for a stationary AR(1)."""
+    rng = np.random.default_rng(20260924)
+    n = 12000
+    phi_true, sigma_eps = 0.8, 0.01
+    r = np.zeros(n)
+    for i in range(1, n):
+        r[i] = phi_true * r[i - 1] + rng.normal(0.0, sigma_eps)
+    cap = 2.0 - 0.00001 * np.arange(n) + r
+    fit = fit_capacity_trend(np.arange(n, dtype=float), cap, MODEL_LINEAR, fit_ar1=True)
+
+    require(fit.innovation_std is not None, "innovation_std must be populated when fit_ar1=True")
+    require(abs(fit.innovation_std - sigma_eps) < 0.002,
+            f"innovation_std should recover the true innovation SD ~{sigma_eps}; got {fit.innovation_std}")
+    require(fit.residual_std > fit.innovation_std,
+            "for a genuinely correlated (phi>0) AR process, total residual std must exceed innovation std")
+    ratio_var = (fit.residual_std / fit.innovation_std) ** 2
+    theoretical = 1.0 / (1.0 - fit.ar1_phi ** 2)
+    require(abs(ratio_var - theoretical) < 0.05,
+            f"residual/innovation variance ratio {ratio_var} should match 1/(1-phi^2)={theoretical}")
+    return {"phi": fit.ar1_phi, "innovation_std": fit.innovation_std, "residual_std": fit.residual_std}
+
+
+def check_r2_forecast_independent_of_query_density():
+    """SCF_Review_fcc9a43.md finding R2: the marginal forecast for a given target
+    cycle must not depend on which OTHER cycles are also requested. Exact
+    (noise-free) counterexample from the review: constant mean, phi=0.8, last
+    residual 1 at cycle 0 -- correct answer for cycle 10 is 2+0.8**10."""
+    fit = CapacityTrendFit(MODEL_LINEAR, {"C0": 2.0, "a": 0.0}, 0.0, 0.8, (0.0,), (2.0,), innovation_std=0.0)
+    sparse = predict_capacity_distribution(fit, 0.0, 1.0, [10.0], np.random.default_rng(1), 1)[0, 0]
+    dense = predict_capacity_distribution(fit, 0.0, 1.0, list(range(1, 11)), np.random.default_rng(1), 1)[0, -1]
+    want = 2.0 + 0.8 ** 10
+    require(abs(sparse - want) < 1e-9, f"sparse query: got {sparse}, want {want}")
+    require(abs(dense - want) < 1e-9, f"dense query: got {dense}, want {want}")
+    require(abs(sparse - dense) < 1e-9, f"sparse and dense queries diverged: {sparse} vs {dense}")
+    return {"sparse": sparse, "dense": dense, "want": want}
+
+
+def check_r4b_already_past_eol():
+    """SCF_Review_fcc9a43.md finding R4b: a mean curve ALREADY at or below c_eol at
+    n=0 must report crossing time 0.0, not None (previously required solving for a
+    negative n_star, which was then rejected as 'no crossing')."""
+    fit_linear_low = CapacityTrendFit(MODEL_LINEAR, {"C0": 1.0, "a": 0.1}, 0.0, None, (0.0, 1.0), (1.0, 0.9))
+    require(first_mean_eol_crossing(fit_linear_low, 1.4, 10.0) == 0.0, "linear already-below-EOL must report 0.0")
+
+    fit_power_low = CapacityTrendFit(MODEL_POWER, {"C0": 1.0, "a": 0.1, "p": 2.0}, 0.0, None, (0.0, 1.0), (1.0, 0.9))
+    require(first_mean_eol_crossing(fit_power_low, 1.4, 10.0) == 0.0, "power already-below-EOL must report 0.0")
+
+    # regression: the normal (not-yet-crossed) case must still work
+    fit_normal = fit_capacity_trend(np.arange(100, dtype=float), 2.0 - 0.01 * np.arange(100), MODEL_LINEAR)
+    normal_crossing = first_mean_eol_crossing(fit_normal, 1.4, 200.0)
+    require(normal_crossing is not None and abs(normal_crossing - 60.0) < 1e-6,
+            f"regression: normal crossing should still be 60; got {normal_crossing}")
+    return {"checked": 3, "normal_crossing": normal_crossing}
 
 
 def check_scope_violation_guards():
@@ -168,7 +237,29 @@ def check_scope_violation_guards():
     fit = fit_capacity_trend(n, cap, MODEL_LINEAR)
     far_future = mean_capacity(MODEL_LINEAR, fit.params, np.array([10000.0]))
     require(far_future[0] < 0.0, f"far-future extrapolation should be exposed as negative (model-domain violation), got {far_future[0]}")
-    return {"checked": 3, "far_future_negative_extrapolation": float(far_future[0])}
+
+    ar_fit = fit_capacity_trend(np.arange(20, dtype=float), 2.0 - 0.01 * np.arange(20), MODEL_LINEAR, fit_ar1=True)
+    try:
+        predict_capacity_distribution(ar_fit, 0.0, 0.0, [5.0, 3.0], np.random.default_rng(0), 1)
+        raise AssertionError("should reject non-increasing future_cycle_indices")
+    except ScopeViolationError:
+        pass
+    try:
+        predict_capacity_distribution(ar_fit, 5.0, 0.0, [3.0], np.random.default_rng(0), 1)
+        raise AssertionError("should reject a future cycle <= origin_cycle")
+    except ScopeViolationError:
+        pass
+    try:
+        predict_capacity_distribution(ar_fit, 0.0, 0.0, [3.5], np.random.default_rng(0), 1)
+        raise AssertionError("should reject non-integer cycle indices")
+    except ScopeViolationError:
+        pass
+    try:
+        first_mean_eol_crossing(fit, float("nan"), 100.0)
+        raise AssertionError("should reject NaN c_eol")
+    except ScopeViolationError:
+        pass
+    return {"checked": 7, "far_future_negative_extrapolation": float(far_future[0])}
 
 
 CHECKS = [
@@ -178,6 +269,9 @@ CHECKS = [
     ("leakage_guard", check_leakage_guard),
     ("observed_increases_preserved", check_observed_increases_preserved),
     ("mean_vs_observed_eol_crossing", check_mean_vs_observed_eol_crossing),
+    ("r1_innovation_std_not_residual_std", check_r1_innovation_std_not_residual_std),
+    ("r2_forecast_independent_of_query_density", check_r2_forecast_independent_of_query_density),
+    ("r4b_already_past_eol", check_r4b_already_past_eol),
     ("scope_violation_guards", check_scope_violation_guards),
 ]
 

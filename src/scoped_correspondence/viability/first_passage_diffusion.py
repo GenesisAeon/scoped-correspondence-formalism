@@ -41,6 +41,10 @@ def diffusion_lower_hitting_probability(x0: float, mu: float, sigma: float, hori
     mu = float(mu)
     sigma = float(sigma)
     horizon = float(horizon)
+    if not all(np.isfinite([x0, mu, sigma, horizon])):
+        raise ScopeViolationError(
+            f"x0, mu, sigma, horizon must all be finite; got x0={x0!r}, mu={mu!r}, sigma={sigma!r}, horizon={horizon!r}"
+        )
     if horizon < 0.0:
         raise ScopeViolationError(f"horizon must be >= 0; got {horizon!r}")
     if sigma < 0.0:
@@ -71,21 +75,34 @@ def diffusion_ever_hitting_probability(x0: float, mu: float, sigma: float) -> fl
     """``P(tau_0 < infinity)`` -- the INFINITE-horizon ever-hitting probability,
     ``exp(-2*mu*x0/sigma^2)`` for ``mu > 0`` (positive drift, away from the
     barrier), ``1.0`` for ``mu <= 0`` (barrier is eventually reached almost
-    surely for a driftless or downward-drifting process). This is a genuinely
-    DIFFERENT statement from any finite-horizon scan and must never be
+    surely for a driftless or downward-drifting GENUINE diffusion). This is a
+    genuinely DIFFERENT statement from any finite-horizon scan and must never be
     extrapolated from one (plan section 10.1).
+
+    **Correction (SCF_Review_fcc9a43.md, finding R4a -- a real bug):** the
+    ``mu <= 0`` stochastic branch was checked BEFORE the deterministic
+    ``sigma == 0`` special case, so a driftless, noiseless CONSTANT path
+    (``x0=1, mu=0, sigma=0``: ``X_t = 1`` for all time) wrongly returned
+    ``1.0`` ("certain to eventually hit 0") when the correct answer is
+    ``0.0`` (the path never moves at all). The ``mu<=0 -> 1.0`` rule
+    presupposes an actual diffusion (``sigma>0``) driving the process into
+    the barrier eventually -- it does not apply to a deterministic
+    (``sigma=0``) path, which is now checked FIRST.
     """
     x0 = float(x0)
     mu = float(mu)
     sigma = float(sigma)
+    if not all(np.isfinite([x0, mu, sigma])):
+        raise ScopeViolationError(f"x0, mu, sigma must all be finite; got x0={x0!r}, mu={mu!r}, sigma={sigma!r}")
     if sigma < 0.0:
         raise ScopeViolationError(f"sigma must be >= 0; got {sigma!r}")
     if x0 <= 0.0:
         return 1.0
+    if sigma == 0.0:
+        # Deterministic path X_t = x0 + mu*t: hits 0 in finite time iff mu < 0.
+        return 1.0 if mu < 0.0 else 0.0
     if mu <= 0.0:
         return 1.0
-    if sigma == 0.0:
-        return 0.0  # mu > 0, deterministic path moves away from 0 forever.
     return float(np.exp(-2.0 * mu * x0 / (sigma * sigma)))
 
 
@@ -98,6 +115,8 @@ def brownian_bridge_crossing_probability(x: float, y: float, sigma: float, delta
     would silently miss exactly the crossings this quantifies.
     """
     x, y, sigma, delta = float(x), float(y), float(sigma), float(delta)
+    if not all(np.isfinite([x, y, sigma, delta])):
+        raise ScopeViolationError(f"x, y, sigma, delta must all be finite; got x={x!r}, y={y!r}, sigma={sigma!r}, delta={delta!r}")
     if x <= 0.0 or y <= 0.0:
         raise ScopeViolationError(
             f"brownian_bridge_crossing_probability requires both endpoints > 0; got x={x!r}, y={y!r}"

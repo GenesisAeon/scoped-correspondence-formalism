@@ -22,10 +22,19 @@ Checks:
      "never" claim about cycles beyond the observed window.
   4. A cell whose true generating process changes AFTER the training
      prefix does not alter the fit (temporal split leakage guard).
-  5. Leave-one-cell-out panel: each cell's fit uses ONLY its own data (no
+  5. Personalized cell panel: each cell's fit uses ONLY its own data (no
      cross-cell leakage) -- checked by verifying one cell's result is
      unaffected by a large change to another cell's series.
-  6. ScopeViolationError guards.
+  6. SCF_Review_fcc9a43.md finding R6: the parser retains cycle_index
+     (position in the FULL charge/discharge/impedance sequence) and
+     ambient temperature per discharge cycle, not only the bare capacity.
+  7. SCF_Review_fcc9a43.md finding R6: a fixed absolute training-cycle
+     origin is supported, and negative (model-domain-violating)
+     extrapolated predictions are counted explicitly, not silently folded
+     into the MAE average.
+  8. SCF_Review_fcc9a43.md finding R6: per-cell metadata is attached to
+     the result unchanged, not discarded.
+  9. ScopeViolationError guards.
 """
 from __future__ import annotations
 
@@ -43,9 +52,11 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from scoped_correspondence.errors import ScopeViolationError  # noqa: E402
-from scoped_correspondence.data.nasa_battery_adapter import extract_discharge_capacities, synthetic_fixture  # noqa: E402
+from scoped_correspondence.data.nasa_battery_adapter import (  # noqa: E402
+    extract_discharge_capacities, extract_discharge_records, synthetic_fixture,
+)
 from scoped_correspondence.validation.battery_aging_pilot import (  # noqa: E402
-    run_cell_pilot, run_leave_one_cell_out_panel,
+    run_cell_pilot, run_personalized_cell_panel,
 )
 
 
@@ -112,14 +123,63 @@ def check_panel_no_cross_cell_leakage():
     n = 20
     caps_a = (2.0 - 0.03 * np.arange(n)).tolist()
     caps_b = (1.9 - 0.02 * np.arange(n)).tolist()
-    panel_before = run_leave_one_cell_out_panel({"A": caps_a, "B": caps_b}, c_eol=1.4, train_fraction=0.6)
+    panel_before = run_personalized_cell_panel({"A": caps_a, "B": caps_b}, c_eol=1.4, train_fraction=0.6)
 
     caps_b_modified = [999.0] * n
-    panel_after = run_leave_one_cell_out_panel({"A": caps_a, "B": caps_b_modified}, c_eol=1.4, train_fraction=0.6)
+    panel_after = run_personalized_cell_panel({"A": caps_a, "B": caps_b_modified}, c_eol=1.4, train_fraction=0.6)
 
     require(panel_before["A"].model_results == panel_after["A"].model_results,
             "cell A's fit must be unaffected by drastic changes to cell B (no cross-cell leakage)")
     return {"cell_A_unaffected": True}
+
+
+def check_r6_metadata_retained_by_parser():
+    """SCF_Review_fcc9a43.md finding R6: the parser must retain cycle_index
+    (position in the FULL charge/discharge/impedance sequence) and ambient
+    temperature per discharge cycle, not only the bare capacity value."""
+    records = extract_discharge_records(synthetic_fixture())
+    require(len(records) == 3, f"expected 3 discharge records; got {len(records)}")
+    require([r.cycle_index for r in records] == [1, 4, 7],
+            f"cycle_index should reflect position in the FULL sequence; got {[r.cycle_index for r in records]}")
+    require([r.discharge_index for r in records] == [0, 1, 2], "discharge_index should be 0,1,2 in order")
+    require(all(r.ambient_temperature == 24 for r in records), "ambient_temperature must be retained")
+    # backward compatibility: extract_discharge_capacities must be unchanged
+    require(extract_discharge_capacities(synthetic_fixture()) == [r.capacity for r in records],
+            "extract_discharge_capacities must match extract_discharge_records's capacities exactly")
+    return {"n_records": len(records), "cycle_indices": [r.cycle_index for r in records]}
+
+
+def check_r6_fixed_origin_and_negative_extrapolation_flag():
+    """SCF_Review_fcc9a43.md finding R6: support a FIXED absolute training-cycle
+    origin (not only a fraction of the eventual series length), and expose
+    negative (model-domain-violating) extrapolated predictions explicitly rather
+    than folding them silently into the MAE average."""
+    n = 30
+    caps = (2.0 - 0.03 * np.arange(n)).tolist()  # C0=2, a=0.03: goes negative around cycle 67
+    r_fixed = run_cell_pilot("SYN_FIXED_ORIGIN", caps, c_eol=1.4, n_train=20)
+    require(r_fixed.n_train == 20, f"n_train should be exactly the fixed 20; got {r_fixed.n_train}")
+
+    # a persistence fit on a strongly-declining prefix, evaluated far enough out to
+    # go negative under the LINEAR model, must report the negative count > 0, not hide it.
+    n2 = 10
+    caps2 = (0.5 - 0.1 * np.arange(n2)).tolist()  # C0=0.5, a=0.1 -> goes negative after cycle 5
+    r_neg = run_cell_pilot("SYN_NEGATIVE_EXTRAPOLATION", caps2, c_eol=-100.0, train_fraction=0.6)
+    require(r_neg.model_results["linear"]["n_negative_extrapolation_predictions"] > 0,
+            f"linear model's held-out predictions should include negative extrapolations; "
+            f"got {r_neg.model_results['linear']['n_negative_extrapolation_predictions']}")
+    return {"n_train_fixed": r_fixed.n_train,
+            "n_negative": r_neg.model_results["linear"]["n_negative_extrapolation_predictions"]}
+
+
+def check_r6_metadata_passthrough():
+    """SCF_Review_fcc9a43.md finding R6: per-cell metadata must be attached to the
+    result unchanged, not discarded."""
+    n = 20
+    caps = (2.0 - 0.03 * np.arange(n)).tolist()
+    meta = {"A": {"discharge_index_offset": 0, "protocol": "CC-CV"}}
+    panel = run_personalized_cell_panel({"A": caps}, c_eol=1.4, train_fraction=0.6, cell_metadata=meta)
+    require(panel["A"].metadata == meta["A"], f"metadata not passed through: got {panel['A'].metadata}")
+    return {"metadata": panel["A"].metadata}
 
 
 def check_scope_violation_guards():
@@ -134,7 +194,7 @@ def check_scope_violation_guards():
     except ScopeViolationError:
         pass
     try:
-        run_leave_one_cell_out_panel({}, c_eol=1.0)
+        run_personalized_cell_panel({}, c_eol=1.0)
         raise AssertionError("should reject empty panel")
     except ScopeViolationError:
         pass
@@ -147,6 +207,9 @@ CHECKS = [
     ("censoring", check_censoring),
     ("leakage_guard", check_leakage_guard),
     ("panel_no_cross_cell_leakage", check_panel_no_cross_cell_leakage),
+    ("r6_metadata_retained_by_parser", check_r6_metadata_retained_by_parser),
+    ("r6_fixed_origin_and_negative_extrapolation_flag", check_r6_fixed_origin_and_negative_extrapolation_flag),
+    ("r6_metadata_passthrough", check_r6_metadata_passthrough),
     ("scope_violation_guards", check_scope_violation_guards),
 ]
 

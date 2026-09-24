@@ -29,16 +29,40 @@ sampling-free level-crossing detection possible: within one interval the
 trajectory can cross any given level at most once, and the crossing time
 solves a single linear equation.
 
-**Genaue Aussage / Negativtest (plan section 4.2):** this bridges exactly
-to a stock balance ``dot(S) = I - O`` under the SAME rate correspondence
-UNTIL the first boundary event (``q=0``, equivalently a stock's ``S=0``
-"empty" state). A constant outflow and a stock-dependent outflow ``k*S``
-are NOT the same dynamics merely because both eventually "drain" — see
-``verification/verify_queueing.py``'s ``negative_test_state_dependent_rate_differs``.
-A physical, bounded stock CANNOT serve demand once empty (a genuinely
-different continuation rule than an unbounded queue's backlog, which keeps
-growing without limit) — ``stock_reserve_bridge`` below makes this boundary
-explicit rather than silently extending reflection past it.
+**Genaue Aussage / Negativtest (plan section 4.2):** there are TWO distinct,
+NOT-to-be-blended bridge stories built on the SAME ``q(t)`` trajectory:
+
+1. **Direct identity** ``S ≡ q``: a stock literally equal to the backlog,
+   ``dot(S) = I - O`` matching ``dot(q) = a - s``, with ``S=0`` ("empty")
+   at exactly ``q=0`` -- the queue's own natural reflecting boundary.
+2. **Remaining-reserve mapping** ``R = K - q`` (``stock_reserve_bridge``
+   below): here ``R=0`` ("empty reserve") corresponds to ``q=K``, and
+   ``R=K`` ("full reserve") corresponds to ``q=0`` -- the OPPOSITE
+   correspondence from story 1. A constant outflow and a stock-dependent
+   outflow ``k*S`` are NOT the same dynamics merely because both eventually
+   "drain" — see ``verification/verify_queueing.py``'s
+   ``negative_test_state_dependent_rate_differs``.
+
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_Review_fcc9a43.md, minor
+finding — an imprecise docstring claim, not a numerical bug):** an earlier
+version of this docstring described both stories as "equivalent," which
+incorrectly conflated ``q=0`` with "empty" under BOTH mappings at once (it
+is only "empty" under story 1; under story 2 it is "full"). It also implied
+``dot(R) = s - a`` holds as a blanket statement -- it does NOT hold AT the
+queue's own reflecting boundary ``q=0``: there, a regulator term absorbs
+the excess (``dq = (a-s)dt + dL``, ``dR = (s-a)dt - dL``, with ``dL``
+active only while ``q=0``), so ``R`` stays pinned at ``K`` rather than
+following ``s-a``. Example: ``q0=0, a=0, s=1, K=5`` keeps ``q≡0``
+(reflected) and ``R≡5`` (constant) for as long as ``s>a`` -- NOT growing
+at rate ``s-a=1`` as the un-regulated ODE would suggest. The VALUES
+`stock_reserve_bridge` reports are unaffected by this (they are computed
+as ``K - q(t)`` from the already-correctly-reflected ``q(t)``, never by
+integrating the naive unreflected ODE) -- this correction is about the
+docstring's own dynamical claim, not the returned numbers.
+``stock_reserve_bridge`` below makes its OWN validity boundary
+(``first_capacity_breach_time``, story 2's ``q=K``/``R=0`` event) explicit
+rather than silently extending past it.
 """
 
 from __future__ import annotations
@@ -129,6 +153,11 @@ def fluid_queue_piecewise(
     bp = [float(b) for b in breakpoints]
     a = [float(x) for x in arrival_rates]
     s = [float(x) for x in service_rates]
+    initial_backlog = float(initial_backlog)
+    if not np.isfinite(initial_backlog) or not all(np.isfinite(bp)) or not all(np.isfinite(a)) or not all(np.isfinite(s)):
+        raise ScopeViolationError(
+            "fluid_queue_piecewise: initial_backlog, breakpoints, arrival_rates, service_rates must all be finite"
+        )
     if len(bp) < 2:
         raise ScopeViolationError("fluid_queue_piecewise: need at least 2 breakpoints (1 segment)")
     n = len(bp) - 1
@@ -140,6 +169,8 @@ def fluid_queue_piecewise(
     for i in range(n):
         if bp[i + 1] <= bp[i]:
             raise ScopeViolationError(f"fluid_queue_piecewise: breakpoints must be strictly increasing; got {bp}")
+    if any(x < 0.0 for x in a) or any(x < 0.0 for x in s):
+        raise ScopeViolationError("fluid_queue_piecewise: arrival_rates and service_rates must all be >= 0")
     if initial_backlog < 0.0:
         raise ScopeViolationError(f"fluid_queue_piecewise: initial_backlog must be >= 0; got {initial_backlog!r}")
 

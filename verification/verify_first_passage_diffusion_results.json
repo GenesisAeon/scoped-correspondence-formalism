@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B4 (diffusion first-passage)",
-  "timestamp": "2026-09-24T18:34:27+02:00",
+  "timestamp": "2026-09-24T21:37:24+02:00",
   "python": "3.11.9",
   "checks": {
     "plan_control_values": {
@@ -71,6 +71,18 @@
       "detail": {
         "bridge_value": 0.1353352832366127,
         "checked_guards": 6
+      }
+    },
+    "r4a_deterministic_ever_hitting": {
+      "status": "pass",
+      "detail": {
+        "checked": 6
+      }
+    },
+    "r5_nan_rejected": {
+      "status": "pass",
+      "detail": {
+        "checked": 4
       }
     }
   }

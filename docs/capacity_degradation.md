@@ -6,7 +6,37 @@ section 11.2. Module:
 [`dynamics/capacity_degradation.py`](../src/scoped_correspondence/dynamics/capacity_degradation.py).
 Verification:
 [`verify_capacity_degradation.py`](../verification/verify_capacity_degradation.py)
-(7/7 checks).
+(10/10 checks).
+
+**Correction (2026-09-24, response to
+[SCF_Review_fcc9a43.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_fcc9a43.md),
+findings R1+R2+R4b — three real bugs in `predict_capacity_distribution`
+and `first_mean_eol_crossing`):**
+
+- **R1:** the AR(1) forecast used the TOTAL residual std as the
+  innovation std. For a stationary AR(1) process these differ by
+  `1/(1-phi²)` in variance — Astra's reproduction (`phi=0.8`, true
+  innovation SD `0.01`) showed the old code using `0.01656` instead of the
+  correct `0.01001`, a `2.74×` variance inflation matching
+  `1/(1-0.8²)` almost exactly. Fixed by estimating `innovation_std`
+  separately from the AR recursion's own one-step residuals, stored as a
+  new `CapacityTrendFit.innovation_std` field.
+- **R2:** the AR residual advanced exactly one step per REQUESTED OUTPUT
+  ELEMENT regardless of the actual cycle gap — a forecast for cycle 10
+  requested alone gave a different (wrong) answer than the same cycle
+  requested as part of a dense array. Exact counterexample: constant mean,
+  `phi=0.8`, last residual `1` at cycle 0 — `predict(.... [10])` gave
+  `2.8`, `predict(...,[1,...,10])` gave the correct `2+0.8¹⁰=2.1073741824`.
+  Fixed by requiring an explicit `origin_cycle` and propagating the exact
+  `d`-step AR(1) conditional mean/variance between consecutive requested
+  points (`d` = the real cycle gap, not 1). Now verified: both queries
+  give the identical, correct answer.
+- **R4b:** `first_mean_eol_crossing` returned `None` for a mean curve
+  ALREADY at or below `c_eol` at cycle 0 (e.g. `C0=1, a=0.1` against
+  `c_eol=1.4`) instead of `0.0` — solving for the crossing point gave a
+  negative `n_star`, which the old code then rejected as "no crossing".
+  Fixed by checking the value at `n=0` against `c_eol` FIRST, for every
+  model.
 
 ## Why not fit irreversible/reversible/noise separately?
 

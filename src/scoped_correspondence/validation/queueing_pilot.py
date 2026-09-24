@@ -54,9 +54,29 @@ def run_queueing_pilot(
 ) -> QueueingPilotReport:
     """Evaluate the SAME mean arrival/service rates under both the deterministic
     fluid backlog and the stochastic M/M/1 first-passage model, over ``[0, horizon]``.
+
+    **Correction (SCF_Review_fcc9a43.md, finding R5 -- a real bug):**
+    ``initial_count`` and ``threshold`` feed the stochastic M/M/1 CTMC, whose
+    states are discrete customer COUNTS. The old code silently rounded both to
+    the nearest integer (``int(round(...))``) before calling
+    ``queue_hitting_probability`` -- ``threshold=0.4`` rounded to ``0``, meaning
+    the CTMC treated the boundary as ALREADY reached (``initial_count=0>=
+    threshold=0``), reporting ``stochastic_hitting_probability=1.0`` for a
+    boundary that, under the actual real-valued request, had not been crossed
+    at all. Fixed by requiring both to be (numerically) non-negative integers
+    -- no silent rounding of a genuinely different request into a superficially
+    similar one.
     """
     if horizon <= 0.0:
         raise ScopeViolationError(f"run_queueing_pilot: horizon must be > 0; got {horizon!r}")
+    if initial_count < 0.0 or abs(initial_count - round(initial_count)) > 1e-9:
+        raise ScopeViolationError(
+            f"run_queueing_pilot: initial_count must be a non-negative integer (CTMC count state); got {initial_count!r}"
+        )
+    if threshold < 0.0 or abs(threshold - round(threshold)) > 1e-9:
+        raise ScopeViolationError(
+            f"run_queueing_pilot: threshold must be a non-negative integer (CTMC count state); got {threshold!r}"
+        )
 
     fluid_traj = fluid_queue_piecewise(initial_count, [0.0, horizon], [arrival_rate], [service_rate])
     peak_time, peak_value = fluid_traj.peak()

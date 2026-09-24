@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B2a (fluid queue backlog)",
-  "timestamp": "2026-09-24T18:23:04+02:00",
+  "timestamp": "2026-09-24T21:38:58+02:00",
   "python": "3.11.9",
   "checks": {
     "astra_worked_example": {
@@ -28,6 +28,17 @@
         "n_total": 6
       }
     },
+    "bridge_pinned_at_reflection_not_growing": {
+      "status": "pass",
+      "detail": {
+        "reserve_values": [
+          5.0,
+          5.0,
+          5.0,
+          5.0
+        ]
+      }
+    },
     "negative_test_state_dependent_rate_differs": {
       "status": "pass",
       "detail": {
@@ -40,6 +51,12 @@
       "status": "pass",
       "detail": {
         "checked": 5
+      }
+    },
+    "r5_nan_rejected": {
+      "status": "pass",
+      "detail": {
+        "checked": 3
       }
     }
   }

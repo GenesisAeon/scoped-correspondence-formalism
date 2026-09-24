@@ -6,7 +6,23 @@ section 10. Module:
 [`viability/first_passage_diffusion.py`](../src/scoped_correspondence/viability/first_passage_diffusion.py).
 Verification:
 [`verify_first_passage_diffusion.py`](../verification/verify_first_passage_diffusion.py)
-(7/7 checks).
+(9/9 checks).
+
+**Correction (2026-09-24, response to
+[SCF_Review_fcc9a43.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_fcc9a43.md),
+findings R4a+R5 — two real bugs):**
+
+- **R4a:** `diffusion_ever_hitting_probability` checked the stochastic
+  `mu<=0 → 1.0` rule BEFORE the deterministic `sigma=0` special case. A
+  constant, noiseless path (`x0=1, mu=0, sigma=0`, i.e. `X_t=1` forever)
+  therefore wrongly returned `1.0` ("certain to hit 0 eventually") when
+  the correct answer is `0.0` — the path never moves. Fixed by checking
+  `sigma=0` first: a deterministic path hits 0 in finite time iff `mu<0`.
+- **R5:** NaN inputs were silently laundered into a plausible-looking
+  probability via `min(1.0, nan)` (`diffusion_lower_hitting_probability
+  (nan,1,1,1)` returned `1.0` instead of rejecting the input). Fixed by
+  explicitly checking finiteness of every numeric argument, in all three
+  public functions, before any computation.
 
 ## The point, in one number
 

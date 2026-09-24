@@ -53,8 +53,31 @@ _DATA_MARKERS = (
     "jhu",
 )
 
+# Explicit per-script category registration (DOMAIN_EXPANSION_ROADMAP.md Paket
+# B1, response to SCF_Review_fcc9a43.md finding R6: "keine explizite
+# Registrierung der neuen Testgruppen"). Checked BEFORE the text-marker
+# heuristic below, so a future edit that happens to add/remove a marker
+# substring in one of these files cannot silently reclassify it. Every
+# verify_*.py script added in the domain-expansion round is listed here even
+# where the heuristic would already classify it correctly -- registration is
+# explicit, not merely "happens to work".
+_EXPLICIT_CATEGORY = {
+    "verify_queueing.py": "math",
+    "verify_queueing_first_passage.py": "math",
+    "verify_queueing_pilot.py": "math",
+    "verify_linear_reservoirs.py": "math",
+    "verify_first_passage_diffusion.py": "math",
+    "verify_capacity_degradation.py": "math",
+    # Runs entirely against a synthetic fixture -- no real NASA data or network
+    # access, despite the module it tests being about real-world battery data.
+    "verify_battery_aging_pilot.py": "math",
+    "verify_cooperative_agents_pilot.py": "math",
+}
+
 
 def classify(path: Path) -> str:
+    if path.name in _EXPLICIT_CATEGORY:
+        return _EXPLICIT_CATEGORY[path.name]
     text = path.read_text(encoding="utf-8", errors="ignore")
     return "data" if any(marker in text for marker in _DATA_MARKERS) else "math"
 

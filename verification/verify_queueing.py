@@ -22,6 +22,11 @@ Checks:
   5. ScopeViolationError guards (mismatched rate-array lengths,
      non-increasing breakpoints, negative initial backlog, querying
      value_at outside the trajectory range).
+  6. SCF_Review_fcc9a43.md finding R5: NaN/negative rates must be rejected,
+     not silently absorbed by max(0.0, nan) into a plausible-looking result.
+  7. SCF_Review_fcc9a43.md minor finding: at the queue's own reflecting
+     boundary (q=0), the reserve bridge R must stay PINNED at K, not grow
+     as a naive unreflected dot(R)=s-a would suggest.
 """
 from __future__ import annotations
 
@@ -133,6 +138,21 @@ def check_stock_reserve_bridge():
     return {"breach_time": report.first_capacity_breach_time, "n_valid": len(valid), "n_total": len(times)}
 
 
+def check_bridge_pinned_at_reflection_not_growing():
+    """SCF_Review_fcc9a43.md minor finding: at the queue's own reflecting boundary
+    (q=0), R must stay PINNED at K, not grow at rate s-a as a naive unreflected
+    dot(R)=s-a would suggest. q0=0, a=0, s=1, K=5: q stays exactly 0 (reflected,
+    since net rate is negative), so R must stay exactly 5 throughout, not grow."""
+    traj = fluid_queue_piecewise(0.0, [0.0, 10.0], [0.0], [1.0])
+    K = 5.0
+    times = [0.0, 1.0, 5.0, 10.0]
+    report = stock_reserve_bridge(traj, K, times)
+    for t, r in zip(report.at_times, report.reserve_values):
+        require(abs(r - K) < 1e-12, f"R({t})={r} should stay pinned at K={K} (q reflected at 0), not grow")
+    require(report.first_capacity_breach_time is None, "q never reaches K here, so no breach should be reported")
+    return {"reserve_values": list(report.reserve_values)}
+
+
 def check_negative_test_state_dependent_rate_differs():
     """A constant outflow c and a state-dependent outflow k*S are NOT the same
     dynamics. Starting both at S0=5 with matched INITIAL outflow (c = k*S0), they
@@ -198,12 +218,35 @@ def check_scope_violation_guards():
     return {"checked": 5}
 
 
+def check_r5_nan_rejected():
+    """SCF_Review_fcc9a43.md finding R5: a NaN arrival rate must be rejected, not
+    silently absorbed by max(0.0, nan) into a plausible-looking (0.0, 0.0) peak."""
+    try:
+        fluid_queue_piecewise(0.0, [0.0, 1.0], [float("nan")], [1.0]).peak()
+        raise AssertionError("should reject a NaN arrival rate")
+    except ScopeViolationError:
+        pass
+    try:
+        fluid_queue_piecewise(float("nan"), [0.0, 1.0], [1.0], [1.0])
+        raise AssertionError("should reject a NaN initial_backlog")
+    except ScopeViolationError:
+        pass
+    try:
+        fluid_queue_piecewise(0.0, [0.0, 1.0], [-1.0], [1.0])
+        raise AssertionError("should reject a negative arrival rate")
+    except ScopeViolationError:
+        pass
+    return {"checked": 3}
+
+
 CHECKS = [
     ("astra_worked_example", check_astra_worked_example),
     ("monotonicity_against_brute_force_ode", check_monotonicity_against_brute_force_ode),
     ("stock_reserve_bridge", check_stock_reserve_bridge),
+    ("bridge_pinned_at_reflection_not_growing", check_bridge_pinned_at_reflection_not_growing),
     ("negative_test_state_dependent_rate_differs", check_negative_test_state_dependent_rate_differs),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("r5_nan_rejected", check_r5_nan_rejected),
 ]
 
 

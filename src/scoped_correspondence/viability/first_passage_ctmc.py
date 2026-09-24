@@ -38,17 +38,29 @@ from scoped_correspondence.errors import ScopeViolationError
 
 
 def _validate_rates(arrival_rate: float, service_rate: float) -> None:
+    if not np.isfinite(arrival_rate) or not np.isfinite(service_rate):
+        raise ScopeViolationError(f"rates must be finite; got arrival_rate={arrival_rate!r}, service_rate={service_rate!r}")
     if arrival_rate < 0.0 or service_rate < 0.0:
         raise ScopeViolationError(
             f"rates must be >= 0; got arrival_rate={arrival_rate!r}, service_rate={service_rate!r}"
         )
 
 
+def _validate_count_state(value: float, name: str) -> int:
+    """CTMC states are discrete customer counts -- reject NaN/Inf/non-integer values
+    with a clear message instead of letting them reach a numpy array index/size and
+    raise an unrelated TypeError/IndexError."""
+    if not np.isfinite(value):
+        raise ScopeViolationError(f"{name} must be finite; got {value!r}")
+    if value < 0.0 or abs(value - round(value)) > 1e-9:
+        raise ScopeViolationError(f"{name} must be a non-negative integer (CTMC count state); got {value!r}")
+    return int(round(value))
+
+
 def mm1_absorbing_generator(threshold: int, arrival_rate: float, service_rate: float) -> np.ndarray:
     """The ``(threshold+1) x (threshold+1)`` CTMC generator for states ``0..threshold``
     of an M/M/1 queue, with state ``threshold`` made ABSORBING (row zeroed)."""
-    if threshold < 0:
-        raise ScopeViolationError(f"threshold must be >= 0; got {threshold!r}")
+    threshold = _validate_count_state(threshold, "threshold")
     _validate_rates(arrival_rate, service_rate)
     n = threshold + 1
     Q = np.zeros((n, n))
@@ -71,10 +83,10 @@ def queue_hitting_probability(
     (pure-birth/Poisson reduction) all through the SAME construction -- no branching
     needed for any of these beyond the initial "already reached" shortcut.
     """
-    if initial_count < 0:
-        raise ScopeViolationError(f"initial_count must be >= 0; got {initial_count!r}")
-    if threshold < 0:
-        raise ScopeViolationError(f"threshold must be >= 0; got {threshold!r}")
+    initial_count = _validate_count_state(initial_count, "initial_count")
+    threshold = _validate_count_state(threshold, "threshold")
+    if not np.isfinite(horizon):
+        raise ScopeViolationError(f"horizon must be finite; got {horizon!r}")
     if horizon < 0.0:
         raise ScopeViolationError(f"horizon must be >= 0; got {horizon!r}")
     _validate_rates(arrival_rate, service_rate)
@@ -98,10 +110,8 @@ def queue_hitting_probability_piecewise(
     evolution (matrix exponentials of different generators do not commute in
     general), so no shortcut of "average the rates first" is taken here.
     """
-    if initial_count < 0:
-        raise ScopeViolationError(f"initial_count must be >= 0; got {initial_count!r}")
-    if threshold < 0:
-        raise ScopeViolationError(f"threshold must be >= 0; got {threshold!r}")
+    initial_count = _validate_count_state(initial_count, "initial_count")
+    threshold = _validate_count_state(threshold, "threshold")
     if len(rate_segments) == 0:
         raise ScopeViolationError("rate_segments must be non-empty")
     if initial_count >= threshold:

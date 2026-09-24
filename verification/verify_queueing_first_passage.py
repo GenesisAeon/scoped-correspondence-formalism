@@ -25,6 +25,10 @@ Checks:
      NOT equal the (unrelated) stationary tail probability -- checked as a
      genuine numerical divergence, not a naming distinction only.
   7. ScopeViolationError guards.
+  8. SCF_Review_fcc9a43.md finding R5 (defense in depth): non-integer/NaN
+     count states and NaN rates must raise a clean ScopeViolationError, not
+     a raw numpy TypeError/IndexError from being used directly as an array
+     size/index.
 """
 from __future__ import annotations
 
@@ -148,6 +152,24 @@ def check_scope_violation_guards():
     return {"checked": 6}
 
 
+def check_r5_defense_in_depth_count_validation():
+    """SCF_Review_fcc9a43.md finding R5 (defense in depth): non-integer/NaN count
+    states must raise a clean ScopeViolationError, not a raw numpy TypeError/
+    IndexError from being used directly as an array size/index."""
+    for kwargs, label in (
+        (dict(initial_count=0.4, threshold=2, horizon=1.0, arrival_rate=1.0, service_rate=1.0), "non_integer_initial_count"),
+        (dict(initial_count=0, threshold=2.5, horizon=1.0, arrival_rate=1.0, service_rate=1.0), "non_integer_threshold"),
+        (dict(initial_count=float("nan"), threshold=2, horizon=1.0, arrival_rate=1.0, service_rate=1.0), "nan_initial_count"),
+        (dict(initial_count=0, threshold=2, horizon=1.0, arrival_rate=float("nan"), service_rate=1.0), "nan_arrival_rate"),
+    ):
+        try:
+            queue_hitting_probability(**kwargs)
+            raise AssertionError(f"should reject {label}")
+        except ScopeViolationError:
+            pass
+    return {"checked": 4}
+
+
 CHECKS = [
     ("plan_reference_value", check_plan_reference_value),
     ("arrivals_only_poisson_reduction", check_arrivals_only_poisson_reduction),
@@ -156,6 +178,7 @@ CHECKS = [
     ("piecewise_reduces_to_single_segment", check_piecewise_reduces_to_single_segment),
     ("stationary_tail_differs_from_finite_horizon_hitting", check_stationary_tail_differs_from_finite_horizon_hitting),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("r5_defense_in_depth_count_validation", check_r5_defense_in_depth_count_validation),
 ]
 
 

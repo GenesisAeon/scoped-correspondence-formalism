@@ -21,7 +21,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | Paket | Inhalt | Status |
 |---|---|---|
 | B0 | Zeiteinheitenfehler in `_analytic_component_critical_times` (skalenabhängige absolute Diskriminantenschwelle) | ✅ erledigt |
-| B1 | Protokoll, Provenienz, Testzuordnung, diese Roadmap | ✅ erledigt |
+| B1 | Protokoll, Provenienz, Testzuordnung, diese Roadmap | ✅ erledigt (vervollständigt in Paket 8 nach R6) |
 | B2a | Fluidrückstau und Bestandsbrücke | ✅ erledigt |
 | B2b | CTMC-Erstpassage und Queue-Pilot | ✅ erledigt |
 | B3a | Lineare Reservoirs und Gedächtnisbrücke | ✅ erledigt |
@@ -254,3 +254,74 @@ Klassifikation selbst.
 **Volle Regression zum Abschluss dieser Runde:** 66/66 Mathe-, 16/16
 Daten-, 0 defekte Links (siehe Commit-Historie für die einzelnen
 Zwischenstände je Paket).
+
+## Paket 8 — Astras Zweitreview (SCF_Review_fcc9a43.md)
+
+Astra prüfte den B7-Commit `fcc9a43` unabhängig nach und fand sieben
+nummerierte Befunde (R1–R7), mehrere davon real und mit exakten
+Gegenbeispielen belegt — alle einzeln nachgerechnet, bevor etwas geändert
+wurde (Kontrollwerte trafen exakt auf Astras berichtete Zahlen).
+
+**R1 (hoch, echter Bug):** `predict_capacity_distribution` verwechselte
+die AR(1)-Innovationsstreuung mit der gesamten Residuenstreuung (Faktor
+`1/(1-phi²)` zu groß). Behoben durch getrennte Schätzung von
+`innovation_std` aus der AR-Rekursion selbst.
+
+**R2 (hoch, echter Bug):** dieselbe Funktion schritt das Residuum pro
+angefragtem Ausgabeelement genau einen Schritt fort, unabhängig vom
+tatsächlichen Zyklusabstand — `predict(...,[10])` und
+`predict(...,[1,...,10])` ergaben unterschiedliche Antworten für denselben
+Zyklus 10. Behoben durch expliziten `origin_cycle` und exakte
+`d`-Schritt-AR(1)-Fortpflanzung.
+
+**R3+R3b (hoch, zwei echte numerische Bugs):** `convolution_discharge`
+übersah schnelle Kernel vollständig (`k=100000` ergab `2e-45` statt `≈1`);
+`reservoir_interval_discharge` verlor durch Auslöschung bei sehr kleinem
+`dt` jede Genauigkeit (`dt=1e-17` ergab `0.0` statt `≈1`). Behoben durch
+Substitution `v=k(t-s)` vor der Quadratur bzw. die direkte, auslöschungsfreie
+Form `qbar=k·S0·E(z)+alpha·u·(1-E(z))`.
+
+**R4a+R4b (echte Bugs):** `diffusion_ever_hitting_probability` prüfte
+`mu<=0` vor dem deterministischen `sigma=0`-Fall (ein konstanter, rauschfreier
+Pfad meldete fälschlich sichere Erreichung); `first_mean_eol_crossing`
+meldete `None` statt `0.0` für eine bereits unter der Grenze liegende
+Mittelwertkurve bei `n=0`. Beide behoben durch Umsortierung der
+Fallunterscheidung bzw. vorgezogene `n=0`-Prüfung.
+
+**R5 (hoch für die öffentliche API, echte Bugs):** NaN-Eingaben wurden
+über `min(1.0,nan)`/`max(0.0,nan)` in plausibel aussehende, aber falsche
+Ergebnisse verwandelt; `run_queueing_pilot` rundete eine reelle Schwelle
+(`0.4`→`0`) still auf eine andere CTMC-Anfrage um. Behoben durch explizite
+Endlichkeits-/Ganzzahligkeitsprüfungen in allen betroffenen Funktionen
+(`queueing.py`, `queueing_pilot.py`, `first_passage_ctmc.py`,
+`first_passage_diffusion.py`).
+
+**R6 (Umfang/Benennung, keine numerischen Bugs):** B1 war nur teilweise
+umgesetzt — ergänzt um `docs/domain_expansion_protocol.md` (Mess-/Ereignis-
+/Zeitkonventionen, Berichtsschema) und explizite Testgruppen-Registrierung
+in `run_verification_suite.py`. `run_leave_one_cell_out_panel` wurde in
+`run_personalized_cell_panel` umbenannt (personalisierte Zellenauswertung,
+kein Transferexperiment); der Adapter behält jetzt Zyklusposition, Temperatur
+und Zeitstempel; die Dokumentation zeigt vollständige (64-Hex) statt
+gekürzter SHA-256-Werte; negative Extrapolationen werden je Modell explizit
+gezählt statt still in den MAE-Durchschnitt einzufließen; ein fester
+absoluter `n_train`-Ursprung ist jetzt zusätzlich zur relativen Aufteilung
+verfügbar.
+
+**R7 (positiver Gegenbeleg):** Astra zeigte per HTTP-Range-Requests und
+CRC32-geprüfter Extraktion, dass selektiver Zugriff auf einzelne
+CAMELS-DE-Mitglieder OHNE Volldownload des 2,18-GB-Archivs technisch
+funktioniert. Status und Fortsetzung: siehe eigener B3b-Abschnitt unten.
+
+**Kleinere Korrekturen:** Bestandsbrücken-Docstring (zwei unterschiedliche,
+nicht zu vermischende Bild­lichkeiten `S≡q` vs. `R=K-q`; Regulatorterm an
+der reflektierenden Grenze) präzisiert und mit einer expliziten
+Regressionsprüfung belegt; Monte-Carlo-Abnahmetest von einer unzulässigen
+strikten Richtungsannahme auf die bereits vorhandene statistische Toleranz
+reduziert; B0s "exact and robust"-Anspruch auf die Zweigwahl beschränkt
+(die Klassifikation nahe `D/scale≈0` bleibt eine tolerenzbasierte Näherung,
+kein Beweis einer exakt mehrfachen Wurzel).
+
+**Ergebnis:** alle R1–R6-Befunde unabhängig reproduziert (exakte
+Übereinstimmung mit Astras Zahlen) und behoben; neue Regressionstests in
+allen betroffenen `verify_*.py`. Volle Regression: siehe Commit-Nachricht.

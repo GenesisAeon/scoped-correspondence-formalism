@@ -191,10 +191,22 @@ def _analytic_component_critical_times(A: np.ndarray, x0: np.ndarray, component:
 
         x'' - tr(A)*x' + det(A)*x = 0,   x(0) = x0[component], x'(0) = (A@x0)[component]
 
-    Solved exactly per the sign of the discriminant ``D = tr(A)^2 - 4*det(A)``
-    (real-distinct / repeated / complex-conjugate roots) — exact and robust, with no
-    eigenvector computation or degeneracy handling needed. This is what makes the peak
-    search for these 2x2 systems independent of any sampling density (Astra6.txt finding 1).
+    Solved exactly per the sign of the SCALE-INVARIANT relative discriminant
+    ``D/scale`` (real-distinct / repeated / complex-conjugate roots), with no
+    eigenvector computation needed. This is what makes the peak search for these
+    2x2 systems independent of any sampling density (Astra6.txt finding 1).
+
+    **Scope note (response to SCF_Review_fcc9a43.md's B0 follow-up):** the branch
+    CHOICE is exact and scale-invariant (see the Paket B0 correction below), but
+    near ``D/scale == 0`` the classification still rests on a FIXED relative
+    tolerance (``_REL_DISCRIMINANT_EPS``), which decides "close enough to call it
+    a repeated root" rather than proving an exactly repeated eigenvalue. A matrix
+    whose relative discriminant sits just inside that tolerance without truly
+    being degenerate is classified via the repeated-root branch as an
+    APPROXIMATION, not a certified exact result. No practically-relevant
+    misclassification from this has been demonstrated (unlike the original B0
+    time-unit bug, which had a concrete counterexample) -- this is a scope
+    limitation of the general claim, not a known further bug.
     """
     y0 = float(x0[component])
     y0dot = float((A @ x0)[component])

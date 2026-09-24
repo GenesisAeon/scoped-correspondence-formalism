@@ -6,7 +6,29 @@ section 9.2-9.3. Module:
 [`dynamics/linear_reservoirs.py`](../src/scoped_correspondence/dynamics/linear_reservoirs.py).
 Verification:
 [`verify_linear_reservoirs.py`](../verification/verify_linear_reservoirs.py)
-(9/9 checks).
+(11/11 checks).
+
+**Correction (2026-09-24, response to
+[SCF_Review_fcc9a43.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_fcc9a43.md),
+findings R3+R3b — two real numerical bugs):**
+
+- **R3:** `convolution_discharge` completely missed FAST kernels. A naive
+  quadrature over `[0,t]` has no knowledge of a kernel's own timescale
+  `1/k` — for `k=100000`, the kernel is essentially a delta spike of width
+  `~1e-5` that the adaptive sampler's initial grid can miss entirely.
+  Astra's exact counterexample (`S0=0, alpha=1, u=1, k=100000, t=1`, exact
+  answer `1-e^-100000≈1`) returned `2.06e-45` from the old code. Fixed by
+  substituting `v=k_j*(t-s)` PER RESERVOIR before integrating — this
+  rescales every reservoir's decay to exactly rate `1` in `v`, so the
+  quadrature always sees an O(1)-scale integrand regardless of `k_j`.
+- **R3b:** `reservoir_interval_discharge` lost all precision for tiny
+  `dt` — the mass-balance form subtracts two nearly-equal storage values
+  and divides by the same tiny `dt`. `reservoir_interval_discharge(1,0,1,
+  1e-17)` returned exactly `0.0` instead of the true `≈1`. Fixed by using
+  the algebraically equivalent, cancellation-free direct form
+  `qbar = k·S0·E(z) + α·u·(1-E(z))` (`z=k·dt`, `E(z)=(1-e^-z)/z` via
+  `-expm1(-z)/z`), derived directly from the closed-form update — never
+  subtracting two close storage values.
 
 ## The model
 

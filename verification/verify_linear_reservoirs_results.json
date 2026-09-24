@@ -1,13 +1,13 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B3a (linear reservoirs)",
-  "timestamp": "2026-09-24T18:43:49+02:00",
+  "timestamp": "2026-09-24T21:38:23+02:00",
   "python": "3.11.9",
   "checks": {
     "plan_control_numbers": {
       "status": "pass",
       "detail": {
         "S1": 3.393469340287367,
-        "qbar": 1.6065306597126332,
+        "qbar": 1.6065306597126334,
         "S1_ode_cross_check": 3.393469340287121
       }
     },
@@ -58,6 +58,24 @@
         "q_conv": 1.6967346701436832,
         "q_discrete": 1.6967346701436834,
         "kernel_integral": 1.0000000000000002
+      }
+    },
+    "r3_fast_kernel_convolution": {
+      "status": "pass",
+      "detail": {
+        "fast_kernel_q": 1.0,
+        "want": 1.0,
+        "moderate_k_q": 0.9999999999999998,
+        "moderate_k_reference": 1.0
+      }
+    },
+    "r3b_tiny_dt_interval_discharge": {
+      "status": "pass",
+      "detail": {
+        "tiny_dt_q": 1.0,
+        "want": 1.0,
+        "regression_normal": 1.6065306597126334,
+        "parallel_tiny_dt": 1.0
       }
     },
     "scope_violation_guards": {

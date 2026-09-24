@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B2 (queueing pilot composition)",
-  "timestamp": "2026-09-24T18:23:04+02:00",
+  "timestamp": "2026-09-24T21:39:05+02:00",
   "python": "3.11.9",
   "checks": {
     "mean_safe_but_stochastic_risky": {
@@ -29,6 +29,12 @@
       "status": "pass",
       "detail": {
         "checked": 1
+      }
+    },
+    "r5_non_integer_threshold_rejected": {
+      "status": "pass",
+      "detail": {
+        "checked": 2
       }
     }
   }

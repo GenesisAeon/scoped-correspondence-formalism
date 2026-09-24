@@ -12,6 +12,9 @@ Checks:
   2. Both sub-models reproduce their own already-verified module functions
      exactly (this pilot adds no new math of its own, only composition).
   3. ScopeViolationError guard.
+  4. SCF_Review_fcc9a43.md finding R5: threshold=0.4 used to silently round
+     to int(0), reporting a stochastic hitting probability of 1.0 for a
+     boundary that was never actually crossed under the real-valued request.
 """
 from __future__ import annotations
 
@@ -67,10 +70,28 @@ def check_scope_violation_guard():
     return {"checked": 1}
 
 
+def check_r5_non_integer_threshold_rejected():
+    """SCF_Review_fcc9a43.md finding R5: threshold=0.4 used to silently round to
+    int(0), making initial_count=0 already-at-threshold and reporting a stochastic
+    hitting probability of 1.0 for a boundary that was never actually crossed."""
+    try:
+        run_queueing_pilot(0, 0.4, 1.0, 0.0, 1.0)
+        raise AssertionError("should reject a non-integer threshold")
+    except ScopeViolationError:
+        pass
+    try:
+        run_queueing_pilot(0.5, 5, 1.0, 1.0, 1.0)
+        raise AssertionError("should reject a non-integer initial_count")
+    except ScopeViolationError:
+        pass
+    return {"checked": 2}
+
+
 CHECKS = [
     ("mean_safe_but_stochastic_risky", check_mean_safe_but_stochastic_risky),
     ("pilot_matches_underlying_modules_exactly", check_pilot_matches_underlying_modules_exactly),
     ("scope_violation_guard", check_scope_violation_guard),
+    ("r5_non_integer_threshold_rejected", check_r5_non_integer_threshold_rejected),
 ]
 
 

@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B2b (M/M/1 first-passage)",
-  "timestamp": "2026-09-24T18:21:39+02:00",
+  "timestamp": "2026-09-24T21:39:01+02:00",
   "python": "3.11.9",
   "checks": {
     "plan_reference_value": {
@@ -55,6 +55,12 @@
       "status": "pass",
       "detail": {
         "checked": 6
+      }
+    },
+    "r5_defense_in_depth_count_validation": {
+      "status": "pass",
+      "detail": {
+        "checked": 4
       }
     }
   }

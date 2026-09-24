@@ -26,6 +26,11 @@ Checks:
      recursion's implied instantaneous discharge on a piecewise-constant
      control case.
   9. ScopeViolationError guards.
+  10. SCF_Review_fcc9a43.md finding R3: convolution_discharge must resolve
+      kernels far narrower than a naive quadrature's initial sampling grid
+      (k=100000 case).
+  11. SCF_Review_fcc9a43.md finding R3b: reservoir_interval_discharge must
+      not lose all precision to cancellation for tiny dt (dt=1e-17 case).
 """
 from __future__ import annotations
 
@@ -174,6 +179,43 @@ def check_scope_violation_guards():
     return {"checked": 5}
 
 
+def check_r3_fast_kernel_convolution():
+    """SCF_Review_fcc9a43.md finding R3: convolution_discharge must resolve
+    kernels far narrower than a naive quadrature's initial sampling grid.
+    S0=0, alpha=1, u=1, k=100000, t=1 has exact answer 1-e^{-100000} ~= 1;
+    the old code returned 2.06e-45 (the kernel's entire mass was missed)."""
+    q = convolution_discharge(1.0, [0.0], [1.0], [100000.0], lambda s: 1.0)
+    want = -np.expm1(-100000.0)
+    require(abs(q - want) < 1e-9, f"got {q}, want {want}")
+
+    # a second, more moderate fast-kernel case, cross-checked against the discrete
+    # step recursion's instantaneous discharge (an INDEPENDENT construction).
+    k = 500.0
+    S1 = reservoir_step(0.0, 1.0, k, 1.0)
+    q_moderate = convolution_discharge(1.0, [0.0], [1.0], [k], lambda s: 1.0)
+    require(abs(q_moderate - k * S1) < 1e-6, f"moderate-k cross-check: got {q_moderate}, want {k * S1}")
+    return {"fast_kernel_q": q, "want": want, "moderate_k_q": q_moderate, "moderate_k_reference": k * S1}
+
+
+def check_r3b_tiny_dt_interval_discharge():
+    """SCF_Review_fcc9a43.md finding R3b: reservoir_interval_discharge must not
+    cancel to 0 for tiny dt. reservoir_interval_discharge(1,0,1,1e-17) has exact
+    answer -expm1(-1e-17)/1e-17 ~= 1; the old mass-balance form returned exactly 0.0."""
+    q = reservoir_interval_discharge(1.0, 0.0, 1.0, 1e-17)
+    want = -np.expm1(-1e-17) / 1e-17
+    require(abs(q - want) < 1e-9, f"got {q}, want {want}")
+    require(q > 0.5, f"sanity: must NOT have collapsed to 0 (old bug); got {q}")
+
+    # regression: original well-conditioned control number must be unaffected
+    q_normal = reservoir_interval_discharge(3.0, 2.0, 0.5, 1.0)
+    require(abs(q_normal - 1.6065306597126332) < 1e-9, f"regression: got {q_normal}")
+
+    # parallel version, same tiny-dt robustness
+    qp = parallel_reservoir_interval_discharge([1.0, 0.0], 0.0, [1.0, 0.0], [1.0, 0.9], 1e-17)
+    require(abs(qp - want) < 1e-9, f"parallel version: got {qp}, want {want}")
+    return {"tiny_dt_q": q, "want": want, "regression_normal": q_normal, "parallel_tiny_dt": qp}
+
+
 CHECKS = [
     ("plan_control_numbers", check_plan_control_numbers),
     ("equal_rates_reduce_to_single", check_equal_rates_reduce_to_single),
@@ -183,6 +225,8 @@ CHECKS = [
     ("k_zero_continuous_limit", check_k_zero_continuous_limit),
     ("nonnegativity", check_nonnegativity),
     ("convolution_matches_discrete_step", check_convolution_matches_discrete_step),
+    ("r3_fast_kernel_convolution", check_r3_fast_kernel_convolution),
+    ("r3b_tiny_dt_interval_discharge", check_r3b_tiny_dt_interval_discharge),
     ("scope_violation_guards", check_scope_violation_guards),
 ]
 

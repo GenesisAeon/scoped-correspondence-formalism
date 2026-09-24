@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B5a (capacity degradation)",
-  "timestamp": "2026-09-24T18:44:16+02:00",
+  "timestamp": "2026-09-24T21:35:17+02:00",
   "python": "3.11.9",
   "checks": {
     "exact_synthetic_recovery": {
@@ -61,13 +61,36 @@
       "status": "pass",
       "detail": {
         "mean_crossing": 60.000000000000036,
-        "observed_crossing_one_realization": 60.0
+        "observed_crossing_one_realization": 61.0
+      }
+    },
+    "r1_innovation_std_not_residual_std": {
+      "status": "pass",
+      "detail": {
+        "phi": 0.7965957525382642,
+        "innovation_std": 0.01001370875036644,
+        "residual_std": 0.016563884532507258
+      }
+    },
+    "r2_forecast_independent_of_query_density": {
+      "status": "pass",
+      "detail": {
+        "sparse": 2.1073741824,
+        "dense": 2.1073741824,
+        "want": 2.1073741824
+      }
+    },
+    "r4b_already_past_eol": {
+      "status": "pass",
+      "detail": {
+        "checked": 3,
+        "normal_crossing": 60.000000000000036
       }
     },
     "scope_violation_guards": {
       "status": "pass",
       "detail": {
-        "checked": 3,
+        "checked": 7,
         "far_future_negative_extrapolation": -97.99999999999868
       }
     }

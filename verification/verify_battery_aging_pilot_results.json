@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B5b (battery aging pilot, synthetic-only CI check)",
-  "timestamp": "2026-09-24T18:54:02+02:00",
+  "timestamp": "2026-09-24T21:35:12+02:00",
   "python": "3.11.9",
   "checks": {
     "parser_filters_cycle_types": {
@@ -33,7 +33,8 @@
               "last_value": 1.989
             },
             "mae_holdout": 0.0045000000000000595,
-            "mean_eol_crossing_cycle": null
+            "mean_eol_crossing_cycle": null,
+            "n_negative_extrapolation_predictions": 0
           },
           "linear": {
             "params": {
@@ -41,7 +42,8 @@
               "a": 0.0009999999999999877
             },
             "mae_holdout": 1.0547118733938987e-15,
-            "mean_eol_crossing_cycle": null
+            "mean_eol_crossing_cycle": null,
+            "n_negative_extrapolation_predictions": 0
           },
           "power": {
             "params": {
@@ -50,11 +52,13 @@
               "p": 1.0
             },
             "mae_holdout": 1.1102230246251565e-16,
-            "mean_eol_crossing_cycle": null
+            "mean_eol_crossing_cycle": null,
+            "n_negative_extrapolation_predictions": 0
           }
         },
         "observed_first_eol_cycle": null,
-        "censored": true
+        "censored": true,
+        "metadata": null
       }
     },
     "leakage_guard": {
@@ -67,6 +71,33 @@
       "status": "pass",
       "detail": {
         "cell_A_unaffected": true
+      }
+    },
+    "r6_metadata_retained_by_parser": {
+      "status": "pass",
+      "detail": {
+        "n_records": 3,
+        "cycle_indices": [
+          1,
+          4,
+          7
+        ]
+      }
+    },
+    "r6_fixed_origin_and_negative_extrapolation_flag": {
+      "status": "pass",
+      "detail": {
+        "n_train_fixed": 20,
+        "n_negative": 4
+      }
+    },
+    "r6_metadata_passthrough": {
+      "status": "pass",
+      "detail": {
+        "metadata": {
+          "discharge_index_offset": 0,
+          "protocol": "CC-CV"
+        }
       }
     },
     "scope_violation_guards": {
