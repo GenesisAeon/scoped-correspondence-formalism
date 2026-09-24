@@ -1,7 +1,7 @@
 {
   "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 4 (transient amplification)",
   "source": "Trefethen, L. N.; Trefethen, A. E.; Reddy, S. C.; Driscoll, T. A. (1993): Hydrodynamic Stability Without Eigenvalues. Science 261, 578-584.",
-  "timestamp": "2026-09-24T10:12:07+02:00",
+  "timestamp": "2026-09-24T14:16:31+02:00",
   "python": "3.11.9",
   "checks": {
     "closed_form_against_expm": {
@@ -13,22 +13,22 @@
     "no_coupling_gain_never_exceeds_one": {
       "status": "pass",
       "detail": {
-        "t_star": 6.643747950818272e-06,
-        "peak_gain": 0.9999933562741188
+        "t_star": 0.0,
+        "peak_gain": 1.0
       }
     },
     "exact_closed_form_peak_for_two_buffer_example": {
       "status": "pass",
       "detail": {
-        "peak_time": 1.000001291992921,
-        "peak_value": 0.735758882401989,
+        "peak_time": 0.999999914839348,
+        "peak_value": 0.7357588824026866,
         "k_over_e": 0.7357588823428847
       }
     },
     "three_way_classification": {
       "status": "pass",
       "detail": {
-        "uncoupled": "safe_no_violation",
+        "uncoupled": "no_violation_in_horizon",
         "stable_coupled": "transient_violation",
         "unstable": "unstable_violation_no_guaranteed_return"
       }
@@ -37,6 +37,24 @@
       "status": "pass",
       "detail": {
         "checked": 6
+      }
+    },
+    "astra_rotating_system_global_peak": {
+      "status": "pass",
+      "detail": {
+        "true_peak": 0.9844639844932171,
+        "true_peak_time": 0.15608003902000975,
+        "module_peak": -0.9844639094159741,
+        "module_peak_time": 0.1560812317059196
+      }
+    },
+    "short_horizon_hides_a_later_violation": {
+      "status": "pass",
+      "detail": {
+        "short_horizon_classification": "no_violation_in_horizon",
+        "short_horizon_peak": 0.9048374180359594,
+        "long_horizon_classification": "transient_violation",
+        "long_horizon_peak": 3.678794411714423
       }
     }
   }

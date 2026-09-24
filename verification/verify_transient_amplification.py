@@ -24,6 +24,15 @@ CAPABILITY_EXPANSION_ROADMAP.md Priority 4. Checks:
      across the first two cases, isolating coupling as the sole cause of
      the difference.
   5. ScopeViolationError guards.
+  6. Astra's 2026-09-24 (SCF_Review_dc5d82a.md, finding R3) counterexamples,
+     as regression tests: a rotating stable system whose true global peak
+     was previously missed entirely by a local single-bracket optimizer
+     (the old code reported "safe" with peak 0.525 while the true peak,
+     0.9845, exceeds the boundary) — now checked against an independent
+     brute-force fine grid; and a short-horizon case confirming
+     ``no_violation_in_horizon`` is explicitly horizon-relative, not a
+     permanent safety claim (the same system violates the boundary at
+     t=1, just outside the checked t_max=0.1 window).
 """
 from __future__ import annotations
 
@@ -43,7 +52,7 @@ if str(SRC) not in sys.path:
 
 from scoped_correspondence.errors import ScopeViolationError  # noqa: E402
 from scoped_correspondence.viability.transient_amplification import (  # noqa: E402
-    SOURCE, SAFE_NO_VIOLATION, TRANSIENT_VIOLATION, UNSTABLE_VIOLATION,
+    SOURCE, NO_VIOLATION_IN_HORIZON, TRANSIENT_VIOLATION, UNSTABLE_VIOLATION,
     canonical_triangular_matrix, canonical_matrix_exponential_closed_form,
     finite_time_gain, max_finite_time_gain, classify_two_buffer_transient,
 )
@@ -104,7 +113,7 @@ def check_three_way_classification():
     boundary = 0.5
 
     r_uncoupled = classify_two_buffer_transient([[-1.0, 0.0], [0.0, -1.0]], x0, t_max=10.0, boundary=boundary)
-    require(r_uncoupled.classification == SAFE_NO_VIOLATION, f"uncoupled case: got {r_uncoupled.classification}")
+    require(r_uncoupled.classification == NO_VIOLATION_IN_HORIZON, f"uncoupled case: got {r_uncoupled.classification}")
     require(r_uncoupled.peak_abs_x1_value == 0.0, "uncoupled case: x1 should stay exactly 0 (no forcing on x1 at all)")
 
     r_stable_coupled = classify_two_buffer_transient([[-1.0, 2.0], [0.0, -1.0]], x0, t_max=10.0, boundary=boundary)
@@ -151,12 +160,64 @@ def check_scope_violation_guards():
     return {"checked": 6}
 
 
+def check_astra_rotating_system_global_peak():
+    """SCF_Review_dc5d82a.md finding R3: A=[[-0.1,-10],[10,-0.1]], x0=[0,1] is a
+    rotating, slowly-decaying stable system with |x1(t)| = e^{-0.1t}*|sin(10t)| —
+    the old local-bracket peak search reported peak=0.525 (classification 'safe')
+    while the true global peak is ~0.9845, exceeding boundary=0.95.
+    """
+    A = [[-0.1, -10.0], [10.0, -0.1]]
+    x0 = [0.0, 1.0]
+    boundary = 0.95
+    r = classify_two_buffer_transient(A, x0, t_max=10.0, boundary=boundary, n_points=400)
+
+    t_fine = np.linspace(0.0, 10.0, 4_000_000)
+    x1_true = np.exp(-0.1 * t_fine) * np.abs(np.sin(10.0 * t_fine))
+    true_peak = float(x1_true.max())
+    true_peak_time = float(t_fine[np.argmax(x1_true)])
+
+    require(true_peak > boundary, f"sanity: brute-force peak {true_peak} should exceed boundary {boundary}")
+    require(abs(abs(r.peak_abs_x1_value) - true_peak) < 1e-3,
+            f"module's peak {abs(r.peak_abs_x1_value)} should match the brute-force global peak {true_peak}")
+    require(abs(r.peak_abs_x1_time - true_peak_time) < 1e-2,
+            f"module's peak time {r.peak_abs_x1_time} should match the brute-force peak time {true_peak_time}")
+    require(r.exceeds_boundary, "module must detect the boundary IS exceeded")
+    require(r.classification == TRANSIENT_VIOLATION, f"expected {TRANSIENT_VIOLATION}, got {r.classification}")
+    return {"true_peak": true_peak, "true_peak_time": true_peak_time,
+            "module_peak": r.peak_abs_x1_value, "module_peak_time": r.peak_abs_x1_time}
+
+
+def check_short_horizon_hides_a_later_violation():
+    """SCF_Review_dc5d82a.md finding R3 (second sub-case): A=[[-1,10],[0,-1]],
+    x0=[0,1], boundary=1, t_max=0.1 -- the peak WITHIN this short window (~0.905)
+    stays under the boundary, but the same trajectory reaches 10/e~=3.68 at t=1,
+    well outside the checked window. `no_violation_in_horizon` must be read as
+    exactly that -- horizon-relative, not a permanent safety claim.
+    """
+    A = [[-1.0, 10.0], [0.0, -1.0]]
+    x0 = [0.0, 1.0]
+    r_short = classify_two_buffer_transient(A, x0, t_max=0.1, boundary=1.0, n_points=200)
+    require(r_short.classification == NO_VIOLATION_IN_HORIZON,
+            f"short horizon: expected {NO_VIOLATION_IN_HORIZON}, got {r_short.classification}")
+
+    r_long = classify_two_buffer_transient(A, x0, t_max=1.5, boundary=1.0, n_points=400)
+    require(r_long.classification == TRANSIENT_VIOLATION,
+            f"longer horizon on the SAME system should reveal the violation; got {r_long.classification}")
+    require(r_long.peak_abs_x1_value > 3.0, f"peak on the longer horizon should be near 10/e~=3.68; got {r_long.peak_abs_x1_value}")
+    return {
+        "short_horizon_classification": r_short.classification, "short_horizon_peak": r_short.peak_abs_x1_value,
+        "long_horizon_classification": r_long.classification, "long_horizon_peak": r_long.peak_abs_x1_value,
+    }
+
+
 CHECKS = [
     ("closed_form_against_expm", check_closed_form_against_expm),
     ("no_coupling_gain_never_exceeds_one", check_no_coupling_gain_never_exceeds_one),
     ("exact_closed_form_peak_for_two_buffer_example", check_exact_closed_form_peak_for_two_buffer_example),
     ("three_way_classification", check_three_way_classification),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("astra_rotating_system_global_peak", check_astra_rotating_system_global_peak),
+    ("short_horizon_hides_a_later_violation", check_short_horizon_hides_a_later_violation),
 ]
 
 

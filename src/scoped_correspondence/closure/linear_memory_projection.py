@@ -61,10 +61,10 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
-from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp, trapezoid
 from scipy.interpolate import CubicSpline
 from scipy.linalg import expm
-from scipy.optimize import brentq, minimize_scalar
+from scipy.optimize import brentq
 
 from scoped_correspondence.errors import ScopeViolationError
 
@@ -122,7 +122,7 @@ def simulate_full_system(
 
     def rhs(t: float, y: np.ndarray) -> np.ndarray:
         x, z = y[0], y[1:]
-        dx = float(A) * x + float(B_row @ z) + float(forcing(t))
+        dx = float(A) * x + float((B_row @ z).item()) + float(forcing(t))
         dz = C_col.flatten() * x + D_mat @ z
         return np.concatenate([[dx], dz])
 
@@ -181,7 +181,7 @@ def simulate_finite_memory_approximation(
         if i - lo >= 1:
             hist_x = xs[lo : i + 1]
             ker_vals = kernel_table[i - lo :: -1][: len(hist_x)]
-            mem = float(np.trapz(ker_vals * hist_x, dx=dt))
+            mem = float(trapezoid(ker_vals * hist_x, dx=dt))
         else:
             mem = 0.0
         dxdt = float(A) * xs[i] + mem + float(forcing(t))
@@ -189,10 +189,49 @@ def simulate_finite_memory_approximation(
     return ts, xs
 
 
+MIN_POINTS_PER_OSCILLATION_PERIOD = 40
+
+
+def _adequate_sample_count(eigvals: np.ndarray, t_span: Tuple[float, float], n_points: int) -> int:
+    """Raise ``n_points`` if needed so the fastest oscillation implied by ``eigvals``
+    gets at least :data:`MIN_POINTS_PER_OSCILLATION_PERIOD` samples per period over
+    ``t_span``. Mirrors ``viability.transient_amplification``'s helper of the same
+    purpose (kept as an independent, self-contained copy per this repo's module
+    convention rather than a shared cross-module utility).
+    """
+    max_imag = float(np.max(np.abs(eigvals.imag))) if len(eigvals) else 0.0
+    if max_imag <= 1e-12:
+        return int(n_points)
+    period = 2.0 * np.pi / max_imag
+    duration = float(t_span[1]) - float(t_span[0])
+    needed = int(np.ceil((duration / period) * MIN_POINTS_PER_OSCILLATION_PERIOD)) + 1
+    return max(int(n_points), needed)
+
+
 def _continuous_min(t: np.ndarray, x: np.ndarray) -> Tuple[float, float]:
+    """Global minimum of the cubic-spline interpolant through ``(t, x)``.
+
+    **Correction (2026-09-24, response to
+    prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md, Astra
+    finding R3):** previously a single ``scipy.optimize.minimize_scalar
+    (method="bounded")`` call over the whole domain — a LOCAL bracket
+    search, unsound for an oscillating trajectory (Astra demonstrated the
+    identical failure mode in ``viability.transient_amplification``'s
+    peak-finding on a rotating stable system). Fixed the same way: every
+    stationary point of the spline is found ANALYTICALLY
+    (``CubicSpline.derivative().roots()``, exact for a piecewise cubic) and
+    compared against the two endpoints — provably sufficient for the
+    interpolant's global extremum, since the function is strictly
+    monotonic between any two such points.
+    """
     spline = CubicSpline(t, x)
-    res = minimize_scalar(lambda tt: float(spline(tt)), bounds=(float(t[0]), float(t[-1])), method="bounded")
-    return float(res.x), float(res.fun)
+    deriv = spline.derivative()
+    roots = deriv.roots(extrapolate=False)
+    roots = roots[(roots >= t[0]) & (roots <= t[-1])]
+    candidates = np.concatenate(([t[0], t[-1]], roots))
+    values = spline(candidates)
+    idx = int(np.argmin(values))
+    return float(candidates[idx]), float(values[idx])
 
 
 def _first_downward_crossing(t: np.ndarray, x: np.ndarray, boundary: float) -> Optional[float]:
@@ -246,7 +285,14 @@ def run_memory_projection_comparison(
     forcing: Callable[[float], float], t_span: Tuple[float, float],
     *, memory_window: float, boundary: float, n_points: int = 400, n_steps_finite: int = 4000,
 ) -> MemoryProjectionComparison:
-    t = np.linspace(float(t_span[0]), float(t_span[1]), int(n_points))
+    D_mat = np.atleast_2d(np.asarray(D, dtype=float))
+    n_z = D_mat.shape[0]
+    B_row = _as_row(B, n_z)
+    C_col = _as_col(C, n_z)
+    block = np.block([[np.array([[float(A)]]), B_row], [C_col, D_mat]])
+    eigvals = np.linalg.eigvals(block)
+    n_adequate = _adequate_sample_count(eigvals, (float(t_span[0]), float(t_span[1])), int(n_points))
+    t = np.linspace(float(t_span[0]), float(t_span[1]), n_adequate)
     x_exact, _z_exact = simulate_full_system(A, B, D, C, x0, z0, forcing, t)
     x_memless = simulate_memoryless_approximation(A, x0, forcing, t)
     ts_fine, x_fine = simulate_finite_memory_approximation(

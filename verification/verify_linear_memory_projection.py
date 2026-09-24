@@ -20,6 +20,12 @@ CAPABILITY_EXPANSION_ROADMAP.md Priority 3. Checks:
      approximation (partial window) is checked to beat it on ALL FOUR of
      Astra's requested metrics -- mean absolute error, minimum value,
      minimum time, and boundary-crossing time -- not just one of them.
+  5. Astra's 2026-09-24 (SCF_Review_dc5d82a.md, finding R3) regression:
+     ``_continuous_min`` used to call a single local
+     ``scipy.optimize.minimize_scalar`` bracket search, unsound for an
+     oscillating trajectory -- the same failure mode Astra demonstrated in
+     ``viability.transient_amplification``. Checked here directly against
+     an independent brute-force fine grid on an oscillating example.
 """
 from __future__ import annotations
 
@@ -41,6 +47,7 @@ from scoped_correspondence.closure.linear_memory_projection import (  # noqa: E4
     SOURCE,
     exact_memory_kernel, simulate_full_system, simulate_memoryless_approximation,
     simulate_finite_memory_approximation, run_memory_projection_comparison,
+    _continuous_min,
 )
 
 
@@ -153,11 +160,33 @@ def check_full_comparison_beats_memoryless_on_all_metrics():
     }
 
 
+def check_continuous_min_global_not_local():
+    """SCF_Review_dc5d82a.md finding R3: on an oscillating trajectory, a single
+    local ``scipy.optimize.minimize_scalar`` bracket search can miss the true
+    global minimum entirely (Astra demonstrated -0.71905 vs. a true -0.98446 on
+    a related oscillating example). Checked here against an independent
+    brute-force fine grid on x(t) = exp(-0.1t)*sin(10t).
+    """
+    t = np.linspace(0.0, 10.0, 2000)
+    x = np.exp(-0.1 * t) * np.sin(10.0 * t)
+    t_star, val = _continuous_min(t, x)
+
+    t_fine = np.linspace(0.0, 10.0, 4_000_000)
+    x_fine = np.exp(-0.1 * t_fine) * np.sin(10.0 * t_fine)
+    true_min = float(x_fine.min())
+    true_min_time = float(t_fine[np.argmin(x_fine)])
+
+    require(abs(val - true_min) < 1e-3, f"module min {val} should match brute-force global min {true_min}")
+    require(abs(t_star - true_min_time) < 1e-2, f"module min time {t_star} should match brute-force time {true_min_time}")
+    return {"module_min": val, "module_min_time": t_star, "true_min": true_min, "true_min_time": true_min_time}
+
+
 CHECKS = [
     ("kernel_hand_arithmetic", check_kernel_hand_arithmetic),
     ("finite_memory_matches_exact_when_window_covers_full_history", check_finite_memory_matches_exact_when_window_covers_full_history),
     ("scope_violation_guards", check_scope_violation_guards),
     ("full_comparison_beats_memoryless_on_all_metrics", check_full_comparison_beats_memoryless_on_all_metrics),
+    ("continuous_min_global_not_local", check_continuous_min_global_not_local),
 ]
 
 

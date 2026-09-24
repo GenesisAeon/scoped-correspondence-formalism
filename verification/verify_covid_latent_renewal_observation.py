@@ -14,11 +14,16 @@ CAPABILITY_EXPANSION_ROADMAP.md Priority 2. Checks:
      unchanged): the OLD (Poisson-on-renewal-mean) and NEW (weekday-
      adjusted negative-binomial) variants are compared with the SAME
      underlying renewal-equation dynamics -- reported as-is, whichever
-     wins. On this pilot the NEW variant wins decisively (both log-score
-     and empirical coverage), demonstrating that a chunk of what looked
-     like "the model is wrong" was actually the raw-count observation
-     process (day-of-week reporting pattern + overdispersion), consistent
-     with Astra's request to be able to tell the two apart.
+     wins.
+  4. Astra's 2026-09-24 (SCF_Review_dc5d82a.md, finding R6) full 2x2
+     ablation (weekday: on/off x distribution: Poisson/negative-binomial),
+     each mean variant with its OWN separately-fit dispersion: isolates
+     that negative-binomial overdispersion alone is the strong finding
+     (2.4% -> 73.8% coverage), while the weekday correction on top actually
+     WORSENS both coverage-adjacent calibration and log-score on this exact
+     42-trial window (10.2 -> 11.8) -- corrected from the earlier framing,
+     which bundled both changes and credited their combined effect without
+     isolating which one does the work.
 """
 from __future__ import annotations
 
@@ -39,7 +44,7 @@ from scoped_correspondence.errors import ScopeViolationError  # noqa: E402
 from scoped_correspondence.validation.covid_latent_renewal_observation import (  # noqa: E402
     SOURCE, MIN_CALIB_DAYS, DEFAULT_COVERAGE,
     fit_weekday_multipliers, weekday_adjusted_mean,
-    run_covid_latent_renewal_observation_comparison,
+    run_covid_latent_renewal_observation_comparison, run_covid_ablation_comparison,
 )
 from scoped_correspondence.validation.scoring_rules import (  # noqa: E402
     neg_binom_prediction_interval, poisson_prediction_interval, _nb_mean_dispersion_to_n_p,
@@ -122,6 +127,39 @@ def check_real_data_application(covid_path):
     }
 
 
+def check_ablation_comparison(covid_path):
+    """SCF_Review_dc5d82a.md finding R6: the full 2x2 ablation, checked against
+    Astra's exact independently-computed numbers (matched to 3 decimal places
+    when this check was written): dispersion 0.8207 (no weekday) / 0.9118
+    (weekday); coverage 2.38% / 0.00% / 73.81% / 73.81%; mean log-score
+    1387.465 / 2490.044 / 10.192 / 11.751 for (Poisson, no wd), (Poisson, wd),
+    (NB, no wd), (NB, wd) respectively. Confirms NB alone is the strong
+    finding and the weekday correction WORSENS both metrics here.
+    """
+    out = run_covid_ablation_comparison(covid_path, coverage=DEFAULT_COVERAGE)
+    require(set(out) == {(False, False), (True, False), (False, True), (True, True)}, f"unexpected keys: {set(out)}")
+    for key, v in out.items():
+        require(v.n_trials > 0, f"{key}: zero trials")
+        require(0.0 <= v.empirical_coverage <= 1.0, f"{key}: coverage out of range")
+        require(np.isfinite(v.mean_log_score), f"{key}: non-finite log score")
+
+    poisson_no_wd, poisson_wd = out[(False, False)], out[(True, False)]
+    nb_no_wd, nb_wd = out[(False, True)], out[(True, True)]
+
+    require(nb_no_wd.mean_log_score < poisson_no_wd.mean_log_score,
+            "negative-binomial (no weekday) must massively beat Poisson (no weekday) on log-score")
+    require(nb_no_wd.empirical_coverage > poisson_no_wd.empirical_coverage,
+            "negative-binomial (no weekday) must beat Poisson (no weekday) on coverage")
+    require(nb_wd.mean_log_score > nb_no_wd.mean_log_score,
+            f"the weekday correction should WORSEN the NB log-score here ({nb_wd.mean_log_score} should exceed {nb_no_wd.mean_log_score})")
+    require(abs(nb_wd.empirical_coverage - nb_no_wd.empirical_coverage) < 1e-9,
+            "the weekday correction should not improve NB coverage on this window")
+
+    return {key_str: v.to_dict() for key_str, v in
+            (("poisson_no_weekday", poisson_no_wd), ("poisson_weekday", poisson_wd),
+             ("nb_no_weekday", nb_no_wd), ("nb_weekday", nb_wd))}
+
+
 def check_neg_binom_prediction_interval_against_scipy():
     mean, dispersion, coverage = 50.0, 0.3, 0.8
     got = neg_binom_prediction_interval(mean, dispersion, coverage)
@@ -162,6 +200,7 @@ def main():
 
     checks = CHECKS + [
         ("real_data_application", lambda: check_real_data_application(covid_path)),
+        ("ablation_comparison", lambda: check_ablation_comparison(covid_path)),
     ]
 
     report = {

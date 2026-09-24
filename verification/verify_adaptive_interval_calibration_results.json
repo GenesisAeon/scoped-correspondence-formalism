@@ -5,7 +5,7 @@
   "source_pid": "Angelopoulos, A. N.; Cand\u00e8s, E. J.; Tibshirani, R. J. (2023): Conformal PID Control for Time Series Prediction. NeurIPS. https://papers.neurips.cc/paper_files/paper/2023/hash/47f2fad8c1111d07f83c91be7870f8db-Abstract-Conference.html",
   "pid_scope_note": "Implements only the Proportional + Integral terms of Conformal PID Control; the published method's learned scorecaster and bounded saturation link are NOT implemented.",
   "default_alpha_target": 0.2,
-  "timestamp": "2026-09-24T09:22:30+02:00",
+  "timestamp": "2026-09-24T14:16:45+02:00",
   "python": "3.11.9",
   "checks": {
     "aci_update_hand_arithmetic": {
@@ -43,6 +43,24 @@
           "pid"
         ],
         "prefix_trials": 34
+      }
+    },
+    "no_future_leakage_via_alpha_t_under_overlapping_horizons": {
+      "status": "pass",
+      "detail": {
+        "checked_methods": [
+          "aci",
+          "pid"
+        ],
+        "leak_free_before_target_elapses": true
+      }
+    },
+    "capped_variant_can_permanently_fail_to_cover": {
+      "status": "pass",
+      "detail": {
+        "n_trials": 196,
+        "empirical_coverage": 0.0,
+        "final_alpha_t": 0.001
       }
     },
     "real_data_application": {
@@ -141,14 +159,14 @@
             "aci": {
               "n_trials": 19,
               "empirical_coverage": 0.0,
-              "mean_width": 2977.538,
-              "mean_interval_score": 48527.7426
+              "mean_width": 2920.8223,
+              "mean_interval_score": 48754.6057
             },
             "pid": {
               "n_trials": 19,
               "empirical_coverage": 0.0,
-              "mean_width": 3483.3738,
-              "mean_interval_score": 46504.3994
+              "mean_width": 3369.9423,
+              "mean_interval_score": 46958.1257
             }
           },
           "exponential_extrapolation": {
@@ -161,14 +179,14 @@
             "aci": {
               "n_trials": 19,
               "empirical_coverage": 0.5789,
-              "mean_width": 3735.7055,
-              "mean_interval_score": 8198.3343
+              "mean_width": 3716.0162,
+              "mean_interval_score": 8277.0912
             },
             "pid": {
               "n_trials": 19,
               "empirical_coverage": 0.5263,
-              "mean_width": 3741.3043,
-              "mean_interval_score": 8125.5293
+              "mean_width": 3701.9259,
+              "mean_interval_score": 8283.0431
             }
           },
           "renewal_constant_R": {
@@ -181,14 +199,14 @@
             "aci": {
               "n_trials": 19,
               "empirical_coverage": 0.5789,
-              "mean_width": 1622.2213,
-              "mean_interval_score": 5564.708
+              "mean_width": 1604.9721,
+              "mean_interval_score": 5547.4588
             },
             "pid": {
               "n_trials": 19,
               "empirical_coverage": 0.5789,
-              "mean_width": 1642.8469,
-              "mean_interval_score": 5597.3735
+              "mean_width": 1608.3485,
+              "mean_interval_score": 5562.8751
             }
           }
         }

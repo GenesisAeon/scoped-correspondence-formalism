@@ -7,7 +7,27 @@ Anfangszustand abhängigen Restterm erzeugt" (Chorin, Hald & Kupferman 2000,
 PNAS 97, 2968-2973). Module:
 [`closure/linear_memory_projection.py`](../src/scoped_correspondence/closure/linear_memory_projection.py).
 Verification: [`verify_linear_memory_projection.py`](../verification/verify_linear_memory_projection.py)
-(4/4 checks).
+(5/5 checks).
+
+**Corrections (2026-09-24, response to
+[SCF_Review_dc5d82a.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md)):**
+
+- **R1 (CI was genuinely red under NumPy ≥2.4):** `float(B_row @ z)` relied
+  on an implicit 1-element-array-to-scalar conversion NumPy 2.4 no longer
+  allows, and `np.trapz` was removed in NumPy 2.4. Fixed with `.item()` and
+  `scipy.integrate.trapezoid` (which does not itself require NumPy ≥2.0,
+  keeping this module's own dependency floor at `numpy>=1.24`).
+- **R3 (a real bug, same class Astra found in `viability
+  .transient_amplification`):** `_continuous_min` used a single local
+  `scipy.optimize.minimize_scalar` bracket search, unsound for an
+  oscillating trajectory. Fixed identically: analytic stationary points via
+  `CubicSpline.derivative().roots()` plus endpoints, provably sufficient
+  for the interpolant's global extremum. Also applied adaptive sampling
+  (resolving the fastest oscillation implied by the full system's
+  eigenvalues) in `run_memory_projection_comparison`, so under-resolved
+  oscillatory cases get enough points automatically. The stable,
+  non-oscillating worked example below is unaffected by this fix (verified
+  as a regression check — identical numbers before and after).
 
 ## The exact reduction
 

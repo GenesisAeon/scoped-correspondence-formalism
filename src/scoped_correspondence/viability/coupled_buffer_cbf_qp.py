@@ -26,6 +26,42 @@ approximated or hidden behind a solver's generic failure message: the
 closed-form per-buffer lower bound derived directly from the CBF
 inequality is used as an INDEPENDENT feasibility certificate, not just
 trusted from ``scipy``'s convergence flag.
+
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md, Astra
+finding R4): instantaneous CBF satisfaction is NOT trajectory safety.**
+The CBF margin ``-drain+u+x >= 0`` is a check of the inequality AT ONE
+INSTANT — exactly the same caveat already documented for the scalar M16
+example this module extends (``control_barrier.verify_forward_invariance``:
+"a single passing instantaneous check does NOT by itself certify forward
+invariance under a *held* ... control over time"), which this module
+failed to carry forward into its own field naming and worked example.
+Astra's concrete counterexample: the optimized ``u=(2,0)`` for buffer 1
+(``drain=3, x=1``) satisfies the instantaneous margin exactly (``=0``),
+but HOLDING that control constant gives the exact linear trajectory
+``x1(t) = 1 - t``, which goes negative for any ``t > 1``. Worse, her
+second calculation shows sustained safety is not even a question of
+control-law sophistication here: with total drain ``5`` and budget ``3``,
+``x1(t)+x2(t) <= 6 - 2t`` under ANY admissible allocation, so at least one
+buffer is provably negative for ``t > 3`` regardless of how the budget is
+split or re-split over time — the RESOURCE itself is insufficient for
+sustained safety, a structurally different question from the instantaneous
+QP's feasibility.
+
+Every ``InterventionOutcome`` therefore now separates the two questions
+explicitly: ``cbf_condition_satisfied_now`` (the original instantaneous
+check, renamed from ``safe`` to make the scope unmistakable) and, when a
+``horizon`` is supplied, ``sustained_safe_until_horizon`` /
+``first_violation_time`` — computed from the EXACT closed-form trajectory
+under the constant held control (``x_i(t) = x_i(0) + (u_i-drain_i)*t``,
+linear, no numerical integration needed). A second worked example with a
+budget that genuinely covers total drain is included specifically to make
+the instantaneous-vs-sustained distinction demonstrable (Astra: "Soll
+dauerhafte Sicherheit demonstriert werden, muss das Beispiel dafür
+überhaupt genügend langfristige Ressourcen besitzen.") — the module does
+NOT claim this "solves" sustained safety in general (a real closed-loop
+controller would re-optimize as the state evolves, which this module still
+does not simulate).
 """
 
 from __future__ import annotations
@@ -74,27 +110,65 @@ def cbf_lower_bound(spec: BufferSpec) -> float:
     return float(spec.drain) - float(spec.x)
 
 
+def held_control_violation_time(spec: BufferSpec, u: float) -> Optional[float]:
+    """Exact time at which ``x(t) = x0 + (u-drain)*t`` first goes negative under a
+    HELD (constant) control ``u`` — the closed-form solution of the linear buffer
+    dynamics, no numerical integration needed. Returns ``None`` if it never does
+    (``u >= drain``, i.e. the buffer is non-decreasing under this held control).
+    """
+    net_rate = float(u) - float(spec.drain)
+    if net_rate >= 0.0:
+        return None
+    if float(spec.x) < 0.0:
+        return 0.0
+    return float(spec.x) / (-net_rate)
+
+
+def sustained_safety_over_horizon(
+    buffers: Sequence[BufferSpec], u: Sequence[float], horizon: float
+) -> Tuple[bool, Optional[float]]:
+    """Whether EVERY buffer stays non-negative for the full ``[0, horizon]`` under
+    the HELD control ``u`` (exact closed form, see ``held_control_violation_time``),
+    and the earliest violation time across buffers if not (``None`` if none violate).
+    """
+    if len(buffers) != len(u):
+        raise ScopeViolationError("sustained_safety_over_horizon: buffers and u must have the same length")
+    if horizon <= 0.0:
+        raise ScopeViolationError(f"sustained_safety_over_horizon: horizon must be > 0; got {horizon!r}")
+    violation_times = [held_control_violation_time(b, uu) for b, uu in zip(buffers, u)]
+    within_horizon = [vt for vt in violation_times if vt is not None and vt <= float(horizon)]
+    if not within_horizon:
+        return True, None
+    return False, min(within_horizon)
+
+
 @dataclass(frozen=True)
 class InterventionOutcome:
     label: str
     u: Optional[Tuple[float, float]]
     margins: Optional[Tuple[float, float]]
-    safe: bool
+    cbf_condition_satisfied_now: bool
     admissible: bool
     cost: Optional[float]
     infeasible_problem: bool
     infeasibility_reason: Optional[str]
+    horizon: Optional[float] = None
+    sustained_safe_until_horizon: Optional[bool] = None
+    first_violation_time: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "label": self.label,
             "u": list(self.u) if self.u is not None else None,
             "margins": list(self.margins) if self.margins is not None else None,
-            "safe": self.safe,
+            "cbf_condition_satisfied_now": self.cbf_condition_satisfied_now,
             "admissible": self.admissible,
             "cost": self.cost,
             "infeasible_problem": self.infeasible_problem,
             "infeasibility_reason": self.infeasibility_reason,
+            "horizon": self.horizon,
+            "sustained_safe_until_horizon": self.sustained_safe_until_horizon,
+            "first_violation_time": self.first_violation_time,
         }
 
 
@@ -107,23 +181,34 @@ def _cost(u: Sequence[float]) -> float:
 
 
 def evaluate_fixed_control(
-    buffers: Sequence[BufferSpec], u: Sequence[float], budget: float, label: str
+    buffers: Sequence[BufferSpec], u: Sequence[float], budget: float, label: str, *, horizon: Optional[float] = None
 ) -> InterventionOutcome:
-    """Evaluate ANY given control vector (used for both the no-intervention and fixed-rule variants)."""
+    """Evaluate ANY given control vector (used for both the no-intervention and fixed-rule variants).
+
+    ``horizon``, if given, additionally checks sustained safety under this
+    control HELD CONSTANT over ``[0, horizon]`` (see module docstring,
+    Astra finding R4) — a strictly stronger, separate question from the
+    instantaneous ``cbf_condition_satisfied_now``.
+    """
     if len(buffers) != len(u):
         raise ScopeViolationError("evaluate_fixed_control: buffers and u must have the same length")
     margins = tuple(cbf_margin(b, uu) for b, uu in zip(buffers, u))
-    safe = all(m >= -1e-9 for m in margins)
+    cbf_now = all(m >= -1e-9 for m in margins)
     within_box = all(float(b.u_min) - 1e-9 <= uu <= float(b.u_max) + 1e-9 for b, uu in zip(buffers, u))
     within_budget = sum(u) <= float(budget) + 1e-9
     admissible = within_box and within_budget
+    sustained: Optional[bool] = None
+    first_violation: Optional[float] = None
+    if horizon is not None:
+        sustained, first_violation = sustained_safety_over_horizon(buffers, u, horizon)
     return InterventionOutcome(
-        label=label, u=tuple(float(uu) for uu in u), margins=margins, safe=safe, admissible=admissible,
-        cost=_cost(u), infeasible_problem=False, infeasibility_reason=None,
+        label=label, u=tuple(float(uu) for uu in u), margins=margins, cbf_condition_satisfied_now=cbf_now,
+        admissible=admissible, cost=_cost(u), infeasible_problem=False, infeasibility_reason=None,
+        horizon=horizon, sustained_safe_until_horizon=sustained, first_violation_time=first_violation,
     )
 
 
-def solve_cbf_qp(buffers: Sequence[BufferSpec], budget: float) -> InterventionOutcome:
+def solve_cbf_qp(buffers: Sequence[BufferSpec], budget: float, *, horizon: Optional[float] = None) -> InterventionOutcome:
     """Minimal-cost (``sum u_i^2``) intervention satisfying every buffer's CBF condition,
     each buffer's own box bounds, and the shared budget ``sum(u_i) <= budget``.
 
@@ -147,22 +232,24 @@ def solve_cbf_qp(buffers: Sequence[BufferSpec], budget: float) -> InterventionOu
     for i, (b, lo) in enumerate(zip(buffers, lowers)):
         if lo > float(b.u_max) + 1e-9:
             return InterventionOutcome(
-                label=OPTIMIZED_QP, u=None, margins=None, safe=False, admissible=False, cost=None,
+                label=OPTIMIZED_QP, u=None, margins=None, cbf_condition_satisfied_now=False, admissible=False, cost=None,
                 infeasible_problem=True,
                 infeasibility_reason=(
                     f"buffer {i}: CBF requires u >= {lo:.6g}, but u_max={b.u_max:.6g} -- "
                     "infeasible from this buffer's own bounds alone, independent of the shared budget"
                 ),
+                horizon=horizon,
             )
     total_lower = sum(lowers)
     if total_lower > float(budget) + 1e-9:
         return InterventionOutcome(
-            label=OPTIMIZED_QP, u=None, margins=None, safe=False, admissible=False, cost=None,
+            label=OPTIMIZED_QP, u=None, margins=None, cbf_condition_satisfied_now=False, admissible=False, cost=None,
             infeasible_problem=True,
             infeasibility_reason=(
                 f"sum of per-buffer CBF-minimal controls ({total_lower:.6g}) exceeds the shared "
                 f"budget ({float(budget):.6g}) -- the resource itself is insufficient, not a solver failure"
             ),
+            horizon=horizon,
         )
 
     x0 = np.array(lowers, dtype=float)
@@ -188,26 +275,39 @@ def solve_cbf_qp(buffers: Sequence[BufferSpec], budget: float) -> InterventionOu
             "true minimum"
         )
     margins = tuple(cbf_margin(b, uu) for b, uu in zip(buffers, u_star))
+    sustained: Optional[bool] = None
+    first_violation: Optional[float] = None
+    if horizon is not None:
+        sustained, first_violation = sustained_safety_over_horizon(buffers, u_star, horizon)
     return InterventionOutcome(
         label=OPTIMIZED_QP, u=u_star, margins=margins,
-        safe=all(m >= -1e-6 for m in margins),
+        cbf_condition_satisfied_now=all(m >= -1e-6 for m in margins),
         admissible=True, cost=solver_cost, infeasible_problem=False, infeasibility_reason=None,
+        horizon=horizon, sustained_safe_until_horizon=sustained, first_violation_time=first_violation,
     )
 
 
-def compare_intervention_strategies(buffers: Sequence[BufferSpec], budget: float) -> Dict[str, InterventionOutcome]:
-    """No intervention (u=0) vs. fixed rule (u_i = drain_i) vs. CBF-QP-optimized, same buffers/budget."""
+def compare_intervention_strategies(
+    buffers: Sequence[BufferSpec], budget: float, *, horizon: Optional[float] = None
+) -> Dict[str, InterventionOutcome]:
+    """No intervention (u=0) vs. fixed rule (u_i = drain_i) vs. CBF-QP-optimized, same buffers/budget.
+
+    ``horizon``, if given, additionally reports sustained safety under each
+    strategy's control HELD CONSTANT over ``[0, horizon]`` — see module
+    docstring, Astra finding R4, for why this is a separate question from
+    instantaneous CBF satisfaction.
+    """
     if len(buffers) != 2:
         raise ScopeViolationError(f"compare_intervention_strategies: exactly 2 buffers supported; got {len(buffers)}")
-    no_int = evaluate_fixed_control(buffers, (0.0, 0.0), budget, NO_INTERVENTION)
-    fixed = evaluate_fixed_control(buffers, tuple(float(b.drain) for b in buffers), budget, FIXED_RULE)
-    optimized = solve_cbf_qp(buffers, budget)
+    no_int = evaluate_fixed_control(buffers, (0.0, 0.0), budget, NO_INTERVENTION, horizon=horizon)
+    fixed = evaluate_fixed_control(buffers, tuple(float(b.drain) for b in buffers), budget, FIXED_RULE, horizon=horizon)
+    optimized = solve_cbf_qp(buffers, budget, horizon=horizon)
     return {NO_INTERVENTION: no_int, FIXED_RULE: fixed, OPTIMIZED_QP: optimized}
 
 
 __all__ = [
     "SOURCE", "NO_INTERVENTION", "FIXED_RULE", "OPTIMIZED_QP",
     "BufferSpec", "InterventionOutcome",
-    "cbf_margin", "cbf_lower_bound",
+    "cbf_margin", "cbf_lower_bound", "held_control_violation_time", "sustained_safety_over_horizon",
     "evaluate_fixed_control", "solve_cbf_qp", "compare_intervention_strategies",
 ]

@@ -1,0 +1,79 @@
+**Alle sechs Pakete sind vorhanden. Nach meiner Prüfung braucht der Stand `dc5d82a` noch einen gezielten Korrekturdurchgang.** Ich habe die fünf neuen Verifikationsskripte ausgeführt, eigene Gegenbeispiele gerechnet und den tatsächlichen CI-Lauf geprüft.
+
+Die bestehenden **23 Einzelprüfungen bestehen lokal unter NumPy 2.3.5**. Die zusätzlichen Gegenproben zeigen allerdings Fehler, die diese Tests bisher nicht erfassen.
+
+**1. Die transiente Klassifikation kann eine Grenzverletzung als „sicher“ melden.**
+
+Für das stabile System
+
+$$
+A=\begin{pmatrix}-0{,}1&-10\\10&-0{,}1\end{pmatrix},
+\quad x(0)=(0,1)
+$$
+
+mit Grenze **0,95** und Zeitfenster **0–10** liefert die API:
+
+* berechneter maximaler Ausschlag: **0,5252**;
+* Ergebnis: **`safe_no_violation`**;
+* tatsächlicher maximaler Ausschlag: **0,98446** — die Grenze wird überschritten.
+
+Die Ursache: `minimize_scalar(..., method="bounded")` findet ein **lokales** Extremum. Eine kontinuierliche Optimierung gewährleistet keine globale Extremsuche. Dasselbe Problem betrifft die Minimumsuche im neuen Gedächtnismodul. ([SciPy v1.18.0 Manual][1])
+
+**Korrektur:** sämtliche relevanten Extremstellen und Randpunkte vergleichen; Interpolationsfehler berücksichtigen. Außerdem muss „im untersuchten Zeitfenster keine Verletzung“ von einer globalen Sicherheitsaussage getrennt werden. Negative Eigenwerte beweisen die spätere Rückkehr, keine zwischenzeitliche Grenzfreiheit.
+
+**2. ACI und P+I verwenden bei überlappenden Horizonten Zukunftsinformation.**
+
+Die Residuen werden korrekt nach Verfügbarkeit gefiltert. Der Anpassungszustand `alpha_t` und die Fehlerhistorie werden jedoch sofort mit dem Zielwert der gerade ausgegebenen Prognose aktualisiert.
+
+Mein Gegenbeispiel: Nur ein erst am Zeitpunkt **8** verfügbarer Zielwert wird verändert. Dadurch ändert sich bereits das ACI-Intervall am Ursprung **6**: seine Obergrenze steigt von **2,34 auf 2,64**. Die verfügbare Vergangenheit ist identisch.
+
+**Korrektur:** Rückmeldungen erst bei Erreichen ihrer Ziel-/Verfügbarkeitszeit in den Regler übernehmen. Der vorhandene Präfix-Test reicht hierfür nicht; benötigt wird ein Test mit veränderten, noch unbekannten Zielwerten.
+
+Zusätzlich überträgt sich die zitierte langfristige Abdeckungsgarantie nicht automatisch auf eure gekappte ACI-Variante. Eine strikt wachsende Fehlerfolge erzeugt dort dauerhaft **0 % Abdeckung**. Diesen separaten Befund habe ich im Bericht hergeleitet.
+
+**3. Das CBF-QP prüft momentane Zulässigkeit, aber noch keinen sicheren Regelverlauf.**
+
+Im eigenen Beispiel liefert es \(u=(2,0)\), Kosten **4** und `safe=True`. Bei festgehaltenem Eingriff gilt jedoch \(x_1(t)=1-t\): Nach einer Zeiteinheit wird der erste Puffer negativ.
+
+Auch beliebiges Nachregeln kann hier dauerhafte Sicherheit nicht herstellen. Gesamtverbrauch **5**, Budget **3** und Anfangsreserve **6** ergeben:
+
+$$
+x_1(t)+x_2(t)\le 6-2t.
+$$
+
+Spätestens nach drei Zeiteinheiten reichen die Reserven grundsätzlich nicht mehr.
+
+**Korrektur:** momentane CBF-Erfüllung und Sicherheit über einen festgelegten Zeitraum getrennt ausgeben. Der Vergleich **13 versus 4** beschreibt bislang momentane Stellkosten; für einen Vergleich sicherer Strategien fehlen Regelverläufe und integrierte Kosten unter denselben zulässigen Ressourcen.
+
+**4. Die GitHub-CI ist tatsächlich rot.**
+
+Im [Lauf zu `dc5d82a`](https://github.com/GenesisAeon/scoped-correspondence-formalism/actions/runs/35975893395) bestehen **57/58 Mathematikskripte**; Daten- und Linkjob sind grün.
+
+Ich habe den Ausfall unter NumPy **2.4.6** reproduziert. Im Gedächtnismodul scheitern:
+
+* `float(B_row @ z)` wegen der Array-zu-Skalar-Konvertierung;
+* anschließend `np.trapz`, das entfernt wurde. ([NumPy v2.4 Manual][2])
+
+Mit explizitem `.item()` und `scipy.integrate.trapezoid` bestehen im Prüfprozess wieder **4/4 Checks**. Der konkrete Minimalfix steht im Bericht.
+
+**5. Der COVID-Gewinn ist reproduzierbar — die Wochentagskorrektur verbessert ihn jedoch nicht.**
+
+Ich habe beide Änderungen auf denselben 42 Fällen getrennt untersucht. Sämtliche Zusatzparameter wurden weiterhin ausschließlich vor der Bewertung geschätzt:
+
+| Variante                     |   Abdeckung | Negativer Log-Score ↓ |
+| ---------------------------- | ----------: | --------------------: |
+| Poisson                      |      2,38 % |               1387,47 |
+| Poisson + Wochentag          |      0,00 % |               2490,04 |
+| **Negativ-Binomial**         | **73,81 %** |             **10,19** |
+| Negativ-Binomial + Wochentag |     73,81 % |                 11,75 |
+
+**Der starke Befund ist hier der Nutzen der Überdispersion.** Der geschätzte Wochentagseffekt verschlechtert auf diesem Ausschnitt beide untersuchten Scores.
+
+Auch erklärt dieser neue Vergleich nicht rückwirkend die frühere 26,3-%-Unterdeckung: Damals wurden geglättete Inzidenzen mit anderen Intervallen und weniger bewerteten Fällen untersucht. Eine verbesserte Vorhersageverteilung beweist außerdem noch nicht, dass die zugrunde liegende Dynamik korrekt ist.
+
+Die lineare Gedächtnisherleitung, das kanonische Verstärkungsbeispiel und die getrennten QP-Unzulässigkeitsgründe bleiben wertvolle Ergebnisse. **Als nächsten Schritt würde ich diese konkreten Befunde beheben und die betroffenen Ergebnisse neu erzeugen.** Die transparent zurückgestellten größeren Erweiterungen können anschließend folgen.
+
+Alle Fundstellen, Gegenbeispiele und Abnahmekriterien: [](sandbox:/workspace/scratch/bc86442eb021/review_dc5d82a/SCF_Review_dc5d82a.md).
+
+[1]: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize_scalar.html?utm_source=chatgpt.com "minimize_scalar"
+[2]: https://numpy.org/doc/2.4/release/2.4.0-notes.html?utm_source=chatgpt.com "NumPy 2.4.0 Release Notes"

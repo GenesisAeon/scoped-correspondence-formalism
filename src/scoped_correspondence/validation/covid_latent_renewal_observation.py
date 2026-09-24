@@ -31,6 +31,30 @@ mechanistic point forecast:
 - NEW: the same point forecast is multiplied by a fitted day-of-week
   reporting factor, then used as the mean of a negative-binomial
   distribution (dispersion fit on calib) for the RAW daily count.
+
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md, Astra
+finding R6): the weekday correction and the negative-binomial
+overdispersion buy DIFFERENT, NOT ADDITIVE amounts here.** The original
+OLD-vs-NEW comparison bundled both changes together, crediting their
+combined effect without isolating which one actually does the work.
+`run_covid_ablation_comparison` runs the full 2x2 (weekday: on/off ×
+distribution: Poisson/negative-binomial) on the SAME 42 trials, fitting a
+SEPARATE dispersion for each mean variant (each still strictly pre-origin,
+non-circular). Result: negative-binomial overdispersion alone is the
+strong, robust finding (2.4% -> 73.8% coverage, log-score 1387 -> 10.2);
+adding the weekday correction on top *worsens* both coverage-adjacent
+calibration and log-score on this exact window (10.2 -> 11.8) rather than
+improving it. Two further limits, stated explicitly rather than implied:
+(1) this does not retroactively explain the EARLIER 26.3% pooled-coverage
+finding from Priority 0/1 (Milestone 50's leave-one-origin-out module) --
+that used a different, signed lo/hi-quantile construction on the smoothed
+incidence with 19 evaluated cases, not the same method or sample as this
+42-case raw-count comparison; (2) holding the renewal dynamics fixed
+isolates the effect of changing the prediction DISTRIBUTION, but a broad
+negative-binomial distribution can also partially absorb OTHER model
+misspecification -- improved calibration here is not by itself proof that
+the underlying renewal dynamics are correct.
 """
 
 from __future__ import annotations
@@ -38,7 +62,7 @@ from __future__ import annotations
 import datetime as dt
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -166,6 +190,35 @@ class LatentRenewalObservationReport:
         }
 
 
+def _fit_calib_setup(data_path: str | Path) -> Tuple[
+    np.ndarray, np.ndarray, List[dt.date], Dict[dt.date, float], Dict[int, float], List[dt.date], List[float]
+]:
+    """Shared setup for both the OLD-vs-NEW comparison and the 2x2 ablation:
+    load the series, build the raw-count lookup, and fit the weekday
+    multipliers on the pre-first-origin calib window. Returns
+    ``(day_index, incidence, dates_dt, raw_by_date, weekday_mult, calib_dates, calib_ref_mean)``.
+    """
+    day_index, incidence, dates_iso = _covid_daily_series(data_path)
+    dates_dt = [dt.date.fromisoformat(s) for s in dates_iso]
+
+    all_points = load_world_daily(data_path)
+    raw_by_date = {p.date: p.new_cases for p in all_points}
+    missing_raw = [d for d in dates_dt if d not in raw_by_date]
+    if missing_raw:
+        raise ScopeViolationError(f"_fit_calib_setup: {len(missing_raw)} date(s) in the analysis window have no raw new_cases entry")
+
+    first_origin = int(min(COVID_RENEWAL_ORIGINS_DAY_INDEX))
+    calib_dates_all = dates_dt[:first_origin]
+    lagged, _dropped = _lagged_means(data_path, calib_dates_all)
+    calib_dates = [d for d in calib_dates_all if d in lagged]
+    if len(calib_dates) < MIN_CALIB_DAYS:
+        raise ScopeViolationError(f"_fit_calib_setup: only {len(calib_dates)} calib days have a full lookback (need >= {MIN_CALIB_DAYS})")
+    calib_ref_mean = [lagged[d] for d in calib_dates]
+    calib_raw = [raw_by_date[d] for d in calib_dates]
+    weekday_mult = fit_weekday_multipliers(calib_dates, calib_raw, calib_ref_mean)
+    return day_index, incidence, dates_dt, raw_by_date, weekday_mult, calib_dates, calib_ref_mean
+
+
 def run_covid_latent_renewal_observation_comparison(
     data_path: str | Path, *, coverage: float = DEFAULT_COVERAGE
 ) -> LatentRenewalObservationReport:
@@ -182,32 +235,10 @@ def run_covid_latent_renewal_observation_comparison(
     if not (0.0 < float(coverage) < 1.0):
         raise ScopeViolationError(f"run_covid_latent_renewal_observation_comparison: coverage must be in (0,1); got {coverage!r}")
 
-    day_index, incidence, dates_iso = _covid_daily_series(data_path)
-    dates_dt = [dt.date.fromisoformat(s) for s in dates_iso]
+    day_index, incidence, dates_dt, raw_by_date, weekday_mult, calib_dates, calib_ref_mean = _fit_calib_setup(data_path)
     n = len(day_index)
-
-    all_points = load_world_daily(data_path)
-    raw_by_date = {p.date: p.new_cases for p in all_points}
-    missing_raw = [d for d in dates_dt if d not in raw_by_date]
-    if missing_raw:
-        raise ScopeViolationError(
-            f"run_covid_latent_renewal_observation_comparison: {len(missing_raw)} date(s) in the "
-            "analysis window have no raw new_cases entry"
-        )
-
-    first_origin = int(min(COVID_RENEWAL_ORIGINS_DAY_INDEX))
-    calib_dates_all = dates_dt[:first_origin]
-    lagged, _dropped = _lagged_means(data_path, calib_dates_all)
-    calib_dates = [d for d in calib_dates_all if d in lagged]
-    if len(calib_dates) < MIN_CALIB_DAYS:
-        raise ScopeViolationError(
-            f"run_covid_latent_renewal_observation_comparison: only {len(calib_dates)} calib days "
-            f"have a full lookback (need >= {MIN_CALIB_DAYS})"
-        )
     calib_raw = [raw_by_date[d] for d in calib_dates]
-    calib_ref_mean = [lagged[d] for d in calib_dates]
 
-    weekday_mult = fit_weekday_multipliers(calib_dates, calib_raw, calib_ref_mean)
     calib_adjusted_mean = [weekday_adjusted_mean(d, m, weekday_mult) for d, m in zip(calib_dates, calib_ref_mean)]
     dispersion = fit_neg_binom_dispersion([int(round(v)) for v in calib_raw], calib_adjusted_mean)
 
@@ -269,9 +300,100 @@ def run_covid_latent_renewal_observation_comparison(
     )
 
 
+@dataclass(frozen=True)
+class AblationVariantResult:
+    use_weekday: bool
+    use_negative_binomial: bool
+    n_trials: int
+    fitted_dispersion: Optional[float]
+    empirical_coverage: float
+    mean_log_score: float
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "use_weekday": self.use_weekday, "use_negative_binomial": self.use_negative_binomial,
+            "n_trials": self.n_trials, "fitted_dispersion": self.fitted_dispersion,
+            "empirical_coverage": self.empirical_coverage, "mean_log_score": self.mean_log_score,
+        }
+
+
+def run_covid_ablation_comparison(
+    data_path: str | Path, *, coverage: float = DEFAULT_COVERAGE
+) -> Dict[Tuple[bool, bool], AblationVariantResult]:
+    """Full 2x2 ablation (weekday correction: on/off x distribution: Poisson/negative-
+    binomial) on the SAME 42 trials as
+    ``run_covid_latent_renewal_observation_comparison``, added per
+    SCF_Review_dc5d82a.md finding R6 ("Die vier Varianten als
+    Standardablation aufnehmen"). A SEPARATE dispersion is fit for each mean
+    variant (weekday-adjusted vs. not), both still strictly pre-first-origin
+    and non-circular — isolating exactly how much each of the two changes
+    contributes, rather than crediting their combined effect to either one.
+    Keys are ``(use_weekday, use_negative_binomial)``.
+    """
+    if not (0.0 < float(coverage) < 1.0):
+        raise ScopeViolationError(f"run_covid_ablation_comparison: coverage must be in (0,1); got {coverage!r}")
+
+    day_index, incidence, dates_dt, raw_by_date, weekday_mult, calib_dates, calib_ref_mean = _fit_calib_setup(data_path)
+    n = len(day_index)
+    calib_raw = [int(round(raw_by_date[d])) for d in calib_dates]
+    calib_adjusted_mean = [weekday_adjusted_mean(d, m, weekday_mult) for d, m in zip(calib_dates, calib_ref_mean)]
+
+    dispersion_no_wd = fit_neg_binom_dispersion(calib_raw, calib_ref_mean)
+    dispersion_wd = fit_neg_binom_dispersion(calib_raw, calib_adjusted_mean)
+
+    predictor = _covid_renewal_predictor_factory()
+    scores: Dict[Tuple[bool, bool], List[float]] = {k: [] for k in ((False, False), (True, False), (False, True), (True, True))}
+    covers: Dict[Tuple[bool, bool], List[bool]] = {k: [] for k in scores}
+
+    for origin in COVID_RENEWAL_ORIGINS_DAY_INDEX:
+        origin_i = int(origin)
+        calib_x = day_index[: origin_i + 1]
+        calib_y = incidence[: origin_i + 1]
+        for step in range(1, COVID_RENEWAL_HORIZON_DAYS + 1):
+            target_idx = origin_i + step
+            if target_idx >= n:
+                continue
+            test_x = np.array([float(target_idx)])
+            base_mean = float(predictor(calib_x, calib_y, test_x)[0])
+            if not (base_mean > 0.0):
+                continue
+            target_date = dates_dt[target_idx]
+            observed = int(round(raw_by_date[target_date]))
+            wd_mean = weekday_adjusted_mean(target_date, base_mean, weekday_mult)
+
+            for use_weekday in (False, True):
+                mean = wd_mean if use_weekday else base_mean
+                for use_nb in (False, True):
+                    if use_nb:
+                        disp = dispersion_wd if use_weekday else dispersion_no_wd
+                        s = neg_binom_log_score(observed, mean, disp)
+                        lo, hi = neg_binom_prediction_interval(mean, disp, coverage)
+                    else:
+                        s = poisson_log_score(observed, mean)
+                        lo, hi = poisson_prediction_interval(mean, coverage)
+                    key = (use_weekday, use_nb)
+                    scores[key].append(s)
+                    covers[key].append(lo <= observed <= hi)
+
+    if not scores[(False, False)]:
+        raise ScopeViolationError("run_covid_ablation_comparison: zero scored trials")
+
+    out: Dict[Tuple[bool, bool], AblationVariantResult] = {}
+    for key in scores:
+        use_weekday, use_nb = key
+        out[key] = AblationVariantResult(
+            use_weekday=use_weekday, use_negative_binomial=use_nb,
+            n_trials=len(scores[key]),
+            fitted_dispersion=(dispersion_wd if use_weekday else dispersion_no_wd) if use_nb else None,
+            empirical_coverage=sum(covers[key]) / len(covers[key]),
+            mean_log_score=float(np.mean(scores[key])),
+        )
+    return out
+
+
 __all__ = [
     "SOURCE", "MIN_CALIB_DAYS", "DEFAULT_COVERAGE",
-    "LatentObservationTrial", "LatentRenewalObservationReport",
+    "LatentObservationTrial", "LatentRenewalObservationReport", "AblationVariantResult",
     "fit_weekday_multipliers", "weekday_adjusted_mean",
-    "run_covid_latent_renewal_observation_comparison",
+    "run_covid_latent_renewal_observation_comparison", "run_covid_ablation_comparison",
 ]

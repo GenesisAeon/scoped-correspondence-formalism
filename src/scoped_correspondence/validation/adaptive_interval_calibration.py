@@ -32,6 +32,30 @@ level ``alpha_t`` used for that quantile evolves over time:
   the integrator, neither of which is implemented here — see
   docs/adaptive_interval_calibration.md.
 
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md, Astra
+finding R2): future information was leaking into ``alpha_t`` under
+overlapping forecast horizons.** The causal filter above (``target_time <=
+current_origin``) was correctly applied to the QUANTILE POOL, but each
+trial's own hit/miss outcome was fed into ``alpha_t``/``recent_errs``
+IMMEDIATELY after scoring that trial — before checking whether that
+trial's OWN target_time had actually elapsed relative to a LATER origin
+that might be processed next. This only bites when the forecast horizon
+exceeds the origin spacing (overlapping windows, e.g. COVID's 5-day origin
+spacing with a 7-day horizon): Astra's counterexample changed only a
+not-yet-elapsed target value and showed an EARLIER origin's already-issued
+interval changing as a result. Fixed by deferring each trial's feedback
+into a ``pending_feedback`` queue, applied (in target-time order) only
+once a later origin's own time actually reaches that target — see
+``_run_one_step_sequence`` and
+``verify_adaptive_interval_calibration.py``'s
+``no_future_leakage_via_alpha_t_under_overlapping_horizons`` regression
+test, which failed before this fix and passes after it. The existing
+``no_lookahead_prefix_replay`` check did NOT catch this: it only compares
+a full run against a truncated PREFIX, which is insensitive to whether a
+future value's mere presence in the trial list (before its own target
+time) affects an earlier decision.
+
 COVERAGE SEMANTICS WARNING (Astra, explicitly requested): both ACI and the
 PID variant target ``alpha_target`` as a LONG-RUN AVERAGE miscoverage rate
 over the sequence — this is a real, non-trivial guarantee for ACI under
@@ -41,6 +65,30 @@ even less established for the simplified P+I variant implemented here,
 which has no corresponding published guarantee of its own. Do not read
 "the reported empirical coverage lands near 1-alpha_target" as evidence of
 POINTWISE / CONDITIONAL calibration.
+
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md, Astra
+finding R5): even the LONG-RUN AVERAGE guarantee does not automatically
+transfer to THIS implementation.** ``aci_update_alpha``/``pid_update_alpha``
+clip ``alpha_t`` to ``[_EPS_ALPHA, 1-_EPS_ALPHA]`` for numerical safety
+(a quantile level must stay strictly inside (0,1)), which breaks the
+unbounded-compensation mechanism Gibbs & Candès's proof relies on. Astra's
+counterexample: a strictly increasing error sequence (``e_t = t+1`` against
+a constant zero forecast) gives **0% empirical coverage forever** —
+``alpha_t`` saturates at its floor and every future observation is, by
+construction, larger than every quantile that can ever be built from
+strictly smaller past values, regardless of how extreme ``alpha_t``
+becomes (reproduced in
+``verify_adaptive_interval_calibration.py``'s
+``capped_variant_can_permanently_fail_to_cover`` check). Both ``aci`` and
+``pid`` here are therefore best read as **ACI-inspired heuristics**, not
+faithful implementations carrying the published theorem's guarantee — the
+same scope limitation already stated above for the ``pid`` variant's
+missing scorecaster/saturation link applies equally to this clipped
+``aci``. A short empirical coverage number landing near ``1-alpha_target``
+in this module's own reports (see docs/adaptive_interval_calibration.md)
+is evidence of behavior on THOSE specific sequences, not a demonstration
+of general long-run calibration.
 """
 
 from __future__ import annotations
@@ -227,9 +275,30 @@ def _run_one_step_sequence(
     alpha_t = float(alpha_target)
     recent_errs: List[int] = []
     seen: List[Tuple[float, float]] = []  # (this score's own target_time, abs_residual)
+    # (target_time, err_t) for trials already SCORED but whose own outcome must not feed
+    # back into alpha_t/recent_errs until a later origin actually reaches that target_time
+    # -- see _run_one_step_sequence's docstring correction below.
+    pending_feedback: List[Tuple[float, int]] = []
     out_trials: List[AdaptiveCalibrationTrial] = []
     skipped: List[Dict[str, Any]] = []
     for p in trials_sorted:
+        # Apply any pending feedback whose OWN target_time has now (as of this origin)
+        # actually elapsed -- in target_time order, so multiple feedbacks becoming
+        # available between two origins are still incorporated chronologically.
+        ready = sorted((tf for tf in pending_feedback if tf[0] <= p.origin), key=lambda tf: tf[0])
+        pending_feedback = [tf for tf in pending_feedback if tf[0] > p.origin]
+        for _t_time, err_ready in ready:
+            recent_errs.append(err_ready)
+            if len(recent_errs) > proportional_window:
+                recent_errs.pop(0)
+            if method == "aci":
+                alpha_t = aci_update_alpha(alpha_t, alpha_target, err_ready, gamma)
+            elif method == "pid":
+                alpha_t = pid_update_alpha(
+                    alpha_t, alpha_target, err_ready, gamma_i=gamma_i, recent_errs=recent_errs, kp=kp
+                )
+            # "rolling_reference": alpha_t stays fixed at alpha_target.
+
         target_time = p.origin + step * step_size
         eligible = [abs_r for (t_time, abs_r) in seen if t_time <= p.origin]
         if len(eligible) < MIN_CAUSAL_SCORES:
@@ -251,17 +320,9 @@ def _run_one_step_sequence(
             observed=p.observed, covered=covered, interval_score=score,
         ))
 
-        recent_errs.append(err_t)
-        if len(recent_errs) > proportional_window:
-            recent_errs.pop(0)
-        if method == "aci":
-            alpha_t = aci_update_alpha(alpha_t, alpha_target, err_t, gamma)
-        elif method == "pid":
-            alpha_t = pid_update_alpha(
-                alpha_t, alpha_target, err_t, gamma_i=gamma_i, recent_errs=recent_errs, kp=kp
-            )
-        # "rolling_reference": alpha_t stays fixed at alpha_target.
-
+        # This trial's OWN outcome (err_t) must not feed back into alpha_t/recent_errs
+        # until ITS OWN target_time has actually elapsed -- deferred, not applied now.
+        pending_feedback.append((target_time, err_t))
         seen.append((target_time, abs(p.observed - p.predicted)))
 
     return out_trials, skipped

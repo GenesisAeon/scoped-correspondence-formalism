@@ -6,7 +6,36 @@ Adaptive Conformal Inference beziehungsweise Conformal PID Control als
 Kandidaten vergleichen." Module:
 [`validation/adaptive_interval_calibration.py`](../src/scoped_correspondence/validation/adaptive_interval_calibration.py).
 Verification: [`verify_adaptive_interval_calibration.py`](../verification/verify_adaptive_interval_calibration.py)
-(5/5 checks).
+(7/7 checks).
+
+**Corrections (2026-09-24, response to
+[SCF_Review_dc5d82a.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md),
+Astra findings R2 and R5):**
+
+- **R2 (fixed, a real bug):** under overlapping forecast horizons (horizon
+  longer than origin spacing — exactly COVID's 5-day origins with a 7-day
+  horizon), each trial's own hit/miss outcome was being fed into `alpha_t`
+  IMMEDIATELY after scoring it, before checking whether that trial's own
+  target time had actually elapsed relative to a later origin that might be
+  processed next. Astra's counterexample changed only a not-yet-elapsed
+  target value and showed an EARLIER origin's already-issued interval
+  changing as a result. Fixed by deferring each trial's feedback into a
+  pending-feedback queue, applied only once a later origin's own time
+  actually reaches that target (`_run_one_step_sequence`, see the module's
+  own "Correction" docstring block for detail). The real-data numbers below
+  shifted slightly as a result (interval widths/scores on COVID, which has
+  the overlapping-horizon structure; energy balance is unaffected — its
+  5-year origin spacing never overlaps its horizon).
+- **R5 (documentation, not a code bug):** even the corrected recursion's
+  real guarantee — long-run AVERAGE coverage — does not automatically
+  survive the numerical clipping this implementation applies to `alpha_t`
+  (`[0.001, 0.999]`, needed so a quantile level always exists). Astra's
+  counterexample: a strictly increasing error sequence gives **0% coverage
+  forever**, with `alpha_t` saturated at its floor — no quantile built from
+  strictly smaller past errors can ever bound a strictly larger future one,
+  regardless of how extreme `alpha_t` becomes. Both `aci` and `pid` here
+  are therefore best read as **ACI-inspired heuristics**, not faithful
+  implementations carrying Gibbs & Candès's published theorem.
 
 ## Three methods, one causal quantile machine
 

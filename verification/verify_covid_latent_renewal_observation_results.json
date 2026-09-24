@@ -2,7 +2,7 @@
   "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 2 (COVID latent renewal + observation)",
   "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
   "default_coverage": 0.8,
-  "timestamp": "2026-09-24T09:40:18+02:00",
+  "timestamp": "2026-09-24T14:16:53+02:00",
   "python": "3.11.9",
   "checks": {
     "weekday_multiplier_hand_recovery": {
@@ -48,6 +48,43 @@
         "old_empirical_coverage": 0.0238,
         "new_empirical_coverage": 0.7381,
         "new_wins_log_score": true
+      }
+    },
+    "ablation_comparison": {
+      "status": "pass",
+      "detail": {
+        "poisson_no_weekday": {
+          "use_weekday": false,
+          "use_negative_binomial": false,
+          "n_trials": 42,
+          "fitted_dispersion": null,
+          "empirical_coverage": 0.023809523809523808,
+          "mean_log_score": 1387.4650683202738
+        },
+        "poisson_weekday": {
+          "use_weekday": true,
+          "use_negative_binomial": false,
+          "n_trials": 42,
+          "fitted_dispersion": null,
+          "empirical_coverage": 0.0,
+          "mean_log_score": 2490.044478977631
+        },
+        "nb_no_weekday": {
+          "use_weekday": false,
+          "use_negative_binomial": true,
+          "n_trials": 42,
+          "fitted_dispersion": 0.8206501682370568,
+          "empirical_coverage": 0.7380952380952381,
+          "mean_log_score": 10.192014446696803
+        },
+        "nb_weekday": {
+          "use_weekday": true,
+          "use_negative_binomial": true,
+          "n_trials": 42,
+          "fitted_dispersion": 0.9118121655542891,
+          "empirical_coverage": 0.7380952380952381,
+          "mean_log_score": 11.751085968035023
+        }
       }
     }
   }

@@ -6,26 +6,47 @@ Beispiel könnte ein Modell mit zwei gekoppelten Puffern, begrenzten
 Stellgrößen und gemeinsamem Ressourcenbudget entstehen." Module:
 [`viability/coupled_buffer_cbf_qp.py`](../src/scoped_correspondence/viability/coupled_buffer_cbf_qp.py).
 Verification: [`verify_coupled_buffer_cbf_qp.py`](../verification/verify_coupled_buffer_cbf_qp.py)
-(6/6 checks). Extends the existing scalar identity-barrier example
+(7/7 checks). Extends the existing scalar identity-barrier example
 (`viability/control_barrier.py`, `h(x)=x`, `alpha(r)=r`) — same barrier
 choice, now applied to two buffers with a constant drain each
 (`x_dot_i = -drain_i + u_i`), bounded controls
 (`u_min_i <= u_i <= u_max_i`), and a **shared** resource budget
 (`u_1 + u_2 <= budget`).
 
+**Correction (2026-09-24, response to
+[SCF_Review_dc5d82a.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md),
+Astra finding R4): instantaneous CBF satisfaction is not trajectory
+safety.** The original version of this page called an outcome "safe"
+purely on the basis of the instantaneous margin `-drain+u+x >= 0` — exactly
+the same caveat already documented for the scalar M16 example this module
+extends (`control_barrier.verify_forward_invariance`: "a single passing
+instantaneous check does NOT by itself certify forward invariance under a
+*held* ... control over time"), which this page failed to carry forward.
+Astra's exact counterexample: the optimized `u=(2,0)` satisfies buffer 1's
+margin exactly (`=0`), but HOLDING that control gives the closed-form
+trajectory `x1(t) = 1 - t`, negative for any `t > 1`. Every result below
+now separates the two questions explicitly: `cbf_condition_satisfied_now`
+(renamed from `safe`) and, given an explicit `horizon`,
+`sustained_safe_until_horizon` / `first_violation_time` — computed from the
+EXACT closed-form trajectory under the held control (linear, no numerical
+integration needed).
+
 ## The question this answers
 
 Astra: **"Welcher zulässige Eingriff verhindert eine Grenzverletzung — und
 wann reichen die verfügbaren Mittel grundsätzlich nicht aus?"** Three
 variants are compared on every worked example, reporting boundary
-violation, cost, AND admissibility for each — not just whether it's safe:
+violation, cost, AND admissibility for each — not just whether it's
+instantaneously safe:
 
 - **`no_intervention`** (`u=0`) — cheap, but not necessarily safe.
 - **`fixed_rule`** (`u_i = drain_i`, replace exactly what's drained) — a
-  naive policy that IS safe by construction (it exactly cancels the
-  drain), but can easily be inadmissible under a shared budget.
+  naive policy that satisfies the CBF condition by construction (it exactly
+  cancels the drain, so it is also automatically SUSTAINED-safe forever),
+  but can easily be inadmissible under a shared budget.
 - **`optimized_qp`** — the minimal-cost (`sum u_i²`) control satisfying
-  every buffer's CBF condition, its own bounds, AND the shared budget.
+  every buffer's CBF condition NOW, its own bounds, AND the shared budget
+  — with NO guarantee, by itself, of sustained safety (see below).
 
 ## Feasibility is decided analytically first, not left to the solver
 
@@ -54,24 +75,57 @@ without being caught).
 Buffer 1 (`drain=3.0, x=1.0`) is running low and needs help; buffer 2
 (`drain=2.0, x=5.0`) has comfortable margin. Both allow `u ∈ [0, 5]`.
 
-**Budget = 3.0** (feasible):
+**Budget = 3.0, horizon = 5.0:**
 
-| Strategy | `u` | Safe | Admissible | Cost |
-|---|---|---|---|---:|
-| No intervention | `(0, 0)` | ✗ (buffer 1 margin `-2`) | ✓ | 0 |
-| Fixed rule | `(3, 2)` | ✓ | ✗ (`5 > 3` budget) | 13 |
-| **Optimized** | **`(2, 0)`** | ✓ | ✓ | **4** |
+| Strategy | `u` | CBF now | Admissible | Sustained safe? | Cost |
+|---|---|---|---|---|---:|
+| No intervention | `(0, 0)` | ✗ (buffer 1 margin `-2`) | ✓ | ✗ (violates at `t≈0.33`) | 0 |
+| Fixed rule | `(3, 2)` | ✓ | ✗ (`5 > 3` budget) | ✓ (forever) | 13 |
+| **Optimized** | **`(2, 0)`** | ✓ | ✓ | **✗ (violates at `t=1`)** | **4** |
 
-The optimizer finds exactly the hand-derivable optimum: buffer 1 gets its
-CBF-minimal `u=2`, buffer 2 needs nothing (`u=0`, since its own margin at
-`u=0` is already `+3`), total cost `4` — beating the naive fixed rule's
-cost of `13` by more than 3× while ALSO being budget-admissible where the
-fixed rule is not.
+The optimizer finds exactly the hand-derivable *instantaneous* optimum:
+buffer 1 gets its CBF-minimal `u=2`, buffer 2 needs nothing (its own margin
+at `u=0` is already `+3`), total cost `4`. But HOLDING `u=(2,0)` constant,
+buffer 1's exact trajectory is `x1(t) = 1 - t` — it satisfies the CBF
+condition only at the instant it was computed, and drains to zero at
+`t=1` exactly (matching Astra's hand derivation, `held_control_violation_time`
+returns `1.0`). The "13 vs 4" cost comparison from before this correction
+was therefore comparing an admissible-but-not-sustained-safe option against
+an inadmissible-but-sustained-safe one — not two strategies safe over the
+same horizon.
 
 **Budget = 1.5** (infeasible): the sum of per-buffer CBF-minimal controls
 (`2.0`) already exceeds the budget — reported explicitly as "sum of
 per-buffer CBF-minimal controls (2) exceeds the shared budget (1.5)", not
 as a silent solver failure or an unsafe best-effort answer.
+
+## Does a bigger budget fix sustained safety? Not by itself.
+
+Astra's second calculation: total drain here is `3+2=5`. With **budget =
+5.0** (now covering total drain) and a 10-unit horizon:
+
+| Strategy | `u` | Admissible | Sustained safe? | Cost |
+|---|---|---|---|---:|
+| Fixed rule | `(3, 2)` | ✓ | ✓ | 13 |
+| **Optimized** | **`(2, 0)`** | ✓ | **✗ (still violates at `t=1`)** | **4** |
+
+Even with enough TOTAL resource, the single-snapshot QP still picks the
+cheapest *instantaneously* CBF-satisfying point — which need not be
+sustained-safe, since it only spends what THIS INSTANT's margin requires,
+not what keeps every buffer non-negative going forward. The naive fixed
+rule happens to be sustained-safe here (it exactly cancels each drain,
+forever), while the "smarter," cheaper QP is not. Finding the CHEAPEST
+*sustained*-safe allocation is a genuinely different (trajectory-aware /
+model-predictive-control-style) optimization problem that this module does
+not solve — a natural, larger next step, not attempted here.
+
+A budget below total drain makes sustained safety impossible regardless of
+allocation or how often one re-optimizes: with total drain `5` and budget
+`3`, `x1(t)+x2(t) <= 6 - 2t` under any admissible split, so at least one
+buffer is negative for `t > 3` no matter how the budget is divided or
+re-divided over time — the resource itself, not the control law, is the
+limit (`sustained_safety_over_horizon` reports this directly from the
+closed-form trajectory, not by trial and error).
 
 ## Scope
 
@@ -79,7 +133,11 @@ Two buffers only (matching Astra's explicit ask); the CBF barrier is the
 same identity/linear-class-K choice as the existing scalar M16 module
 (`h(x)=x`, `alpha(r)=r`) — nonlinear barriers, more than two buffers, and
 model uncertainty (parameter intervals rather than exact known drains) are
-not addressed here. The reported guarantee is a model-based one (given the
-stated drains and bounds, this control provably satisfies the CBF
-condition); empirical reliability under a different or noisy real drain
+not addressed here. `sustained_safety_over_horizon` checks a HELD
+(constant) control's exact linear trajectory — it does not simulate a
+closed-loop controller that re-optimizes as the state evolves, and does not
+by itself find the cheapest sustained-safe allocation (see above). The
+reported instantaneous guarantee is a model-based one (given the stated
+drains and bounds, this control provably satisfies the CBF condition at
+that instant); empirical reliability under a different or noisy real drain
 process is a separate question this module does not address.

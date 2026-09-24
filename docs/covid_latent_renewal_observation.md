@@ -5,7 +5,19 @@ capability assessment: "Man kann [dann] unterscheiden, ob ein Modell die
 Dynamik verfehlt oder ob der Beobachtungsprozess die Daten verzerrt."
 Module: [`validation/covid_latent_renewal_observation.py`](../src/scoped_correspondence/validation/covid_latent_renewal_observation.py).
 Verification: [`verify_covid_latent_renewal_observation.py`](../verification/verify_covid_latent_renewal_observation.py)
-(3/3 checks).
+(4/4 checks).
+
+**Correction (2026-09-24, response to
+[SCF_Review_dc5d82a.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md),
+Astra finding R6):** the original version of this page bundled the weekday
+correction and the negative-binomial distribution together and credited
+their COMBINED effect to "the observation layer." An independent 2×2
+ablation (below) shows this was an over-interpretation: negative-binomial
+overdispersion ALONE is the real, strong finding; the weekday correction
+on top of it actually *worsens* both log-score and coverage-adjacent
+calibration on this exact window. The headline "2.4% → 73.8%" number is
+reproducible and correct, but "the weekday correction fixed most of the
+gap" was not — corrected below.
 
 ## Scope: what the data can and cannot support
 
@@ -59,23 +71,54 @@ horizon):
 | Mean log-score (lower is better) | 1387.5 | **11.8** |
 | Empirical coverage (nominal 80%) | 2.4% | **73.8%** |
 
-A large, unambiguous win for the NEW variant — and a striking illustration
-of Astra's point: a large chunk of what earlier looked like "the mechanistic
-model doesn't work for COVID" (recall `leave_one_origin_out_intervals`'s
-26.3% pooled coverage finding, Priority 0/1) was never a dynamics failure
-at all. The renewal equation's point forecast is UNCHANGED between OLD and
-NEW; treating its output as a plain Poisson mean for a raw, weekday-patterned,
-overdispersed count is what produced catastrophic miscalibration (2.4%
-coverage against an 80% target). Adding only the observation-process layer
-that the data can actually support fixes most of that gap.
+A large, unambiguous win for the NEW variant over the OLD one. But which of
+its two changes actually earns that win?
+
+## The 2×2 ablation: it's the overdispersion, not the weekday correction
+
+`run_covid_ablation_comparison` runs all four combinations (weekday: on/off
+× distribution: Poisson/negative-binomial) on the SAME 42 trials, fitting a
+SEPARATE dispersion for each mean variant (both still strictly pre-origin):
+
+| Weekday correction | Distribution | Coverage (nominal 80%) | Mean log-score ↓ |
+|---|---|---:|---:|
+| No | Poisson | 2.38% | 1387.5 |
+| Yes | Poisson | 0.00% | 2490.0 |
+| **No** | **Negative-binomial** | **73.81%** | **10.2** |
+| Yes | Negative-binomial | 73.81% | 11.8 |
+
+**Negative-binomial overdispersion alone is the strong, robust finding.**
+Adding the weekday correction on top *worsens* both the log-score
+(10.2 → 11.8) and, on Poisson, actively destroys coverage (2.4% → 0.0%) —
+the opposite of "fixes most of the gap." The coverage number happens to be
+identical with or without the weekday term under NB here (73.81% both
+ways), so the weekday correction is neutral-to-harmful on this window, not
+helpful.
+
+**Two further limits, stated explicitly:**
+
+1. This does **not** retroactively explain the *earlier* 26.3%
+   pooled-coverage finding from Priority 0/1
+   (`leave_one_origin_out_intervals`, Milestone 50). That used a different,
+   signed lo/hi-quantile construction on the *smoothed* incidence with 19
+   evaluated cases — a different method and a different sample from this
+   42-trial *raw*-count comparison. Holding the renewal dynamics fixed
+   isolates what THIS specific observation-layer change buys on THIS
+   specific comparison; it is not a mechanistic explanation of the earlier,
+   differently-constructed result.
+2. Holding the dynamics fixed isolates the effect of changing the
+   *prediction distribution*, but a broad negative-binomial distribution
+   can also partially absorb OTHER model misspecification. Improved
+   calibration here is evidence the distribution fits better — it is not,
+   by itself, proof that the underlying renewal dynamics are correct.
 
 **Caveat on the recovered weekday pattern itself:** the fitted multipliers
 (`{0: 1.05, 1: 0.84, 2: 0.19, 3: 1.39, 4: 1.79, 5: 0.84, 6: 0.89}`, Monday=0)
 come from only 18 days (≈2.5 weeks) of early-2020 "World"-aggregated data —
-a small window mixing many countries' independent reporting schedules. The
-predictive benefit above is real and directly measured on held-out trials,
-but the SPECIFIC substantive interpretation ("Wednesdays are undercounted
-globally") should not be over-read from this one short, aggregated window.
+a small window mixing many countries' independent reporting schedules. Given
+the ablation above shows this correction does not help predictively on this
+window, the specific pattern should be read as descriptive of this short,
+aggregated calibration window, not as a validated global weekday effect.
 
 ## What this does not yet do
 

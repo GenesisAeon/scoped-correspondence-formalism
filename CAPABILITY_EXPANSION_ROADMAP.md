@@ -394,3 +394,135 @@ domänenspezifische Mori-Zwanzig-Anwendung auf Puffer/Energiebilanz/
 Renewal/ETAS aus Priorität 3; größere Systeme/nichtlineare Kopplung aus
 Priorität 4; mehr als zwei Puffer/nichtlineare Barrieren aus Priorität 5)
 sind explizit oben vermerkt, nicht stillschweigend fallengelassen.
+
+## Paket 6 — Astra-Zweitreview der sechs Pakete (2026-09-24)
+
+Antwort auf
+[`SCF_Review_dc5d82a.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md)
+(Astra, 2026-09-24) — eine gezielte Zweitprüfung von Commit `dc5d82a`
+(alle 6 Pakete). Urteil der Prüfung: "Alle sechs Pakete sind vorhanden ...
+Eine vollständige Abnahme ist noch nicht gerechtfertigt" — vier
+technische/semantische Befunde mit unmittelbarem Korrekturbedarf (R1-R4)
+sowie zwei Korrekturen der wissenschaftlichen Interpretation (R5-R6). Jeder
+Befund wurde vor der Korrektur unabhängig nachvollzogen (eigene
+Gegenbeispiele, eigene Zahlen), gleiche Disziplin wie bei allen früheren
+Review-Zyklen.
+
+| # | Befund | Art | Status |
+|---|---|---|---|
+| R1 | CI tatsächlich rot unter NumPy ≥2.4 (`float()` auf 1-Element-Array, entferntes `np.trapz`) | echter Bug | ✅ behoben |
+| R2 | Zukunftsleckage in ACI/PID über den Anpassungszustand bei überlappenden Prognosehorizonten | echter Bug | ✅ behoben |
+| R3 | Lokale statt globale Extremsuche (`minimize_scalar`) versagt bei oszillierenden Systemen | echter Bug | ✅ behoben |
+| R4 | Momentane CBF-Erfüllung wurde als Trajektoriensicherheit dargestellt | echter Bug (Feldsemantik) | ✅ behoben |
+| R5 | Gekappte ACI/PID-Variante erbt die zitierte Langfrist-Abdeckungsgarantie nicht automatisch | Interpretation/Dokumentation | ✅ korrigiert |
+| R6 | COVID-Wochentagskorrektur wurde fälschlich als mitursächlich für den Abdeckungsgewinn dargestellt | Interpretation/Dokumentation | ✅ korrigiert |
+
+**R1 — CI tatsächlich rot.** Unabhängig via `gh run view` bestätigt: der
+tatsächliche GitHub-Actions-Lauf zu `dc5d82a` zeigt `verify_linear_memory_projection.py`
+mit nur 2/4 bestandenen Prüfungen (57/58 Mathematikskripte insgesamt). Lokal
+(NumPy 2.2.6) blieb der Fehler unsichtbar — nur als `DeprecationWarning`,
+nicht als Fehler. Ursache: `float(B_row @ z)` (1-Element-Array→Skalar,
+in NumPy ≥2.4 kein impliziter Cast mehr) und `np.trapz` (in NumPy 2.4
+entfernt). Behoben mit `.item()` und `scipy.integrate.trapezoid` (bindet
+keine neue NumPy-Untergrenze, `verification/requirements.txt` bleibt bei
+`numpy>=1.24`). Konnte mangels Netzwerkzugriff in dieser Umgebung nicht
+lokal gegen echtes NumPy 2.4.6 getestet werden — der tatsächliche
+CI-Lauf nach diesem Commit ist die reale Bestätigung.
+
+**R2 — Zukunftsleckage in ACI/PID.** Unabhängig mit einem eigenen
+Gegenbeispiel reproduziert (tägliche Ursprünge, Schritt 3, nur der noch
+nicht fällige Zielwert bei `target=9` verändert): `alpha_t` bei Ursprung=7
+und 8 änderte sich abhängig von einem Wert, der zu diesem Zeitpunkt noch
+gar nicht eingetreten war — exakt Astras Befund. Ursache: das
+Trefferergebnis eines Versuchs wurde SOFORT nach dessen Bewertung in
+`alpha_t`/`recent_errs` übernommen, unabhängig davon, ob der eigene
+Zielzeitpunkt bei einem SPÄTEREN Ursprung bereits eingetreten war (bricht
+bei überlappenden Prognosehorizonten, z. B. COVID: 5-Tage-Ursprungsabstand,
+7-Tage-Horizont). Behoben durch eine `pending_feedback`-Warteschlange:
+Rückmeldungen werden erst übernommen, sobald ihr eigener Zielzeitpunkt
+tatsächlich erreicht ist (in Zielzeit-Reihenfolge). Neuer Regressionstest
+`no_future_leakage_via_alpha_t_under_overlapping_horizons` schlug vor der
+Korrektur fehl. Die COVID-Realdatenzahlen verschieben sich dadurch leicht
+(Energiebilanz unverändert, da deren 5-Jahres-Ursprungsabstand nie mit
+ihrem Horizont überlappt).
+
+**R3 — Lokale statt globale Extremsuche.** Mit Astras exaktem
+Gegenbeispiel (`A=[[-0,1,-10],[10,-0,1]]`, `x0=(0,1)`, Grenze 0,95)
+unabhängig reproduziert: die alte Peaksuche fand 0,525 und klassifizierte
+`safe`, während das tatsächliche globale Maximum (per Brute-Force-Gitter
+bestätigt) 0,9845 beträgt — sogar die bereits berechneten Stützstellen
+enthielten einen Wert (0,983), der der Klassifikation widersprach. Ursache:
+ein einzelner `scipy.optimize.minimize_scalar(method="bounded")`-Aufruf ist
+eine LOKALE Bracket-Suche, ungeeignet für oszillierende Verläufe mit vielen
+lokalen Extrema. Behoben durch (1) automatische Erhöhung der Abtastdichte
+anhand der schnellsten durch die Eigenwerte implizierten Oszillation, und
+(2) das exakte globale Extremum des resultierenden Spline-Interpolanten
+über `CubicSpline.derivative().roots()` (alle stationären Punkte
+analytisch) plus die beiden Randpunkte — beweisbar hinreichend, da ein
+kubischer Spline zwischen je zwei solchen Punkten streng monoton ist.
+Nachgeprüft: stimmt jetzt auf `<1e-6` mit dem Brute-Force-Maximum überein.
+Dieselbe Korrektur wurde in `max_finite_time_gain` und in
+`linear_memory_projection._continuous_min` angewendet (Astra: "Dasselbe
+Problem betrifft die Minimumsuche im neuen Gedächtnismodul"). Zusätzlich
+wurde `safe_no_violation` in `no_violation_in_horizon` umbenannt, um klar
+zu machen, dass eine Nichtverletzung nur für das GEPRÜFTE Zeitfenster gilt,
+nicht als dauerhafte Sicherheitsgarantie (Astras zweites Gegenbeispiel:
+`A=[[-1,10],[0,-1]]`, kurzes Fenster `t_max=0,1` verbirgt eine Verletzung
+bei `t=1`).
+
+**R4 — Momentane CBF-Erfüllung ≠ Trajektoriensicherheit.** Astras Beispiel
+exakt nachvollzogen: das optimierte `u=(2,0)` erfüllt Puffer 1s
+CBF-Bedingung exakt (`=0`), aber bei FESTGEHALTENEM Eingriff lautet die
+geschlossene Form `x1(t)=1-t` — negativ für jedes `t>1`. Dieselbe
+Einschränkung war bereits im ursprünglichen skalaren M16-Modul
+dokumentiert (`control_barrier.verify_forward_invariance`), wurde aber
+nicht in dieses neue Modul übertragen. Behoben: `safe` umbenannt in
+`cbf_condition_satisfied_now`; neue Funktion
+`sustained_safety_over_horizon` prüft die EXAKTE geschlossene Form der
+Trajektorie unter festgehaltenem Eingriff (linear, keine numerische
+Integration nötig) und liefert `sustained_safe_until_horizon` /
+`first_violation_time`. Zweites Arbeitsbeispiel mit ausreichendem Budget
+(Budget=5,0, deckt Gesamtverbrauch) zeigt: selbst dann bleibt die günstigste
+MOMENTANE Lösung nicht automatisch nachhaltig sicher — die feste Regel
+(teurer, aber dauerhaft sicher) und die optimierte Lösung (günstiger, aber
+nur momentan sicher) beantworten unterschiedliche Fragen. Eine echte
+trajektorien-optimale (MPC-artige) Lösung bleibt als größerer nächster
+Schritt offen.
+
+**R5 — Gekappte ACI/PID-Variante ohne automatische Garantie.** Astras
+Gegenbeispiel (strikt wachsende Fehlerfolge `e_t=t+1`) unabhängig
+reproduziert: **0% Abdeckung bei 197 (bzw. hier 196) bewerteten Prognosen**,
+`alpha_t` sättigt bei seiner unteren Schranke `0,001`. Kein aus streng
+kleineren Vergangenheitswerten gebautes Quantil kann je einen streng
+größeren Zukunftswert einschließen, unabhängig davon, wie extrem `alpha_t`
+wird. Kein Code-Fehler, sondern eine Dokumentationskorrektur: die
+Docstrings machen jetzt explizit, dass die numerische Kappung von `alpha_t`
+(nötig, damit stets ein gültiges Quantilniveau existiert) den
+Kompensationsmechanismus bricht, auf dem Gibbs & Candès' Beweis beruht —
+beide Varianten sind als ACI-inspirierte Heuristiken zu lesen, nicht als
+originalgetreue Umsetzungen des zitierten Theorems.
+
+**R6 — COVID-Wochentagskorrektur überinterpretiert.** Astras vollständige
+2×2-Ablation (Wochentag an/aus × Poisson/Negativ-Binomial, je eigene
+Dispersion pro Mittelwertvariante) exakt reproduziert (Dispersion 0,8207
+bzw. 0,9118; Abdeckung 2,38%/0,00%/73,81%/73,81%; Log-Score
+1387,465/2490,044/10,192/11,751 — Übereinstimmung auf 3 Nachkommastellen).
+**Die Negativ-Binomial-Überdispersion ALLEIN ist der starke Befund**; die
+Wochentagskorrektur obendrauf VERSCHLECHTERT beide Metriken auf diesem
+Fenster. Neue Funktion `run_covid_ablation_comparison` (Astra: "Die vier
+Varianten als Standardablation aufnehmen") macht das reproduzierbar
+nachprüfbar. Dokumentation korrigiert: die frühere Formulierung bündelte
+beide Änderungen und schrieb ihnen fälschlich einen gemeinsamen Beitrag zu.
+Zusätzlich klargestellt: der neue 42-Fälle-Vergleich erklärt NICHT
+rückwirkend die frühere 26,3%-Abdeckung (andere Methode, andere Stichprobe,
+Priorität 0/1), und eine verbesserte Vorhersageverteilung beweist nicht,
+dass die zugrundeliegende Dynamik korrekt ist.
+
+**Ergebnis:** alle sechs Befunde unabhängig verifiziert und behoben, mit
+neuen Regressionstests (74 → 74 Skripte, aber mehrere mit zusätzlichen
+Checks: `verify_linear_memory_projection.py` 4→5,
+`verify_transient_amplification.py` 5→7,
+`verify_adaptive_interval_calibration.py` 5→7,
+`verify_coupled_buffer_cbf_qp.py` 6→7,
+`verify_covid_latent_renewal_observation.py` 3→4). Volle Regression nach
+der Korrektur: siehe Commit-Nachricht.

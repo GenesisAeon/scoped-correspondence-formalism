@@ -25,6 +25,16 @@ capability assessment. Checks:
      comparisons (rolling_reference / aci / pid) run to completion with
      finite, in-range coverage/width/interval-score for every predictor —
      reported as-is, whichever method wins.
+  5. Astra's 2026-09-24 (SCF_Review_dc5d82a.md) findings, as regression
+     tests: R2 — under an overlapping-horizon origin/step configuration,
+     changing ONLY a not-yet-elapsed target value must not change any
+     earlier origin's already-issued alpha_t/interval (this failed before
+     the pending_feedback fix and passes after it; the pre-existing
+     no_lookahead_prefix_replay check does not catch this class of bug).
+     R5 — a strictly increasing error sequence gives 0% empirical coverage
+     forever despite alpha_t saturating at its clipped floor, demonstrating
+     that the clipped ACI/PID implementations here do not automatically
+     inherit the published long-run-average coverage guarantee.
 """
 from __future__ import annotations
 
@@ -196,11 +206,66 @@ def check_real_data_application(co2_path, temp_path, covid_path):
     return summary
 
 
+def check_no_future_leakage_via_alpha_t_under_overlapping_horizons():
+    """SCF_Review_dc5d82a.md finding R2: with origin spacing 1 and step (horizon) 3,
+    origin=6's own trial targets t=9. Origin=6 has exactly MIN_CAUSAL_SCORES=3
+    time-eligible past scores (origins 1,2,3 -> targets 4,5,6), so it IS scored --
+    and its own outcome must not affect any origin whose real time is still < 9
+    (i.e. origins 7 and 8), only origins >= 9.
+    """
+    def make_preds(target9_value):
+        preds = []
+        for origin in range(1, 15):
+            target = origin + 3
+            obs = target9_value if target == 9 else 1.0 + 0.1 * np.sin(origin)
+            preds.append(RawHorizonPrediction(origin=float(origin), step=3, observed=float(obs), predicted=0.0))
+        return preds
+
+    preds_a = make_preds(1.0)
+    preds_b = make_preds(100.0)  # only the not-yet-elapsed target=9 value differs
+    for method, kwargs in (("aci", dict(gamma=0.1)), ("pid", dict(gamma_i=0.1, kp=0.05, proportional_window=5))):
+        r_a = run_calibration_sequence(preds_a, step=3, step_size=1.0, alpha_target=0.2, method=method, **kwargs)
+        r_b = run_calibration_sequence(preds_b, step=3, step_size=1.0, alpha_target=0.2, method=method, **kwargs)
+        require(len(r_a.trials) == len(r_b.trials), f"{method}: trial count mismatch")
+        saw_a_divergence_after_9 = False
+        for ta, tb in zip(r_a.trials, r_b.trials):
+            if ta.origin < 9.0:
+                require(abs(ta.alpha_t - tb.alpha_t) < 1e-12,
+                        f"{method}: LEAK at origin={ta.origin} (target=9 not yet elapsed): "
+                        f"alpha_t {ta.alpha_t} vs {tb.alpha_t}")
+                require(abs(ta.lower - tb.lower) < 1e-9 and abs(ta.upper - tb.upper) < 1e-9,
+                        f"{method}: LEAK at origin={ta.origin}: interval differs")
+            elif abs(ta.alpha_t - tb.alpha_t) > 1e-12:
+                saw_a_divergence_after_9 = True
+        require(saw_a_divergence_after_9,
+                f"{method}: sanity check -- scenarios should legitimately diverge once target=9 elapses")
+    return {"checked_methods": ["aci", "pid"], "leak_free_before_target_elapses": True}
+
+
+def check_capped_variant_can_permanently_fail_to_cover():
+    """SCF_Review_dc5d82a.md finding R5: a strictly increasing error sequence
+    (observed = t+1 against a constant zero forecast) gives 0% empirical coverage
+    forever -- alpha_t saturates at its clipped floor, but no quantile built from
+    strictly-smaller past values can ever bound a strictly-larger future one. This
+    demonstrates the clipped ACI/PID implementations here do NOT automatically
+    inherit Gibbs & Candès's published long-run-average coverage guarantee.
+    """
+    preds = [RawHorizonPrediction(origin=float(t), step=1, observed=float(t + 1), predicted=0.0)
+             for t in range(1, 200)]
+    r = run_calibration_sequence(preds, step=1, step_size=1.0, alpha_target=0.2, method="aci", gamma=0.1)
+    require(r.n_trials > 100, f"expected many scored trials; got {r.n_trials}")
+    require(r.empirical_coverage_value == 0.0, f"expected 0.0 coverage; got {r.empirical_coverage_value}")
+    require(r.trials[-1].alpha_t <= 1e-3 + 1e-9, f"alpha_t should have saturated near its floor; got {r.trials[-1].alpha_t}")
+    return {"n_trials": r.n_trials, "empirical_coverage": r.empirical_coverage_value, "final_alpha_t": r.trials[-1].alpha_t}
+
+
 CHECKS = [
     ("aci_update_hand_arithmetic", check_aci_update_hand_arithmetic),
     ("pid_update_hand_arithmetic", check_pid_update_hand_arithmetic),
     ("aci_recovers_faster_after_regime_shift", check_aci_recovers_faster_after_regime_shift),
     ("no_lookahead_prefix_replay", check_no_lookahead_prefix_replay),
+    ("no_future_leakage_via_alpha_t_under_overlapping_horizons", check_no_future_leakage_via_alpha_t_under_overlapping_horizons),
+    ("capped_variant_can_permanently_fail_to_cover", check_capped_variant_can_permanently_fail_to_cover),
 ]
 
 
