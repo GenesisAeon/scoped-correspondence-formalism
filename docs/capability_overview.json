@@ -1,0 +1,171 @@
+{
+  "_meta": {
+    "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
+    "as_of_commit": "0d43898",
+    "schema": ["module", "question", "model_class", "assumptions", "evidence_type", "verification_scripts", "known_limits"]
+  },
+  "modules": [
+    {
+      "module": "correspondence/",
+      "question": "Do a state map and a time map between two models preserve dynamics, and how large is the residual?",
+      "model_class": "Abstract contract (dataclasses + residual functions) over user-supplied maps.",
+      "assumptions": "Maps and dynamics are supplied by the caller; checked only on sampled state-time pairs, not proven globally.",
+      "evidence_type": "analytic worked examples + synthetic sampling",
+      "verification_scripts": ["verify_correspondence_core.py", "verify_approximation_core.py"],
+      "known_limits": "A certificate on sampled points is not a global equivalence proof."
+    },
+    {
+      "module": "observation/",
+      "question": "How much information survives observation, and is it redundant, unique, or synergistic across sources?",
+      "model_class": "Discrete channel capacity (Arimoto-Blahut), directed information, finite-context representability.",
+      "assumptions": "Finite alphabets/discretization; results depend on chosen distributions and information decomposition.",
+      "evidence_type": "analytic + synthetic numeric examples",
+      "verification_scripts": ["verify_observation_core.py", "verify_arimoto_blahut_capacity.py", "verify_directed_information_core.py"],
+      "known_limits": "Information dependence alone does not establish causality; no real-world dataset used here."
+    },
+    {
+      "module": "dynamics/",
+      "question": "How do feedback, recovery, hysteresis, and driving rate produce transitions in selected model systems?",
+      "model_class": "Cubic normal form, contraction, Landau/Ising, GSPT, Floquet, panarchy cusp, early warning, rate-dependent tipping, energy-balance climate model, ETAS earthquake model.",
+      "assumptions": "Each submodel has its own scope (e.g. slow/fast separation for GSPT, subcriticality for ETAS stationarity).",
+      "evidence_type": "mixed: analytic normal forms + two real-data pilots (energy balance on Mauna Loa CO2 + NOAA temperature; ETAS on USGS earthquakes)",
+      "verification_scripts": ["verify_dynamics_core.py", "verify_contraction_core.py", "verify_landau_exponent_comparison.py", "verify_gspt_core.py", "verify_floquet_core.py", "verify_panarchy_cusp_core.py", "verify_early_warning_core.py", "verify_rate_dependent.py", "verify_energy_balance.py", "verify_energy_balance_full_forcing.py", "verify_etas.py"],
+      "known_limits": "No universal tipping-point detector; the rate-dependent χ diagnostic is direction-correct across the tested range but its precise numeric threshold was found to be grid-resolution-dependent, not exact (see NONSTATIONARY_ROADMAP.md package 4). Energy-balance parameters C_s/C_d/alpha are weakly constrained on a ±50% scan around the fit, not proven globally unidentifiable (see docs/energy_balance.md)."
+    },
+    {
+      "module": "coupling/",
+      "question": "Which couplings represent influence, transport, energy-conserving, or dissipative exchange between systems?",
+      "model_class": "Coupling layers, Casimir/Dirac composition, dissipativity, GENERIC-Navier-Stokes bridge, generalized synchronization.",
+      "assumptions": "Specific structural conditions (e.g. GENERIC degeneracy conditions) must hold and are checked per example, not assumed to generalize.",
+      "evidence_type": "analytic worked examples",
+      "verification_scripts": ["verify_coupling_core.py", "verify_casimir_residual.py", "verify_dirac_composition_core.py", "verify_dissipativity_core.py", "verify_generic_navier_stokes.py", "verify_generalized_sync_core.py"],
+      "known_limits": "Structural checks on selected examples are not a blanket physical validation of arbitrary coupled systems."
+    },
+    {
+      "module": "closure/",
+      "question": "When can an aggregated (macro) model be described self-sufficiently, and when does it need hidden state or memory?",
+      "model_class": "PC=CQ macro-closure, generator lumpability, Chapman-Enskog reduction, propagated error bounds.",
+      "assumptions": "Exact closure requires specific lumpability/commutation conditions that are checked, not assumed.",
+      "evidence_type": "analytic worked examples",
+      "verification_scripts": ["verify_closure_core.py", "verify_generator_lumpability_core.py", "verify_error_bounds_core.py", "verify_chapman_enskog_core.py"],
+      "known_limits": "No general data-driven reduction pipeline with automatically identified memory kernels yet (see Priority 3 of CAPABILITY_EXPANSION_ROADMAP.md)."
+    },
+    {
+      "module": "viability/",
+      "question": "When do loads, reserves, and coupled resource conditions violate a defined safety boundary?",
+      "model_class": "Viability kernels, Nagumo tangent cones, scalar control barrier functions, rate-dependent buffer spikes, multidimensional tipping/reserve maps.",
+      "assumptions": "Safety is defined relative to an explicit boundary, model class, and time span; the control-barrier example is scalar.",
+      "evidence_type": "analytic + independently hand-derived closed-form regression checks (see verify_multidim_tipping_maps.py's Gaussian-pulse convolution check)",
+      "verification_scripts": ["verify_viability_core.py", "verify_nagumo_tangent_cone.py", "verify_control_barrier_core.py", "verify_rate_viability_control_cases.py", "verify_multidim_tipping_maps.py"],
+      "known_limits": "The control-barrier example is a scalar reference case (two-buffer coupled extension is Priority 5). Buffer-minimum localization was found to have grid-search error ≫ ODE-tolerance error in one adversarial case; fixed via continuous optimization, see MECHANISTIC_VALIDATION_ROADMAP.md package 6."
+    },
+    {
+      "module": "membership/",
+      "question": "How do systems classify into overlapping categories, and what concept lattice do their attributes induce?",
+      "model_class": "Membership matrices, Formal Concept Analysis.",
+      "assumptions": "Finite, explicitly given attribute sets.",
+      "evidence_type": "analytic worked examples",
+      "verification_scripts": ["verify_membership_core.py", "verify_formal_concept_analysis.py"],
+      "known_limits": "Small reference examples; no real-data application yet."
+    },
+    {
+      "module": "identifiability/",
+      "question": "Given a model and data, which parameters are pinned down by the data and which are not?",
+      "model_class": "Profile likelihood (1D golden-section and multi-parameter bounded NLP), Fisher-information sloppiness spectra.",
+      "assumptions": "Confidence-interval claims are always relative to the actually scanned grid/range.",
+      "evidence_type": "analytic worked examples + applied to real-data fits (energy balance, ETAS)",
+      "verification_scripts": ["verify_identifiability_core.py", "verify_fim_sloppiness_core.py", "verify_profile_likelihood_core.py"],
+      "known_limits": "`likelihood_interval` never returns `established_unbounded=True` from grid data alone (2026-09-23 correction, package 9): a profile flat on the scanned grid can still have a bounded true confidence set just beyond it. `flat_in_scanned_range` is the honest, scan-relative field to use instead."
+    },
+    {
+      "module": "validation/",
+      "question": "Do mechanistic models beat simple statistical baselines out-of-sample, with honestly reported point AND interval performance?",
+      "model_class": "Rolling-origin backtesting, split conformal prediction, mechanistic probabilistic evaluation (leave-one-origin-out intervals), COVID country decomposition/observation models, Cygnus X-1 pilot.",
+      "assumptions": "Each origin uses only information available at that origin; look-ahead in calibration is explicitly guarded against (strict temporal eligibility, package 7).",
+      "evidence_type": "real data: OWID/JHU COVID series, NOAA global temperature anomaly, USGS earthquakes M≥6.0; Cygnus X-1 radio epochs are explicitly flagged unverified/illustrative (likely AI-interpolated, not archived raw measurements)",
+      "verification_scripts": ["verify_cygnus_pilot.py", "verify_conformal_prediction_core.py", "verify_rolling_origin.py", "verify_covid_pilot.py", "verify_covid_country_decomposition.py", "verify_covid_multi_country.py", "verify_covid_observation_model.py", "verify_noaa_temp_pilot.py", "verify_earthquake_pilot.py", "verify_real_data_provenance.py", "verify_mechanistic_rolling_origin.py", "verify_mechanistic_probabilistic_evaluation.py", "verify_structural_bridges_b1_b2.py", "verify_structural_bridges_b7_b8.py"],
+      "known_limits": "Nominal 80% prediction intervals achieved only 52.5% empirical coverage (energy balance, n=40 cases) and 26.3% (COVID renewal, n=19 cases) in the last evaluation — small samples, but a genuine, currently unresolved undercoverage finding (Priority 1 of CAPABILITY_EXPANSION_ROADMAP.md). Best interval score does not imply best coverage."
+    },
+    {
+      "module": "contextuality/",
+      "question": "Can a set of declared local probability models be represented by one global model (sheaf-theoretic contextuality)?",
+      "model_class": "Sheaf contextuality, Čech cohomology obstructions, CSW graph invariants.",
+      "assumptions": "Finite measurement/outcome spaces; externally reviewed optional module (F08).",
+      "evidence_type": "analytic worked examples, checksums/script runs independently re-verified",
+      "verification_scripts": ["verify_contextuality_core.py", "verify_cech_cohomology_core.py", "verify_csw_core.py", "verify_sheaf_contextuality.py"],
+      "known_limits": "Small reference examples; optional module, does not affect the core contract."
+    },
+    {
+      "module": "information_decomposition/",
+      "question": "How does joint information from multiple sources about a target split into redundant, unique, and synergistic parts?",
+      "model_class": "Partial Information Decomposition (Williams-Beer, Kolchinsky redundancy bottleneck), BROJA.",
+      "assumptions": "Finite discrete source/target distributions; externally reviewed optional module (F09).",
+      "evidence_type": "analytic worked examples",
+      "verification_scripts": ["verify_information_decomposition_core.py", "verify_broja_pid_core.py", "verify_pid_rb.py"],
+      "known_limits": "Optional module; decomposition choice affects numeric results (known open problem in the PID literature generally, not specific to this repo)."
+    },
+    {
+      "module": "thermo/",
+      "question": "Which network structures satisfy nonequilibrium thermodynamic consistency (entropy production, detailed/complex balance)?",
+      "model_class": "Schnakenberg network thermodynamics, Crooks/Jarzynski fluctuation relations.",
+      "assumptions": "Markov network structure with specified rate constants.",
+      "evidence_type": "analytic worked examples",
+      "verification_scripts": ["verify_thermo_core.py", "verify_schnakenberg_core.py", "verify_crooks_core.py"],
+      "known_limits": "Small reference networks; no real thermodynamic experiment data used."
+    },
+    {
+      "module": "chemical_organization/",
+      "question": "Which subsets of a reaction network are self-maintaining and closed under production (a 'chemical organization')?",
+      "model_class": "Chemical Organization Theory.",
+      "assumptions": "Fixed, explicitly given reaction network.",
+      "evidence_type": "analytic worked examples",
+      "verification_scripts": ["verify_chemical_organization_core.py"],
+      "known_limits": "Single small reference example."
+    },
+    {
+      "module": "percolation/",
+      "question": "At what branching/connection probability does a Bethe-lattice-like structure percolate?",
+      "model_class": "Bethe-tree percolation / Kesten branching-process threshold.",
+      "assumptions": "Infinite regular tree approximation.",
+      "evidence_type": "analytic closed-form threshold + synthetic check",
+      "verification_scripts": ["verify_percolation_core.py"],
+      "known_limits": "Idealized tree structure, not a finite real network."
+    },
+    {
+      "module": "pattern_formation/",
+      "question": "Under what diffusion/reaction parameters does a Turing instability produce spatial patterns?",
+      "model_class": "Turing instability / dispersion relation analysis.",
+      "assumptions": "Linear stability analysis around a homogeneous steady state.",
+      "evidence_type": "analytic worked example",
+      "verification_scripts": ["verify_pattern_formation_core.py"],
+      "known_limits": "Linear analysis only; no nonlinear pattern simulation."
+    },
+    {
+      "module": "free_boundary/",
+      "question": "How does a moving phase boundary (e.g. melting front) evolve under a self-similar Stefan condition?",
+      "model_class": "Stefan-Neumann similarity solution.",
+      "assumptions": "One-dimensional, self-similar geometry.",
+      "evidence_type": "analytic closed-form solution",
+      "verification_scripts": ["verify_free_boundary_core.py"],
+      "known_limits": "Single idealized geometry."
+    },
+    {
+      "module": "metarules/",
+      "question": "Which cross-repository conventions (scope declarations, error handling, provenance) must every module follow?",
+      "model_class": "Meta-level rule checks, not a domain model.",
+      "assumptions": "None domain-specific; enforces repo-wide discipline.",
+      "evidence_type": "static rule checks",
+      "verification_scripts": ["verify_metarules_core.py"],
+      "known_limits": "Enforces process discipline, not a scientific claim in itself."
+    },
+    {
+      "module": "legacy/",
+      "question": "Do the original Revision 2/3 worked examples (pre-package era) still reproduce?",
+      "model_class": "Adapters to the original standalone verification scripts.",
+      "assumptions": "Historical scope as originally defined in Revision 2/3 documents.",
+      "evidence_type": "analytic worked examples (historical)",
+      "verification_scripts": ["verify_extensions.py", "verify_formalism.py", "verify_transformations.py"],
+      "known_limits": "Frozen historical scope; superseded conceptually by the installable package's own modules where overlapping."
+    }
+  ]
+}

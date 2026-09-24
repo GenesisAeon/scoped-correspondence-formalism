@@ -6,9 +6,14 @@
 ## Aktueller Stand (2026-09-20)
 
 Seit dem 16. September 2026 ist dieses Repository ein **installierbares
-Python-Paket** (`scoped-correspondence`, aktuell `0.41.0a1`, Milestones
-M1-M41 als Review-Paket) unter `src/scoped_correspondence/` — nicht mehr
-nur Dokumentation und eigenständige Skripte. Der untenstehende
+Python-Paket** (`scoped-correspondence`, aktuell `0.41.0a1`) unter
+`src/scoped_correspondence/` — nicht mehr nur Dokumentation und
+eigenständige Skripte. Die Milestone-Zählung (`M1` beginnend am
+16. September) ist seither über `M54` hinausgewachsen; ein einzelner
+aktueller Endstand wird hier bewusst nicht mehr genannt, weil er mit jedem
+Paket sofort wieder veraltet — siehe stattdessen
+[docs/capability_overview.md](docs/capability_overview.md) für den
+tatsächlichen, laufend aktualisierten Modulstand. Der untenstehende
 "Revision 3.2"-Abschnitt beschreibt den Stand VOR dieser Umstellung und ist
 als historischer Kontext erhalten (siehe
 [REVISION_3_2026-09-16.md](REVISION_3_2026-09-16.md)); die aktuelle
@@ -62,9 +67,19 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
 ### Status, Prüfungen und offene Punkte
 
 - **69 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
-  aktuell alle grün (`python audit_review/run_all_local.py` — Skript nicht
-  eingecheckt, siehe [VERIFICATION.md](VERIFICATION.md) für die
-  eingecheckten Einzelläufe und ihre Aussagekraft).
+  aktuell alle grün, per eingecheckten, getrennten Prüfaufrufen (Astra,
+  2026-09-24, [CAPABILITY_EXPANSION_ROADMAP.md](CAPABILITY_EXPANSION_ROADMAP.md)
+  Paket 0 — vorher nur als nicht eingechecktes `audit_review/run_all_local.py`
+  lokal vorhanden):
+  `python scripts/run_verification_suite.py --category math` (55 Skripte,
+  reine analytische/synthetische Beispiele), `--category data` (14 Skripte,
+  laden echte Datensätze, siehe [docs/real_data_provenance.md](docs/real_data_provenance.md)),
+  `--category links` (interne Markdown-Linkprüfung). Läuft auch automatisch
+  in [GitHub Actions](.github/workflows/verify.yml). Siehe
+  [VERIFICATION.md](VERIFICATION.md) für die Einzelläufe und ihre
+  Aussagekraft, sowie [docs/capability_overview.md](docs/capability_overview.md)
+  für eine kompakte Fragestellung/Voraussetzungen/Evidenz/Grenzen-Übersicht
+  je Modul.
 - Ein externer Code-Audit ("Tiefenanalyse", 2026-09-20) fand 9 echte
   Korrektheitslücken (P0/P1/P2) in bereits gemergtem Code; alle wurden
   am selben Tag behoben, gegen das jeweilige Audit-Gegenbeispiel verifiziert
@@ -116,10 +131,13 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   — eingefrorene Stabilität getrennt von echter Trajektorienintegration,
   reproduziert Astras rateninduziertes Kipp-Kontrollbeispiel Ziffer für
   Ziffer) und Paket 4 (Raten-/Viabilitäts-Kontrollfälle: χ-Diagnose sagt
-  das Kippverhalten aus Paket 3 exakt voraus; ein neuer
-  Puffer-Lastspitzenfall, `viability/rate_dependent_buffer.py`, zeigt das
-  Spiegelbild-Ergebnis — schnellere Störungen sind hier sicherer, nicht
-  gefährlicher) sind umgesetzt und exakt gegen die Review-Zahlen
+  die RICHTUNG des Kippverhaltens aus Paket 3 über den gesamten getesteten
+  Bereich korrekt voraus — die anfangs genannte präzise Schwelle χ≥0,5 war
+  dagegen nur grob rastergebunden und wurde später auf den tatsächlichen
+  Übergang zwischen r=0,7 und r=0,8 korrigiert (siehe unten, Zweitprüfung);
+  ein neuer Puffer-Lastspitzenfall, `viability/rate_dependent_buffer.py`,
+  zeigt das Spiegelbild-Ergebnis — schnellere Störungen sind hier sicherer,
+  nicht gefährlicher) sind umgesetzt und gegen die Review-Zahlen
   abgeglichen. Paket 5 (je Domäne ein mechanistisches Modell:
   COVID-Renewal `validation/covid_renewal.py`, Energiebilanz-Klima
   `dynamics/energy_balance.py` mit echten Mauna-Loa-CO2-Daten, ETAS-
@@ -138,8 +156,13 @@ Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
   Beobachtungsmodelle) sind als eigene Roadmap aufgenommen:
   [MECHANISTIC_VALIDATION_ROADMAP.md](MECHANISTIC_VALIDATION_ROADMAP.md).
   Paket 1 (Profile-Likelihood-Anschluss: `energy_balance.py`s C_s/C_d/alpha
-  sind praktisch nicht identifizierbar, rigoros bestätigt statt nur
-  behauptet), Paket 2 (gemeinsame Rolling-Origin-Prognoseprüfung: das
+  sind auf einem ±50%-Raster um den Fit weit offen — die früher
+  behauptete "praktisch nicht identifizierbar, rigoros bestätigt" war
+  selbst eine Überdehnung und wurde in
+  [Paket 9](MECHANISTIC_VALIDATION_ROADMAP.md) korrigiert: korrekt ist
+  "auf diesem Fenster schwach eingeschränkt, nicht in absolutem Sinn als
+  unidentifizierbar erwiesen" — siehe
+  [docs/energy_balance.md](docs/energy_balance.md)), Paket 2 (gemeinsame Rolling-Origin-Prognoseprüfung: das
   Energiebilanzmodell schlägt jede statistische Baseline an jedem
   Vorlaufjahr; die COVID-Renewal-Projektion schlägt beide Baselines; ETAS
   schlägt die Persistenz-Baseline NICHT — ehrlich berichtet) und Paket 3

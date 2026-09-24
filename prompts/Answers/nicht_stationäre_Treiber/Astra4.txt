@@ -1,0 +1,84 @@
+**Das Repo ist inzwischen ein ausführbares Forschungslabor für Modellverwandtschaft, dynamische Übergänge und Sicherheitsgrenzen.** Seine besondere Stärke liegt darin, mathematische Beziehungen präzise zu formulieren und anschließend zu prüfen, wie weit sie numerisch und mit realen Daten tragen.
+
+Ich habe den Gesamtstand bei [Commit `0d43898`](https://github.com/GenesisAeon/scoped-correspondence-formalism/tree/0d4389804adf8d026923d2d9c08db5e3e902769a) betrachtet. Meine wichtigste Empfehlung: **Jetzt die vorhandenen Bausteine zu durchgängigen Untersuchungen verbinden.** Dafür ist bereits viel vorhanden.
+
+**Was das Repo heute kann**
+
+| Bereich                         | Damit kannst du konkret untersuchen …                                                                                                           |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Modellkorrespondenzen**       | Ob Zustands- und Zeitabbildungen zwischen zwei Modellen deren Dynamik erhalten und wie groß Abweichungen sind.                                  |
+| **Beobachtung und Information** | Welche Information durch Beobachtung erhalten bleibt, übertragen wird oder redundant beziehungsweise synergistisch vorliegt.                    |
+| **Dynamik und Kippen**          | Wie Rückkopplung, Erholung, Hysterese und Änderungsgeschwindigkeit in ausgewählten Modellen Übergänge erzeugen.                                 |
+| **Viabilität und Puffer**       | Wann Belastungen, Reserven und gekoppelte Ressourcenbedingungen eine definierte Sicherheitsgrenze verletzen.                                    |
+| **Modellreduktion**             | Wann ein aggregiertes Modell selbstständig beschrieben werden kann und wann verborgene Zustände oder Gedächtnis fehlen.                         |
+| **Kopplung und Thermodynamik**  | Welche Verbindungen Einfluss, Transport, Energieerhaltung oder Dissipation abbilden.                                                            |
+| **Empirische Modellprüfung**    | Temperatur-, COVID- und Erdbebenmodelle mit einfachen Referenzen vergleichen; Prognosefehler, Unsicherheit und Identifizierbarkeit untersuchen. |
+
+Das ist eine erhebliche fachliche Breite. Der Reifegrad ist allerdings unterschiedlich: Einige Teile sind klar begrenzte mathematische Referenzbeispiele, andere numerische Werkzeuge, andere explorative Datenpiloten. Die installierbare Pythonbibliothek steht weiterhin auf **Alpha `0.41.0a1`**; die 69 Verifikationsskripte ersetzen weder allgemeine Beweise noch externe Validierung.
+
+Ein besonders wertvolles Ergebnis ist inzwischen, dass das Repo **Grenzen der eigenen Modelle sichtbar macht**. Die nominellen 80-%-Intervalle erreichen im untersuchten Ausschnitt nur **52,5 % beim Energiebilanzmodell und 26,3 % beim COVID-Renewal-Modell**. Bei 40 beziehungsweise 19 bewerteten Fällen sind das begrenzte Stichproben, aber ein klarer Ansatzpunkt für den weiteren Ausbau. [Aktuelle Auswertung](https://github.com/GenesisAeon/scoped-correspondence-formalism/blob/0d4389804adf8d026923d2d9c08db5e3e902769a/docs/mechanistic_probabilistic_evaluation.md)
+
+**Diese Erweiterungen halte ich für besonders sinnvoll — in dieser Reihenfolge:**
+
+**1. Den aktuellen Stand konsolidieren.**
+
+Die README enthält noch stärkere Aussagen als die inzwischen korrigierten Fachseiten: etwa zur „exakten“ Vorhersage von Kippverhalten und zur „rigoros“ bestätigten Nichtidentifizierbarkeit. Hier sollte die zuletzt erreichte Präzision durchgängig gelten.
+
+Dazu passen eine kompakte Übersicht je Modul — Fragestellung, Voraussetzungen, Evidenz und Grenzen — sowie ein eingecheckter gemeinsamer Prüfaufruf und GitHub-CI. Im geprüften Baum fehlen entsprechende Workflows; der erwähnte lokale Gesamttestläufer ist nicht eingecheckt.
+
+**Nutzen:** Andere können erkennen, welche Aussage tatsächlich abgesichert ist, und sie reproduzieren.
+
+**2. Prognoseintervalle unter wechselnden Bedingungen kalibrieren.**
+
+Konforme Vorhersage und zeitliche Validierung sind bereits vorhanden. Der nächste Schritt wäre ein gemeinsamer Vergleich zwischen einfacher rollierender Fehlerkalibrierung und adaptiven Verfahren.
+
+Adaptive Conformal Inference und Conformal PID Control sind passende wissenschaftliche Kandidaten für Veränderungen der Fehlerverteilung. Ihre jeweiligen Abdeckungsaussagen müssen sorgfältig von einer Garantie für jeden einzelnen Zeitpunkt unterschieden werden. ([jmlr.org][1])
+
+Bewerten würde ich gemeinsam:
+
+* Abdeckung, Intervallbreite und Intervallscore;
+* Unterschiede zwischen Prognosehorizonten und Regimefenstern;
+* ausschließlich Informationen, die am Prognoseursprung verfügbar waren.
+
+**Nutzen:** Das Repo könnte wesentlich besser beantworten: „Wie unsicher ist diese Vorhersage unter den gegenwärtigen Bedingungen?“
+
+**3. Systemdynamik und Messprozess deutlicher trennen.**
+
+Beim COVID-Piloten wäre die natürliche Erweiterung ein latentes Infektionsgeschehen mit Meldeverzug, Wochentagseffekten und Überdispersion. Einfache Poisson-/Negativ-Binomial-Ansätze bestehen bereits; darauf lässt sich aufbauen.
+
+Beim Energiebilanzmodell wären konsistente Temperaturreferenzen, Anfangszustände und zusätzliche Beobachtungen zur Einschränkung schlecht bestimmter Parameter sinnvoll.
+
+**Nutzen:** Man kann unterscheiden, ob ein Modell die Dynamik verfehlt oder ob der Beobachtungsprozess die Daten verzerrt. Ich würde zunächst einen Pilot ausbauen.
+
+**4. Gemeinsame Operatorstrukturen und Gedächtnis systematisch untersuchen.**
+
+Das passt besonders gut zu deiner ursprünglichen Idee.
+
+Puffer-, Energiebilanz-, Renewal- und Hawkes/ETAS-Modelle besitzen jeweils bestimmte Antwort- oder Integralstrukturen. Vergleichbar können beispielsweise Gedächtniszeit, Positivität oder Verstärkung sein. Welche dieser Eigenschaften tatsächlich übereinstimmen, lässt sich als präzise Korrespondenz formulieren.
+
+Die vorhandenen Gedächtnisbeispiele könnten dabei zu allgemeineren Projektionsmodellen wachsen. Die Mori–Zwanzig-Theorie liefert eine Grundlage dafür, weshalb das Eliminieren verborgener Zustände Gedächtnisterme erzeugt. ([math.huji.ac.il][2])
+
+**Nutzen:** Das Repo könnte erklären, warum ein vereinfachtes Modell scheitert und welche fehlende Zustands- oder Gedächtnisstruktur es benötigt.
+
+**5. Vorübergehende Verstärkung durch Kopplung ergänzen.**
+
+Das wäre meine interessanteste neue mathematische Richtung: **nichtnormale Dynamik und transiente Verstärkung**.
+
+Ein gekoppeltes lineares System kann ausschließlich stabile Eigenwerte besitzen und trotzdem zunächst starke Ausschläge erzeugen. Diese können eine Sicherheitsgrenze verletzen, bevor das System wieder abklingt. Solche Effekte sind in der Stabilitätsliteratur etabliert. ([people.maths.ox.ac.uk][3])
+
+Das verbindet unmittelbar eure Module für Kopplung, Kontraktion und Viabilität. Für deine Ausgangsbeobachtung eröffnet es eine zusätzliche Erklärung: Ein gefährlicher Übergang benötigt nicht zwingend einen exponentiell wachsenden äußeren Treiber. Kopplung kann vorhandene Störungen vorübergehend verstärken. Eine solche Grenzverletzung muss weiterhin von einem dauerhaften Attraktorwechsel unterschieden werden.
+
+**6. Von Sicherheitskarten zu schützenden Eingriffen kommen.**
+
+Aus dem bestehenden skalaren Kontrollbarrieren-Beispiel könnte ein Modell mit zwei gekoppelten Puffern, begrenzten Stellgrößen und gemeinsamem Ressourcenbudget entstehen. Control-Barrier-QPs bieten dafür einen methodischen Ausgangspunkt. ([arxiv.org][4])
+
+Die Frage wäre dann: **Welcher zulässige Eingriff verhindert eine Grenzverletzung — und wann reichen die verfügbaren Mittel grundsätzlich nicht aus?**
+
+Mein konkreter Ausbauvorschlag wären deshalb drei Arbeitspakete: **Dokumentation und Reproduzierbarkeit konsolidieren; einen Datenpiloten hinsichtlich Messprozess und Unsicherheit verbessern; anschließend ein gekoppeltes Zwei-Puffer-Beispiel bauen, das Gedächtnis, Verstärkung und Eingriffe zusammenführt.**
+
+Den ausführlicheren Plan mit Abnahmekriterien und Primärliteratur habe ich festgehalten: [](sandbox:/workspace/scratch/bc86442eb021/capability_overview/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md).
+
+[1]: https://www.jmlr.org/papers/v25/22-1218.html?utm_source=chatgpt.com "Conformal Inference for Online Prediction with Arbitrary Distribution Shifts"
+[2]: https://math.huji.ac.il/~razk/Publications/PDF/CHK00.pdf?utm_source=chatgpt.com "C:JPNAS99-5510PN995510.DVI"
+[3]: https://people.maths.ox.ac.uk/trefethen/ttrd.pdf?utm_source=chatgpt.com "https://people.maths.ox.ac.uk/trefethen/ttrd.pdf"
+[4]: https://arxiv.org/abs/1609.06408?utm_source=chatgpt.com "[1609.06408] Control Barrier Function Based Quadratic Programs for Safety Critical Systems"
