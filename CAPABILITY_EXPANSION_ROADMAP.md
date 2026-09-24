@@ -25,7 +25,7 @@ Arbeitspaketen verdichtet):
 | 1 | Adaptive Intervallkalibrierung | Rollierende Referenz vs. Adaptive Conformal Inference / Conformal PID Control | ✅ erledigt |
 | 2 | Dynamik vs. Messprozess | Latentes Infektionsgeschehen (COVID-Pilot), Energiebilanz-Referenzkonsistenz | ✅ erledigt (COVID-Teil; Energiebilanz-Teil zurückgestellt) |
 | 3 | Gemeinsame Operatorstrukturen | Mori-Zwanzig-Gedächtnisrahmen für Puffer/Energiebilanz/Renewal/ETAS | ✅ erledigt (allgemeiner linearer Rahmen; domänenspezifische Anwendung auf Puffer/Energiebilanz/Renewal/ETAS zurückgestellt) |
-| 4 | Transiente Verstärkung | Nichtnormale Kopplung, `A=[[-1,k],[0,-1]]`-Beispiel, zwei gekoppelte Puffer | ⏸ geplant |
+| 4 | Transiente Verstärkung | Nichtnormale Kopplung, `A=[[-1,k],[0,-1]]`-Beispiel, zwei gekoppelte Puffer | ✅ erledigt |
 | 5 | Begrenzte Eingriffe | Control-Barrier-Function-QPs, zwei Puffer mit gemeinsamem Ressourcenbudget | ⏸ geplant |
 
 Astras eigene Arbeitspaket-Verdichtung (Reihenfolge bindend, siehe
@@ -275,6 +275,66 @@ bleibt offen — der allgemeine lineare Rahmen hier ist die dafür nötige
 Grundlage, aber ihre konkrete Anwendung auf die vier nichtlinearen/
 domänenspezifischen Module ist ein eigener, größerer nächster Schritt.
 
-## Paket 4-5
+## Paket 4 — Transiente Verstärkung durch nichtnormale Kopplung (2026-09-24)
 
-Werden nacheinander begonnen. Jeweils eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
+Astras eigene "interessanteste neue mathematische Richtung". Neues Modul
+`viability/transient_amplification.py` (Milestone 58), verifiziert in
+`verify_transient_amplification.py` (5/5 Checks).
+
+**Der Kern in einer Matrix:** `A=[[-1,k],[0,-1]]`, `e^{At}=e^{-t}
+[[1,kt],[0,1]]` (Trefethen, Trefethen, Reddy & Driscoll 1993, Science
+261). Beide Eigenwerte sind -1 — das System ist strikt, beweisbar stabil.
+Trotzdem wird eine Störung, die über die zweite Koordinate eintritt, für
+großes `k` transient VERSTÄRKT, bevor der garantierte Abklang einsetzt.
+**Ein gefährlicher Übergang braucht also weder einen instabilen Eigenwert
+noch einen exponentiell wachsenden äußeren Treiber** — Kopplung allein
+kann eine vorhandene Störung vorübergehend verstärken. Das ergänzt die
+bisherige Kipp-Erklärung des Repos (`dynamics/rate_dependent.py`, über
+Treiberrate) um einen echt andersartigen Mechanismus (Kopplungsstruktur).
+
+`canonical_matrix_exponential_closed_form` stimmt exakt mit `scipy.linalg
+.expm` überein. `max_finite_time_gain` findet das Maximum von `‖e^{At}‖`
+über kontinuierliche beschränkte Optimierung (kein Raster); bei `k=0`
+(diagonale, NORMALE Matrix) übersteigt der Gewinn nie 1 und liegt exakt
+bei `t=0` — ohne Nichtnormalität keine Verstärkung möglich, ein sauberer
+Rand-Check.
+
+**Exakter, von Hand herleitbarer Regressionscheck:** für `x0=[0,1]` gibt
+die geschlossene Form `x1(t)=k·t·e^{-t}` exakt, mit Maximum exakt bei
+`t=1`, Wert `k/e` — unabhängig hergeleitet (nicht durch erneutes Ausführen
+des Moduls) und gegen den numerisch gefundenen Peak geprüft: beide stimmen
+auf `<1e-3` überein.
+
+**Drei Ergebnisse, rigoros entschieden** (Astras Vorgabe: "Transiente
+Grenzverletzung, dauerhafter Attraktorwechsel und bloß großer, aber
+zulässiger Ausschlag bleiben verschiedene Ergebnisse") — aus den
+EIGENWERTEN der Matrix entschieden, nicht nur aus einem endlichen
+Simulationsfenster (das allein niemals eine garantierte Rückkehr
+beweisen kann): `safe_no_violation` (stabil, nie überschritten),
+`transient_violation` (stabil — Rückkehr GARANTIERT, trotzdem
+überschritten), `unstable_violation_no_guaranteed_return` (mindestens ein
+Eigenwert mit Realteil ≥0 — echter Kandidat für dauerhaften
+Attraktorwechsel).
+
+**Arbeitsbeispiel** (identische Störung `x0=[0,1]`, identische Grenze
+0,5, nur Kopplung/Stabilität ändert sich):
+
+| Fall | Eigenwerte | Peak `|x1|` | Klassifikation |
+|---|---|---:|---|
+| Ohne Kopplung | {-1,-1} | 0 (exakt) | `safe_no_violation` |
+| Gekoppelt, stabil | {-1,-1} | 0,736 (=2/e) | `transient_violation` |
+| Gekoppelt, instabil | {0,1,-1} | wachsend, unbeschränkt | `unstable_violation_no_guaranteed_return` |
+
+Die ersten beiden Zeilen teilen dieselben Eigenwerte und dieselbe Störung
+— einzig die Kopplung `k` unterscheidet sich. Ohne Kopplung bleibt `x1`
+exakt bei 0 (keine Abhängigkeit von `x2`); mit Kopplung verletzt dieselbe
+Störung die Grenze transient, bevor sie zurückklingt — Kopplung allein,
+keine Instabilität, kein externer Treiber, verursacht die Verletzung.
+
+**Scope:** nur 2×2-lineare Systeme. Größere nichtnormale Systeme,
+nichtlineare Kopplung und ein echter begrenzter Eingriff (Priorität 5)
+bleiben offen.
+
+## Paket 5
+
+Wird begonnen, sobald Paket 4 regressionsgetestet ist. Eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
