@@ -1,8 +1,16 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "0d43898",
-    "schema": ["module", "question", "model_class", "assumptions", "evidence_type", "verification_scripts", "known_limits"]
+    "as_of_commit": "4667d78 (SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md Pakete B0-B6a; B3b/B5b's real-data components documented as open/handled blockers)",
+    "schema": [
+      "module",
+      "question",
+      "model_class",
+      "assumptions",
+      "evidence_type",
+      "verification_scripts",
+      "known_limits"
+    ]
   },
   "modules": [
     {
@@ -11,7 +19,10 @@
       "model_class": "Abstract contract (dataclasses + residual functions) over user-supplied maps.",
       "assumptions": "Maps and dynamics are supplied by the caller; checked only on sampled state-time pairs, not proven globally.",
       "evidence_type": "analytic worked examples + synthetic sampling",
-      "verification_scripts": ["verify_correspondence_core.py", "verify_approximation_core.py"],
+      "verification_scripts": [
+        "verify_correspondence_core.py",
+        "verify_approximation_core.py"
+      ],
       "known_limits": "A certificate on sampled points is not a global equivalence proof."
     },
     {
@@ -20,7 +31,11 @@
       "model_class": "Discrete channel capacity (Arimoto-Blahut), directed information, finite-context representability.",
       "assumptions": "Finite alphabets/discretization; results depend on chosen distributions and information decomposition.",
       "evidence_type": "analytic + synthetic numeric examples",
-      "verification_scripts": ["verify_observation_core.py", "verify_arimoto_blahut_capacity.py", "verify_directed_information_core.py"],
+      "verification_scripts": [
+        "verify_observation_core.py",
+        "verify_arimoto_blahut_capacity.py",
+        "verify_directed_information_core.py"
+      ],
       "known_limits": "Information dependence alone does not establish causality; no real-world dataset used here."
     },
     {
@@ -29,7 +44,19 @@
       "model_class": "Cubic normal form, contraction, Landau/Ising, GSPT, Floquet, panarchy cusp, early warning, rate-dependent tipping, energy-balance climate model, ETAS earthquake model.",
       "assumptions": "Each submodel has its own scope (e.g. slow/fast separation for GSPT, subcriticality for ETAS stationarity).",
       "evidence_type": "mixed: analytic normal forms + two real-data pilots (energy balance on Mauna Loa CO2 + NOAA temperature; ETAS on USGS earthquakes)",
-      "verification_scripts": ["verify_dynamics_core.py", "verify_contraction_core.py", "verify_landau_exponent_comparison.py", "verify_gspt_core.py", "verify_floquet_core.py", "verify_panarchy_cusp_core.py", "verify_early_warning_core.py", "verify_rate_dependent.py", "verify_energy_balance.py", "verify_energy_balance_full_forcing.py", "verify_etas.py"],
+      "verification_scripts": [
+        "verify_dynamics_core.py",
+        "verify_contraction_core.py",
+        "verify_landau_exponent_comparison.py",
+        "verify_gspt_core.py",
+        "verify_floquet_core.py",
+        "verify_panarchy_cusp_core.py",
+        "verify_early_warning_core.py",
+        "verify_rate_dependent.py",
+        "verify_energy_balance.py",
+        "verify_energy_balance_full_forcing.py",
+        "verify_etas.py"
+      ],
       "known_limits": "No universal tipping-point detector; the rate-dependent χ diagnostic is direction-correct across the tested range but its precise numeric threshold was found to be grid-resolution-dependent, not exact (see NONSTATIONARY_ROADMAP.md package 4). Energy-balance parameters C_s/C_d/alpha are weakly constrained on a ±50% scan around the fit, not proven globally unidentifiable (see docs/energy_balance.md)."
     },
     {
@@ -38,7 +65,14 @@
       "model_class": "Coupling layers, Casimir/Dirac composition, dissipativity, GENERIC-Navier-Stokes bridge, generalized synchronization.",
       "assumptions": "Specific structural conditions (e.g. GENERIC degeneracy conditions) must hold and are checked per example, not assumed to generalize.",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_coupling_core.py", "verify_casimir_residual.py", "verify_dirac_composition_core.py", "verify_dissipativity_core.py", "verify_generic_navier_stokes.py", "verify_generalized_sync_core.py"],
+      "verification_scripts": [
+        "verify_coupling_core.py",
+        "verify_casimir_residual.py",
+        "verify_dirac_composition_core.py",
+        "verify_dissipativity_core.py",
+        "verify_generic_navier_stokes.py",
+        "verify_generalized_sync_core.py"
+      ],
       "known_limits": "Structural checks on selected examples are not a blanket physical validation of arbitrary coupled systems."
     },
     {
@@ -47,7 +81,13 @@
       "model_class": "PC=CQ macro-closure, generator lumpability, Chapman-Enskog reduction, propagated error bounds.",
       "assumptions": "Exact closure requires specific lumpability/commutation conditions that are checked, not assumed.",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_closure_core.py", "verify_generator_lumpability_core.py", "verify_error_bounds_core.py", "verify_chapman_enskog_core.py", "verify_linear_memory_projection.py"],
+      "verification_scripts": [
+        "verify_closure_core.py",
+        "verify_generator_lumpability_core.py",
+        "verify_error_bounds_core.py",
+        "verify_chapman_enskog_core.py",
+        "verify_linear_memory_projection.py"
+      ],
       "known_limits": "No general data-driven reduction pipeline with automatically identified memory kernels. Priority 3 (docs/linear_memory_projection.md) adds an exact Mori-Zwanzig-style memory reduction for LINEAR systems (arbitrary hidden dimension): the memoryless (Markov) approximation is beaten on mean error, minimum value/time, AND boundary-crossing time by a finite-memory approximation on a stable worked example. Nonlinear hidden-state elimination remains out of scope. Package 6 (Astra second review, SCF_Review_dc5d82a.md) fixed two real bugs: a NumPy >=2.4 incompatibility (float() of a 1-element array, removed np.trapz) that made CI genuinely red, and a local-vs-global minimum bug (single scipy.optimize.minimize_scalar bracket search missed the true extremum on oscillating trajectories) -- fixed via analytic spline stationary points plus adaptive sampling."
     },
     {
@@ -56,7 +96,15 @@
       "model_class": "Viability kernels, Nagumo tangent cones, scalar control barrier functions, rate-dependent buffer spikes, multidimensional tipping/reserve maps.",
       "assumptions": "Safety is defined relative to an explicit boundary, model class, and time span; the control-barrier example is scalar.",
       "evidence_type": "analytic + independently hand-derived closed-form regression checks (see verify_multidim_tipping_maps.py's Gaussian-pulse convolution check)",
-      "verification_scripts": ["verify_viability_core.py", "verify_nagumo_tangent_cone.py", "verify_control_barrier_core.py", "verify_rate_viability_control_cases.py", "verify_multidim_tipping_maps.py", "verify_transient_amplification.py", "verify_coupled_buffer_cbf_qp.py"],
+      "verification_scripts": [
+        "verify_viability_core.py",
+        "verify_nagumo_tangent_cone.py",
+        "verify_control_barrier_core.py",
+        "verify_rate_viability_control_cases.py",
+        "verify_multidim_tipping_maps.py",
+        "verify_transient_amplification.py",
+        "verify_coupled_buffer_cbf_qp.py"
+      ],
       "known_limits": "Buffer-minimum localization was found to have grid-search error ≫ ODE-tolerance error in one adversarial case; fixed via continuous optimization, see MECHANISTIC_VALIDATION_ROADMAP.md package 6a. Priority 4 (docs/transient_amplification.md) adds a DIFFERENT tipping mechanism: a stable (all-negative-eigenvalue) 2x2 non-normal coupling can transiently amplify a perturbation across a safety boundary with no unstable eigenvalue and no growing driver — classified rigorously (from eigenvalues, not simulation alone) as transient (guaranteed return) vs. no-guaranteed-return, restricted to 2x2 linear systems. Package 6 (Astra second review) fixed a real local-vs-global minimum bug (a single scipy.optimize.minimize_scalar bracket search silently missed the true peak on an oscillating system, reporting 'safe' when the true peak exceeded the boundary) and renamed safe_no_violation to no_violation_in_horizon to make clear this is not a permanent safety claim. Package 7 (Astra6.txt) found the Package-6 fix still missed FAST NON-oscillating spikes (adaptive sampling only considered eigenvalues' imaginary parts, not large real parts) -- fixed by also resolving fast real decay/growth rates, and more fundamentally by making the peak search in classify_two_buffer_transient exact and sampling-independent: every component of a homogeneous 2x2 system satisfies the same 2nd-order constant-coefficient ODE from A's characteristic polynomial, solved in closed form for all three eigenvalue cases. Priority 5 (docs/coupled_buffer_cbf_qp.md) extends the scalar control-barrier example to two buffers with a shared resource budget: a minimal-cost CBF-QP intervention is compared against no-intervention and a naive fixed rule, with TWO distinct infeasibility modes (a single buffer's own bounds vs. the shared budget) surfaced explicitly via an independent closed-form certificate. Package 6 separated instantaneous CBF satisfaction (cbf_condition_satisfied_now) from sustained trajectory safety (sustained_safe_until_horizon, computed from the exact held-control closed form) after Astra showed the cheapest instantaneous solution can violate a buffer shortly after being applied. Package 7 fixed two edge-case bugs in that same sustained-safety check (an already-negative start state was misreported safe; a trajectory touching zero exactly at the horizon was misreported unsafe) via an exact endpoint-minimum reformulation. Two buffers only, identity/linear-class-K barrier only."
     },
     {
@@ -65,7 +113,10 @@
       "model_class": "Membership matrices, Formal Concept Analysis.",
       "assumptions": "Finite, explicitly given attribute sets.",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_membership_core.py", "verify_formal_concept_analysis.py"],
+      "verification_scripts": [
+        "verify_membership_core.py",
+        "verify_formal_concept_analysis.py"
+      ],
       "known_limits": "Small reference examples; no real-data application yet."
     },
     {
@@ -74,7 +125,11 @@
       "model_class": "Profile likelihood (1D golden-section and multi-parameter bounded NLP), Fisher-information sloppiness spectra.",
       "assumptions": "Confidence-interval claims are always relative to the actually scanned grid/range.",
       "evidence_type": "analytic worked examples + applied to real-data fits (energy balance, ETAS)",
-      "verification_scripts": ["verify_identifiability_core.py", "verify_fim_sloppiness_core.py", "verify_profile_likelihood_core.py"],
+      "verification_scripts": [
+        "verify_identifiability_core.py",
+        "verify_fim_sloppiness_core.py",
+        "verify_profile_likelihood_core.py"
+      ],
       "known_limits": "`likelihood_interval` never returns `established_unbounded=True` from grid data alone (2026-09-23 correction, package 9): a profile flat on the scanned grid can still have a bounded true confidence set just beyond it. `flat_in_scanned_range` is the honest, scan-relative field to use instead."
     },
     {
@@ -83,7 +138,24 @@
       "model_class": "Rolling-origin backtesting, split conformal prediction, mechanistic probabilistic evaluation (leave-one-origin-out intervals), COVID country decomposition/observation models, Cygnus X-1 pilot.",
       "assumptions": "Each origin uses only information available at that origin; look-ahead in calibration is explicitly guarded against (strict temporal eligibility, package 7).",
       "evidence_type": "real data: OWID/JHU COVID series, NOAA global temperature anomaly, USGS earthquakes M≥6.0; Cygnus X-1 radio epochs are explicitly flagged unverified/illustrative (likely AI-interpolated, not archived raw measurements)",
-      "verification_scripts": ["verify_cygnus_pilot.py", "verify_conformal_prediction_core.py", "verify_rolling_origin.py", "verify_covid_pilot.py", "verify_covid_country_decomposition.py", "verify_covid_multi_country.py", "verify_covid_observation_model.py", "verify_noaa_temp_pilot.py", "verify_earthquake_pilot.py", "verify_real_data_provenance.py", "verify_mechanistic_rolling_origin.py", "verify_mechanistic_probabilistic_evaluation.py", "verify_structural_bridges_b1_b2.py", "verify_structural_bridges_b7_b8.py", "verify_adaptive_interval_calibration.py", "verify_covid_latent_renewal_observation.py"],
+      "verification_scripts": [
+        "verify_cygnus_pilot.py",
+        "verify_conformal_prediction_core.py",
+        "verify_rolling_origin.py",
+        "verify_covid_pilot.py",
+        "verify_covid_country_decomposition.py",
+        "verify_covid_multi_country.py",
+        "verify_covid_observation_model.py",
+        "verify_noaa_temp_pilot.py",
+        "verify_earthquake_pilot.py",
+        "verify_real_data_provenance.py",
+        "verify_mechanistic_rolling_origin.py",
+        "verify_mechanistic_probabilistic_evaluation.py",
+        "verify_structural_bridges_b1_b2.py",
+        "verify_structural_bridges_b7_b8.py",
+        "verify_adaptive_interval_calibration.py",
+        "verify_covid_latent_renewal_observation.py"
+      ],
       "known_limits": "Nominal 80% prediction intervals achieved only 52.5% empirical coverage (energy balance, n=40 cases) and 26.3% (COVID renewal, n=19 cases) via the original leave-one-origin-out (signed lo/hi quantile) construction. A separate symmetric absolute-residual quantile construction (Priority 1, docs/adaptive_interval_calibration.md) gets 70-85% on energy balance but 0% for COVID persistence (residuals grow monotonically during 2020 exponential onset, so no past-only quantile can catch up) — comparing three calibration variants (fixed rolling reference, Adaptive Conformal Inference, a P+I subset of Conformal PID Control) shows the adaptive recursions help on a controlled synthetic regime-shift example but neither clearly help nor hurt on these small real pilots (n=19-40). Best interval score does not imply best coverage. Package 6 (Astra second review) fixed a real future-information leak in the ACI/PID adaptation state under overlapping forecast horizons (a trial's own outcome was applied to alpha_t before its own target time had actually elapsed relative to a later origin) and documented that even the fixed recursion does not inherit Gibbs & Candes's long-run coverage guarantee once alpha_t is numerically clipped (a strictly increasing error sequence gives 0% coverage forever). Priority 2 (docs/covid_latent_renewal_observation.md): a full 2x2 ablation (Package 6) shows negative-binomial overdispersion ALONE is the strong finding (2.4% -> 73.8% coverage, log-score 1387 -> 10.2 on 42 held-out trials, renewal dynamics held fixed); the weekday reporting correction on top actually WORSENS both metrics on this window -- corrected from an earlier framing that bundled both changes together. True reporting-delay (a report-date x episode-date matrix) remains out of scope — the OWID/JHU series has no such matrix."
     },
     {
@@ -92,7 +164,12 @@
       "model_class": "Sheaf contextuality, Čech cohomology obstructions, CSW graph invariants.",
       "assumptions": "Finite measurement/outcome spaces; externally reviewed optional module (F08).",
       "evidence_type": "analytic worked examples, checksums/script runs independently re-verified",
-      "verification_scripts": ["verify_contextuality_core.py", "verify_cech_cohomology_core.py", "verify_csw_core.py", "verify_sheaf_contextuality.py"],
+      "verification_scripts": [
+        "verify_contextuality_core.py",
+        "verify_cech_cohomology_core.py",
+        "verify_csw_core.py",
+        "verify_sheaf_contextuality.py"
+      ],
       "known_limits": "Small reference examples; optional module, does not affect the core contract."
     },
     {
@@ -101,7 +178,11 @@
       "model_class": "Partial Information Decomposition (Williams-Beer, Kolchinsky redundancy bottleneck), BROJA.",
       "assumptions": "Finite discrete source/target distributions; externally reviewed optional module (F09).",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_information_decomposition_core.py", "verify_broja_pid_core.py", "verify_pid_rb.py"],
+      "verification_scripts": [
+        "verify_information_decomposition_core.py",
+        "verify_broja_pid_core.py",
+        "verify_pid_rb.py"
+      ],
       "known_limits": "Optional module; decomposition choice affects numeric results (known open problem in the PID literature generally, not specific to this repo)."
     },
     {
@@ -110,7 +191,11 @@
       "model_class": "Schnakenberg network thermodynamics, Crooks/Jarzynski fluctuation relations.",
       "assumptions": "Markov network structure with specified rate constants.",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_thermo_core.py", "verify_schnakenberg_core.py", "verify_crooks_core.py"],
+      "verification_scripts": [
+        "verify_thermo_core.py",
+        "verify_schnakenberg_core.py",
+        "verify_crooks_core.py"
+      ],
       "known_limits": "Small reference networks; no real thermodynamic experiment data used."
     },
     {
@@ -119,7 +204,9 @@
       "model_class": "Chemical Organization Theory.",
       "assumptions": "Fixed, explicitly given reaction network.",
       "evidence_type": "analytic worked examples",
-      "verification_scripts": ["verify_chemical_organization_core.py"],
+      "verification_scripts": [
+        "verify_chemical_organization_core.py"
+      ],
       "known_limits": "Single small reference example."
     },
     {
@@ -128,7 +215,9 @@
       "model_class": "Bethe-tree percolation / Kesten branching-process threshold.",
       "assumptions": "Infinite regular tree approximation.",
       "evidence_type": "analytic closed-form threshold + synthetic check",
-      "verification_scripts": ["verify_percolation_core.py"],
+      "verification_scripts": [
+        "verify_percolation_core.py"
+      ],
       "known_limits": "Idealized tree structure, not a finite real network."
     },
     {
@@ -137,7 +226,9 @@
       "model_class": "Turing instability / dispersion relation analysis.",
       "assumptions": "Linear stability analysis around a homogeneous steady state.",
       "evidence_type": "analytic worked example",
-      "verification_scripts": ["verify_pattern_formation_core.py"],
+      "verification_scripts": [
+        "verify_pattern_formation_core.py"
+      ],
       "known_limits": "Linear analysis only; no nonlinear pattern simulation."
     },
     {
@@ -146,7 +237,9 @@
       "model_class": "Stefan-Neumann similarity solution.",
       "assumptions": "One-dimensional, self-similar geometry.",
       "evidence_type": "analytic closed-form solution",
-      "verification_scripts": ["verify_free_boundary_core.py"],
+      "verification_scripts": [
+        "verify_free_boundary_core.py"
+      ],
       "known_limits": "Single idealized geometry."
     },
     {
@@ -155,7 +248,9 @@
       "model_class": "Meta-level rule checks, not a domain model.",
       "assumptions": "None domain-specific; enforces repo-wide discipline.",
       "evidence_type": "static rule checks",
-      "verification_scripts": ["verify_metarules_core.py"],
+      "verification_scripts": [
+        "verify_metarules_core.py"
+      ],
       "known_limits": "Enforces process discipline, not a scientific claim in itself."
     },
     {
@@ -164,8 +259,70 @@
       "model_class": "Adapters to the original standalone verification scripts.",
       "assumptions": "Historical scope as originally defined in Revision 2/3 documents.",
       "evidence_type": "analytic worked examples (historical)",
-      "verification_scripts": ["verify_extensions.py", "verify_formalism.py", "verify_transformations.py"],
+      "verification_scripts": [
+        "verify_extensions.py",
+        "verify_formalism.py",
+        "verify_transformations.py"
+      ],
       "known_limits": "Frozen historical scope; superseded conceptually by the installable package's own modules where overlapping."
+    },
+    {
+      "module": "dynamics/queueing.py + viability/first_passage_ctmc.py + validation/queueing_pilot.py",
+      "question": "When does a time-averaged load description lose the information needed for a short-term capacity event, and how likely is a capacity breach under the SAME mean rates?",
+      "model_class": "Deterministic reflected fluid backlog (piecewise-constant rates, exact per-segment monotonicity); M/M/1 CTMC restricted to an absorbing-generator first-passage construction.",
+      "assumptions": "Single server/stock, piecewise-constant rates (deterministic side); Poisson arrivals / exponential service, single server (stochastic side). No network/priority queues.",
+      "evidence_type": "synthetic/analytic; Astra's fixed worked example and CTMC reference value reproduced independently to <1e-12, plus an independent event-driven simulation and solve_ivp/Poisson cross-checks",
+      "verification_scripts": [
+        "verify_queueing.py",
+        "verify_queueing_first_passage.py",
+        "verify_queueing_pilot.py"
+      ],
+      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B2: for rho=0.5<1 (stable mean), the deterministic fluid model reports peak backlog exactly 0 while the stochastic model with the SAME mean rates gives P(hit K)~5.6% -- a mean/fluid statement is never a stochastic safety proof. A real trace-driven pilot (plan section 8.4) is explicitly deferred."
+    },
+    {
+      "module": "dynamics/linear_reservoirs.py",
+      "question": "Does a model with two discharge time scales improve on a single reservoir under the same input and observation, and is the split identifiable?",
+      "model_class": "Parallel linear reservoirs (dS_j/dt = alpha_j*u - k_j*S_j), exact closed-form update and Mori-Zwanzig-style convolution kernel.",
+      "assumptions": "Linear reservoirs only -- no nonlinear runoff, snow, or evapotranspiration processes.",
+      "evidence_type": "synthetic/analytic; plan's fixed control numbers reproduced exactly and cross-checked against an independent solve_ivp integration",
+      "verification_scripts": [
+        "verify_linear_reservoirs.py"
+      ],
+      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B3a: k1=k2 and alpha2=0 both reduce to the single-reservoir case; different initial storage splits with the SAME total S0 are demonstrably NOT identifiable from the observed total alone. The real CAMELS-DE data pilot (Paket B3b) remains an open, explicitly documented data blocker (only a single ~2.18GB Zenodo archive is available, no partial catchment download) -- not executed in this environment."
+    },
+    {
+      "module": "viability/first_passage_diffusion.py",
+      "question": "Does a positive expected reserve imply a low probability of touching a lower boundary at some point along the way?",
+      "model_class": "Brownian motion with drift, exact lower-barrier first-passage probability via the classical reflection-principle formula, log-space stable.",
+      "assumptions": "Constant drift and diffusion coefficient; no reflection, jumps, or state-dependent noise.",
+      "evidence_type": "synthetic/analytic; plan's fixed control values reproduced exactly, unit-scaling invariance confirmed over 12 orders of magnitude, independent Euler-Maruyama Monte Carlo cross-check",
+      "verification_scripts": [
+        "verify_first_passage_diffusion.py"
+      ],
+      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B4: x0=1, mu=1, sigma=1, H=1 has E[X_1]=2 (comfortably positive) yet P(hit 0 by H=1)~9% -- a genuine, non-negligible breach probability invisible to any statement about the mean trajectory alone. Infinite-horizon ever-hitting probability is a DIFFERENT statement, never extrapolated from a finite scan."
+    },
+    {
+      "module": "dynamics/capacity_degradation.py + validation/battery_aging_pilot.py + data/nasa_battery_adapter.py",
+      "question": "When does a nonlinear capacity-aging model improve prediction over linear/persistence references, and how much does observation correlation alone explain?",
+      "model_class": "Phenomenological mean capacity models (persistence/linear/power-law) kept separate from a 2x2 independent-vs-AR(1) observation ablation; dataset-agnostic per-cell temporal-holdout pilot.",
+      "assumptions": "Irreversible aging, reversible effects, and measurement error are NOT claimed separately identifiable from a single capacity series -- deliberately restricted to phenomenological mean models.",
+      "evidence_type": "synthetic-only automated CI (exact recovery, censoring, leakage guards); a real local run against 4 NASA PCoE cells was performed once during development and reported as a manual, non-CI reproduction (see docs/battery_aging_pilot.md)",
+      "verification_scripts": [
+        "verify_capacity_degradation.py",
+        "verify_battery_aging_pilot.py"
+      ],
+      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B5: NASA's own catalog reports the dataset's license as unspecified (independently confirmed via its CKAN API) -- raw/derived per-cycle data are NOT committed to this repo and no manifest entry was added. The real local run (mixed result: linear wins on 2 of 4 cells, power-law on 2, persistence never wins; one genuine right-censoring case) is not independently re-verifiable by a reader without redownloading the same archive."
+    },
+    {
+      "module": "validation/cooperative_agents_pilot.py",
+      "question": "When does additional communicated information improve a joint decision, when is it redundant, and how does channel noise change the answer?",
+      "model_class": "Three fully-enumerated finite communication tasks (XOR/complementary information, redundancy, noisy channel), evaluated against the EXISTING BROJA bivariate PID solver (information_decomposition/broja.py).",
+      "assumptions": "Small, exactly enumerable finite tasks only; the sending decision is fixed across all states (never conditioned on the observation).",
+      "evidence_type": "exact full enumeration (never sampling) of every task state; PID atoms computed by the repo's own unmodified solver, not asserted from a formula",
+      "verification_scripts": [
+        "verify_cooperative_agents_pilot.py"
+      ],
+      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B6a: results are precise answers about the specific manipulated game environment only -- explicitly not human cognition, consciousness, or a general intelligence measure. Repeated/dynamic tasks with delayed feedback and LLM-agent extensions (plan section 12.4) are deliberately deferred."
     }
   ]
 }

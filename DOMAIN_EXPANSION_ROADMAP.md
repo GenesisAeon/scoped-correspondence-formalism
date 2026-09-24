@@ -25,13 +25,13 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | B2a | Fluidrückstau und Bestandsbrücke | ✅ erledigt |
 | B2b | CTMC-Erstpassage und Queue-Pilot | ✅ erledigt |
 | B3a | Lineare Reservoirs und Gedächtnisbrücke | ✅ erledigt |
-| B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⏳ offen |
+| B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⛔ blockiert (dokumentiert, nicht praktikabel in dieser Umgebung) |
 | B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ✅ erledigt |
 | B5a | Kapazitätsmodelle und Beobachtungs-Ablation | ✅ erledigt |
 | B5b | NASA-Batteriedatenpilot (echte externe Daten, Lizenz laut Astra ungeklärt) | ✅ erledigt (Lizenz-Blocker sauber behandelt) |
 | B6a | Endliche kooperative Agentenaufgaben | ✅ erledigt |
 | B6b | Wiederholte Aufgabe / OpenSpiel | ausdrücklich optional, nicht Teil dieser Runde |
-| B7 | Gemeinsamer Ergebnisvergleich, Fähigkeitsübersicht | ⏳ offen |
+| B7 | Gemeinsamer Ergebnisvergleich, Fähigkeitsübersicht | ✅ erledigt |
 
 Themenatlas (Ökologie, Energie, Verkehr, Lieferketten, Neurowissenschaft,
 Astronomie) ist explizit **zweite Ausbaurunde**, nicht Teil dieses Auftrags.
@@ -193,10 +193,64 @@ Rechtszensierung (min. beobachtete Kapazität 1,4005 Ah, nie ≤1,4 Ah
 innerhalb 168 Zyklen). Verifiziert: `verify_battery_aging_pilot.py` (6/6).
 Docs: `docs/battery_aging_pilot.md`.
 
-## Nächste Schritte
+## B3b — CAMELS-DE-Datenpilot (blockiert, konkret dokumentiert)
 
-B3b (CAMELS-DE) bleibt als offener Datenblocker geführt: die Daten liegen
-nur als ein einziges ~2,18 GB-ZIP auf Zenodo vor (kein Teildownload
-einzelner Einzugsgebiete möglich) — für diese Umgebung nicht praktikabel
-(Plan Abschnitt 16: "Ein blockierter Datenpilot bleibt offen"). B7
-(Konsolidierung) als nächstes.
+Netzwerkzugriff auf Zenodo funktioniert (`zenodo.org/records/13837553`,
+HTTP 200 bestätigt), aber der Datensatz liegt nur als EIN EINZIGES Archiv
+vor: `camels_de.zip`, `2.178.320.889` Bytes (≈2,18 GB) — kein Teildownload
+einzelner Einzugsgebiete über die Zenodo-API möglich, kein Zwischenformat
+mit selektivem Zugriff verfügbar. Für die verfügbare Umgebung (begrenzter
+Arbeitsspeicher/Zeit für einen einzelnen Download- und Entpackschritt
+dieser Größe innerhalb eines Werkzeugaufrufs) nicht praktikabel.
+
+Gemäß Plan Abschnitt 16 ("Ein blockierter Datenpilot bleibt offen") und
+Abschnitt 5.1 (analytische/synthetische Teile fertigstellen, Datenblock mit
+konkretem Grund offen führen): B3a (Reservoir-Mathematik, Gedächtnisbrücke)
+ist vollständig abgeschlossen und unabhängig von B3b; nur der ECHTE
+Datenpilot (6 Einzugsgebiete, Zeitteilung 1991–2020, Panel-Auswertung nach
+Plan Abschnitt 9.4–9.6) bleibt unausgeführt. Kein synthetischer Ersatz wird
+als Abschluss dieses Datenpilots ausgegeben (Plan Abschnitt 16: "Ein
+synthetischer Ersatz schließt keinen verlangten realen Datenpilot ab").
+
+**Konkreter Blocker für eine Wiederaufnahme:** Zugriff auf einen
+Teildownload einzelner CAMELS-DE-Einzugsgebiete (z. B. über eine künftige
+gefilterte API, einen Data-Mirror mit Einzeldateien, oder ausreichend
+Zeit/Speicher für den vollen 2,18-GB-Download in einer Umgebung mit
+entsprechenden Ressourcen).
+
+## B7 — Gemeinsamer Ergebnisvergleich und Fähigkeitsübersicht (erledigt)
+
+`docs/capability_overview.json`/`.md` um 5 neue Einträge erweitert
+(Warteschlangen-Trio, lineare Reservoirs, Diffusions-Erstpassage,
+Batteriealterungs-Trio, kooperative Agenten) — jeweils mit Frage,
+Modellklasse, Annahmen, Evidenzart, Prüfskripten und bekannten Grenzen,
+gleiches Schema wie die 18 bestehenden Modul-Einträge.
+
+**Ergebnisvergleich nach Plan Abschnitt 16.2:**
+
+| Domäne | Welche Information verlor die Vereinfachung? | Reichte ein einfacheres Modell? | Was war exakt herleitbar vs. nur an Daten beobachtet? |
+|---|---|---|---|
+| Warteschlangen (B2) | Zeitliche Form des Lastverlaufs bei gleicher Gesamtlast (Laststoß vs. gleichmäßig) | Nein für Ereignisrisiko: Mittelwertmodell meldet 0% Rückstau, Stochastik ~5,6% Treffwahrscheinlichkeit bei GLEICHEN Raten | Beide Modelle exakt herleitbar (Fluid-ODE, absorbierender CTMC-Generator); kein Datenpilot in dieser Runde |
+| Hydrologie (B3) | Zweite Abfluss-Zeitskala; Anfangsspeicher-Aufteilung nicht identifizierbar aus der Summe | Unbeantwortet — echter Datenpilot blockiert (B3b) | Reservoir-Update und Faltung exakt herleitbar; reale Einzugsgebiets-Frage bleibt offen |
+| Diffusions-Erstpassage (B4) | Durchgangsrisiko bei positivem Erwartungswert (`E[X_1]=2`, aber `P(Erreichen)≈9%`) | Nein — Mittelwertaussage allein ist irreführend | Vollständig exakt herleitbar (Reflexionsprinzip); keine reale Datenfrage in dieser Runde |
+| Batteriealterung (B5) | Ob Alterung linear oder als Potenzgesetz verläuft — uneinheitlich je Zelle | Uneinheitlich: linear gewinnt bei 2/4, Potenzgesetz bei 2/4 realen Zellen, Persistenz nie | Modelle exakt herleitbar; reale Zellen zeigen echte Rechtszensierung (B0007) — Lizenz verhindert Redistribution, Ergebnis nur manuell reproduziert |
+| Kooperative Agenten (B6) | Ob getrennte Beobachtungen gemeinsam mehr Information tragen als einzeln (Synergie) | Nein für XOR (0,5→1,0 mit Nachricht); Ja für Redundanz (Kommunikation hilft nie) | Vollständig exakt durch Enumeration; PID-Zerlegung vom vorhandenen Löser bestätigt, nicht neu behauptet |
+
+Keine domänenübergreifende Mittelwert-Rangliste gebildet (Plan Abschnitt
+16.2: inkompatible Maßeinheiten). Transferierbar sind die Verfahren
+(exakte Diskriminanten-/Erstpassage-/Faltungskonstruktionen), nicht die
+Parameterwerte.
+
+**Offene Teilaufgaben, sichtbar gehalten:** B3b (CAMELS-DE, blockiert),
+B6b (wiederholte Agentenaufgabe/OpenSpiel, ausdrücklich optional), der
+Themenatlas (Ökologie/Energie/Verkehr/Lieferketten/Neurowissenschaft/
+Astronomie, zweite Ausbaurunde) und B0's verbleibende Frage nach
+absoluten Schwellen in `_adequate_sample_count`/Abtastdichte, die denselben
+Klassifikationspfad beeinflussen könnten (Plan Abschnitt 6, Punkt 5) —
+nicht erneut geprüft, da sie ausschließlich die REPORTED-Trajektorien-
+Auflösung betreffen, nicht die (bereits abtastungsunabhängige)
+Klassifikation selbst.
+
+**Volle Regression zum Abschluss dieser Runde:** 66/66 Mathe-, 16/16
+Daten-, 0 defekte Links (siehe Commit-Historie für die einzelnen
+Zwischenstände je Paket).
