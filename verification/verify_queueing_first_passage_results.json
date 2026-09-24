@@ -1,0 +1,61 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B2b (M/M/1 first-passage)",
+  "timestamp": "2026-09-24T18:21:39+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "plan_reference_value": {
+      "status": "pass",
+      "detail": {
+        "p": 0.1777365760981911,
+        "want": 0.1777365760981911
+      }
+    },
+    "arrivals_only_poisson_reduction": {
+      "status": "pass",
+      "detail": {
+        "p": 0.2642411176571154,
+        "want_closed_form": 0.26424111765711533,
+        "want_scipy": 0.26424111765711533
+      }
+    },
+    "edge_cases": {
+      "status": "pass",
+      "detail": {
+        "checked": 5
+      }
+    },
+    "independent_simulation_agrees": {
+      "status": "pass",
+      "detail": {
+        "exact": 0.1777365760981911,
+        "simulated": 0.17761333333333335,
+        "tolerance_5sigma": 0.0034898219345104488,
+        "n_trials": 300000
+      }
+    },
+    "piecewise_reduces_to_single_segment": {
+      "status": "pass",
+      "detail": {
+        "single": 0.1777365760981911,
+        "two_equal": 0.17773657609819044,
+        "four_equal": 0.1777365760981905,
+        "piecewise_varying": 0.23640421479535978,
+        "averaged_rate_wrong": 0.21335440069663192
+      }
+    },
+    "stationary_tail_differs_from_finite_horizon_hitting": {
+      "status": "pass",
+      "detail": {
+        "stationary_tail": 0.03125,
+        "finite_horizon_hitting": 0.0012553088372086027,
+        "rho": 0.5
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 6
+      }
+    }
+  }
+}

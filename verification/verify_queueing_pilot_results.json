@@ -1,0 +1,35 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B2 (queueing pilot composition)",
+  "timestamp": "2026-09-24T18:23:04+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "mean_safe_but_stochastic_risky": {
+      "status": "pass",
+      "detail": {
+        "initial_count": 0,
+        "threshold": 5,
+        "horizon": 10.0,
+        "arrival_rate": 0.5,
+        "service_rate": 1.0,
+        "deterministic_peak_backlog": 0.0,
+        "deterministic_peak_time": 0.0,
+        "deterministic_boundary_crossed": false,
+        "stochastic_hitting_probability": 0.05598182503250993
+      }
+    },
+    "pilot_matches_underlying_modules_exactly": {
+      "status": "pass",
+      "detail": {
+        "peak": 1.0,
+        "t_peak": 0.0,
+        "p": 0.3925349238730199
+      }
+    },
+    "scope_violation_guard": {
+      "status": "pass",
+      "detail": {
+        "checked": 1
+      }
+    }
+  }
+}

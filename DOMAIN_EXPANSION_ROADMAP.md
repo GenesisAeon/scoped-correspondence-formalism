@@ -22,8 +22,8 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 |---|---|---|
 | B0 | Zeiteinheitenfehler in `_analytic_component_critical_times` (skalenabhängige absolute Diskriminantenschwelle) | ✅ erledigt |
 | B1 | Protokoll, Provenienz, Testzuordnung, diese Roadmap | ✅ erledigt |
-| B2a | Fluidrückstau und Bestandsbrücke | ⏳ offen |
-| B2b | CTMC-Erstpassage und Queue-Pilot | ⏳ offen |
+| B2a | Fluidrückstau und Bestandsbrücke | ✅ erledigt |
+| B2b | CTMC-Erstpassage und Queue-Pilot | ✅ erledigt |
 | B3a | Lineare Reservoirs und Gedächtnisbrücke | ⏳ offen |
 | B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⏳ offen |
 | B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ⏳ offen |
@@ -71,6 +71,38 @@ Ereignisbericht-Schema, B3b für die Manifest-Erweiterung) — kein
 vorgezogenes generisches Framework ohne konkreten ersten Nutzer, siehe
 Plan Abschnitt 7 ("Nicht vorziehen").
 
+## B2a — Fluidrückstau und Bestandsbrücke (erledigt)
+
+`dynamics/queueing.py`: exakter reflektierter Fluidrückstau über
+stückweise konstante Ankunfts-/Bedienraten, sampling-frei (jedes Segment
+ist monoton, daher lösen Grenzwertdurchgänge eine einzige lineare
+Gleichung). Astras festes Beispiel (`q0=0`, `s=1`, `H=10`, `K=5`)
+reproduziert: gleichmäßige Ankunft `a=0.8` hält den Rückstau bei 0;
+Laststoß `a=4` auf `[0,2]` erreicht Maximum `q=6` bei `t=2`, erstes
+Erreichen von `K=5` bei `t=5/3` — beide bei GLEICHER Gesamtlast (8).
+Bestandsbrücke `R=K-q` bis zum ersten Kapazitätsdurchbruch exakt;
+Negativtest (konstanter vs. zustandsabhängiger Abfluss) bestätigt
+Divergenz. Verifiziert: `verify_queueing.py` (5/5). Docs:
+`docs/queueing_pilot.md`.
+
+## B2b — CTMC-Erstpassage und Queue-Pilot (erledigt)
+
+`viability/first_passage_ctmc.py`: exakte M/M/1-Erstpassage über
+absorbierenden Generator, `P(tau_K<=H)=[p0 exp(H*Q_abs)]_K`. Referenzwert
+`lambda=1,mu=2,K=2,H=1` → `0.1777365760981911` unabhängig nachgerechnet
+(exakter Treffer, `<1e-12`); reine Ankünfte reduzieren exakt auf die
+Poisson-Formel `1-2/e`. `H=0`, bereits erreichtes `K` und `lambda=0` fallen
+alle aus derselben Konstruktion ohne Sonderfälle. Event-basierte Simulation
+(fester Seed) stimmt innerhalb 5σ-Toleranz überein. Stückweise Raten
+multiplizieren Matrixexponentiale in Zeitreihenfolge (Aufteilung mit
+identischen Raten ändert nichts; echte Ratenänderung weicht vom naiven
+Mittelwert ab). `validation/queueing_pilot.py` zeigt den Kernpunkt in einer
+Zahl: bei `rho=0.5<1` bleibt der deterministische Fluidrückstau exakt 0,
+während die stochastische Treffwahrscheinlichkeit `≈5,6%` beträgt — ein
+Mittelwertmodell allein wäre hier fälschlich "sicher". Verifiziert:
+`verify_queueing_first_passage.py` (7/7), `verify_queueing_pilot.py` (3/3).
+Docs: `docs/queueing_pilot.md`.
+
 ## Nächste Schritte
 
-B2a (Fluidrückstau, rein synthetisch/analytisch) als nächstes.
+B3a (lineare Reservoirs, Gedächtnisbrücke) als nächstes.
