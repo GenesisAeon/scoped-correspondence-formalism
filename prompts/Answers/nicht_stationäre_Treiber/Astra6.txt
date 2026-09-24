@@ -1,0 +1,45 @@
+**Die CI ist jetzt vollständig grün, und meine lokale Nachprüfung besteht mit 30/30 Checks unter NumPy 2.4.6.** Geprüfter Stand: [`45fb191`](https://github.com/GenesisAeon/scoped-correspondence-formalism/commit/45fb191c457938aa219f1ee0e1a9f5cc5c056166).
+
+Die Korrekturen für NumPy, das Zukunftsleck, die Kalibrierungsgarantien und die COVID-Ablation kann ich bestätigen. Auch mein oszillierendes Gegenbeispiel wird jetzt erkannt.
+
+**Zwei klar eingrenzbare Restpunkte sind bei der Nachprüfung aufgetaucht:**
+
+**1. Die Extremsuche übersieht noch schnelle, nicht schwingende Ausschläge.**
+
+Die automatische Auflösung berücksichtigt die **Imaginärteile** der Eigenwerte. Schnelles Abklingen durch große negative **Realteile** erhöht die Auflösung bisher nicht.
+
+Ein lediglich beschleunigtes Exemplar eures kanonischen Modells zeigt den Fehler:
+
+$$
+A=\begin{pmatrix}-100&1000\\0&-100\end{pmatrix},
+\quad x(0)=(0,1),\quad T=10,\quad \text{Grenze}=3.
+$$
+
+Hier gilt exakt \(x_1(t)=1000t\,e^{-100t}\).
+
+| Größe               |       Exakt |                  Aktuelle API |
+| ------------------- | ----------: | ----------------------------: |
+| Maximaler Ausschlag | **3,67879** |                   **2,15882** |
+| Zeitpunkt           |    **0,01** |                   **0,01957** |
+| Grenzverletzung     |      **Ja** | **`no_violation_in_horizon`** |
+
+Auch `max_finite_time_gain` meldet hier nur **1**, obwohl die tatsächliche Verstärkung über **3,7** liegt.
+
+**Die globale Suche auf dem Spline funktioniert; die entscheidende Spitze fehlt bereits in seinen Stützstellen.** Für die unterstützten linearen 2×2-Systeme würde ich die Komponentenextrema direkt aus den analytischen Lösungen beziehungsweise deren Ableitung bestimmen. Eine numerische Alternative braucht eine Fehlerkontrolle, die auch schnelle reelle Zeitskalen erfasst.
+
+**2. Die neue Prüfung gehaltener Eingriffe hat zwei Randfallfehler.**
+
+In `sustained_safety_over_horizon`:
+
+* **Bereits unsicherer Anfangszustand:** \(x_0=-1,\ d=1,\ u=2,\ H=1\) liefert derzeit **sicher**. Ursache: `net_rate >= 0` wird vor `x < 0` geprüft.
+* **Grenze genau am Horizont:** \(x_0=1,\ d=3,\ u=2,\ H=1\) liefert **unsicher**, obwohl \(x(t)=1-t\) auf dem gesamten geschlossenen Intervall \([0,1]\) nichtnegativ bleibt. Hier verwechselt `<= horizon` das Erreichen der Grenze mit ihrer Verletzung.
+
+Für konstante Eingriffe lässt sich diese Prüfung besonders einfach und exakt formulieren:
+
+$$
+\min\!\bigl(x_0,\;x_0+(u-d)H\bigr)\ge0.
+$$
+
+Den Anfangszustand zuerst prüfen und Grenzberührung von negativer Reserve unterscheiden.
+
+**Damit bleibt ein überschaubarer Abschluss:** die schnelle Zeitskala als Regressionstest ergänzen und diese beiden Puffer-Randfälle korrigieren. Die übrigen gezielt nachgeprüften Befunde aus der letzten Runde sind behoben.

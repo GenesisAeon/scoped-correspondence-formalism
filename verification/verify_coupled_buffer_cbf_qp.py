@@ -33,6 +33,16 @@ CAPABILITY_EXPANSION_ROADMAP.md Priority 5. Checks:
      sustained-safe while the cheaper optimized point still is not --
      demonstrating "cheapest instantaneously-safe" and "sustained-safe"
      are genuinely different questions, not solved by this module alone.
+  8. Astra's 2026-09-24 (Astra6.txt, finding 2) two edge-case corrections
+     in sustained_safety_over_horizon: (a) an already-negative starting
+     state must be reported unsafe (at t=0) regardless of the held
+     control's net rate -- the old code checked "net_rate >= 0" before
+     checking "x0 < 0" and silently reported "safe" for an
+     already-unsafe state whenever the rate happened to be non-negative;
+     (b) a trajectory that reaches EXACTLY zero AT the horizon (touching
+     the boundary on a closed interval) must be reported safe, not
+     unsafe -- the old code's "violation_time <= horizon" conflated
+     reaching the boundary with violating it.
 """
 from __future__ import annotations
 
@@ -203,6 +213,32 @@ def check_instantaneous_safety_is_not_trajectory_safety():
     }
 
 
+def check_sustained_safety_edge_cases():
+    """Astra6.txt finding 2: two edge cases in sustained_safety_over_horizon.
+
+    (a) x0=-1 (already unsafe), drain=1, u=2 (net_rate=1>=0), horizon=1 --
+        must report unsafe, violated at t=0, not "safe forever" (previous bug:
+        net_rate>=0 was checked before x0<0).
+    (b) x0=1, drain=3, u=2 (net_rate=-1<0), horizon=1 -- x(t)=1-t reaches
+        EXACTLY zero at t=horizon=1 and stays non-negative on the whole closed
+        interval [0,1]; must report safe, not "violated at t=1" (previous bug:
+        conflated touching the boundary at the horizon with violating it).
+    """
+    b_a1 = BufferSpec(drain=1.0, x=-1.0, u_min=-10.0, u_max=10.0)
+    b_a2 = BufferSpec(drain=0.0, x=100.0, u_min=0.0, u_max=0.0)
+    safe_a, first_violation_a = sustained_safety_over_horizon([b_a1, b_a2], [2.0, 0.0], 1.0)
+    require(safe_a is False, f"case (a): expected unsafe, got safe={safe_a}")
+    require(first_violation_a == 0.0, f"case (a): expected violation at t=0; got {first_violation_a}")
+
+    b_b1 = BufferSpec(drain=3.0, x=1.0, u_min=-10.0, u_max=10.0)
+    safe_b, first_violation_b = sustained_safety_over_horizon([b_b1, b_a2], [2.0, 0.0], 1.0)
+    require(safe_b is True, f"case (b): expected safe (touches zero exactly at horizon), got safe={safe_b}")
+    require(first_violation_b is None, f"case (b): expected no violation time; got {first_violation_b}")
+
+    require(held_control_violation_time(b_a1, 2.0) == 0.0, "held_control_violation_time must report t=0 for an already-negative x0")
+    return {"case_a": (safe_a, first_violation_a), "case_b": (safe_b, first_violation_b)}
+
+
 CHECKS = [
     ("hand_arithmetic", check_hand_arithmetic),
     ("own_bounds_infeasibility", check_own_bounds_infeasibility),
@@ -211,6 +247,7 @@ CHECKS = [
     ("three_way_comparison", check_three_way_comparison),
     ("scope_violation_guards", check_scope_violation_guards),
     ("instantaneous_safety_is_not_trajectory_safety", check_instantaneous_safety_is_not_trajectory_safety),
+    ("sustained_safety_edge_cases", check_sustained_safety_edge_cases),
 ]
 
 

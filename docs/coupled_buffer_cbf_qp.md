@@ -6,7 +6,7 @@ Beispiel könnte ein Modell mit zwei gekoppelten Puffern, begrenzten
 Stellgrößen und gemeinsamem Ressourcenbudget entstehen." Module:
 [`viability/coupled_buffer_cbf_qp.py`](../src/scoped_correspondence/viability/coupled_buffer_cbf_qp.py).
 Verification: [`verify_coupled_buffer_cbf_qp.py`](../verification/verify_coupled_buffer_cbf_qp.py)
-(7/7 checks). Extends the existing scalar identity-barrier example
+(8/8 checks). Extends the existing scalar identity-barrier example
 (`viability/control_barrier.py`, `h(x)=x`, `alpha(r)=r`) — same barrier
 choice, now applied to two buffers with a constant drain each
 (`x_dot_i = -drain_i + u_i`), bounded controls
@@ -30,6 +30,27 @@ now separates the two questions explicitly: `cbf_condition_satisfied_now`
 `sustained_safe_until_horizon` / `first_violation_time` — computed from the
 EXACT closed-form trajectory under the held control (linear, no numerical
 integration needed).
+
+**Correction (2026-09-24, response to
+[Astra6.txt](../prompts/Answers/nicht_stationäre_Treiber/Astra6.txt),
+finding 2 — two real edge-case bugs in the code above).** (a) An
+already-negative starting state must be reported unsafe at `t=0`
+regardless of the held control's net rate — the previous
+`held_control_violation_time` checked `net_rate >= 0` BEFORE checking
+`x0 < 0`, so an already-unsafe buffer with a non-decreasing rate was
+silently reported as "never violates." (b) A trajectory that reaches
+EXACTLY zero AT the horizon (touching the boundary on the closed interval
+`[0, horizon]`) must be reported safe, not unsafe — the previous
+`sustained_safety_over_horizon` used `violation_time <= horizon`, which
+conflated reaching the boundary with violating it. Astra's exact
+counterexample for (b): `x0=1, drain=3, u=2, horizon=1` gives
+`x(t)=1-t`, non-negative on the entire closed `[0,1]`, touching zero only
+at the very last instant. Fixed by deciding safety directly from Astra's
+exact reformulation for a held (linear, monotonic) control — the minimum
+of a linear function over a closed interval is always at one of its two
+endpoints: `min(x0, x0 + (u-drain)*horizon) >= 0`. `held_control_violation_time`
+now checks `x0 < 0` first and is used only to report WHEN a genuine
+violation occurs once one has already been established this way.
 
 ## The question this answers
 

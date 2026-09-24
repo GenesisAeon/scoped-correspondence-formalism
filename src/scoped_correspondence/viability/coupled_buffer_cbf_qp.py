@@ -114,32 +114,55 @@ def held_control_violation_time(spec: BufferSpec, u: float) -> Optional[float]:
     """Exact time at which ``x(t) = x0 + (u-drain)*t`` first goes negative under a
     HELD (constant) control ``u`` — the closed-form solution of the linear buffer
     dynamics, no numerical integration needed. Returns ``None`` if it never does
-    (``u >= drain``, i.e. the buffer is non-decreasing under this held control).
+    (``u >= drain``, i.e. the buffer is non-decreasing under this held control, AND
+    it does not already start negative).
+
+    **Correction (2026-09-24, response to Astra6.txt, finding 2a):** an already-
+    negative starting state (``x0 < 0``) is checked FIRST, regardless of
+    ``net_rate`` — the previous version checked ``net_rate >= 0`` first and
+    returned ``None`` (never violates) even when the buffer was already unsafe
+    at ``t=0``, silently hiding an already-existing violation whenever the
+    control happened to be non-decreasing.
     """
+    if float(spec.x) < 0.0:
+        return 0.0
     net_rate = float(u) - float(spec.drain)
     if net_rate >= 0.0:
         return None
-    if float(spec.x) < 0.0:
-        return 0.0
     return float(spec.x) / (-net_rate)
 
 
 def sustained_safety_over_horizon(
     buffers: Sequence[BufferSpec], u: Sequence[float], horizon: float
 ) -> Tuple[bool, Optional[float]]:
-    """Whether EVERY buffer stays non-negative for the full ``[0, horizon]`` under
-    the HELD control ``u`` (exact closed form, see ``held_control_violation_time``),
-    and the earliest violation time across buffers if not (``None`` if none violate).
+    """Whether EVERY buffer stays non-negative for the full CLOSED interval
+    ``[0, horizon]`` under the HELD control ``u``, and the earliest violation
+    time across buffers if not (``None`` if none violate).
+
+    **Correction (2026-09-24, response to Astra6.txt, finding 2b):** safety
+    itself is now decided by Astra's exact reformulation for a held
+    (piecewise-linear, monotonic) control: ``min(x0, x0 + (u-drain)*horizon)
+    >= 0`` — the minimum of a linear function over a closed interval is
+    always at one of its two endpoints, so this is exact and sidesteps the
+    previous version's boundary bug, which used ``violation_time <= horizon``
+    and therefore misclassified a trajectory that reaches EXACTLY zero AT the
+    horizon (touching the boundary, not violating it) as unsafe.
+    ``held_control_violation_time`` is still used, but only to report WHEN a
+    genuine violation happens once one has already been established.
     """
     if len(buffers) != len(u):
         raise ScopeViolationError("sustained_safety_over_horizon: buffers and u must have the same length")
     if horizon <= 0.0:
         raise ScopeViolationError(f"sustained_safety_over_horizon: horizon must be > 0; got {horizon!r}")
-    violation_times = [held_control_violation_time(b, uu) for b, uu in zip(buffers, u)]
-    within_horizon = [vt for vt in violation_times if vt is not None and vt <= float(horizon)]
-    if not within_horizon:
+    mins = [
+        min(float(b.x), float(b.x) + (float(uu) - float(b.drain)) * float(horizon))
+        for b, uu in zip(buffers, u)
+    ]
+    if all(m >= -1e-9 for m in mins):
         return True, None
-    return False, min(within_horizon)
+    violation_times = [held_control_violation_time(b, uu) for b, uu in zip(buffers, u)]
+    within_horizon = [vt for vt in violation_times if vt is not None and vt <= float(horizon) + 1e-9]
+    return False, (min(within_horizon) if within_horizon else 0.0)
 
 
 @dataclass(frozen=True)

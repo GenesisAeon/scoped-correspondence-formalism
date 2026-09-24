@@ -526,3 +526,64 @@ Checks: `verify_linear_memory_projection.py` 4→5,
 `verify_coupled_buffer_cbf_qp.py` 6→7,
 `verify_covid_latent_renewal_observation.py` 3→4). Volle Regression nach
 der Korrektur: siehe Commit-Nachricht.
+
+## Paket 7 — Astras Nachprüfung von Paket 6 (2026-09-24, Astra6.txt)
+
+Astra bestätigt unabhängig: **CI vollständig grün, 30/30 Checks unter
+echtem NumPy 2.4.6.** Alle sechs Paket-6-Korrekturen (NumPy, Zukunftsleck,
+Kalibrierungsgarantien, COVID-Ablation, ihr eigenes oszillierendes
+Gegenbeispiel) werden bestätigt. Zwei neue, klar eingrenzbare Restpunkte
+tauchten bei der Nachprüfung auf — beide unabhängig reproduziert, dann
+behoben.
+
+**1. Extremsuche übersah noch schnelle, NICHT-schwingende Ausschläge.**
+Die adaptive Abtastdichte berücksichtigte nur die Imaginärteile der
+Eigenwerte (Oszillation); ein großer negativer REALTEIL (schnelles
+Abklingen ohne jede Schwingung) löste bisher keine höhere Auflösung aus.
+Astras Gegenbeispiel: ein beschleunigtes kanonisches Modell,
+`A=[[-100,1000],[0,-100]]`, `x0=(0,1)` — exakt `x1(t)=1000·t·e^{-100t}`,
+wahres Maximum `10/e≈3,67879` bei `t=0,01`. Bei einem 400-Punkte-Raster
+über `t_max=10` (Abstand 0,025) fällt die Spitze komplett in eine einzige
+Rasterzelle — selbst der Spline-Interpolant sieht sie nie (gemeldeter
+Peak: 2,159, fälschlich `no_violation_in_horizon` trotz tatsächlich
+überschrittener Grenze 3,0; `max_finite_time_gain` meldete 1,0 statt
+>3,7). Behoben auf zwei Wegen: die Abtastdichte-Heuristik berücksichtigt
+jetzt auch die schnellste REALE Abkling-/Wachstumsrate (behebt
+`max_finite_time_gain`); vor allem aber hängt die Peaksuche in
+`classify_two_buffer_transient` jetzt GAR NICHT mehr von der
+Abtastdichte ab — jede Komponente des homogenen 2×2-Systems erfüllt
+dieselbe skalare gewöhnliche Differentialgleichung zweiter Ordnung mit
+konstanten Koeffizienten, die sich aus `A`s charakteristischem Polynom
+ergibt (`x'' - tr(A)x' + det(A)x = 0`), exakt gelöst für alle drei
+Eigenwertfälle (reell-verschieden, doppelt, komplex-konjugiert) durch die
+neue Funktion `_analytic_component_critical_times`. Nachgeprüft: trifft
+den wahren Peak jetzt auf Maschinengenauigkeit (`3,6787944117144233` vs.
+der geschlossenen Form `10·e⁻¹`) — und verbessert nebenbei auch die
+Präzision der bereits bestehenden Arbeitsbeispiele (z. B. `k/e` beim
+kanonischen Fall jetzt auf `<1e-15` statt vorher `~3e-10`).
+
+**2. Zwei Randfallfehler in `sustained_safety_over_horizon`.**
+
+- **Bereits unsicherer Anfangszustand:** `x0=-1, drain=1, u=2, H=1`
+  lieferte fälschlich „sicher". Ursache: `net_rate >= 0` wurde VOR
+  `x0 < 0` geprüft — ein bereits unsicherer Zustand mit
+  nicht-fallender Rate wurde stillschweigend als „verletzt nie"
+  gemeldet.
+- **Grenze genau am Horizont:** `x0=1, drain=3, u=2, H=1` lieferte
+  fälschlich „unsicher", obwohl `x(t)=1-t` auf dem GESAMTEN
+  abgeschlossenen Intervall `[0,1]` nichtnegativ bleibt und die Grenze
+  erst im letzten Moment exakt berührt. Ursache:
+  `violation_time <= horizon` verwechselte Grenzberührung mit
+  Grenzverletzung.
+
+Behoben durch Astras exakte Neuformulierung für einen festgehaltenen
+(linearen, monotonen) Eingriff: das Minimum einer linearen Funktion über
+ein abgeschlossenes Intervall liegt immer an einem der beiden Endpunkte —
+`min(x0, x0+(u-drain)*horizon) >= 0`. `held_control_violation_time`
+prüft jetzt `x0 < 0` zuerst und dient nur noch der Meldung, WANN eine
+bereits so festgestellte Verletzung eintritt.
+
+**Ergebnis:** beide Befunde unabhängig reproduziert und behoben, neue
+Regressionstests ergänzt (`verify_transient_amplification.py` 7→8,
+`verify_coupled_buffer_cbf_qp.py` 7→8). Volle Regression: siehe
+Commit-Nachricht.

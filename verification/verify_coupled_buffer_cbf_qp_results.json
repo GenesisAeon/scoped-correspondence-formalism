@@ -1,7 +1,7 @@
 {
   "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 5 (coupled buffer CBF-QP)",
   "source": "Ames, A. D.; Xu, X.; Grizzle, J. W.; Tabuada, P. (2017): Control Barrier Function Based Quadratic Programs for Safety Critical Systems. IEEE TAC 62, 3861-3876, DOI 10.1109/TAC.2016.2638961.",
-  "timestamp": "2026-09-24T14:16:34+02:00",
+  "timestamp": "2026-09-24T15:45:42+02:00",
   "python": "3.11.9",
   "checks": {
     "hand_arithmetic": {
@@ -144,6 +144,19 @@
         },
         "budget_5_optimized_sustained": false,
         "budget_5_fixed_sustained": true
+      }
+    },
+    "sustained_safety_edge_cases": {
+      "status": "pass",
+      "detail": {
+        "case_a": [
+          false,
+          0.0
+        ],
+        "case_b": [
+          true,
+          null
+        ]
       }
     }
   }

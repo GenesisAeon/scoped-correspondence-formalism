@@ -33,6 +33,12 @@ CAPABILITY_EXPANSION_ROADMAP.md Priority 4. Checks:
      ``no_violation_in_horizon`` is explicitly horizon-relative, not a
      permanent safety claim (the same system violates the boundary at
      t=1, just outside the checked t_max=0.1 window).
+  7. Astra's 2026-09-24 (Astra6.txt, finding 1) fast-non-oscillating
+     counterexample: an accelerated canonical matrix
+     (A=[[-100,1000],[0,-100]]) whose true peak (e^-1*10~=3.67879 at
+     t=0.01) previously fell entirely inside one grid cell and was missed
+     by both the peak search and max_finite_time_gain, checked against
+     the exact closed form x1(t)=1000*t*e^-100t.
 """
 from __future__ import annotations
 
@@ -210,6 +216,32 @@ def check_short_horizon_hides_a_later_violation():
     }
 
 
+def check_astra_fast_nonoscillating_spike():
+    """Astra6.txt finding 1: A=[[-100,1000],[0,-100]], x0=[0,1] -- exactly
+    x1(t)=1000*t*e^{-100t}, true peak 10/e~=3.67879 at t=0.01. Previously fell
+    entirely inside one grid cell of the default 400-point/[0,10] grid and was
+    missed by both the peak search (reported 2.159, "no_violation_in_horizon"
+    against boundary=3.0, which is actually exceeded) and max_finite_time_gain
+    (reported 1.0 instead of >3.7). The peak search must now be exact regardless
+    of n_points; max_finite_time_gain relies on the corrected adaptive sampling.
+    """
+    A = [[-100.0, 1000.0], [0.0, -100.0]]
+    x0 = [0.0, 1.0]
+    boundary = 3.0
+    r = classify_two_buffer_transient(A, x0, t_max=10.0, boundary=boundary, n_points=400)
+
+    want_peak = 10.0 / np.e
+    want_time = 0.01
+    require(abs(r.peak_abs_x1_value - want_peak) < 1e-6, f"peak: got {r.peak_abs_x1_value}, want {want_peak}")
+    require(abs(r.peak_abs_x1_time - want_time) < 1e-6, f"peak time: got {r.peak_abs_x1_time}, want {want_time}")
+    require(r.exceeds_boundary, "boundary=3.0 must be detected as exceeded (true peak ~3.679)")
+    require(r.classification == TRANSIENT_VIOLATION, f"expected {TRANSIENT_VIOLATION}, got {r.classification}")
+
+    t_star, gain_peak = max_finite_time_gain(A, 10.0)
+    require(gain_peak > 3.0, f"max_finite_time_gain should exceed 3.0 (true value >3.7); got {gain_peak}")
+    return {"peak": r.peak_abs_x1_value, "peak_time": r.peak_abs_x1_time, "gain_peak": gain_peak, "gain_time": t_star}
+
+
 CHECKS = [
     ("closed_form_against_expm", check_closed_form_against_expm),
     ("no_coupling_gain_never_exceeds_one", check_no_coupling_gain_never_exceeds_one),
@@ -218,6 +250,7 @@ CHECKS = [
     ("scope_violation_guards", check_scope_violation_guards),
     ("astra_rotating_system_global_peak", check_astra_rotating_system_global_peak),
     ("short_horizon_hides_a_later_violation", check_short_horizon_hides_a_later_violation),
+    ("astra_fast_nonoscillating_spike", check_astra_fast_nonoscillating_spike),
 ]
 
 

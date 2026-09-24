@@ -68,6 +68,33 @@ set of candidates is provably sufficient for the interpolant's global
 extremum. The remaining, distinct source of error (how well the spline
 interpolant approximates the true continuous trajectory) is bounded by
 the adaptive resolution but not separately quantified here.
+
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/Astra6.txt, finding 1): the
+above fix still missed fast, NON-oscillating spikes.** ``_adequate_sample
+_count`` only looked at eigenvalues' IMAGINARY parts; a large negative
+REAL part (fast decay, no oscillation at all) never triggered extra
+resolution. Astra's counterexample: an accelerated canonical matrix,
+``A=[[-100,1000],[0,-100]]``, ``x0=[0,1]`` — exactly ``x1(t) =
+1000*t*e^{-100t}``, true peak ``e^{-1}*10 ≈ 3.67879`` at ``t=0.01``. With
+the default 400-point grid over ``t_max=10``, the spacing (0.025) is far
+coarser than the decay time constant (0.01), so the spike falls entirely
+inside the FIRST grid cell and even the spline interpolant never sees it
+(reported peak was 2.159, classification wrongly ``no_violation_in_horizon``
+even though the boundary 3.0 is genuinely exceeded; ``max_finite_time_gain``
+reported 1.0 instead of >3.7 for the same reason). Fixed two ways: (1)
+``_adequate_sample_count`` now also resolves the fastest REAL decay/growth
+rate, not just oscillation, fixing ``max_finite_time_gain`` and the
+reported trajectory's fidelity; (2) far more importantly,
+``classify_two_buffer_transient``'s peak search no longer depends on
+sampling density AT ALL — every component of the homogeneous 2x2 system
+``dx/dt = A x`` satisfies the SAME scalar 2nd-order constant-coefficient
+ODE given by ``A``'s characteristic polynomial (``x'' - tr(A) x' +
+det(A) x = 0``), which has an exact closed form and exact interior
+stationary points in all three cases (real-distinct roots, repeated
+real root, complex-conjugate roots) — computed by
+``_analytic_component_critical_times`` and compared against the two
+endpoints via the EXACT (``expm``) trajectory value, not an interpolant.
 """
 
 from __future__ import annotations
@@ -97,19 +124,88 @@ MIN_POINTS_PER_OSCILLATION_PERIOD = 40
 
 
 def _adequate_sample_count(eigvals: np.ndarray, t_max: float, n_points: int, safety_factor: int = 1) -> int:
-    """Raise ``n_points`` if needed so the fastest oscillation implied by ``eigvals``
-    (largest ``|Im(eigenvalue)|``) gets at least
-    :data:`MIN_POINTS_PER_OSCILLATION_PERIOD` samples per period over ``[0, t_max]``.
-    Real (non-oscillating) eigenvalues leave ``n_points`` unchanged. ``safety_factor``
-    multiplies the requirement (use ``2`` for quantities like a matrix NORM, which can
-    complete a full up-down cycle twice as fast as the underlying trajectory itself).
+    """Raise ``n_points`` if needed so the fastest TIMESCALE implied by ``eigvals`` —
+    oscillation (``|Im|``) OR fast decay/growth (``|Re|``) — gets at least
+    :data:`MIN_POINTS_PER_OSCILLATION_PERIOD` samples per characteristic time over
+    ``[0, t_max]``. **Correction (2026-09-24, Astra6.txt finding 1):** previously only
+    considered ``|Im(eigenvalue)|``, so a large negative real part (fast decay, no
+    oscillation) never triggered extra resolution — a fast spike could fall entirely
+    inside one grid cell and be missed even by the spline-based global extremum search.
+    ``safety_factor`` multiplies the requirement (use ``2`` for quantities like a matrix
+    NORM, which can complete a full up-down cycle twice as fast as the trajectory itself).
     """
-    max_imag = float(np.max(np.abs(eigvals.imag))) if len(eigvals) else 0.0
-    if max_imag <= 1e-12:
+    if len(eigvals) == 0:
         return int(n_points)
-    period = 2.0 * np.pi / max_imag
-    needed = int(np.ceil((float(t_max) / period) * MIN_POINTS_PER_OSCILLATION_PERIOD * int(safety_factor))) + 1
+    rates = np.maximum(np.abs(eigvals.real), np.abs(eigvals.imag))
+    max_rate = float(np.max(rates))
+    if max_rate <= 1e-12:
+        return int(n_points)
+    characteristic_time = 1.0 / max_rate
+    needed = int(np.ceil((float(t_max) / characteristic_time) * MIN_POINTS_PER_OSCILLATION_PERIOD * int(safety_factor))) + 1
     return max(int(n_points), needed)
+
+
+def _analytic_component_critical_times(A: np.ndarray, x0: np.ndarray, component: int, t_max: float) -> list[float]:
+    """EXACT interior stationary points (``0 < t < t_max``) of ``x_component(t)`` for the
+    homogeneous linear system ``dx/dt = A x``, ``x(0) = x0`` (2x2 ``A``).
+
+    Every component of a 2-state linear system satisfies the SAME scalar 2nd-order
+    constant-coefficient ODE given by ``A``'s characteristic polynomial:
+
+        x'' - tr(A)*x' + det(A)*x = 0,   x(0) = x0[component], x'(0) = (A@x0)[component]
+
+    Solved exactly per the sign of the discriminant ``D = tr(A)^2 - 4*det(A)``
+    (real-distinct / repeated / complex-conjugate roots) — exact and robust, with no
+    eigenvector computation or degeneracy handling needed. This is what makes the peak
+    search for these 2x2 systems independent of any sampling density (Astra6.txt finding 1).
+    """
+    y0 = float(x0[component])
+    y0dot = float((A @ x0)[component])
+    tr = float(np.trace(A))
+    det = float(np.linalg.det(A))
+    D = tr * tr - 4.0 * det
+    candidates: list[float] = []
+
+    if D > 1e-9:
+        sqrt_d = float(np.sqrt(D))
+        r1 = (tr + sqrt_d) / 2.0
+        r2 = (tr - sqrt_d) / 2.0
+        # y0 = C1 + C2 ; y0dot = C1*r1 + C2*r2
+        c1 = (y0dot - r2 * y0) / (r1 - r2)
+        c2 = y0 - c1
+        # derivative zero: C1*r1*exp(r1 t) + C2*r2*exp(r2 t) = 0
+        num = -(c2 * r2)
+        den = c1 * r1
+        if abs(den) > 1e-300 and (num / den) > 0.0:
+            t_star = float(np.log(num / den) / (r1 - r2))
+            if 0.0 < t_star < t_max:
+                candidates.append(t_star)
+    elif D < -1e-9:
+        alpha = tr / 2.0
+        omega = float(np.sqrt(-D)) / 2.0
+        c1 = y0
+        c2 = (y0dot - alpha * y0) / omega
+        # derivative zero: (alpha*C1+omega*C2)*cos(wt) + (alpha*C2-omega*C1)*sin(wt) = 0
+        # <=> R*cos(wt - psi) = 0, psi = atan2(Q, P), zero at wt = psi + pi/2 + k*pi
+        p_coef = alpha * c1 + omega * c2
+        q_coef = alpha * c2 - omega * c1
+        psi = float(np.arctan2(q_coef, p_coef))
+        theta0 = psi + np.pi / 2.0
+        k_lo = int(np.floor((0.0 - theta0) / np.pi)) - 1
+        k_hi = int(np.ceil((omega * t_max - theta0) / np.pi)) + 1
+        for k in range(k_lo, k_hi + 1):
+            t_k = float((theta0 + k * np.pi) / omega)
+            if 0.0 < t_k < t_max:
+                candidates.append(t_k)
+    else:
+        r = tr / 2.0
+        c1 = y0
+        c2 = y0dot - r * y0
+        if abs(r) > 1e-300 and abs(c2) > 1e-300:
+            t_star = float(-(c2 + r * c1) / (r * c2))
+            if 0.0 < t_star < t_max:
+                candidates.append(t_star)
+    return candidates
 
 
 def _spline_global_extremum(t: np.ndarray, y: np.ndarray, *, absolute: bool = False) -> Tuple[float, float]:
@@ -214,6 +310,11 @@ def classify_two_buffer_transient(
     """Simulate the coupled linear 2-buffer system ``dx/dt = A x`` from ``x0``,
     classify whether ``x1`` (the first component) transiently or permanently
     crosses ``boundary`` — see module docstring for the 4-way classification.
+
+    The peak search itself is EXACT and independent of ``n_points``: see
+    ``_analytic_component_critical_times`` (module docstring, Astra6.txt
+    finding 1). ``n_points`` only controls the resolution of the reported
+    ``t``/``x1``/``x2`` trajectory arrays for inspection/plotting.
     """
     A_mat = np.asarray(A, dtype=float)
     if A_mat.shape != (2, 2):
@@ -232,12 +333,15 @@ def classify_two_buffer_transient(
     max_real = float(np.max(eigvals.real))
     is_stable = max_real < 0.0
 
-    n_adequate = _adequate_sample_count(eigvals, float(t_max), int(n_points))
-    t = np.linspace(0.0, float(t_max), n_adequate)
+    t = np.linspace(0.0, float(t_max), int(n_points))
     traj = np.array([expm(A_mat * tt) @ x0_vec for tt in t])
     x1, x2 = traj[:, 0], traj[:, 1]
 
-    peak_time, peak_value = _spline_global_extremum(t, x1, absolute=True)
+    critical_times = _analytic_component_critical_times(A_mat, x0_vec, component=0, t_max=float(t_max))
+    candidate_times = [0.0, float(t_max)] + critical_times
+    candidate_values = [float((expm(A_mat * ct) @ x0_vec)[0]) for ct in candidate_times]
+    best_idx = int(np.argmax(np.abs(candidate_values)))
+    peak_time, peak_value = candidate_times[best_idx], candidate_values[best_idx]
     exceeds = abs(peak_value) > float(boundary)
 
     if is_stable:

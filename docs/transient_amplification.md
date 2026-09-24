@@ -7,7 +7,32 @@ Reddy & Driscoll 1993, Science 261, "Hydrodynamic Stability Without
 Eigenvalues"). Module:
 [`viability/transient_amplification.py`](../src/scoped_correspondence/viability/transient_amplification.py).
 Verification: [`verify_transient_amplification.py`](../verification/verify_transient_amplification.py)
-(7/7 checks).
+(8/8 checks).
+
+**Correction (2026-09-24, response to
+[Astra6.txt](../prompts/Answers/nicht_stationäre_Treiber/Astra6.txt),
+finding 1 — a real bug): the fix above still missed fast, NON-oscillating
+spikes.** The adaptive-sampling heuristic only looked at eigenvalues'
+imaginary parts (oscillation); a large negative REAL part (fast decay, no
+oscillation at all) never triggered extra resolution. Astra's
+counterexample: an accelerated canonical matrix, `A=[[-100,1000],[0,-100]]`,
+`x0=[0,1]` — exactly `x1(t)=1000·t·e^{-100t}`, true peak `10/e≈3.67879` at
+`t=0.01`. With a 400-point grid over `t_max=10`, the spacing (0.025) is far
+coarser than the 0.01 decay time constant, so the spike fell entirely
+inside the first grid cell — even the spline interpolant never saw it
+(reported peak was `2.159`, wrongly classified `no_violation_in_horizon`
+despite genuinely exceeding the boundary; `max_finite_time_gain` reported
+`1.0` instead of `>3.7`). Fixed two ways: the sampling heuristic now also
+resolves the fastest REAL decay/growth rate (fixing `max_finite_time_gain`);
+and, more fundamentally, the peak search in `classify_two_buffer_transient`
+no longer depends on sampling density AT ALL — every component of the
+homogeneous 2×2 system satisfies the SAME scalar 2nd-order
+constant-coefficient ODE given by `A`'s characteristic polynomial
+(`x'' - tr(A)x' + det(A)x = 0`), solved in exact closed form for all three
+eigenvalue cases (real-distinct, repeated, complex-conjugate) by
+`_analytic_component_critical_times`. Re-verified: now matches the true
+peak to machine precision (`3.6787944117144233` vs. the closed-form
+`10·e⁻¹`).
 
 **Correction (2026-09-24, response to
 [SCF_Review_dc5d82a.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_Review_dc5d82a.md),
