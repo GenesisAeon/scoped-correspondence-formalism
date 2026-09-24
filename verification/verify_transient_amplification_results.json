@@ -1,7 +1,7 @@
 {
   "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 4 (transient amplification)",
   "source": "Trefethen, L. N.; Trefethen, A. E.; Reddy, S. C.; Driscoll, T. A. (1993): Hydrodynamic Stability Without Eigenvalues. Science 261, 578-584.",
-  "timestamp": "2026-09-24T15:49:03+02:00",
+  "timestamp": "2026-09-24T18:13:38+02:00",
   "python": "3.11.9",
   "checks": {
     "closed_form_against_expm": {
@@ -64,6 +64,26 @@
         "peak_time": 0.01,
         "gain_peak": 3.7159552285391544,
         "gain_time": 0.00979795919183186
+      }
+    },
+    "astra_b0_scale_invariant_discriminant_classification": {
+      "status": "pass",
+      "detail": {
+        "1e-06": {
+          "peak": -0.9844639845000662,
+          "peak_time_rescaled": 0.15607966601082313
+        },
+        "1.0": {
+          "peak": -0.9844639845000663,
+          "peak_time_rescaled": 0.15607966601082307
+        },
+        "1000000.0": {
+          "peak": -0.9844639845000663,
+          "peak_time_rescaled": 0.15607966601082301
+        },
+        "zero_matrix_peak": 1.0,
+        "double_root_peak_time": 1.0,
+        "double_root_peak_value": 0.3678794411714423
       }
     }
   }

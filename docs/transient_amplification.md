@@ -7,7 +7,30 @@ Reddy & Driscoll 1993, Science 261, "Hydrodynamic Stability Without
 Eigenvalues"). Module:
 [`viability/transient_amplification.py`](../src/scoped_correspondence/viability/transient_amplification.py).
 Verification: [`verify_transient_amplification.py`](../verification/verify_transient_amplification.py)
-(8/8 checks).
+(9/9 checks).
+
+**Correction (2026-09-24, response to
+[SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md),
+Paket B0 — a real bug): the branch selection itself was unit-dependent.**
+`_analytic_component_critical_times` compared the discriminant
+`D = tr(A)² - 4·det(A)` against an ABSOLUTE threshold `±1e-9`. Under a pure
+time-unit rescaling `A → c·A`, `t_max → t_max/c` — an exact relabeling of
+the identical trajectory, `x_new(s) = x_old(c·s)` — `D` itself scales as
+`c²` and can be pushed arbitrarily close to an absolute-zero threshold by
+choice of units alone, with the system nowhere near an actual
+repeated-eigenvalue degeneracy. Astra's counterexample: the rotating
+system below (`A=[[-0.1,-10],[10,-0.1]]`, `D=-400`) rescaled by `c=1e-6`
+gives `D_new=-4.0000e-10`, which fails both `D<-1e-9` and `D>1e-9` under
+the old test — the code fell into the repeated-root branch, found no
+interior critical point, and reported the horizon endpoint (`0.186` at
+`t=1e7`) as the peak, wrongly classifying `no_violation_in_horizon`
+instead of `transient_violation`. Fixed by comparing a SCALE-INVARIANT
+relative discriminant `D / scale` (with `scale = max(tr(A)², 4·|det(A)|)`,
+which scales as `c²` exactly like `D`) against a dimensionless `1e-9`, so
+the branch chosen is a property of the matrix's shape, not its units.
+Verified identical peak height/classification and a `1/c`-scaled peak time
+for `c ∈ {1e-6, 1, 1e6}`, plus the zero matrix and an exact double root as
+degeneracy edge cases for the new test itself.
 
 **Correction (2026-09-24, response to
 [Astra6.txt](../prompts/Answers/nicht_stationäre_Treiber/Astra6.txt),

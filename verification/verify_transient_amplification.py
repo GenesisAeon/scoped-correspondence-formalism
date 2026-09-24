@@ -39,6 +39,16 @@ CAPABILITY_EXPANSION_ROADMAP.md Priority 4. Checks:
      t=0.01) previously fell entirely inside one grid cell and was missed
      by both the peak search and max_finite_time_gain, checked against
      the exact closed form x1(t)=1000*t*e^-100t.
+  8. Astra's 2026-09-24 (SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md,
+     Paket B0) scale-dependence counterexample: the rotating system from
+     check 6 (A=[[-0.1,-10],[10,-0.1]]) rescaled by A->c*A, H->H/c for
+     c in {1e-6,1,1e6} -- an exact time relabeling of the identical
+     trajectory. The old ABSOLUTE discriminant threshold misclassified
+     c=1e-6 as a repeated-root case and missed the interior peak
+     entirely. The fixed relative discriminant test must give the same
+     peak height and classification, with peak time scaling as 1/c, for
+     all three scales. Also covers the zero matrix and an exact double
+     root as edge cases for the relative test's own degeneracy handling.
 """
 from __future__ import annotations
 
@@ -242,6 +252,52 @@ def check_astra_fast_nonoscillating_spike():
     return {"peak": r.peak_abs_x1_value, "peak_time": r.peak_abs_x1_time, "gain_peak": gain_peak, "gain_time": t_star}
 
 
+def check_astra_b0_scale_invariant_discriminant_classification():
+    """SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md, Paket B0: A=[[-0.1,-10],[10,-0.1]],
+    x0=[0,1], H=10, boundary=0.95, rescaled by A->c*A, H->H/c for c in
+    {1e-6, 1, 1e6}. This is an EXACT time relabeling of the identical
+    trajectory (x_new(s) = x_old(c*s)), so peak height and classification
+    must be identical across all three, and peak time must scale as 1/c.
+    The old absolute discriminant threshold (+-1e-9) failed exactly at
+    c=1e-6 (D_new = c^2*D_old = -4.0000e-10, inside +-1e-9), wrongly
+    routing to the repeated-root branch and reporting the horizon endpoint
+    (peak 0.186 at t=1e7) instead of the true interior peak.
+    """
+    A = np.array([[-0.1, -10.0], [10.0, -0.1]])
+    x0 = [0.0, 1.0]
+    boundary = 0.95
+    t_star_analytic = float(np.arctan(100.0) / 10.0)
+    peak_analytic = float(abs(-np.exp(-0.1 * t_star_analytic) * np.sin(10.0 * t_star_analytic)))
+
+    results = {}
+    for c in (1e-6, 1.0, 1e6):
+        r = classify_two_buffer_transient(c * A, x0, t_max=10.0 / c, boundary=boundary)
+        require(r.classification == TRANSIENT_VIOLATION,
+                f"c={c}: expected {TRANSIENT_VIOLATION}, got {r.classification}")
+        require(abs(abs(r.peak_abs_x1_value) - peak_analytic) < 1e-6,
+                f"c={c}: peak {r.peak_abs_x1_value} should match analytic {peak_analytic}")
+        require(abs(r.peak_abs_x1_time * c - t_star_analytic) < 1e-6,
+                f"c={c}: peak time {r.peak_abs_x1_time} (scaled: {r.peak_abs_x1_time * c}) "
+                f"should match analytic {t_star_analytic}")
+        results[str(c)] = {"peak": r.peak_abs_x1_value, "peak_time_rescaled": r.peak_abs_x1_time * c}
+
+    # Degenerate edge cases for the relative-discriminant test itself.
+    r_zero = classify_two_buffer_transient([[0.0, 0.0], [0.0, 0.0]], [1.0, 2.0], t_max=5.0, boundary=10.0)
+    require(r_zero.peak_abs_x1_value == 1.0, f"zero matrix: x1 must stay constant at 1.0; got {r_zero.peak_abs_x1_value}")
+
+    # Exact double root: A=[[-1,1],[0,-1]] -> tr=-2, det=1, D=0 exactly.
+    r_double = classify_two_buffer_transient([[-1.0, 1.0], [0.0, -1.0]], [0.0, 1.0], t_max=10.0, boundary=0.5)
+    require(abs(r_double.peak_abs_x1_time - 1.0) < 1e-9,
+            f"double root: peak time should be exactly 1.0 (x1(t)=t*e^-t); got {r_double.peak_abs_x1_time}")
+    require(abs(r_double.peak_abs_x1_value - 1.0 / np.e) < 1e-9,
+            f"double root: peak value should be 1/e; got {r_double.peak_abs_x1_value}")
+
+    results["zero_matrix_peak"] = r_zero.peak_abs_x1_value
+    results["double_root_peak_time"] = r_double.peak_abs_x1_time
+    results["double_root_peak_value"] = r_double.peak_abs_x1_value
+    return results
+
+
 CHECKS = [
     ("closed_form_against_expm", check_closed_form_against_expm),
     ("no_coupling_gain_never_exceeds_one", check_no_coupling_gain_never_exceeds_one),
@@ -251,6 +307,7 @@ CHECKS = [
     ("astra_rotating_system_global_peak", check_astra_rotating_system_global_peak),
     ("short_horizon_hides_a_later_violation", check_short_horizon_hides_a_later_violation),
     ("astra_fast_nonoscillating_spike", check_astra_fast_nonoscillating_spike),
+    ("astra_b0_scale_invariant_discriminant_classification", check_astra_b0_scale_invariant_discriminant_classification),
 ]
 
 

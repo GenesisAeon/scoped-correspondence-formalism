@@ -95,6 +95,39 @@ stationary points in all three cases (real-distinct roots, repeated
 real root, complex-conjugate roots) — computed by
 ``_analytic_component_critical_times`` and compared against the two
 endpoints via the EXACT (``expm``) trajectory value, not an interpolant.
+
+**Correction (2026-09-24, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md,
+Paket B0): the branch selection in ``_analytic_component_critical_times``
+was itself unit-dependent.** It compared the discriminant ``D = tr(A)^2 -
+4*det(A)`` against an ABSOLUTE threshold ``±1e-9``. Under a pure time-unit
+rescaling ``A -> c*A``, ``t_max -> t_max/c`` (the trajectory is identical,
+just relabeled in time: ``x_new(s) = x_old(c*s)``), ``D`` itself scales as
+``c^2`` and can be pushed arbitrarily close to (but not at) an absolute
+zero threshold purely by choice of units, even though the SYSTEM is
+nowhere near a repeated-eigenvalue degeneracy. Astra's counterexample:
+``A=[[-0.1,-10],[10,-0.1]]``, ``x0=[0,1]``, ``H=10``, boundary ``0.95``
+(complex-conjugate case, ``D=-400``, true global peak
+``|x1(t*)|=|sin|`` term at ``t*=arctan(100)/10≈0.15607966601082315``,
+value ``≈0.9844639845000666`` — correctly found by the code as-is: peak
+``0.9844639845000663``, classification ``transient_violation``). Rescaled
+by ``c=1e-6`` (``A_new=c*A``, ``H_new=H/c=1e7``, same ``x0``, same
+boundary — an EXACT time relabeling of the identical trajectory, so the
+peak height and classification must be unchanged and the peak time must
+scale by ``1/c``): ``D_new = c^2*D = -4.0000e-10``, which fails BOTH
+``D_new < -1e-9`` and ``D_new > 1e-9`` under the old absolute test, so the
+code incorrectly fell into the repeated-root branch, found no interior
+critical point, and reported the horizon endpoint as the peak (``0.186``
+at ``t=1e7``) — wrongly classified ``no_violation_in_horizon``. Fixed by
+comparing a SCALE-INVARIANT relative discriminant ``D / scale`` against a
+dimensionless ``1e-9``, where ``scale = max(tr(A)^2, 4*|det(A)|)``: under
+``A -> c*A``, both ``D`` and ``scale`` scale as ``c^2``, so their ratio is
+exactly invariant, and the branch selected is now a genuine property of
+the matrix's SHAPE, not its units. ``scale == 0`` (forces ``D == 0`` too,
+e.g. the zero matrix or any nilpotent ``A``) is routed directly to the
+repeated-root branch. Verified for ``c in {1e-6, 1, 1e6}`` — see
+``verify_transient_amplification.py``'s
+``astra_b0_scale_invariant_discriminant_classification`` check.
 """
 
 from __future__ import annotations
@@ -121,6 +154,10 @@ UNSTABLE_NOT_YET_VIOLATED = "unstable_not_yet_violated"
 UNSTABLE_VIOLATION = "unstable_violation_no_guaranteed_return"
 
 MIN_POINTS_PER_OSCILLATION_PERIOD = 40
+
+# Dimensionless: compared against D/scale (see _analytic_component_critical_times),
+# not against D directly -- makes the branch choice invariant under A -> c*A.
+_REL_DISCRIMINANT_EPS = 1e-9
 
 
 def _adequate_sample_count(eigvals: np.ndarray, t_max: float, n_points: int, safety_factor: int = 1) -> int:
@@ -164,9 +201,14 @@ def _analytic_component_critical_times(A: np.ndarray, x0: np.ndarray, component:
     tr = float(np.trace(A))
     det = float(np.linalg.det(A))
     D = tr * tr - 4.0 * det
+    # Scale-invariant branch test (Astra's Paket B0 finding): D itself scales as c^2
+    # under A -> c*A, so comparing it to an ABSOLUTE epsilon lets pure unit choice flip
+    # the branch. `scale` scales the same way (c^2), so D/scale is exactly invariant.
+    scale = max(tr * tr, 4.0 * abs(det))
+    rel_D = 0.0 if scale <= 0.0 else D / scale
     candidates: list[float] = []
 
-    if D > 1e-9:
+    if rel_D > _REL_DISCRIMINANT_EPS:
         sqrt_d = float(np.sqrt(D))
         r1 = (tr + sqrt_d) / 2.0
         r2 = (tr - sqrt_d) / 2.0
@@ -180,7 +222,7 @@ def _analytic_component_critical_times(A: np.ndarray, x0: np.ndarray, component:
             t_star = float(np.log(num / den) / (r1 - r2))
             if 0.0 < t_star < t_max:
                 candidates.append(t_star)
-    elif D < -1e-9:
+    elif rel_D < -_REL_DISCRIMINANT_EPS:
         alpha = tr / 2.0
         omega = float(np.sqrt(-D)) / 2.0
         c1 = y0
