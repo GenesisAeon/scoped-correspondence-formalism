@@ -168,6 +168,30 @@ def neg_binom_log_score(observed_count: int, predicted_mean: float, dispersion: 
     return -float(nbinom_dist.logpmf(int(observed_count), n, p))
 
 
+def neg_binom_prediction_interval(predicted_mean: float, dispersion: float, coverage: float) -> Tuple[float, float]:
+    """Central (coverage) prediction interval for NB2(predicted_mean, dispersion), via the exact quantile function.
+
+    Mirrors :func:`poisson_prediction_interval`; ``dispersion=0`` falls
+    back to the Poisson interval exactly (the NB2 dispersion=0 limit).
+    Added for CAPABILITY_EXPANSION_ROADMAP.md Priority 2 (COVID latent
+    renewal + observation model), which needs a genuine NB-based interval,
+    not just the NB log-score already used by ``covid_observation_model``.
+    """
+    if predicted_mean <= 0:
+        raise ScopeViolationError(f"neg_binom_prediction_interval: predicted_mean must be > 0; got {predicted_mean!r}")
+    if dispersion < 0:
+        raise ScopeViolationError(f"neg_binom_prediction_interval: dispersion must be >= 0; got {dispersion!r}")
+    if not (0.0 < coverage < 1.0):
+        raise ScopeViolationError(f"neg_binom_prediction_interval: coverage must be in (0,1); got {coverage!r}")
+    if dispersion == 0.0:
+        return poisson_prediction_interval(predicted_mean, coverage)
+    alpha = 1.0 - coverage
+    n, p = _nb_mean_dispersion_to_n_p(predicted_mean, dispersion)
+    lower = float(nbinom_dist.ppf(alpha / 2.0, n, p))
+    upper = float(nbinom_dist.ppf(1.0 - alpha / 2.0, n, p))
+    return lower, upper
+
+
 def fit_neg_binom_dispersion(observed_counts: Sequence[int], predicted_means: Sequence[float]) -> float:
     """MLE dispersion (NB2) given fixed per-observation predicted means.
 
@@ -203,5 +227,6 @@ __all__ = [
     "poisson_log_score",
     "poisson_prediction_interval",
     "neg_binom_log_score",
+    "neg_binom_prediction_interval",
     "fit_neg_binom_dispersion",
 ]

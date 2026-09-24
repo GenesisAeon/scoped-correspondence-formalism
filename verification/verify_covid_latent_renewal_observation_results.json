@@ -1,0 +1,54 @@
+{
+  "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 2 (COVID latent renewal + observation)",
+  "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
+  "default_coverage": 0.8,
+  "timestamp": "2026-09-24T09:40:18+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "weekday_multiplier_hand_recovery": {
+      "status": "pass",
+      "detail": {
+        "recovered_multipliers": {
+          "0": 1.1666666666666667,
+          "1": 1.1666666666666667,
+          "2": 1.1666666666666667,
+          "3": 1.1666666666666667,
+          "4": 1.1666666666666667,
+          "5": 0.5833333333333334,
+          "6": 0.5833333333333334
+        }
+      }
+    },
+    "neg_binom_prediction_interval_against_scipy": {
+      "status": "pass",
+      "detail": {
+        "interval_at_mean_50_dispersion_0.3_coverage_0.8": [
+          19.0,
+          88.0
+        ]
+      }
+    },
+    "real_data_application": {
+      "status": "pass",
+      "detail": {
+        "n_trials": 42,
+        "n_calib_days": 18,
+        "fitted_dispersion": 0.9118,
+        "weekday_multipliers": {
+          "0": 1.0538,
+          "1": 0.8429,
+          "2": 0.1887,
+          "3": 1.3901,
+          "4": 1.7936,
+          "5": 0.8379,
+          "6": 0.893
+        },
+        "old_mean_log_score": 1387.4651,
+        "new_mean_log_score": 11.7511,
+        "old_empirical_coverage": 0.0238,
+        "new_empirical_coverage": 0.7381,
+        "new_wins_log_score": true
+      }
+    }
+  }
+}

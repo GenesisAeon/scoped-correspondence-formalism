@@ -23,7 +23,7 @@ Arbeitspaketen verdichtet):
 |---|---|---|---|
 | 0 | Konsolidierung | README-Überclaims korrigieren, Modulübersicht, eingecheckter Testaufruf + CI | ✅ erledigt |
 | 1 | Adaptive Intervallkalibrierung | Rollierende Referenz vs. Adaptive Conformal Inference / Conformal PID Control | ✅ erledigt |
-| 2 | Dynamik vs. Messprozess | Latentes Infektionsgeschehen (COVID-Pilot), Energiebilanz-Referenzkonsistenz | ⏸ geplant |
+| 2 | Dynamik vs. Messprozess | Latentes Infektionsgeschehen (COVID-Pilot), Energiebilanz-Referenzkonsistenz | ✅ erledigt (COVID-Teil; Energiebilanz-Teil zurückgestellt) |
 | 3 | Gemeinsame Operatorstrukturen | Mori-Zwanzig-Gedächtnisrahmen für Puffer/Energiebilanz/Renewal/ETAS | ⏸ geplant |
 | 4 | Transiente Verstärkung | Nichtnormale Kopplung, `A=[[-1,k],[0,-1]]`-Beispiel, zwei gekoppelte Puffer | ⏸ geplant |
 | 5 | Begrenzte Eingriffe | Control-Barrier-Function-QPs, zwei Puffer mit gemeinsamem Ressourcenbudget | ⏸ geplant |
@@ -148,6 +148,74 @@ Wrapper. Bei den anderen beiden COVID-Prädiktoren liegen alle drei
 Methoden dicht beieinander; `n=19` ist zu klein für eine belastbare
 Unterscheidung.
 
-## Paket 2-5
+## Paket 2 — Dynamik vs. Messprozess (2026-09-24, COVID-Teil)
+
+Astras Vorschlag benannte drei Beobachtungsprozess-Bausteine: Meldeverzug,
+Wochentagseffekte, Überdispersion. **Bewusste Scope-Grenze:** ein echtes
+Meldeverzug-Modell braucht eine Report-Datum×Episoden-Datum-Matrix
+("Meldedreieck"); die OWID/JHU-Tagesreihe liefert nur EINEN bereits
+finalen Zählwert pro Kalendertag — kein solches Matrix-Datum ist
+verfügbar. Meldeverzug bleibt daher explizit UNMODELLIERT; nur die beiden
+Bausteine, die die vorhandenen Daten tatsächlich tragen, werden ergänzt.
+
+Neues Modul `validation/covid_latent_renewal_observation.py` (Milestone
+56), verifiziert in `verify_covid_latent_renewal_observation.py`
+(3/3 Checks). Neue öffentliche Funktion `scoring_rules
+.neg_binom_prediction_interval` (additive Ergänzung, spiegelt die
+bestehende `poisson_prediction_interval`).
+
+**Isolierter Vergleich, Astras Vorgabe folgend** ("Alte und neue Varianten
+auf denselben festgelegten Prognoseursprüngen vergleichen"): dieselbe
+Renewal-Gleichungs-Punktprognose (`_covid_renewal_predictor_factory`,
+UNVERÄNDERT) an denselben Ursprüngen/Horizonten wie
+`run_covid_renewal_rolling_origin_backtest`. Nur die Beobachtungsschicht
+ändert sich:
+
+- **ALT:** Punktprognose direkt als Poisson-Mittelwert für den ROHEN
+  Tageszählwert.
+- **NEU:** dieselbe Punktprognose × ein gefitteter Wochentag-Meldefaktor,
+  als Mittelwert einer Negativ-Binomial-Verteilung (Dispersion auf Calib
+  gefittet).
+
+Wochentag-Faktor und Dispersion werden EINMALIG, auf den Tagen strikt VOR
+dem ersten ausgewerteten Ursprung, gefittet — vollständig
+Out-of-Sample bezüglich jedes bewerteten Versuchs; als Referenzmittelwert
+dient die bereits etablierte, nicht-zirkuläre vorwärtsverzögerte
+7-Tage-Mittel-Funktion (`covid_observation_model._lagged_means`).
+
+**Ergebnis** (18 Calib-Tage, 42 bewertete Versuche, Details:
+[docs/covid_latent_renewal_observation.md](docs/covid_latent_renewal_observation.md)):
+
+| | ALT (Poisson) | NEU (Wochentag × NB) |
+|---|---:|---:|
+| Mittlerer Log-Score (kleiner = besser) | 1387,5 | **11,8** |
+| Empirische Abdeckung (nominell 80%) | 2,4% | **73,8%** |
+
+Ein deutlicher, unzweideutiger Sieg der NEUEN Variante — und ein
+eindrückliches Beispiel für Astras Kernpunkt: ein erheblicher Teil der
+zuvor beobachteten COVID-Unterdeckung (26,3% pooled, Priorität 0/1) war
+nie ein Dynamikproblem. Die Renewal-Gleichung selbst ist zwischen ALT und
+NEU UNVERÄNDERT; ihre Ausgabe naiv als Poisson-Mittelwert für einen
+wochentagsgeprägten, überdispersen Rohwert zu behandeln erzeugte die
+katastrophale Fehlkalibrierung. **Caveat:** die konkreten Wochentag-Werte
+stammen aus nur ~2,5 Wochen früher, länderübergreifend aggregierter
+2020-Daten — der prädiktive Nutzen ist real und direkt an Holdout-Daten
+gemessen, die SPEZIFISCHE inhaltliche Deutung ("Mittwochs wird weltweit
+untererfasst") sollte daraus nicht überinterpretiert werden.
+
+**Nicht behoben:** `persistence`s 0%-Abdeckung (Priorität 1) bleibt
+bestehen — deren Punktprognose (letzter bekannter Wert) ist im
+Exponentialwachstum strukturell der falsche Mittelwert, unabhängig von der
+Beobachtungsschicht darum herum.
+
+**Energiebilanz-Teil zurückgestellt:** Astras zweiter Priorität-2-Vorschlag
+(konsistente Temperaturreferenz, Anfangszustände beider Schichten,
+zusätzliche Beobachtungsgröße wie Wärmeinhalt für die Energiebilanz)
+erfordert entweder neue Datensätze (Ozean-Wärmeinhalt) oder eine größere
+Restrukturierung des bestehenden Fits — zurückgestellt zugunsten des
+COVID-Teils, der mit den bereits vorhandenen Daten direkt umsetzbar war.
+Als offener Punkt für eine spätere Runde vermerkt.
+
+## Paket 3-5
 
 Werden nacheinander begonnen. Jeweils eigener Abschnitt mit Umsetzungsdatum, Ergebnis und Verifikationsstand, analog zu den Paketen in `MECHANISTIC_VALIDATION_ROADMAP.md`.
