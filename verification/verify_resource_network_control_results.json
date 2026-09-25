@@ -1,0 +1,56 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C5 (resource network control core)",
+  "timestamp": "2026-09-25T12:40:59+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "decoupled_control_case": {
+      "status": "pass",
+      "detail": {
+        "u1": [
+          0.8,
+          0.6,
+          0.4
+        ],
+        "u2": [
+          0.9,
+          0.8,
+          0.7
+        ],
+        "x_after_2units": [
+          -0.1999999999999999,
+          -0.4,
+          -0.6
+        ]
+      }
+    },
+    "safety_status_distinctions": {
+      "status": "pass",
+      "detail": {
+        "safe": "certified_safe",
+        "touch": "boundary_touch",
+        "violation": "strict_violation",
+        "uncertain": "not_certified"
+      }
+    },
+    "qp_matches_closed_form_decoupled": {
+      "status": "pass",
+      "detail": {
+        "qp_cost": 1.1600000000000035,
+        "closed_form_cost": 1.1600000000000001
+      }
+    },
+    "structural_extra_edge_weakly_improves": {
+      "status": "pass",
+      "detail": {
+        "cost_no_edge": 0.9025000000000016,
+        "cost_with_edge": 0.1513095238095239
+      }
+    },
+    "infeasible_distinct_from_optimizer_failed": {
+      "status": "pass",
+      "detail": {
+        "status": "infeasible"
+      }
+    }
+  }
+}

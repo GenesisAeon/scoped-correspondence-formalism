@@ -1,7 +1,7 @@
 {
   "milestone": "M1_correspondence_core",
   "kind": "MIG equivalence (legacy evidence vs Correspondence API)",
-  "generated_at_utc": "2026-09-25T10:20:30.561742+00:00",
+  "generated_at_utc": "2026-09-25T10:36:14.229495+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "count": 5,

@@ -88,6 +88,8 @@ _EXPLICIT_CATEGORY = {
     "verify_phase_type_delays.py": "math",
     "verify_distributed_delay_pilot.py": "math",
     "verify_competing_first_passage.py": "math",
+    "verify_resource_network_control.py": "math",
+    "verify_resource_network_pilot.py": "math",
 }
 
 

@@ -1,0 +1,42 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C5 (3-node resource network pilot, synthetic-only)",
+  "timestamp": "2026-09-25T12:41:01+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "load_schedule_control_values": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "baselines_match_hand_computation": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "weak_duality_optimized_beats_feasible_baseline": {
+      "status": "pass",
+      "detail": {
+        "optimized_cost": 3.852612205159342e-34,
+        "baseline_cost": 0.27
+      }
+    },
+    "touch_and_violation_reported_separately": {
+      "status": "pass",
+      "detail": {
+        "first_touch_time": 2.0,
+        "strict_violation_time": 4.0
+      }
+    },
+    "structural_extra_edge_on_real_panel": {
+      "status": "pass",
+      "detail": {
+        "with_edge": "solved",
+        "without_extra_edge": "infeasible",
+        "cost_with_edge": 0.34980952380952357,
+        "cost_without_extra_edge": NaN
+      }
+    }
+  }
+}

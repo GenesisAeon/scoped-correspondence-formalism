@@ -25,7 +25,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | C2 | Korrespondenzen unter deklarierten Aktionen | ✅ erledigt |
 | C3 | Verweildauern und verteilte Verzögerungen | ✅ erledigt |
 | C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ✅ erledigt |
-| C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ⏳ offen |
+| C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ✅ erledigt |
 | C6 | Wiederholte Kooperation und Wert zusätzlicher Information | ⏳ offen |
 | C7 | Gemeinsame Auswertung und Fähigkeitsübersicht | ⏳ offen |
 
@@ -189,6 +189,45 @@ Verifiziert: `verify_competing_first_passage.py` (5/5). Docs:
 `docs/competing_first_passage.md`. `capability_overview.md`/`.json`
 erweitert. Kein Realdaten-Pilot in diesem Paket.
 
+## C5 — Kleine Ressourcennetzwerke mit wiederholten Eingriffen (erledigt)
+
+`viability/resource_network_control.py`: `dx/dt=Bf+u-d`, Sicherheit über
+das ganze Regelintervall via `x_lower+Δ(Bf+u-d_upper)≥0` (Endpunktprüfung
+genügt, da affin), mit VIER klar getrennten Status
+(`certified_safe`/`boundary_touch`/`strict_violation`/`not_certified`) —
+ein Erstberühren bei `x=0` ist erlaubt, keine Verletzung.
+
+Hand-nachgerechneter Drei-Puffer-Kontrollfall vor jedem Code:
+`x=(0,2;0,4;0,6)`, `d=(1,1,1)`; `Δ=1` → minimal `(0,8;0,6;0,4)`, Summe 1,8,
+quadratische Kosten 1,16; `Δ=2` → minimal `(0,9;0,8;0,7)`, Summe 2,4,
+unzulässig bei Budget 2; Halten der `Δ=1`-Eingriffe für 2 Zeiteinheiten
+endet bei `(-0,2;-0,4;-0,6)`.
+
+**Realer Fehler vor jeder Ergebnisveröffentlichung gefunden:** Die erste
+Implementierung des 3-Knoten-Netzwerkpanels (`validation/resource_network_pilot.py`)
+nutzte `whole_interval_safety`s auf Unsicherheit ausgelegten
+`not_certified`-Zweig auch zur Fortschreibung eines bereits negativen, aber
+SICHER BEKANNTEN Zustands — das fror dessen Trajektorie fälschlich ein.
+Gefunden über einen unabhängigen Handrechnungs-Gegencheck, behoben durch
+eine eigene `propagate_state`-Funktion und einen neuen, getrennten Status
+`already_violated`.
+
+**Reales Ergebnis (3 Knoten, Kette `0→1→2` + Zusatzkante `2→0`, bewusst über
+Kapazität hinausgehende Lastspitze):** Eine feste Umverteilungsregel
+(`fixed_routing`) endet SCHLECHTER als gar keine Reaktion, sobald die
+Lastspitze abgeklungen ist (`-1,5` gegenüber `-0,3` bei `none`, Δ=1) — die
+feste Regel "weiß" nicht, dass die Notlage vorbei ist. Der myopische, nur
+pro Intervall optimierende Regler baut vor einer BEKANNTEN künftigen Spitze
+KEINE Reserve auf und unterbietet bei feiner Zeitauflösung (Δ=0,25) sogar
+die naive `none`-Baseline am Minimum — exakt die im Plan selbst genannte
+Warnung, dass ein erfolgreiches Einzel-QP weder unendliche Sicherheit noch
+rekursive Zulässigkeit beweist.
+
+Verifiziert: `verify_resource_network_control.py` (5/5),
+`verify_resource_network_pilot.py` (5/5). Docs:
+`docs/resource_network_control.md`, `docs/resource_network_pilot.md`.
+`capability_overview.md`/`.json` erweitert.
+
 ## Nächste Schritte
 
-C5 (Kleine Ressourcennetzwerke mit wiederholten Eingriffen) als nächstes.
+C6 (Wiederholte Kooperation und Wert zusätzlicher Information) als nächstes.

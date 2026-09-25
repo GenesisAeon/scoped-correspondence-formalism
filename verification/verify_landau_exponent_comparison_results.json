@@ -26,7 +26,7 @@
       "python": "3.11.9",
       "source": "Onsager 1944 DOI 10.1103/PhysRev.65.117; Yang 1952 DOI 10.1103/PhysRev.85.808; Guckenheimer & Holmes 1983 DOI 10.1007/978-1-4612-1140-2",
       "title": "Landau Exponent Comparison / Self-Falsification",
-      "utc": "2026-09-25T10:24:08.677803+00:00"
+      "utc": "2026-09-25T10:39:50.439977+00:00"
     },
     "onsager_and_sigma_warning": {
       "ONSAGER_SIGMA_WARNING": "WARNING: Onsager critical ratio \u22482.269185314213022 is accidentally near the discarded ecosystem \u03c3\u22482.2; this is coincidence only \u2014 do not identify them.",

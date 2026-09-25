@@ -1,7 +1,7 @@
 {
   "milestone": "M9_metarules_core",
   "kind": "Hand-checkable metarules checks: MetaRuleUpdate variants, priority T5 wrap, unobserved-m A/B closure",
-  "generated_at_utc": "2026-09-25T10:24:19.858156+00:00",
+  "generated_at_utc": "2026-09-25T10:40:02.384898+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "count": 5,
