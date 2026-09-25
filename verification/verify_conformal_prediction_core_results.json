@@ -88,7 +88,7 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source_doi": "10.1080/01621459.2017.1307116",
-    "timestamp": "2026-09-25T11:34:34+02:00",
+    "timestamp": "2026-09-25T11:49:26+02:00",
     "untouched": [
       "src/scoped_correspondence/validation/core.py",
       "FORMALISM.md",

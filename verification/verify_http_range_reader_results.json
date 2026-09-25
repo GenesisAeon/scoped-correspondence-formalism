@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B3b (HTTP range reader, local-server-only CI check)",
-  "timestamp": "2026-09-25T11:37:13+02:00",
+  "timestamp": "2026-09-25T11:51:52+02:00",
   "python": "3.11.9",
   "checks": {
     "basic_read_seek_tell": {

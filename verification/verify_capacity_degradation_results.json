@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B5a (capacity degradation)",
-  "timestamp": "2026-09-25T11:34:21+02:00",
+  "timestamp": "2026-09-25T11:49:13+02:00",
   "python": "3.11.9",
   "checks": {
     "exact_synthetic_recovery": {
@@ -67,8 +67,8 @@
     "r1_innovation_std_not_residual_std": {
       "status": "pass",
       "detail": {
-        "phi": 0.7965957525382642,
-        "innovation_std": 0.01001370875036644,
+        "phi": 0.7965957525382641,
+        "innovation_std": 0.010013708750366439,
         "residual_std": 0.016563884532507258
       }
     },

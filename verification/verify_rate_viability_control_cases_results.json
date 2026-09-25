@@ -197,12 +197,12 @@
       }
     },
     "disclaimer": "Part A (chi diagnostic) and Part B (buffer spike) are synthetic control cases; no claim about any real driver, buffer, or safety system without its own separate model and identification.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "NONSTATIONARY_ROADMAP.md package 4 (rate/viability control cases)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-25T11:39:39+02:00"
+    "timestamp": "2026-09-25T11:53:54+02:00"
   }
 }

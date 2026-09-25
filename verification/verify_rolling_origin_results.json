@@ -53,11 +53,11 @@
       }
     },
     "disclaimer": "Rolling-origin results are a materially more robust comparison than a single split but remain a retrospective diagnosis on already-published historical data, not a prospective forecast evaluation -- same caveat Astra's review raised about Pilot B/C.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "NONSTATIONARY_ROADMAP.md package 1 (rolling-origin evaluation)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-25T11:39:52+02:00"
+    "timestamp": "2026-09-25T11:54:06+02:00"
   }
 }

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "Paket C1 (hydrology state estimation, integrated extension roadmap)",
+    "as_of_commit": "Paket C2 (controlled Markov correspondence, integrated extension roadmap)",
     "schema": [
       "module",
       "question",
@@ -338,6 +338,17 @@
         "verify_hydrology_state_estimation.py"
       ],
       "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1: measurement correction reduces MAE substantially vs. the open-loop model at ALL 6 catchments and all 3 lead times (1/3/7 days), but beats the persistence baseline outright at only 1 of 6 (DEA11490). The inner-validation noise calibration always selects the LARGEST tested process-noise scale (w_scale=1e6) -- checked to be a genuine saturating plateau, not an artifact of too narrow a grid. The unconstrained Gaussian filter produces negative posterior storage on a non-trivial fraction of days at every catchment (reported explicitly, never clipped). Observability diagnostics (observability_matrix/observability_report) are control-case verified but not separately run on the fitted per-catchment (F,H) pairs. A metadata-pre-selected independent confirmation panel (C1c) is explicitly deferred -- see docs/hydrology_state_estimation.md."
+    },
+    {
+      "module": "correspondence/controlled_markov.py",
+      "question": "Is a declared micro-to-macro action coarsening exact for a controlled Markov chain, checked separately per declared action?",
+      "model_class": "Finite controlled Markov chains; exact/strong lumpability (P^a C = C Q^{omega(a)}) checked per micro action, never pooled across actions.",
+      "assumptions": "Only EXACT (not approximate) lumpability is checked; the partition and action map are given, not learned or optimized.",
+      "evidence_type": "hand-verified 4-state control case (positive: both a passive and an intervention action exact; negative: a targeted row change breaks exactness for one action only)",
+      "verification_scripts": [
+        "verify_controlled_correspondence.py"
+      ],
+      "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C2: reports the exact minimax single-row replacement and its residual error when a class is not exactly lumpable, but does not implement an approximate-aggregation error bound. Admissibility-constraint consistency under action refinement is not separately implemented -- see docs/controlled_correspondence.md."
     }
   ]
 }

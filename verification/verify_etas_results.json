@@ -90,13 +90,13 @@
     },
     "data_provenance_note": "Real per-row data: data/usgs_earthquakes_m6plus_2000_2026.csv (USGS ComCat FDSN Event Web Service, public domain -- see data/real_data_manifest.json). TEMPORAL-ONLY fit on a pooled GLOBAL multi-region catalog -- a major documented simplification versus real regional ETAS practice; see module docstring.",
     "disclaimer": "Temporal-only ETAS on a pooled global multi-region catalog; fitted parameters do not claim to recover physically calibrated, region-specific Omori-Utsu constants. See module docstring.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "NONSTATIONARY_ROADMAP.md package 5c (ETAS self-exciting point process)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "scope_warning": "Temporal-only ETAS on a pooled global catalog is a qualitative self-excitation test, not a calibrated regional hazard model.",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-25T11:36:17+02:00"
+    "timestamp": "2026-09-25T11:51:14+02:00"
   }
 }

@@ -64,10 +64,10 @@
     }
   },
   "meta": {
-    "timestamp": "2026-09-25T11:37:06+02:00",
+    "timestamp": "2026-09-25T11:51:46+02:00",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "milestone": 11
   }
 }

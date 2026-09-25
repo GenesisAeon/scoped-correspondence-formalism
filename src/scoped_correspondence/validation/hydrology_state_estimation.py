@@ -189,7 +189,7 @@ def lead_time_forecast(
         for day in range(origin, t):
             s = F @ s + G * (c * P_full[day])
         u_t = c * P_full[t]
-        forecasts[t] = float(H @ s + D * u_t)
+        forecasts[t] = float((H @ s)[0] + D * u_t)
     return forecasts
 
 
@@ -264,7 +264,7 @@ def _open_loop_simulate(P: np.ndarray, c: float, alphas: Sequence[float], rates:
     q = np.empty(n_days)
     for t in range(n_days):
         u = c * P[t]
-        q[t] = float(H @ S + D * u)
+        q[t] = float((H @ S)[0] + D * u)
         S = F @ S + G * u
     return q
 

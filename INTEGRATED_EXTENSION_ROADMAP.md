@@ -22,7 +22,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 |---|---|---|
 | C0 | Hydrologische Zeitachse korrigieren (zwei reale Bugs) | ✅ erledigt |
 | C1 | Zustandsschätzung und Beobachtbarkeit | ✅ erledigt |
-| C2 | Korrespondenzen unter deklarierten Aktionen | ⏳ offen |
+| C2 | Korrespondenzen unter deklarierten Aktionen | ✅ erledigt |
 | C3 | Verweildauern und verteilte Verzögerungen | ⏳ offen |
 | C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ⏳ offen |
 | C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ⏳ offen |
@@ -105,6 +105,30 @@ Verifiziert: `verify_linear_state_estimation.py` (6/6),
 erweitert. C1c (unabhängiges, vorab per Metadaten ausgewähltes
 Bestätigungspanel) explizit zurückgestellt.
 
+## C2 — Korrespondenzen unter deklarierten Aktionen (erledigt)
+
+`correspondence/controlled_markov.py`: exakte/starke Vergröberung
+`P^a C = C Q^{ω(a)}`, geprüft SEPARAT pro deklarierter Mikro-Aktion — nie
+gepoolt über Aktionen hinweg.
+
+Hand-nachgerechneter 4-Zustands-Kontrollfall vor jedem Code: 2 Klassen
+`{0,1}`,`{2,3}`, heterogene Mikro-Kernel pro Klasse. Passiv `(a,b)=(0,7,0,4)`
+und Intervention `(a,b)=(0,8,0,1)` beide exakt (`Q_passiv=[[0.7,0.3],
+[0.4,0.6]]`, `Q_intervention=[[0.8,0.2],[0.1,0.9]]`, Abweichung `~1e-16`).
+Negativfall: zwei geänderte Intervention-Zeilen brechen die Exaktheit NUR
+für diese Aktion (Passiv bleibt exakt) — erkannter Defekt `0,2`, bester
+Minimax-Ersatzwert `0,2`, maximaler Restfehler `0,1`, exakt wie im Plan
+angegeben.
+
+Zusätzlich implementiert: `is_union_of_classes` (Makro-Ereignisse müssen
+ganze Partitionsblöcke sein) und `check_cost_consistency`
+(`c_X(x,a)=c_Y(C(x),ω(a))`, fehlender Makro-Gegenwert zählt als Verletzung,
+nie als übersprungen).
+
+Verifiziert: `verify_controlled_correspondence.py` (5/5). Docs:
+`docs/controlled_correspondence.md`. `capability_overview.md`/`.json`
+erweitert.
+
 ## Nächste Schritte
 
-C2 (Korrespondenzen unter deklarierten Aktionen) als nächstes.
+C3 (Verweildauern und verteilte Verzögerungen) als nächstes.

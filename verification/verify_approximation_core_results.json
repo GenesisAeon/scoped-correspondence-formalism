@@ -63,11 +63,11 @@
     },
     "disclaimer": "Certificate does NOT prove existence of a general simulation relation \u2014 fixed StateMap T specialty only (analogous to check_generic_structure disclaimer).",
     "milestone": "M10 Approximation Certificates",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "relation_kind": "fixed_map_bound",
     "source_doi": "10.1109/TAC.2007.895849",
-    "timestamp": "2026-09-25T11:34:10+02:00"
+    "timestamp": "2026-09-25T11:49:02+02:00"
   }
 }

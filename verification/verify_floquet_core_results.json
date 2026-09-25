@@ -271,9 +271,9 @@
     },
     "milestone": "M34",
     "no_ode_integrator": true,
-    "numpy_version": "2.2.6",
+    "numpy_version": "2.4.6",
     "platform": "Windows-10-10.0.19045-SP0",
-    "timestamp_local": "2026-09-25T11:36:57",
+    "timestamp_local": "2026-09-25T11:51:37",
     "title": "Floquet Multipliers (given 2\u00d72 monodromy)"
   }
 }

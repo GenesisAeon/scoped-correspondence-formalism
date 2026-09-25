@@ -1,9 +1,9 @@
 {
   "milestone": "M3_closure_core",
   "kind": "MIG equivalence (legacy extensions/transformations vs Closure API)",
-  "generated_at_utc": "2026-09-25T09:34:32.149022+00:00",
+  "generated_at_utc": "2026-09-25T09:49:24.764609+00:00",
   "python": "3.11.9",
-  "numpy": "2.2.6",
+  "numpy": "2.4.6",
   "count": 8,
   "passed": 8,
   "failed": 0,

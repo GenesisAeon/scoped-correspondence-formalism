@@ -1,0 +1,66 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C2 (controlled Markov correspondence)",
+  "timestamp": "2026-09-25T11:49:36+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "positive_case_exact": {
+      "status": "pass",
+      "detail": {
+        "defect_p": 1.1102230246251565e-16,
+        "defect_i": 0.0,
+        "Q_passive": [
+          [
+            0.7,
+            0.30000000000000004
+          ],
+          [
+            0.4,
+            0.6000000000000001
+          ]
+        ],
+        "Q_intervention": [
+          [
+            0.8,
+            0.2
+          ],
+          [
+            0.1,
+            0.8999999999999999
+          ]
+        ]
+      }
+    },
+    "negative_case_detects_violation": {
+      "status": "pass",
+      "detail": {
+        "defect": 0.20000000000000007,
+        "best_row": [
+          0.8,
+          0.2
+        ],
+        "max_err": 0.10000000000000003
+      }
+    },
+    "is_union_of_classes": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "cost_consistency_detects_mismatch": {
+      "status": "pass",
+      "detail": {
+        "violations_ok": {},
+        "violations_bad": {
+          "(1, 'passive')": 998.0
+        }
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "raised": 3
+      }
+    }
+  }
+}

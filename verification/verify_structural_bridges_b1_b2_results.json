@@ -151,11 +151,11 @@
     },
     "concept_origin": "prompts/Answers/SCF_Strukturelle_Bruecken_Konzept.md",
     "disclaimer": "Two pilot bridges only (B1, B2); B3-B6 and the follow-on research program are deferred (see docs/structural_relations.md section 6). Uses only existing repo APIs; no new production module; does not mutate chemical_organization/, membership/, or closure/.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "AUDIT_ROADMAP.md items 9-10 (structural relations language + schema)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source_document": "docs/structural_relations.md",
-    "timestamp": "2026-09-25T11:39:57+02:00"
+    "timestamp": "2026-09-25T11:54:11+02:00"
   }
 }

@@ -84,6 +84,7 @@ _EXPLICIT_CATEGORY = {
     # docs/hydrology_state_estimation.md for the real, manually-reproduced results).
     "verify_linear_state_estimation.py": "math",
     "verify_hydrology_state_estimation.py": "math",
+    "verify_controlled_correspondence.py": "math",
 }
 
 
