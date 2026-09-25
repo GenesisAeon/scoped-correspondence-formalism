@@ -20,6 +20,14 @@ Checks:
      silently skipped).
   5. ScopeViolationError guards (non-partition C, non-stochastic P,
      mismatched action sets).
+  6. SCF_REVIEW_C0_C7_4ed0cd9.md finding R3 (a real bug, independently
+     reproduced before fixing): best_minimax_macro_row's old coordinate-wise
+     midpoint left the probability simplex entirely on a 3-macro-class
+     example (returning (0.5,0.5,0.5), summing to 1.5). The fixed
+     simplex-constrained LP gives the uniform row (1/3,1/3,1/3) with error
+     2/3 -- cross-checked against an INDEPENDENT hand-derived analytic lower
+     bound (never the same LP called twice), and the existing 2-class
+     control case is confirmed unchanged.
 """
 from __future__ import annotations
 
@@ -162,12 +170,53 @@ def check_scope_violation_guards():
     return {"raised": 3}
 
 
+def check_r3_minimax_row_stays_in_simplex():
+    C3, _ = partition_indicator([0, 0, 0, 1, 2])
+    P = np.eye(5)
+    P[:3] = 0.0
+    P[0, 0] = 1.0
+    P[1, 3] = 1.0
+    P[2, 4] = 1.0
+    row, error = best_minimax_macro_row(P, C3, 0)
+
+    require(np.all(row >= -1e-9), f"row must be non-negative; got {row!r}")
+    require(abs(float(np.sum(row)) - 1.0) < 1e-6, f"row must sum to 1; got sum={np.sum(row)!r}")
+    require(np.allclose(row, [1 / 3, 1 / 3, 1 / 3], atol=1e-6), f"expected the uniform row (1/3,1/3,1/3); got {row!r}")
+    require(abs(error - 2.0 / 3.0) < 1e-6, f"expected error 2/3; got {error!r}")
+
+    # Independent analytic lower bound (never the same LP called twice): the
+    # three micro rows have block sums exactly forming the identity matrix, so
+    # for ANY valid q in the simplex, the error against row i is at least
+    # (1-q_i) (matching only coordinate i exactly would still leave this gap).
+    # Requiring max_i(1-q_i) <= epsilon for all three i forces
+    # sum(q) >= 3*(1-epsilon); since sum(q)=1 this gives epsilon >= 2/3 --
+    # a hard lower bound independent of the LP formulation, matched exactly
+    # by the fixed function's result.
+    independent_lower_bound = 1.0 - 1.0 / 3.0
+    require(abs(error - independent_lower_bound) < 1e-9,
+            f"LP result ({error!r}) must match the independent analytic lower bound ({independent_lower_bound!r})")
+
+    # The existing 2-class control case must be unaffected by the fix.
+    C2, _ = partition_indicator([0, 0, 1, 1])
+    P_bad = np.array([
+        [0.9, 0.0, 0.1, 0.0],
+        [0.0, 0.7, 0.0, 0.3],
+        [0.05, 0.05, 0.7, 0.2],
+        [0.02, 0.08, 0.3, 0.6],
+    ])
+    row2, err2 = best_minimax_macro_row(P_bad, C2, 0)
+    require(np.allclose(row2, [0.8, 0.2], atol=1e-6), f"2-class case should be unchanged: (0.8,0.2), got {row2!r}")
+    require(abs(err2 - 0.1) < 1e-6, f"2-class case error should be unchanged: 0.1, got {err2!r}")
+    return {"row_3class": row.tolist(), "error_3class": error, "row_2class": row2.tolist(), "error_2class": err2}
+
+
 CHECKS = [
     ("positive_case_exact", check_positive_case_exact),
     ("negative_case_detects_violation", check_negative_case_detects_violation),
     ("is_union_of_classes", check_is_union_of_classes),
     ("cost_consistency_detects_mismatch", check_cost_consistency_detects_mismatch),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("r3_minimax_row_stays_in_simplex", check_r3_minimax_row_stays_in_simplex),
 ]
 
 

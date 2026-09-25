@@ -116,7 +116,8 @@ class FilterRunResult:
 
     posterior_means: np.ndarray  # shape (n_days, n_reservoirs)
     posterior_covs: np.ndarray  # shape (n_days, n_reservoirs, n_reservoirs)
-    n_negative_storage_days: int
+    n_negative_storage_days: int  # days with >=1 negative reservoir component (correction R10b, see below)
+    n_negative_storage_component_instances: int  # total negative (day, reservoir) entries -- can exceed n_negative_storage_days when 2+ reservoirs
     n_updates_applied: int
 
 
@@ -156,8 +157,22 @@ def run_filter_full_span(
         covs[t] = state.cov
         state = predict(state, F=F, W=W, G=G.reshape(-1, 1), u=[u_t])
 
-    n_negative = int(np.sum(means < 0.0))
-    return FilterRunResult(posterior_means=means, posterior_covs=covs, n_negative_storage_days=n_negative, n_updates_applied=n_updates)
+    # **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    # R10b -- a real bug, independently reproduced before fixing):** this used
+    # to be np.sum(means<0), which counts negative (day, reservoir) COMPONENT
+    # instances, not negative DAYS -- with 2+ reservoirs, a single day with
+    # both components negative was counted TWICE, inflating the reported
+    # figure under a name that promises a day count. Fixed: n_negative_storage_days
+    # now uses np.any(means<0, axis=1).sum() (a day counts once regardless of
+    # how many of its components are negative); the raw component-instance
+    # count is kept too, under its own honestly-named field.
+    n_negative_days = int(np.any(means < 0.0, axis=1).sum())
+    n_negative_instances = int(np.sum(means < 0.0))
+    return FilterRunResult(
+        posterior_means=means, posterior_covs=covs,
+        n_negative_storage_days=n_negative_days, n_negative_storage_component_instances=n_negative_instances,
+        n_updates_applied=n_updates,
+    )
 
 
 def lead_time_forecast(
@@ -235,21 +250,39 @@ def calibrate_process_noise(
     n_inner_train = int(len(P_train) * (1.0 - inner_val_frac))
     if n_inner_train < 30 or len(P_train) - n_inner_train < 30:
         raise ScopeViolationError("training period too short for an inner time-ordered validation split")
-    P_it, Q_it = P_train[:n_inner_train], Q_train[:n_inner_train]
-    P_iv, Q_iv = P_train[n_inner_train:], Q_train[n_inner_train:]
+
+    # **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    # R8 -- a real bug, independently reproduced before fixing):** a PREVIOUS
+    # version ran the inner-training and inner-validation blocks as two
+    # SEPARATE run_filter_full_span calls, passing the inner-training block's
+    # final POSTERIOR (already corrected using that day's own measurement)
+    # directly as the inner-validation block's PRIOR m0/P0 -- silently
+    # skipping the required predict() transition (F, G, W) across that day
+    # boundary. Astra's 150-day recomputation showed the resulting mean/
+    # variance passed into the validation block differed substantially from
+    # the mathematically required post-transition values.
+    #
+    # Fixed by running ONE continuous filter recursion across the FULL inner
+    # span (inner-training immediately followed by inner-validation, exactly
+    # like the outer full_span_mask construction from Paket C0) -- the
+    # correct predict() transition then happens automatically as part of the
+    # normal day-to-day recursion, and the inner-validation SCORING mask is
+    # applied only afterward, to the forecast array. This also means the
+    # inner-training portion's own days are never used for scoring here
+    # (matching the original intent exactly).
+    inner_val_mask = np.zeros(len(P_train), dtype=bool)
+    inner_val_mask[n_inner_train:] = True
 
     best_w, best_mae = None, np.inf
     for w_scale in w_scale_grid:
         W = w_scale * np.eye(n)
         m0, P0 = np.zeros(n), 10.0 * np.eye(n)
-        result_it = run_filter_full_span(P_it, Q_it, c, alphas, rates, W, R, m0, P0, use_correction=True)
-        m_end, P_end = result_it.posterior_means[-1], result_it.posterior_covs[-1]
-        result_iv = run_filter_full_span(P_iv, Q_iv, c, alphas, rates, W, R, m_end, P_end, use_correction=True)
-        fc = lead_time_forecast(result_iv.posterior_means, P_iv, c, alphas, rates, lead=1)
-        valid = (~np.isnan(Q_iv)) & (~np.isnan(fc))
+        result_full = run_filter_full_span(P_train, Q_train, c, alphas, rates, W, R, m0, P0, use_correction=True)
+        fc_full = lead_time_forecast(result_full.posterior_means, P_train, c, alphas, rates, lead=1)
+        valid = inner_val_mask & (~np.isnan(Q_train)) & (~np.isnan(fc_full))
         if valid.sum() == 0:
             continue
-        mae = float(np.mean(np.abs(fc[valid] - Q_iv[valid])))
+        mae = float(np.mean(np.abs(fc_full[valid] - Q_train[valid])))
         if mae < best_mae:
             best_mae, best_w = mae, w_scale
     if best_w is None:
@@ -278,7 +311,10 @@ class StateEstimationResult:
     mae_test: Dict[str, Dict[int, float]]  # {"corrected"|"open_loop": {lead: mae}}
     mae_low_flow_test: Dict[str, Optional[float]]  # lead=1 only, keyed "corrected"|"open_loop"
     n_scored: Dict[str, int]  # per lead (common-cases count), keyed "1"/"3"/"7"
-    n_negative_storage_days: Dict[str, int]
+    n_negative_storage_days: Dict[str, int]  # days with >=1 negative reservoir component (correction R10b)
+    n_negative_storage_component_instances: Dict[str, int]  # raw negative (day, reservoir) entries
+    mae_persistence_lead1: float  # computed HERE, on the SAME common mask as corrected/open_loop (correction R10a)
+    mae_low_flow_persistence_lead1: Optional[float]
 
     def to_dict(self) -> Dict:
         return {
@@ -287,6 +323,9 @@ class StateEstimationResult:
             "mae_test": {k: {str(lead): v for lead, v in d.items()} for k, d in self.mae_test.items()},
             "mae_low_flow_test": self.mae_low_flow_test,
             "n_scored": self.n_scored, "n_negative_storage_days": self.n_negative_storage_days,
+            "n_negative_storage_component_instances": self.n_negative_storage_component_instances,
+            "mae_persistence_lead1": self.mae_persistence_lead1,
+            "mae_low_flow_persistence_lead1": self.mae_low_flow_persistence_lead1,
         }
 
 
@@ -346,9 +385,24 @@ def run_catchment_state_estimation_pilot(
         fc["corrected"][lead] = lead_time_forecast(result_corrected.posterior_means, P_full, c, alphas, rates, lead)[test_in_full]
         fc["open_loop"][lead] = lead_time_forecast(result_open_loop.posterior_means, P_full, c, alphas, rates, lead)[test_in_full]
 
+    # **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    # R10a -- a real bug, independently reproduced before fixing):** the
+    # persistence baseline reported alongside corrected/open-loop used to come
+    # from a DIFFERENT run (hydrology_pilot.py's own, separately-scored
+    # pilot), computed over ITS OWN mask (missing only the specific days whose
+    # own prior-day value is unavailable) -- not the SAME common-cases mask
+    # used here, so the three columns were not actually comparable on exactly
+    # the same day set. Fixed: persistence (lead 1 only -- this codebase does
+    # not define a multi-day-ahead persistence convention) is computed HERE,
+    # from the SAME full contiguous span, and folded into the SAME common
+    # mask below.
+    pred_persist_full = np.concatenate([[np.nan], Q_full[:-1]])
+    fc_persistence_lead1 = pred_persist_full[test_in_full]
+
     # Common-cases mask (plan: "Primary MAE/RMSE on common cases"): a test day is scored
-    # only if EVERY lead time and EVERY variant has a valid (non-NaN) forecast there.
-    common = ~np.isnan(Q_test)
+    # only if EVERY lead time and EVERY variant (now including persistence) has a valid
+    # (non-NaN) forecast there.
+    common = ~np.isnan(Q_test) & ~np.isnan(fc_persistence_lead1)
     for variant in ("corrected", "open_loop"):
         for lead in LEAD_TIMES:
             common &= ~np.isnan(fc[variant][lead])
@@ -361,6 +415,7 @@ def run_catchment_state_estimation_pilot(
             raise ScopeViolationError(f"no common-cases days to score for {gauge_id} at lead={lead}")
         for variant in ("corrected", "open_loop"):
             mae_test[variant][lead] = float(np.mean(np.abs(fc[variant][lead][common] - Q_test[common])))
+    mae_persistence_lead1 = float(np.mean(np.abs(fc_persistence_lead1[common] - Q_test[common])))
 
     low_mask = common & (Q_test <= q10_train)
     mae_low_flow_test = {}
@@ -368,13 +423,21 @@ def run_catchment_state_estimation_pilot(
         mae_low_flow_test[variant] = (
             float(np.mean(np.abs(fc[variant][1][low_mask] - Q_test[low_mask]))) if low_mask.sum() > 0 else None
         )
+    mae_low_flow_persistence_lead1 = (
+        float(np.mean(np.abs(fc_persistence_lead1[low_mask] - Q_test[low_mask]))) if low_mask.sum() > 0 else None
+    )
 
     return StateEstimationResult(
         gauge_id=gauge_id, n_reservoirs=n, w_scale=w_scale, r_measurement=R,
         mae_test=mae_test, mae_low_flow_test=mae_low_flow_test, n_scored=n_scored,
+        mae_persistence_lead1=mae_persistence_lead1, mae_low_flow_persistence_lead1=mae_low_flow_persistence_lead1,
         n_negative_storage_days={
             "corrected": result_corrected.n_negative_storage_days,
             "open_loop": result_open_loop.n_negative_storage_days,
+        },
+        n_negative_storage_component_instances={
+            "corrected": result_corrected.n_negative_storage_component_instances,
+            "open_loop": result_open_loop.n_negative_storage_component_instances,
         },
     )
 

@@ -10,7 +10,53 @@ observability), [`validation/hydrology_state_estimation.py`](../src/scoped_corre
 `dynamics/linear_reservoirs.py`, noise calibration, the 2×2 real-data panel).
 Verification (synthetic-only, no network access needed):
 [`verify_linear_state_estimation.py`](../verification/verify_linear_state_estimation.py) (6/6),
-[`verify_hydrology_state_estimation.py`](../verification/verify_hydrology_state_estimation.py) (7/7).
+[`verify_hydrology_state_estimation.py`](../verification/verify_hydrology_state_estimation.py) (10/10).
+
+**Corrections (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+findings R8/R9/R10a/R10b — all real bugs, independently reproduced before
+fixing):**
+
+- **R9** (`observation/linear_state_estimation.py`): `update` checked only
+  that the innovation covariance `S=HPH^T+R` was positive definite — but a
+  negative measurement variance can still leave `S` positive (`S` is a SUM),
+  and the mathematically-correct Joseph form then produces a NEGATIVE
+  posterior variance from that invalid input. Astra's exact counterexample:
+  `P=[[1]]`, `R=[[-0.5]]`, `H=[[1]]` gives `S=0.5>0` — passing the old check
+  — yet the posterior variance comes out to exactly `-1`. **Fixed** by
+  validating that every covariance (`P` at `KalmanState` construction,
+  `W`/`R` at every `predict`/`update` call) is symmetric and positive
+  semi-definite, independent of and in addition to `S`'s own strict
+  positive-definite requirement. The published control case
+  (`K=(1/3,1/3)`, `P⁺=[[2/3,-1/3],[-1/3,2/3]]`) is unaffected.
+- **R8** (`validation/hydrology_state_estimation.py`, `calibrate_process_noise`):
+  the inner-training block's final POSTERIOR (already corrected using that
+  day's own measurement) was passed DIRECTLY as the inner-validation block's
+  PRIOR — silently skipping the required `predict()` transition across that
+  day boundary. **Fixed** by running ONE continuous filter recursion across
+  the full inner span (exactly like the outer full-span construction from
+  Paket C0) and applying the validation SCORING mask only afterward.
+  **Measured impact: none on the published numbers below** — every one of
+  the 6 catchments' inner-validation search still selects the same boundary
+  value `w_scale=1e6` before and after the fix (re-run and compared for all
+  12 catchment/reservoir-count combinations), so the downstream outer-test-
+  period MAE values are numerically IDENTICAL to the previously published
+  ones. The bug was real (confirmed via an independent hand-bridged
+  predict+update cross-check), but it did not happen to change which
+  `w_scale` this specific saturating grid search converges to.
+- **R10a**: the persistence column below previously came from a DIFFERENT,
+  separately-scored run (`hydrology_pilot.py`'s own pilot), computed over
+  ITS OWN mask — not the identical common-cases mask used for corrected/
+  open-loop, so the three columns were not strictly comparable on the same
+  day set. **Fixed** by computing persistence (lead 1 only) HERE, from the
+  same full contiguous span, folded into the SAME common mask.
+- **R10b**: `n_negative_storage_days` used `np.sum(means<0)`, counting
+  negative (day, reservoir) COMPONENT instances, not negative DAYS — with 2
+  reservoirs, a day with both components negative was counted TWICE. Also,
+  the "~5479 full-span days" prose below was wrong: the full 1991–2020 span
+  is 10958 days; 5479 is only the training period's own length. **Fixed** by
+  reporting day-level counts (`np.any(means<0,axis=1).sum()`) and the raw
+  component-instance count SEPARATELY, and correcting the span prose.
 
 ## Why this needed a purpose-built measurement operator
 
@@ -96,7 +142,7 @@ dynamics for multi-day extrapolation.
 
 ### One reservoir
 
-| Gauge | Corrected, lead 1 | Corrected, lead 3 | Corrected, lead 7 | Open-loop (any lead) | Persistence (from hydrology_pilot.md) |
+| Gauge | Corrected, lead 1 | Corrected, lead 3 | Corrected, lead 7 | Open-loop (any lead) | Persistence |
 |---|---:|---:|---:|---:|---:|
 | DEA11490 | **0.061** | 0.099 | 0.111 | 0.123 | 0.064 |
 | DE211310 | 0.103 | 0.201 | 0.288 | 0.424 | **0.095** |
@@ -116,7 +162,16 @@ dynamics for multi-day extrapolation.
 | DE110500 | 0.407 | 0.661 | 0.789 | 0.873 | **0.384** |
 | DEG10330 | 0.293 | 0.621 | 0.891 | 1.096 | **0.233** |
 
-**Bolded = best of {corrected-lead-1, persistence} per row.**
+**Bolded = best of {corrected-lead-1, persistence} per row.** Persistence is
+now computed WITHIN this same run, on the identical common-cases mask as
+corrected/open-loop (finding R10a) — every value above is numerically
+IDENTICAL, to the displayed 3 significant digits, to the previously reported
+persistence numbers, which came from a separately-scored run with a
+1-day-shorter mask; the two masks happen to agree closely enough for these 6
+catchments that no visible number moved, but the two are no longer computed
+by two different code paths. (`n_scored` for the primary lead-1 comparison
+is now, e.g., 3353 for DEA11490 rather than 3354 — one day fewer, since the
+common mask now also requires persistence's own 1-day lag to be available.)
 
 **State correction dramatically improves the mechanistic models at every
 catchment and every lead time** — 1-day-ahead MAE drops by 30–75% relative
@@ -155,18 +210,40 @@ at low flow.
 
 ## Gaussian filters can produce negative storage — reported, not hidden
 
+**Correction (2026-09-25, finding R10b):** the full contiguous span for
+these 6 catchments (1991–2020 inclusive) is **10958 days**, not the ~5479
+this section previously stated (5479 is only the 1991–2005 TRAINING
+period's own length). Also, the day-count below now counts a DAY once
+regardless of how many of its reservoir components are negative — the raw
+component-instance count (used by mistake before) is reported separately.
+
 The measurement-corrected filter produced a **negative posterior mean
 storage on a non-trivial fraction of days at every single catchment**
 (module docstring caveat, plan section 5.4) — from 67 days (DEA11180,
-1-reservoir, out of ~5479 full-span days) to 3436 days (DEE10610,
-2-reservoir). This is an expected consequence of an UNCONSTRAINED
-linear-Gaussian filter with `w_scale` pushed this high (see above): when a
-day's actual discharge is lower than what the fitted dynamics alone would
-predict, the correction can pull the estimated storage below zero rather
-than being clipped at a physical floor. **This is reported explicitly and
-was never clipped to zero while still reporting these as exact Kalman
-posteriors** — a physically constrained (non-negative) filter is a separate,
-harder problem not attempted here.
+1-reservoir, out of 10958 full-span days) to 3436 days (DEE10610,
+2-reservoir). The open-loop variant NEVER goes negative for any catchment
+(0 days everywhere) — this is purely a consequence of measurement
+correction pulling the estimate down, never of the deterministic dynamics
+alone. For most catchment/reservoir-count combinations the day count and
+the raw component-instance count coincide exactly (a negative excursion
+never affects both reservoirs of the 2-reservoir model on the same day);
+three combinations genuinely differ, confirming both quantities are worth
+reporting separately:
+
+| Gauge, 2-reservoir | Negative days | Negative component-instances |
+|---|---:|---:|
+| DEA11180 | 121 | 152 |
+| DE110500 | 1809 | 2063 |
+| DEG10330 | 2315 | 2350 |
+
+This is an expected consequence of an UNCONSTRAINED linear-Gaussian filter
+with `w_scale` pushed this high (see above): when a day's actual discharge
+is lower than what the fitted dynamics alone would predict, the correction
+can pull the estimated storage below zero rather than being clipped at a
+physical floor. **This is reported explicitly and was never clipped to zero
+while still reporting these as exact Kalman posteriors** — a physically
+constrained (non-negative) filter is a separate, harder problem not
+attempted here.
 
 ## Scope
 

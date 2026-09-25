@@ -73,6 +73,48 @@ def _partition_indices(n: int, A: Sequence[int], B: Sequence[int]) -> Tuple[np.n
     return A_arr, B_arr, D_arr
 
 
+def _require_boundary_reachable(L: np.ndarray, D_arr: np.ndarray, boundary: np.ndarray, tol: float) -> None:
+    """**Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    R4 -- a real bug, independently reproduced before fixing):** a numerically
+    successful ``np.linalg.solve`` is NOT proof that every interior state can
+    reach the boundary. For a CLOSED interior class (e.g. two interior states
+    that only transition between each other, never to ``A`` or ``B``),
+    ``L_DD`` is exactly singular in exact arithmetic, but floating-point
+    LAPACK can still return a FINITE (~3.15e16, a rounding artifact of a
+    numerically near-singular system) result instead of raising -- silently
+    reporting a garbage mean hitting time as if it were a real, finite
+    answer, while the true value is infinite (absorption never happens).
+
+    This function checks the actual GRAPH condition directly: does every
+    state in ``D_arr`` have a directed path of strictly positive transition
+    rates (through other ``D`` states, if needed) to some state in
+    ``boundary``? This is checked BEFORE any linear solve, independent of
+    floating-point conditioning -- never inferred from whether a solve
+    happens to succeed.
+    """
+    n = L.shape[0]
+    reachable = set(int(b) for b in boundary)
+    changed = True
+    while changed:
+        changed = False
+        for x in D_arr:
+            x = int(x)
+            if x in reachable:
+                continue
+            for y in range(n):
+                if L[x, y] > tol and y in reachable:
+                    reachable.add(x)
+                    changed = True
+                    break
+    unreachable = [int(x) for x in D_arr if int(x) not in reachable]
+    if unreachable:
+        raise ScopeViolationError(
+            f"interior state(s) {unreachable!r} cannot reach A union B via any positive-rate "
+            f"path (a closed interior class) -- mean hitting time and committor are undefined "
+            f"(infinite/ill-posed) here, not merely numerically fragile"
+        )
+
+
 def committor(L: np.ndarray, A: Sequence[int], B: Sequence[int], tol: float = 1e-9) -> np.ndarray:
     """``q(x) = P(hit B before A | start at x)`` for every state (0 on ``A``,
     1 on ``B``, solved on the interior ``D``)."""
@@ -83,6 +125,7 @@ def committor(L: np.ndarray, A: Sequence[int], B: Sequence[int], tol: float = 1e
     q[B_arr] = 1.0
     if len(D_arr) == 0:
         return q
+    _require_boundary_reachable(L, D_arr, np.concatenate([A_arr, B_arr]), tol)
     L_DD = L[np.ix_(D_arr, D_arr)]
     L_DB = L[np.ix_(D_arr, B_arr)]
     rhs = -(L_DB @ np.ones(len(B_arr)))
@@ -105,6 +148,7 @@ def mean_hitting_time(L: np.ndarray, A: Sequence[int], B: Sequence[int], tol: fl
     m = np.zeros(n)
     if len(D_arr) == 0:
         return m
+    _require_boundary_reachable(L, D_arr, np.concatenate([A_arr, B_arr]), tol)
     L_DD = L[np.ix_(D_arr, D_arr)]
     try:
         m_D = np.linalg.solve(L_DD, -np.ones(len(D_arr)))

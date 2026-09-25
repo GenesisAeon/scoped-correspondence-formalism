@@ -1,15 +1,15 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C3 (distributed-delay downstream-buffer pilot)",
-  "timestamp": "2026-09-25T13:02:16+02:00",
+  "timestamp": "2026-09-25T17:19:22+02:00",
   "python": "3.11.9",
   "checks": {
     "first_passage_ordering": {
       "status": "pass",
       "detail": {
-        "1": 0.4060430815997538,
-        "2": 0.8446652864757331,
-        "4": 1.0371678730744711,
-        "8": 1.092656009698057
+        "1": 0.406043081599781,
+        "2": 0.8446652864757351,
+        "4": 1.0371678730744713,
+        "8": 1.0926560096980564
       }
     },
     "first_passage_matches_R_zero": {
@@ -21,10 +21,10 @@
     "peak_and_minimum_need_not_move_together": {
       "status": "pass",
       "detail": {
-        "peak_n1": 0.9063431339370648,
-        "peak_n4": 0.8882692509841396,
-        "R_min_n1": -0.09281726266487222,
-        "R_min_n4": -0.10878516255895332
+        "peak_n1": 0.9063462346100907,
+        "peak_n4": 0.8882692509841494,
+        "R_min_n1": -0.0928172626649057,
+        "R_min_n4": -0.10878516255897619
       }
     },
     "mass_balance": {
@@ -37,6 +37,30 @@
       "status": "pass",
       "detail": {
         "raised": 1
+      }
+    },
+    "r1_narrow_dip_not_missed": {
+      "status": "pass",
+      "detail": {
+        "first_passage_time": 1.017249819880103,
+        "R_min_value": -1.0000000000287557e-07
+      }
+    },
+    "tangential_touch_no_violation_and_boundary_minimum": {
+      "status": "pass",
+      "detail": {
+        "tangent": {
+          "t": 1.0179568433377542,
+          "R_min": 0.0
+        },
+        "none": {
+          "first_passage": null,
+          "R_min": 4.807182737335094
+        },
+        "boundary": {
+          "t": 0.0,
+          "R_min": 0.1
+        }
       }
     }
   }

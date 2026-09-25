@@ -171,6 +171,6 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "purpose": "provenance + sanity checks for data/real_data_manifest.json entries",
     "python": "3.11.9",
-    "timestamp": "2026-09-25T13:11:01+02:00"
+    "timestamp": "2026-09-25T17:28:17+02:00"
   }
 }

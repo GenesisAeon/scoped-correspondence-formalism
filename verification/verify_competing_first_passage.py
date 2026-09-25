@@ -23,6 +23,15 @@ Checks:
      horizons, not just one.
   5. Finite-horizon hitting probabilities plus the unresolved probability
      sum to 1 for every start state, checked explicitly.
+  6. SCF_REVIEW_C0_C7_4ed0cd9.md finding R4 (a real bug, independently
+     reproduced before fixing): a CLOSED interior class (two interior states
+     that only cycle between each other, e.g. rates 0.3/0.4, never reaching
+     A or B) used to pass silently through np.linalg.solve, returning a
+     finite but meaningless ~3.15e16 "mean hitting time" instead of raising.
+     Now raises ScopeViolationError via an explicit graph-reachability check
+     performed BEFORE any linear solve. The finite-horizon computation
+     REMAINS valid for this same non-absorbing chain (p_unresolved=1 is a
+     legitimate answer there, not an error).
 """
 from __future__ import annotations
 
@@ -155,12 +164,37 @@ def check_bridge_to_c2_lumpability():
     }
 
 
+def check_r4_closed_interior_class_raises():
+    # order: A, i, j, B; i and j only cycle between each other, never reaching A or B.
+    L_closed = np.array([
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, -0.3, 0.3, 0.0],
+        [0.0, 0.4, -0.4, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ])
+    for fn in (lambda: mean_hitting_time(L_closed, A=[0], B=[3]), lambda: committor(L_closed, A=[0], B=[3])):
+        try:
+            fn()
+            raise AssertionError("a closed interior class (never reaching A or B) must raise ScopeViolationError")
+        except ScopeViolationError:
+            pass
+
+    # The finite-horizon computation must REMAIN valid for this same non-absorbing
+    # chain -- p_unresolved=1 (never hitting either boundary) is a legitimate answer.
+    res = finite_horizon_hitting_probabilities(L_closed, H=10.0, boundary_sets={"A": [0], "B": [3]})
+    require(np.allclose(res.p_unresolved[[1, 2]], 1.0, atol=1e-9),
+            f"the two interior states (indices 1,2) should have p_unresolved=1 at any finite horizon "
+            f"since they can never reach A or B; got {res.p_unresolved!r}")
+    return {"raised": 2, "p_unresolved_H10": res.p_unresolved.tolist()}
+
+
 CHECKS = [
     ("control_case_committor_and_mean_time", check_control_case_committor_and_mean_time),
     ("control_case_finite_horizon", check_control_case_finite_horizon),
     ("rate_rescaling_invariance", check_rate_rescaling_invariance),
     ("singular_L_DD_raises", check_singular_L_DD_raises),
     ("bridge_to_c2_lumpability", check_bridge_to_c2_lumpability),
+    ("r4_closed_interior_class_raises", check_r4_closed_interior_class_raises),
 ]
 
 

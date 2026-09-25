@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C3 (phase-type/Erlang delay chains)",
-  "timestamp": "2026-09-25T13:10:33+02:00",
+  "timestamp": "2026-09-25T17:27:48+02:00",
   "python": "3.11.9",
   "checks": {
     "control_values_n1_n2": {
@@ -71,6 +71,12 @@
       "status": "pass",
       "detail": {
         "raised": 3
+      }
+    },
+    "r4_closed_cycling_class_raises": {
+      "status": "pass",
+      "detail": {
+        "raised": 1
       }
     }
   }

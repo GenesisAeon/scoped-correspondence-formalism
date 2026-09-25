@@ -111,6 +111,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "This module applies validation.rolling_origin (already-verified generic harness) to dynamics.energy_balance, dynamics.etas, and validation.covid_renewal for the first time, per Astra's 2026-09-21 review of commit f8e249f (SCF_Review_f8e249f.md).",
-    "timestamp": "2026-09-25T13:08:10+02:00"
+    "timestamp": "2026-09-25T17:25:44+02:00"
   }
 }

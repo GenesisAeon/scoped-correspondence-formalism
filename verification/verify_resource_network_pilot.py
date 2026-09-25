@@ -23,6 +23,17 @@ Checks:
      improves the optimum) reproduced directly on this panel's own network
      and parameters, not just the abstract 2-node example in
      verify_resource_network_control.py.
+  6. SCF_REVIEW_C0_C7_4ed0cd9.md finding R6 (a real bug, independently
+     reproduced before fixing): the SAME "none" baseline trajectory must
+     report the EXACT SAME true touch time (5/3, Astra's own closed-form
+     value) regardless of whether control_interval is 1 or 0.25 -- the old
+     code reported 2.0 and 1.75 respectively (both wrong, and inconsistent
+     with each other for the identical physical trajectory).
+  7. SCF_REVIEW_C0_C7_4ed0cd9.md finding R7 (a real bug, independently
+     reproduced before fixing): control_interval=2.0 must be REJECTED (it
+     would silently sample demand only at t=0,2,4, missing both declared
+     load spikes entirely) -- the two officially compared values (0.25, 1)
+     must still be accepted.
 """
 from __future__ import annotations
 
@@ -39,6 +50,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from scoped_correspondence.errors import ScopeViolationError  # noqa: E402
 from scoped_correspondence.validation.resource_network_pilot import (  # noqa: E402
     NETWORK, run_network_pilot, _demand, U_MAX, EDGE_CAP, TOTAL_SUPPLY_CAP, W, V, K_UPPER,
 )
@@ -109,13 +121,25 @@ def check_weak_duality_optimized_beats_feasible_baseline():
 
 
 def check_touch_and_violation_reported_separately():
+    """**Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md
+    findings R6/R7):** this check's ORIGINAL expected strict-violation time
+    (4.0) was itself just the old, grid-snapped control-interval endpoint --
+    "das Abschreiben des Intervallendpunkts ist keine unabhängige Kontrolle"
+    (the review's own words) -- not an independently re-derived value. The
+    corrected exact-affine-crossing code gives a materially DIFFERENT, more
+    informative picture: the optimized controller reaches exactly 0 at
+    t~2.0 during the first spike's aftermath (a genuine BOUNDARY TOUCH that
+    then RECOVERS -- held flat at 0 through [2,3) at zero cost-beyond-
+    baseline), and only genuinely goes STRICTLY negative later, at exactly
+    t=3.0, the instant the SECOND declared spike (node 2) begins and the QP
+    interval is reported infeasible (module docstring)."""
     r = run_network_pilot("optimized", control_interval=1.0, edge_failure=False)
     require(r.first_touch_time is not None and r.strict_violation_time is not None, "both events should occur in this run")
     require(r.first_touch_time < r.strict_violation_time,
             f"first_touch_time ({r.first_touch_time!r}) should be STRICTLY earlier than strict_violation_time "
             f"({r.strict_violation_time!r}) in this concrete case, demonstrating the two are genuinely different events")
     require(abs(r.first_touch_time - 2.0) < 1e-6, f"expected first touch at t=2.0, got {r.first_touch_time!r}")
-    require(abs(r.strict_violation_time - 4.0) < 1e-6, f"expected strict violation at t=4.0, got {r.strict_violation_time!r}")
+    require(abs(r.strict_violation_time - 3.0) < 1e-6, f"expected strict violation at t=3.0 (the second spike's own start), got {r.strict_violation_time!r}")
     return {"first_touch_time": r.first_touch_time, "strict_violation_time": r.strict_violation_time}
 
 
@@ -139,12 +163,38 @@ def check_structural_extra_edge_on_real_panel():
             "cost_with_edge": result_with_edge.cost, "cost_without_extra_edge": result_no_extra_edge.cost}
 
 
+def check_r6_touch_time_independent_of_control_interval():
+    r1 = run_network_pilot("none", 1.0, False)
+    r_quarter = run_network_pilot("none", 0.25, False)
+    true_touch = 1.0 + 0.6 / 0.9  # = 5/3, Astra's own closed-form value for this baseline
+    require(abs(r1.first_touch_time - true_touch) < 1e-9, f"Delta=1: expected {true_touch!r}, got {r1.first_touch_time!r}")
+    require(abs(r_quarter.first_touch_time - true_touch) < 1e-9, f"Delta=0.25: expected {true_touch!r}, got {r_quarter.first_touch_time!r}")
+    require(abs(r1.first_touch_time - r_quarter.first_touch_time) < 1e-9,
+            "the identical physical baseline trajectory must report the IDENTICAL touch time regardless of control_interval")
+    return {"true_touch": true_touch, "delta_1": r1.first_touch_time, "delta_0_25": r_quarter.first_touch_time}
+
+
+def check_r7_control_interval_must_align_with_load_changes():
+    try:
+        run_network_pilot("none", 2.0, False)
+        raise AssertionError("control_interval=2.0 must be rejected -- it would silently skip both declared load spikes")
+    except ScopeViolationError:
+        pass
+    # The two officially compared values must still be accepted.
+    for ci in (0.25, 1.0):
+        r = run_network_pilot("none", ci, False)
+        require(r.first_touch_time is not None, f"control_interval={ci} should still simulate normally")
+    return {"rejected": 2.0, "accepted": [0.25, 1.0]}
+
+
 CHECKS = [
     ("load_schedule_control_values", check_load_schedule_control_values),
     ("baselines_match_hand_computation", check_baselines_match_hand_computation),
     ("weak_duality_optimized_beats_feasible_baseline", check_weak_duality_optimized_beats_feasible_baseline),
     ("touch_and_violation_reported_separately", check_touch_and_violation_reported_separately),
     ("structural_extra_edge_on_real_panel", check_structural_extra_edge_on_real_panel),
+    ("r6_touch_time_independent_of_control_interval", check_r6_touch_time_independent_of_control_interval),
+    ("r7_control_interval_must_align_with_load_changes", check_r7_control_interval_must_align_with_load_changes),
 ]
 
 

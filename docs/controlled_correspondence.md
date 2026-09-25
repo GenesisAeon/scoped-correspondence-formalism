@@ -5,7 +5,24 @@ INTEGRATED_EXTENSION_ROADMAP.md Paket C2 — response to
 section 6. Module:
 [`correspondence/controlled_markov.py`](../src/scoped_correspondence/correspondence/controlled_markov.py).
 Verification (synthetic control cases only):
-[`verify_controlled_correspondence.py`](../verification/verify_controlled_correspondence.py) (5/5).
+[`verify_controlled_correspondence.py`](../verification/verify_controlled_correspondence.py) (6/6).
+
+**Correction (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+finding R3 — a real bug, independently reproduced before fixing):**
+`best_minimax_macro_row` returned the coordinate-wise midpoint of each
+column's max/min, which minimizes an UNCONSTRAINED per-coordinate error but
+need not itself be a valid probability distribution. Astra's exact
+counterexample (3 macro classes; the first class's three micro rows have
+block sums exactly `(1,0,0)`, `(0,1,0)`, `(0,0,1)`) gave the midpoint
+`(0.5,0.5,0.5)` — summing to 1.5, not a macro transition row at all — with
+a reported error of 0.5. **Fixed** by solving the actual SIMPLEX-constrained
+minimax linear program (`q>=0`, `sum(q)=1`, minimize `max|q_j-b_ij|`) via
+`scipy.optimize.linprog`, giving the correct uniform row `(1/3,1/3,1/3)`
+with error `2/3` — independently confirmed via a hand-derived analytic lower
+bound (every target coordinate needs `q_j>=1-ε`; summing and using
+`sum(q)=1` forces `ε>=2/3`), not by calling the same LP twice. The existing
+2-class control case (`(0.8,0.2)`, error `0.1`) is unaffected.
 
 ## The question
 

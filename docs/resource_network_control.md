@@ -5,9 +5,51 @@ INTEGRATED_EXTENSION_ROADMAP.md Paket C5 — response to
 section 9. Module:
 [`viability/resource_network_control.py`](../src/scoped_correspondence/viability/resource_network_control.py).
 Verification (synthetic control cases only):
-[`verify_resource_network_control.py`](../verification/verify_resource_network_control.py) (5/5).
+[`verify_resource_network_control.py`](../verification/verify_resource_network_control.py) (6/6).
 See also [`resource_network_pilot.md`](resource_network_pilot.md) for the
 concrete 3-node network experiment.
+
+**Correction (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+finding R2 — a real bug, independently reproduced before fixing):**
+`solve_network_qp`'s own result classification checked ONLY the solver-
+enforced END-of-interval constraint value, never re-checking `x_lower`'s own
+sign. For an already-negative `x_lower`, the solver can find a "recovery"
+action that brings the state back to exactly 0 by the interval's end while
+the actual affine trajectory stays STRICTLY NEGATIVE the entire time up to
+that instant. Astra's exact counterexample: 1 node, no edges, `x_lower=-0.1`,
+`d=0`, `Delta=1`, `u_max=1`, budget `1` — the solver finds `u≈0.1`,
+`x(t)=-0.1+0.1t`, negative for every `0<=t<1`, yet the code reported
+`status=solved, feasible=True, safety.status=boundary_touch` — claiming
+whole-interval safety for a trajectory that was never safe at all. **Fixed**
+by requiring `min(x_lower, x_end) >= 0` componentwise (both endpoints,
+exploiting affineness) for any `certified_safe`/`boundary_touch` verdict; a
+certain (definite, not merely uncertain) negative `x_lower` is now reported
+as its own status, `already_violated` (distinct from `not_certified`, which
+`whole_interval_safety` reserves for a genuinely uncertain lower bound) with
+`feasible=False` — even though `status="solved"` still correctly indicates
+a valid RECOVERY action was found. The hand-verified decoupled control case
+is unaffected and independently re-confirmed unchanged by this fix.
+
+**Correction (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+finding R5 — a real bug, independently reproduced before fixing):** when
+every SLSQP restart failed to converge, `solve_network_qp` checked ONLY the
+single "most generous" corner (`u=u_max`, `f=edge_cap`) and reported
+`infeasible` if THAT ONE POINT failed a constraint — but a feasible witness
+can exist elsewhere even when the generous corner itself fails (maximal
+individual flows can jointly exceed a SHARED budget; maximal edge flow can
+drain a source node). Astra's exact counterexample: 3 decoupled buffers,
+`x=(0.2,0.4,0.6)`, `d=(1,1,1)`, `Delta=1`, `u_max=(1,1,1)`, budget `2` — the
+feasible witness `u=(0.8,0.6,0.4)` (sum `1.8`) exists, but the generous
+corner (sum `3`) violates the budget, so a forced solver failure (reproduced
+via `n_restarts=0`, without needing to break SLSQP itself) wrongly reported
+`infeasible`. **Fixed** by solving a SEPARATE, EXACT linear feasibility
+problem with the same constraints (dropping only the quadratic objective)
+via `scipy.optimize.linprog`: an LP's own infeasibility verdict is an actual
+mathematical proof, unlike a single corner point. `optimizer_failed` is now
+reported whenever the LP finds ANY feasible point; a genuinely infeasible
+problem still correctly reports `infeasible`.
 
 ## Model
 

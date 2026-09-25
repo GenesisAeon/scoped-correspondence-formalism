@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C5 (3-node resource network pilot, synthetic-only)",
-  "timestamp": "2026-09-25T13:11:05+02:00",
+  "timestamp": "2026-09-25T17:28:22+02:00",
   "python": "3.11.9",
   "checks": {
     "load_schedule_control_values": {
@@ -25,8 +25,8 @@
     "touch_and_violation_reported_separately": {
       "status": "pass",
       "detail": {
-        "first_touch_time": 2.0,
-        "strict_violation_time": 4.0
+        "first_touch_time": 1.9999999999999982,
+        "strict_violation_time": 3.0
       }
     },
     "structural_extra_edge_on_real_panel": {
@@ -36,6 +36,24 @@
         "without_extra_edge": "infeasible",
         "cost_with_edge": 0.34980952380952357,
         "cost_without_extra_edge": NaN
+      }
+    },
+    "r6_touch_time_independent_of_control_interval": {
+      "status": "pass",
+      "detail": {
+        "true_touch": 1.6666666666666665,
+        "delta_1": 1.6666666666666667,
+        "delta_0_25": 1.6666666666666667
+      }
+    },
+    "r7_control_interval_must_align_with_load_changes": {
+      "status": "pass",
+      "detail": {
+        "rejected": 2.0,
+        "accepted": [
+          0.25,
+          1.0
+        ]
       }
     }
   }

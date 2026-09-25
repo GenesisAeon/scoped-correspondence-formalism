@@ -8,13 +8,42 @@ Fixed experiment: an Erlang(n) delay chain with mean dwell time
 ``R(0)=0.1``, ``dR/dt = 0.4 - y(t)`` (``y`` the chain's output), over horizon
 ``5``. Event of interest: the first time ``R(t) <= 0``.
 
-The combined (``n`` delay-chain stages + 1 buffer) system is linear with
-PIECEWISE-CONSTANT input (one break at the pulse's end), so it is propagated
-EXACTLY via ``dynamics.phase_type_delays.propagate_linear_constant_input``
-within each constant-input segment, and the first-passage time is located by
-root-finding directly on that exact closed form (``scipy.optimize.brentq``)
--- never by scanning a fixed time grid and accepting whichever grid point
-happens to be closest.
+**Correction (2026-09-25, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md, finding
+R1 -- a real bug, independently reproduced before fixing):** the original
+implementation searched a dense (>=500-point) fixed grid per segment for a
+sign change in ``R``, then refined with ``brentq``. This finds a bracket's
+root exactly but the SEARCH ITSELF is not exhaustive: a narrow enough dip
+between two grid points is invisible to it. Astra's exact counterexample
+(``n=1``, ``R0=0.19281716266490573``) makes ``R`` dip to ``-1e-7`` at
+``t*=1.0179568433377355`` and recover -- narrower than the grid spacing at
+that point -- so the old code reported ``first_passage_time=None`` while
+SIMULTANEOUSLY reporting a negative ``R_min_value`` at that exact same
+time, an internal self-contradiction independently confirmed before this
+fix.
+
+**Fix: exact, grid-free event/extremum location**, using the fact that for
+an Erlang(n) chain of rate ``k=n/tau`` driven by a CONSTANT input ``u``
+(``u=u_pulse`` during the pulse, ``u=0`` after it) starting from a known
+stage-occupancy vector ``z0``, the OUTPUT has the closed form
+
+    y(tau) = u + exp(-k*tau) * P(tau)
+
+for a real polynomial ``P`` of degree ``<= n-1`` with coefficients computed
+directly from ``z0``, ``k`` and ``u`` (cross-checked to machine precision
+against the module's own exact ``propagate_phase_type`` before this fix was
+written). Consequently ``y'(tau) = exp(-k*tau) * (P'(tau) - k*P(tau))``, and
+the exact stationary points of ``y`` in a segment are exactly the REAL,
+IN-RANGE ROOTS of the polynomial ``Q = P' - k*P`` (found via
+``numpy.poly1d.roots``, not a sampling grid). Between two consecutive such
+points ``y`` is monotone, hence ``R' = inflow - y`` is monotone there too, so
+its own (at most one) zero -- an ``R``-stationary point -- is found exactly
+via a bracketed ``brentq`` call, never missed. Between two consecutive
+``R``-stationary points, ``R`` itself is monotone, so a further bracketed
+``brentq`` call finds any ``R=0`` crossing completely and exactly.
+``R``'s and ``y``'s global extrema over a segment can then only occur AT one
+of these finitely many exactly-located breakpoints (plus the segment's own
+endpoints) -- never missed between them, regardless of how narrow a dip is.
 
 **No reflection/clipping** (plan section 7): if ``R`` goes negative, the
 simulation keeps running past that point with the SAME linear dynamics --
@@ -25,11 +54,12 @@ would overshoot, never silently clamped to a physical floor.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 import numpy as np
-from scipy.optimize import brentq, minimize_scalar
+from scipy.optimize import brentq
 
 from scoped_correspondence.errors import ScopeViolationError
 from scoped_correspondence.dynamics.phase_type_delays import (
@@ -38,6 +68,8 @@ from scoped_correspondence.dynamics.phase_type_delays import (
     validate_phase_type,
     propagate_linear_constant_input,
 )
+
+_IMAG_TOL = 1e-7
 
 
 def _combined_system(pt: PhaseType, inflow: float) -> np.ndarray:
@@ -49,6 +81,59 @@ def _combined_system(pt: PhaseType, inflow: float) -> np.ndarray:
     A[:n, :n] = pt.T.T
     A[n, :n] = -pt.r
     return A
+
+
+def _erlang_output_polynomial(z0: np.ndarray, k: float, u: float) -> np.poly1d:
+    """``y(tau) = u + exp(-k*tau)*P(tau)`` for an Erlang(n,k) chain driven by
+    constant input ``u`` over ``[0,tau]`` starting from stage occupancies
+    ``z0`` (module docstring; verified to machine precision against
+    ``propagate_phase_type`` in ``verify_distributed_delay_pilot.py``)."""
+    n = len(z0)
+    c = np.zeros(n)  # ascending powers of tau
+    for m in range(n):
+        j = n - 1 - m
+        c[m] = k ** (m + 1) * z0[j] / math.factorial(m) - u * k ** m / math.factorial(m)
+    return np.poly1d(c[::-1])  # numpy.poly1d wants descending-power coefficients
+
+
+def _output_critical_points(z0: np.ndarray, k: float, u: float, tau_max: float) -> List[float]:
+    """Exact interior (``0 < tau < tau_max``) stationary points of the segment's
+    output ``y``, via the real roots of ``Q = P' - k*P`` -- never a sampling
+    grid (module docstring)."""
+    P = _erlang_output_polynomial(z0, k, u)
+    Q = P.deriv() - k * P
+    if np.allclose(Q.coeffs, 0.0, atol=1e-12):
+        return []
+    roots = Q.roots
+    return sorted(
+        float(r.real) for r in roots
+        if abs(r.imag) < _IMAG_TOL and 1e-12 < r.real < tau_max - 1e-12
+    )
+
+
+def _r_stationary_points(z0: np.ndarray, k: float, u: float, inflow: float, seg_len: float) -> List[float]:
+    """All exact interior points in ``(0, seg_len)`` where ``R' = inflow - y =
+    0``, found by bracketing within each y-monotone sub-interval delimited by
+    ``_output_critical_points`` (module docstring: R' is guaranteed monotone
+    there, so at most one root per sub-interval, found completely)."""
+    P = _erlang_output_polynomial(z0, k, u)
+
+    def y_of(tau: float) -> float:
+        return u + math.exp(-k * tau) * float(P(tau))
+
+    def r_prime_of(tau: float) -> float:
+        return inflow - y_of(tau)
+
+    y_crit = _output_critical_points(z0, k, u, seg_len)
+    level1 = [0.0] + y_crit + [seg_len]
+
+    stationary: List[float] = []
+    for a, b in zip(level1[:-1], level1[1:]):
+        ra, rb = r_prime_of(a), r_prime_of(b)
+        if ra * rb < 0.0:
+            t_star = brentq(r_prime_of, a, b, xtol=1e-13, rtol=1e-13)
+            stationary.append(t_star)
+    return stationary
 
 
 @dataclass(frozen=True)
@@ -90,6 +175,7 @@ def run_fixed_experiment(
     validate_phase_type(pt)
     A = _combined_system(pt, inflow)
     n = n_stages
+    k = n / tau
 
     def d_of(u: float) -> np.ndarray:
         d = np.zeros(n + 1)
@@ -100,11 +186,11 @@ def run_fixed_experiment(
     def output_of(x: np.ndarray) -> float:
         return float(x[:n] @ pt.r)
 
-    segments: List[Tuple[float, np.ndarray]] = []
+    segments: List[Tuple[float, float, np.ndarray]] = []  # (seg_len, u, d)
     if pulse_duration > 0.0:
-        segments.append((pulse_duration, d_of(u_pulse)))
+        segments.append((pulse_duration, u_pulse, d_of(u_pulse)))
     if horizon > pulse_duration:
-        segments.append((horizon - pulse_duration, d_of(0.0)))
+        segments.append((horizon - pulse_duration, 0.0, d_of(0.0)))
 
     x0 = np.zeros(n + 1)
     x0[n] = R0
@@ -120,51 +206,59 @@ def run_fixed_experiment(
     R_min_time, R_min_value = 0.0, R0
     peak_time, peak_value = 0.0, output_of(x0)
 
-    for seg_len, d in segments:
+    for seg_len, u_seg, d in segments:
         def R_of_s(s: float, x_start=x_cur, d=d) -> float:
             return propagate_linear_constant_input(x_start, A, d, s)[n]
 
         def y_of_s(s: float, x_start=x_cur, d=d) -> float:
             return output_of(propagate_linear_constant_input(x_start, A, d, s))
 
-        R_start = x_cur[n]
-        x_end = propagate_linear_constant_input(x_cur, A, d, seg_len)
-        R_end = x_end[n]
+        z0 = x_cur[:n]
 
+        # Exact breakpoints: y's own stationary points (Level 1) partition the
+        # segment into y-monotone pieces; within each, R's own stationary
+        # point (Level 2, at most one, found by bracketed brentq) is located
+        # completely. R is guaranteed monotone between consecutive Level-2
+        # breakpoints -- see module docstring.
+        y_crit = _output_critical_points(z0, k, u_seg, seg_len)
+        r_crit = _r_stationary_points(z0, k, u_seg, inflow, seg_len)
+        breakpoints = sorted(set([0.0, seg_len] + y_crit + r_crit))
+
+        # First-passage: scan consecutive breakpoint pairs in order (R is
+        # monotone within each), find the FIRST sign change, refine exactly.
         if first_passage is None:
-            # A same-sign check on the segment's ENDPOINTS ALONE would miss a
-            # dip-and-recovery strictly inside the segment (R can go negative and
-            # come back up before the segment ends) -- bracket the first crossing
-            # using a dense scan of consecutive sample points instead, then refine
-            # the bracket found this way with brentq for an exact crossing time.
-            n_scan = max(n_samples_per_segment, 500)
-            s_grid = np.linspace(0.0, seg_len, n_scan + 1)
-            R_grid = np.array([R_start] + [R_of_s(s) for s in s_grid[1:]])
-            below = np.where(R_grid <= 0.0)[0]
-            if len(below) > 0:
-                i = int(below[0])
-                if i == 0:
-                    first_passage = t_offset  # R was already <= 0 at the segment's start
-                else:
-                    t_star = brentq(R_of_s, s_grid[i - 1], s_grid[i], xtol=1e-12, rtol=1e-12)
+            R_at_bp = [R_of_s(s) for s in breakpoints]
+            for i in range(len(breakpoints) - 1):
+                a, b = breakpoints[i], breakpoints[i + 1]
+                Ra, Rb = R_at_bp[i], R_at_bp[i + 1]
+                if Ra <= 0.0:
+                    first_passage = t_offset + a
+                    break
+                if Rb <= 0.0:
+                    t_star = brentq(R_of_s, a, b, xtol=1e-13, rtol=1e-13)
                     first_passage = t_offset + t_star
+                    break
 
-        # Refine this segment's R-minimum and output-peak exactly (bounded scalar
-        # optimization on the closed-form propagate_linear_constant_input, not just
-        # whichever sample point happens to be closest).
-        res_min = minimize_scalar(R_of_s, bounds=(0.0, seg_len), method="bounded")
-        if res_min.fun < R_min_value:
-            R_min_value, R_min_time = float(res_min.fun), t_offset + float(res_min.x)
-        res_max = minimize_scalar(lambda s: -y_of_s(s), bounds=(0.0, seg_len), method="bounded")
-        if -res_max.fun > peak_value:
-            peak_value, peak_time = float(-res_max.fun), t_offset + float(res_max.x)
+        # R's global minimum over this segment can only occur at a breakpoint
+        # (R is monotone strictly between them).
+        for s in breakpoints:
+            Rs = R_of_s(s)
+            if Rs < R_min_value:
+                R_min_value, R_min_time = Rs, t_offset + s
 
-        for k in range(1, n_samples_per_segment + 1):
-            s = seg_len * k / n_samples_per_segment
+        # y's global maximum over this segment can only occur at one of y's
+        # own stationary points or the segment's endpoints.
+        for s in sorted(set([0.0, seg_len] + y_crit)):
+            ys = y_of_s(s)
+            if ys > peak_value:
+                peak_value, peak_time = ys, t_offset + s
+
+        for step in range(1, n_samples_per_segment + 1):
+            s = seg_len * step / n_samples_per_segment
             xs = propagate_linear_constant_input(x_cur, A, d, s)
             trajectory.append((t_offset + s, float(xs[n]), output_of(xs)))
 
-        x_cur = x_end
+        x_cur = propagate_linear_constant_input(x_cur, A, d, seg_len)
         t_offset += seg_len
 
     if x_cur[n] < R_min_value:

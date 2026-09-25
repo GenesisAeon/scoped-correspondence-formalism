@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1 (hydrology daily-mean Kalman state estimation, synthetic-only)",
-  "timestamp": "2026-09-25T13:05:45+02:00",
+  "timestamp": "2026-09-25T17:22:28+02:00",
   "python": "3.11.9",
   "checks": {
     "state_space_matches_existing_formulas": {
@@ -54,9 +54,9 @@
       "detail": {
         "mae_test": {
           "corrected": {
-            "1": 0.015697598224641333,
-            "3": 0.015696358431312285,
-            "7": 0.015695996740235394
+            "1": 0.015694653248197864,
+            "3": 0.015694526652486367,
+            "7": 0.015694488544009722
           },
           "open_loop": {
             "1": 0.01569431235485461,
@@ -64,7 +64,36 @@
             "7": 0.01569431235485461
           }
         },
-        "w_scale": 0.0001
+        "w_scale": 1e-05
+      }
+    },
+    "r8_calibration_transition_across_split": {
+      "status": "pass",
+      "detail": {
+        "bridged_mean": [
+          17.689640342481916
+        ],
+        "continuous_mean": [
+          17.689640342481916
+        ],
+        "buggy_mean": [
+          17.911685829590077
+        ]
+      }
+    },
+    "r10a_persistence_uses_same_common_mask": {
+      "status": "pass",
+      "detail": {
+        "mae_persistence_lead1": 0.023753074827483466,
+        "manual_mae": 0.023753074827483466,
+        "n_scored_lead1": 1821
+      }
+    },
+    "r10b_negative_days_vs_component_instances": {
+      "status": "pass",
+      "detail": {
+        "n_negative_storage_days": 40,
+        "n_negative_storage_component_instances": 80
       }
     }
   }

@@ -49,6 +49,8 @@ from scoped_correspondence.viability.resource_network_control import (
     solve_network_qp,
 )
 
+LOAD_CHANGE_TIMES = (1.0, 2.0, 3.0, 4.0)  # also the edge-failure window's own boundaries
+
 NETWORK = ResourceNetwork(n_nodes=3, edges=((0, 1), (1, 2), (2, 0)))
 BASE_LOAD = 0.3
 K_UPPER = 2.0
@@ -67,6 +69,89 @@ def _demand(t: float) -> np.ndarray:
     if 3.0 <= t < 4.0:
         d[2] += 0.9
     return d
+
+
+def _validate_control_interval(control_interval: float) -> None:
+    """**Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md
+    finding R7 -- a real bug, independently reproduced before fixing):** the
+    original check only required ``control_interval`` to evenly divide the
+    horizon, so ``control_interval=2.0`` was silently ACCEPTED -- sampling
+    demand only at ``t=0,2,4`` and missing BOTH declared load spikes
+    (``[1,2)`` and ``[3,4)``) entirely (``run_network_pilot("none", 2.0,
+    False)`` reported ``min_reserve=0.6``, no touch, no violation -- while
+    the identical baseline with the load plan fully respected reaches
+    ``-0.3``). **Fixed** by requiring every declared load-change/failure time
+    to also lie exactly on the control grid (a relative, scaled divisibility
+    check, per the review's own suggestion, rather than an absolute
+    tolerance) -- this pilot's own two officially compared values (0.25 and
+    1) both satisfy this exactly; other choices are rejected rather than
+    silently mis-simulated.
+    """
+    if not np.isfinite(control_interval) or control_interval <= 0.0:
+        raise ScopeViolationError(f"control_interval must be finite and > 0; got {control_interval!r}")
+    for t_event in (0.0, HORIZON) + LOAD_CHANGE_TIMES:
+        ratio = t_event / control_interval
+        if abs(ratio - round(ratio)) > 1e-9 * max(1.0, abs(ratio)):
+            raise ScopeViolationError(
+                f"control_interval={control_interval!r} does not evenly divide the declared load/failure "
+                f"time {t_event!r} -- a coarser interval would silently sample straight past a load spike "
+                f"(see module docstring, finding R7); use one of the two officially compared values (0.25, 1) "
+                f"or another interval that evenly divides every declared event time"
+            )
+
+
+def _affine_interval_events(
+    x0: np.ndarray, b: np.ndarray, L: float, t0: float, tol: float = 1e-9
+) -> Tuple[Optional[float], Optional[float]]:
+    """**Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md
+    finding R6 -- a real bug, independently reproduced before fixing):** the
+    original code only checked interval ENDPOINTS on the CONTROL grid for a
+    sign change, reporting the touch/violation time as whichever grid point
+    happened to be closest -- giving DIFFERENT reported times
+    (``Delta=1``: 2.0; ``Delta=0.25``: 1.75) for the exact SAME physical
+    baseline trajectory, whose true touch time is
+    ``1+0.6/0.9=5/3~1.6666666667`` (Astra's exact counterexample, using only
+    the unmodified ``none`` baseline). **Fixed**: since ``x`` is affine
+    within a held-constant-control interval (``x_i(t0+s)=x0_i+b_i*s``), the
+    exact crossing time solves ``s=-x0_i/b_i`` directly -- independent of
+    ``Delta`` entirely.
+
+    Returns ``(touch_time, strict_violation_time)`` for style events
+    occurring in ``[t0, t0+L]``, or ``None`` for either if no such event
+    occurs in this interval. A "touch" is the first time some component
+    reaches ``<=0``; "strict violation" is the first time some component is
+    STRICTLY ``<0`` -- the review's own definition: a downward crossing's
+    strict-violation infimum coincides with its touch time (the state is
+    exactly zero only at that single instant), while a pure local-minimum
+    touch that immediately recovers (checked via the FOLLOWING interval's own
+    slope, by calling this function again with that interval's data) is
+    never promoted to a strict violation.
+    """
+    touch_time: Optional[float] = None
+    strict_time: Optional[float] = None
+    for xi0, bi in zip(x0, b):
+        if xi0 <= tol:
+            t_touch_i = t0
+        elif bi < -tol:
+            s_star = -xi0 / bi
+            t_touch_i = t0 + s_star if s_star <= L + tol else None
+        else:
+            t_touch_i = None
+        if t_touch_i is not None and (touch_time is None or t_touch_i < touch_time):
+            touch_time = min(t_touch_i, t0 + L)
+
+        if xi0 < -tol:
+            t_strict_i = t0
+        elif xi0 <= tol and bi < -tol:
+            t_strict_i = t0  # already at/below zero and still declining now
+        elif bi < -tol:
+            s_star = -xi0 / bi
+            t_strict_i = t0 + s_star if s_star < L - tol else None  # crosses strictly INSIDE this interval
+        else:
+            t_strict_i = None
+        if t_strict_i is not None and (strict_time is None or t_strict_i < strict_time):
+            strict_time = t_strict_i
+    return touch_time, strict_time
 
 
 @dataclass(frozen=True)
@@ -96,8 +181,7 @@ class NetworkPilotResult:
 def run_network_pilot(strategy: str, control_interval: float, edge_failure: bool) -> NetworkPilotResult:
     if strategy not in ("none", "fixed_routing", "optimized"):
         raise ScopeViolationError(f"unknown strategy {strategy!r}")
-    if HORIZON % control_interval > 1e-9:
-        raise ScopeViolationError(f"control_interval {control_interval!r} must evenly divide the horizon {HORIZON!r}")
+    _validate_control_interval(control_interval)
 
     B = NETWORK.incidence_matrix()
     x = np.array([0.6, 0.6, 0.6])
@@ -161,12 +245,20 @@ def run_network_pilot(strategy: str, control_interval: float, edge_failure: bool
         x_end = propagate_state(x, B, f, u, d, control_interval)
         t_end = t0 + control_interval
 
+        # min_reserve: x is AFFINE within this interval (u,f,d all held constant),
+        # so its extremum over [0,L] is always at one of the two endpoints -- no
+        # exact-breakpoint machinery needed here, unlike C3's exponential case.
         if float(np.min(x_end)) < min_reserve:
             min_reserve, min_reserve_time, min_reserve_node = float(np.min(x_end)), t_end, int(np.argmin(x_end))
-        if first_touch_time is None and np.any(x_end <= 1e-9):
-            first_touch_time = t_end
-        if strict_violation_time is None and np.any(x_end < -1e-9):
-            strict_violation_time = t_end
+
+        # Exact affine touch/strict-violation event times (finding R6 fix, see
+        # _affine_interval_events docstring) -- never snapped to the control grid.
+        b = B @ f + u - d
+        touch_i, strict_i = _affine_interval_events(x, b, control_interval, t0)
+        if first_touch_time is None and touch_i is not None:
+            first_touch_time = touch_i
+        if strict_violation_time is None and strict_i is not None:
+            strict_violation_time = strict_i
 
         x = x_end
 

@@ -17,6 +17,13 @@ Checks:
   5. propagate_linear_constant_input reproduces a known closed-form scalar
      ODE (dx/dt=-x+1) exactly.
   6. ScopeViolationError guards (bad alpha, bad T, singular T).
+  7. SCF_REVIEW_C0_C7_4ed0cd9.md finding R4 (a real bug, independently
+     reproduced before fixing): a NONTRIVIAL closed 2-phase class that
+     cycles between its two phases (rates 0.3/0.4) but has zero exit rate
+     from either -- distinct from the trivial all-zero-T case above -- used
+     to PASS validate_phase_type with a finite (~3.15e16, meaningless)
+     mean dwell time. Now raises via an explicit graph-reachability check
+     performed BEFORE any linear solve.
 """
 from __future__ import annotations
 
@@ -146,6 +153,16 @@ def check_scope_violation_guards():
     return {"raised": 3}
 
 
+def check_r4_closed_cycling_class_raises():
+    closed_cycle = PhaseType(alpha=np.array([1.0, 0.0]), T=np.array([[-0.3, 0.3], [0.4, -0.4]]), r=np.array([0.0, 0.0]))
+    try:
+        validate_phase_type(closed_cycle)
+        raise AssertionError("a phase-type that cycles between two phases with zero exit rate must raise, not return a finite mean dwell time")
+    except ScopeViolationError:
+        pass
+    return {"raised": 1}
+
+
 CHECKS = [
     ("control_values_n1_n2", check_control_values_n1_n2),
     ("impulse_peak", check_impulse_peak),
@@ -153,6 +170,7 @@ CHECKS = [
     ("mean_dwell_time_independent_cross_check", check_mean_dwell_time_independent_cross_check),
     ("propagate_linear_constant_input_closed_form", check_propagate_linear_constant_input_closed_form),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("r4_closed_cycling_class_raises", check_r4_closed_cycling_class_raises),
 ]
 
 

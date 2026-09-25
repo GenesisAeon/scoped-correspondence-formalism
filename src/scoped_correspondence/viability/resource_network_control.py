@@ -18,15 +18,20 @@ genuine initial-state uncertainty), the robust sufficient condition is
 
     x_lower + Delta * (B @ f + u - d_upper) >= 0
 
-**Three distinct outcomes, never conflated** (plan's explicit requirement):
+**Distinct outcomes, never conflated** (plan's explicit requirement):
 ``certified_safe`` (the affine lower-bound trajectory stays >= 0 at both
 endpoints), ``not_certified`` (``x_lower`` itself already has a negative
-component -- this means safety was NOT established for every possible true
-initial state, NOT that the true state is known to be unsafe), and, when
-``x_lower`` is certain and the end-of-interval bound is violated, EITHER
-``boundary_touch`` (the affine lower bound reaches exactly 0, which is
-ALLOWED -- the safety sets here are closed) or ``strict_violation``
-(strictly negative). Astra's own worked example: three decoupled buffers
+component AS A DECLARED UNCERTAINTY BOUND -- this means safety was NOT
+established for every possible true initial state, NOT that the true state
+is known to be unsafe), ``already_violated`` (``x_lower`` has a negative
+component that is instead a CERTAIN, definite numeric state -- the
+violation has already happened; ``solve_network_qp`` reports this
+explicitly, see finding R2 below, rather than conflating it with
+``not_certified``), and, when ``x_lower`` is certain and non-negative but
+the end-of-interval bound is violated, EITHER ``boundary_touch`` (the
+affine lower bound reaches exactly 0 at either endpoint, which is ALLOWED --
+the safety sets here are closed) or ``strict_violation`` (strictly
+negative). Astra's own worked example: three decoupled buffers
 ``x=(0.2,0.4,0.6)``, ``d=(1,1,1)``, minimal safe interventions for
 ``Delta=1`` are exactly ``(0.8,0.6,0.4)`` (sum 1.8, quadratic cost 1.16);
 for ``Delta=2`` the minimum becomes ``(0.9,0.8,0.7)`` (sum 2.4, infeasible
@@ -49,7 +54,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize, linprog
 
 from scoped_correspondence.errors import ScopeViolationError
 
@@ -75,7 +80,7 @@ class ResourceNetwork:
 
 @dataclass(frozen=True)
 class SafetyCheckResult:
-    status: str  # "certified_safe" | "not_certified" | "boundary_touch" | "strict_violation"
+    status: str  # "certified_safe" | "not_certified" | "already_violated" | "boundary_touch" | "strict_violation"
     x_end_lower: np.ndarray
     violating_nodes: Tuple[int, ...]
 
@@ -138,6 +143,36 @@ class QPResult:
     safety: Optional[SafetyCheckResult]
 
 
+def _lp_feasibility_check(
+    x_lower: np.ndarray, d_upper: np.ndarray, B: np.ndarray, Delta: float,
+    u_max: np.ndarray, edge_cap: np.ndarray, total_supply_cap: float, K: Optional[np.ndarray],
+) -> bool:
+    """Exact linear feasibility check for solve_network_qp's constraint set
+    (dropping only the quadratic objective, which cannot affect feasibility)
+    -- used to distinguish a genuine solver convergence failure
+    (``optimizer_failed``) from a mathematically PROVEN empty feasible set
+    (``infeasible``), see finding R5 in ``solve_network_qp``'s docstring.
+    A single corner point failing tells us nothing about the rest of the
+    feasible region; an LP's own infeasibility verdict is an actual proof."""
+    n = x_lower.shape[0]
+    m = B.shape[1]
+    # safety: x_lower + Delta*(B@f + u - d_upper) >= 0  <=>  -Delta*u - Delta*B@f <= x_lower - Delta*d_upper
+    A_ub = [np.hstack([-Delta * np.eye(n), -Delta * B])]
+    b_ub = [x_lower - Delta * d_upper]
+    # shared instantaneous supply budget: sum(u) <= total_supply_cap
+    A_ub.append(np.concatenate([np.ones(n), np.zeros(m)]).reshape(1, -1))
+    b_ub.append(np.array([total_supply_cap]))
+    if K is not None:
+        # upper capacity: x_lower + Delta*(B@f + u - d_upper) <= K  <=>  Delta*u + Delta*B@f <= K - x_lower + Delta*d_upper
+        A_ub.append(np.hstack([Delta * np.eye(n), Delta * B]))
+        b_ub.append(K - x_lower + Delta * d_upper)
+    A_ub_mat = np.vstack(A_ub)
+    b_ub_vec = np.concatenate(b_ub)
+    bounds = [(0.0, float(u_max[i])) for i in range(n)] + [(0.0, float(edge_cap[e])) for e in range(m)]
+    res = linprog(np.zeros(n + m), A_ub=A_ub_mat, b_ub=b_ub_vec, bounds=bounds, method="highs")
+    return bool(res.success)
+
+
 def solve_network_qp(
     network: ResourceNetwork,
     x_lower: np.ndarray,
@@ -162,6 +197,13 @@ def solve_network_qp(
     module docstring and docs/resource_network_control.md for scope).
     `optimizer_failed` is reported distinctly from `infeasible`: a failed
     solver run is NOT proof that no feasible point exists.
+
+    ``QPResult.feasible`` reflects TRUE WHOLE-INTERVAL safety
+    (``min(x_lower, x_end) >= 0`` componentwise), never merely "the solver
+    converged": when ``x_lower`` already has a negative component, ``status``
+    can still be ``"solved"`` (a recovery action was found), but
+    ``feasible=False`` and ``safety.status="already_violated"`` (finding R2
+    -- see module docstring).
     """
     B = network.incidence_matrix()
     n, m = network.n_nodes, len(network.edges)
@@ -200,23 +242,63 @@ def solve_network_qp(
                 best = res
 
     if best is None:
-        # Distinguish "solver never converged" from "provably infeasible": check
-        # whether u=u_max, f=0 (or f=edge_cap on a helpful topology) at least
-        # satisfies the constraints; if even the most generous box point fails
-        # safety, report infeasible; otherwise optimizer_failed.
-        z_generous = np.concatenate([u_max, edge_cap])
-        if np.all(safety_constraint(z_generous) >= -1e-6) and np.sum(u_max) <= total_supply_cap + 1e-9:
+        # **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md
+        # finding R5 -- a real bug, independently reproduced before fixing):**
+        # the original fallback checked ONLY the single "most generous" corner
+        # (u=u_max, f=edge_cap) and reported "infeasible" if THAT ONE POINT
+        # failed -- but a feasible witness can exist elsewhere even when the
+        # generous corner itself fails (maximal individual flows can jointly
+        # exceed a SHARED budget, or maximal edge flow can drain a source
+        # node). Astra's exact counterexample: 3 decoupled buffers,
+        # x_lower=(0.2,0.4,0.6), d_upper=(1,1,1), Delta=1, u_max=(1,1,1),
+        # budget=2 -- the feasible witness u=(0.8,0.6,0.4) (sum 1.8) exists,
+        # but the generous corner (sum 3) violates the budget, so the old
+        # code wrongly reported "infeasible" whenever all SLSQP restarts
+        # failed to converge on this otherwise-easy problem.
+        #
+        # Fixed: solve a SEPARATE, EXACT linear feasibility problem with the
+        # SAME constraints (dropping only the quadratic objective) via
+        # ``scipy.optimize.linprog``. An LP's infeasibility verdict is an
+        # actual mathematical proof (not a single-point heuristic); if the LP
+        # finds ANY feasible point, the quadratic solver's failure is
+        # reported honestly as ``optimizer_failed``, never as ``infeasible``.
+        if _lp_feasibility_check(x_lower, d_upper, B, Delta, u_max, edge_cap, total_supply_cap, K):
             return QPResult(u=np.full(n, np.nan), f=np.full(m, np.nan), cost=np.nan, feasible=False, status="optimizer_failed", safety=None)
         return QPResult(u=np.full(n, np.nan), f=np.full(m, np.nan), cost=np.nan, feasible=False, status="infeasible", safety=None)
 
     u_star, f_star = unpack(best.x)
-    # Classify the SOLVED result directly from the (already solver-enforced >= 0)
-    # constraint value -- NOT via whole_interval_safety's not_certified branch,
-    # which exists for a genuinely UNCERTAIN x_lower bound and would otherwise
-    # mislabel a solution that starts from an already-negative but perfectly
-    # CERTAIN x_lower (the solver's own constraint already accounts for its sign).
-    x_end = safety_constraint(best.x)
-    touching = np.any(np.abs(x_end) <= 1e-7)
+    x_end = safety_constraint(best.x)  # x_lower + Delta*(B@f_star + u_star - d_upper), solver-enforced >= -tol
+
+    # **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    # R2 -- a real bug, independently reproduced before fixing):** a PREVIOUS
+    # version of this function classified the result using ONLY x_end (the
+    # solver-enforced constraint value), never re-checking x_lower's own sign.
+    # For an already-negative x_lower, the solver can find a "recovery" action
+    # that brings the state back to exactly 0 by the interval's END while the
+    # actual affine trajectory stays STRICTLY NEGATIVE for the entire interval
+    # up to that instant -- Astra's exact counterexample: 1 node, no edges,
+    # x_lower=-0.1, d=0, Delta=1, u_max=1, budget=1 gives u~0.1,
+    # x(t)=-0.1+0.1t, negative for every 0<=t<1, yet the old code reported
+    # status=solved, feasible=True, safety.status=boundary_touch -- claiming
+    # whole-interval safety for a trajectory that was never safe at all.
+    # Fixed: whole-interval safety for an AFFINE trajectory requires
+    # ``min(x_lower, x_end) >= 0`` componentwise (checking both endpoints
+    # suffices exactly because the trajectory is affine -- module docstring).
+    # A negative x_lower here is CERTAIN (the caller passed a definite numeric
+    # state, not a declared uncertainty bound), so it is reported as
+    # ``already_violated`` -- distinct from ``not_certified``, which
+    # ``whole_interval_safety`` reserves for a genuinely uncertain lower bound
+    # -- with ``feasible=False``: the solver still found a valid RECOVERY
+    # action (``status="solved"``), but that is not the same claim as
+    # certified whole-interval safety.
+    if np.any(x_lower < -1e-9):
+        safety = SafetyCheckResult(
+            status="already_violated", x_end_lower=x_end,
+            violating_nodes=tuple(np.where(x_lower < -1e-9)[0].tolist()),
+        )
+        return QPResult(u=u_star, f=f_star, cost=float(best.fun), feasible=False, status="solved", safety=safety)
+
+    touching = np.any(np.abs(x_end) <= 1e-7) or np.any(np.abs(x_lower) <= 1e-9)
     safety = SafetyCheckResult(
         status=("boundary_touch" if touching else "certified_safe"), x_end_lower=x_end, violating_nodes=tuple(),
     )

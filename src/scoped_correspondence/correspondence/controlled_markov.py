@@ -46,6 +46,7 @@ from dataclasses import dataclass
 from typing import Dict, Hashable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
+from scipy.optimize import linprog
 
 from scoped_correspondence.errors import ScopeViolationError
 
@@ -227,16 +228,67 @@ def check_controlled_correspondence(
 def best_minimax_macro_row(P: np.ndarray, C: np.ndarray, macro_class: int) -> Tuple[np.ndarray, float]:
     """When a macro class is NOT exactly lumpable under ``P``, find the single
     macro row that MINIMIZES the maximum absolute error across that class's
-    actual micro rows' block-sums (per-column midpoint of max/min -- the exact
-    minimax point for the sup-norm). Returns ``(best_row, max_error)``."""
+    actual micro rows' block-sums, SUBJECT TO the result itself being a valid
+    probability distribution (``q >= 0``, ``sum(q) = 1``) -- solved as the
+    linear program
+
+        min_{q,epsilon} epsilon   s.t.   q >= 0, sum(q) = 1, |q_j - b_ij| <= epsilon
+
+    via ``scipy.optimize.linprog``. Returns ``(best_row, max_error)``.
+
+    **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    R3 -- a real bug, independently reproduced before fixing):** the original
+    implementation returned the coordinate-wise midpoint of each column's
+    max/min, which minimizes an UNCONSTRAINED per-coordinate max-error but
+    need not itself be a probability distribution. Astra's exact
+    counterexample (3 macro classes; class 0's three micro rows have block
+    sums exactly ``(1,0,0)``, ``(0,1,0)``, ``(0,0,1)``) gave the midpoint
+    ``(0.5,0.5,0.5)`` -- summing to 1.5, not a valid macro transition row at
+    all -- with a reported error of 0.5, while the correct SIMPLEX-constrained
+    minimax answer is the uniform row ``(1/3,1/3,1/3)`` with error ``2/3``
+    (proof: every target coordinate needs ``q_j >= 1-epsilon``; summing all
+    three and using ``sum(q)=1`` forces ``epsilon >= 2/3``, achieved exactly
+    by the uniform row). **Fixed** by solving the actual constrained LP above
+    instead of a coordinate-wise midpoint; cross-checked against an
+    independently formulated LP in ``verify_controlled_correspondence.py``.
+    """
     _validate_partition(C)
     members = np.where(C[:, macro_class] == 1.0)[0]
     if len(members) == 0:
         raise ScopeViolationError(f"macro class {macro_class} has no micro states")
-    bs = block_sums(P, C)[members]
-    col_max, col_min = bs.max(axis=0), bs.min(axis=0)
-    best_row = (col_max + col_min) / 2.0
-    max_error = float(np.max((col_max - col_min) / 2.0))
+    bs = block_sums(P, C)[members]  # (n_members, k)
+    n_members, k = bs.shape
+
+    # Decision vector x = [q_0..q_{k-1}, epsilon].
+    c = np.zeros(k + 1)
+    c[k] = 1.0  # minimize epsilon
+
+    A_ub = []
+    b_ub = []
+    for i in range(n_members):
+        for j in range(k):
+            # q_j - epsilon <= b_ij
+            row_pos = np.zeros(k + 1)
+            row_pos[j], row_pos[k] = 1.0, -1.0
+            A_ub.append(row_pos)
+            b_ub.append(bs[i, j])
+            # -q_j - epsilon <= -b_ij
+            row_neg = np.zeros(k + 1)
+            row_neg[j], row_neg[k] = -1.0, -1.0
+            A_ub.append(row_neg)
+            b_ub.append(-bs[i, j])
+
+    A_eq = np.zeros((1, k + 1))
+    A_eq[0, :k] = 1.0
+    b_eq = [1.0]
+
+    bounds = [(0.0, 1.0)] * k + [(0.0, None)]
+
+    res = linprog(c, A_ub=np.array(A_ub), b_ub=np.array(b_ub), A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
+    if not res.success:
+        raise ScopeViolationError(f"minimax LP failed to solve: {res.message}")
+    best_row = res.x[:k]
+    max_error = float(res.x[k])
     return best_row, max_error
 
 

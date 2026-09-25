@@ -33,6 +33,25 @@ Checks:
      variant's at every one of the three lead times -- the real, expected
      situation for actual catchments, where the initial 1991 storage is
      always genuinely unknown.
+  8. SCF_REVIEW_C0_C7_4ed0cd9.md finding R8 (a real bug, independently
+     reproduced before fixing): ``calibrate_process_noise`` used to pass the
+     inner-training block's final POSTERIOR directly as the inner-validation
+     block's PRIOR, skipping the required predict() transition across that
+     day boundary. The fixed continuous-filtering construction is
+     cross-checked against an INDEPENDENTLY, manually computed single
+     predict() step from the corrected last-inner-training state.
+  9. SCF_REVIEW_C0_C7_4ed0cd9.md finding R10a (a real bug, independently
+     reproduced before fixing): ``run_catchment_state_estimation_pilot`` now
+     computes its OWN persistence baseline on the SAME common-cases mask as
+     corrected/open-loop (rather than importing a separately-scored number
+     from a different pilot with its own, slightly different mask) --
+     cross-checked against an independently, manually constructed persistence
+     forecast using the identical mask.
+  10. SCF_REVIEW_C0_C7_4ed0cd9.md finding R10b (a real bug, independently
+      reproduced before fixing): ``n_negative_storage_days`` now counts DAYS
+      with at least one negative reservoir component (never more than once
+      per day), distinct from the raw component-instance count, which CAN
+      exceed the day count when 2+ reservoirs are negative on the same day.
 """
 from __future__ import annotations
 
@@ -327,6 +346,151 @@ def check_run_catchment_pilot_end_to_end():
     return {"mae_test": {k: {str(l): v for l, v in d.items()} for k, d in result.mae_test.items()}, "w_scale": result.w_scale}
 
 
+def check_r8_calibration_transition_across_split():
+    from scoped_correspondence.observation.linear_state_estimation import predict, update, make_state
+
+    rng = np.random.default_rng(99)
+    n_days = 100
+    P = rng.gamma(1.0, 2.0, n_days)
+    c_true, k_true = 0.5, 0.05
+    alphas, rates = [1.0], [k_true]
+
+    S = 0.0
+    Q_true = np.empty(n_days)
+    for t in range(n_days):
+        u = c_true * P[t]
+        Q_true[t] = parallel_reservoir_interval_discharge([S], u, alphas, rates, 1.0)
+        S = parallel_reservoir_step([S], u, alphas, rates, 1.0)[0]
+    Q_obs = Q_true + rng.normal(0.0, 0.01, n_days)
+
+    W = np.array([[0.01]])
+    R = 1e-4
+    m0, P0 = np.array([0.0]), np.array([[1.0]])
+    n_inner_train = int(n_days * 0.8)  # matches calibrate_process_noise's default inner_val_frac=0.2
+
+    result_full = run_filter_full_span(P, Q_obs, c_true, alphas, rates, W, R, m0, P0, use_correction=True)
+
+    # Independent bridge: filter ONLY the inner-training prefix, then manually apply the
+    # required predict() + update() across the day boundary, and confirm this matches the
+    # continuous full-span filter's own result at that exact day -- never calling
+    # run_filter_full_span across the boundary twice and comparing it to itself.
+    result_prefix = run_filter_full_span(
+        P[:n_inner_train], Q_obs[:n_inner_train], c_true, alphas, rates, W, R, m0, P0, use_correction=True
+    )
+    last_state = make_state(result_prefix.posterior_means[-1], result_prefix.posterior_covs[-1])
+    F, G, H, D = reservoir_daily_mean_state_space(alphas, rates, dt=1.0)
+    u_last = c_true * P[n_inner_train - 1]
+    prior_next = predict(last_state, F=F, W=W, G=G.reshape(-1, 1), u=[u_last])
+    u_next = c_true * P[n_inner_train]
+    posterior_next = update(prior_next, y=[Q_obs[n_inner_train]], H=H, R=np.array([[R]]), D=np.array([[D]]), u=[u_next])
+
+    require(np.allclose(posterior_next.state.mean, result_full.posterior_means[n_inner_train], atol=1e-9),
+            f"manually bridged mean {posterior_next.state.mean!r} should match the continuous filter's "
+            f"{result_full.posterior_means[n_inner_train]!r}")
+    require(np.allclose(posterior_next.state.cov, result_full.posterior_covs[n_inner_train], atol=1e-9),
+            f"manually bridged covariance {posterior_next.state.cov!r} should match the continuous filter's "
+            f"{result_full.posterior_covs[n_inner_train]!r}")
+
+    # The OLD (buggy) construction -- passing the prefix's own final posterior directly as
+    # m0/P0 for a run starting at day n_inner_train -- must NOT match (confirms this check
+    # actually distinguishes the fix from the bug it replaces).
+    result_iv_buggy = run_filter_full_span(
+        P[n_inner_train:], Q_obs[n_inner_train:], c_true, alphas, rates, W, R,
+        result_prefix.posterior_means[-1], result_prefix.posterior_covs[-1], use_correction=True,
+    )
+    require(not np.allclose(result_iv_buggy.posterior_means[0], result_full.posterior_means[n_inner_train], atol=1e-9),
+            "sanity: the old buggy construction should NOT coincidentally match the correct bridged value")
+    return {
+        "bridged_mean": posterior_next.state.mean.tolist(), "continuous_mean": result_full.posterior_means[n_inner_train].tolist(),
+        "buggy_mean": result_iv_buggy.posterior_means[0].tolist(),
+    }
+
+
+def check_r10a_persistence_uses_same_common_mask():
+    from scoped_correspondence.dynamics.linear_reservoirs import parallel_reservoir_interval_discharge, parallel_reservoir_step
+    from scoped_correspondence.validation.hydrology_pilot import discharge_m3s_to_mm_day, _forward_fill
+
+    rng = np.random.default_rng(16)
+    n_days = 365 * 20
+    dates = _make_dates(n_days)
+    P = rng.gamma(1.0, 2.0, n_days)
+    true_c, true_k = 0.35, 0.015
+    area = 100.0
+    true_S0 = 20.0
+
+    S = true_S0
+    Q_mm = np.empty(n_days)
+    for t in range(n_days):
+        u = true_c * P[t]
+        Q_mm[t] = parallel_reservoir_interval_discharge([S], u, [1.0], [true_k], 1.0)
+        S = parallel_reservoir_step([S], u, [1.0], [true_k], 1.0)[0]
+    meas_noise_sd = 0.02
+    Q_mm_obs = Q_mm + rng.normal(0.0, meas_noise_sd, n_days)
+    Q_m3s = Q_mm_obs * area / 86.4
+
+    train_years, test_years = (1991, 2000), (2006, 2010)
+    result = run_catchment_state_estimation_pilot("SYNC", dates, P, Q_m3s, area, train_years, test_years, true_c, [1.0], [true_k])
+
+    # Independent, manual reconstruction of the SAME persistence forecast and the SAME
+    # common mask (including corrected/open-loop validity at every lead), entirely
+    # re-derived here rather than reusing run_catchment_state_estimation_pilot's own
+    # intermediate values.
+    years = np.array([int(d[:4]) for d in dates])
+    train_mask = (years >= train_years[0]) & (years <= train_years[1])
+    test_mask = (years >= test_years[0]) & (years <= test_years[1])
+    full_span_mask = (years >= train_years[0]) & (years <= test_years[1])
+    Q = discharge_m3s_to_mm_day(Q_m3s, area)
+    P_filled = _forward_fill(P)
+    P_full, Q_full = P_filled[full_span_mask], Q[full_span_mask]
+    test_in_full = test_mask[full_span_mask]
+    Q_test = Q[test_mask]
+
+    w_scale, R_noise = calibrate_process_noise(P_filled[train_mask], Q[train_mask], true_c, [1.0], [true_k])
+    W_mat = w_scale * np.eye(1)
+    m0v, P0v = np.zeros(1), 10.0 * np.eye(1)
+    res_corr = run_filter_full_span(P_full, Q_full, true_c, [1.0], [true_k], W_mat, R_noise, m0v, P0v, use_correction=True)
+    res_open = run_filter_full_span(P_full, Q_full, true_c, [1.0], [true_k], W_mat, R_noise, m0v, P0v, use_correction=False)
+
+    pred_persist_full = np.concatenate([[np.nan], Q_full[:-1]])
+    fc_persistence = pred_persist_full[test_in_full]
+    common = ~np.isnan(Q_test) & ~np.isnan(fc_persistence)
+    for res in (res_corr, res_open):
+        for lead in LEAD_TIMES:
+            common &= ~np.isnan(lead_time_forecast(res.posterior_means, P_full, true_c, [1.0], [true_k], lead)[test_in_full])
+
+    manual_mae = float(np.mean(np.abs(fc_persistence[common] - Q_test[common])))
+    require(int(common.sum()) == result.n_scored["1"],
+            f"independently reconstructed common-mask day count ({int(common.sum())!r}) should match the "
+            f"pilot's own n_scored['1'] ({result.n_scored['1']!r})")
+    require(abs(manual_mae - result.mae_persistence_lead1) < 1e-6,
+            f"independently reconstructed persistence MAE ({manual_mae!r}) should match the pilot's "
+            f"own mae_persistence_lead1 ({result.mae_persistence_lead1!r})")
+    return {"mae_persistence_lead1": result.mae_persistence_lead1, "manual_mae": manual_mae, "n_scored_lead1": result.n_scored["1"]}
+
+
+def check_r10b_negative_days_vs_component_instances():
+    rng = np.random.default_rng(21)
+    n_days = 40
+    P = np.zeros(n_days)
+    alphas, rates, c = np.array([0.5, 0.5]), np.array([0.05, 0.05]), 1.0
+    W = np.array([[0.0, 0.0], [0.0, 0.0]])
+    R = 0.01
+    m0, P0 = np.array([1.0, 1.0]), np.diag([0.5, 0.5])
+    Q = np.full(n_days, -10.0)  # forces BOTH reservoir components negative on every corrected day
+
+    result = run_filter_full_span(P, Q, c, alphas, rates, W, R, m0, P0, use_correction=True)
+    require(result.n_negative_storage_days > 0, "this construction should produce negative days")
+    require(result.n_negative_storage_component_instances >= result.n_negative_storage_days,
+            "component-instance count must be >= day count (can only be equal or higher, never lower)")
+    # With BOTH components forced negative on every affected day, the component count should be
+    # (close to) exactly DOUBLE the day count -- the exact bug finding R10b describes.
+    require(result.n_negative_storage_component_instances >= 2 * result.n_negative_storage_days - 2,
+            f"expected component instances (~2x per day) got days={result.n_negative_storage_days!r}, "
+            f"instances={result.n_negative_storage_component_instances!r}")
+    return {"n_negative_storage_days": result.n_negative_storage_days,
+            "n_negative_storage_component_instances": result.n_negative_storage_component_instances}
+
+
 CHECKS = [
     ("state_space_matches_existing_formulas", check_state_space_matches_existing_formulas),
     ("no_correction_matches_open_loop", check_no_correction_matches_open_loop),
@@ -335,6 +499,9 @@ CHECKS = [
     ("negative_storage_reported_not_clipped", check_negative_storage_reported_not_clipped),
     ("calibrate_process_noise_reasonable", check_calibrate_process_noise_reasonable),
     ("run_catchment_pilot_end_to_end", check_run_catchment_pilot_end_to_end),
+    ("r8_calibration_transition_across_split", check_r8_calibration_transition_across_split),
+    ("r10a_persistence_uses_same_common_mask", check_r10a_persistence_uses_same_common_mask),
+    ("r10b_negative_days_vs_component_instances", check_r10b_negative_days_vs_component_instances),
 ]
 
 

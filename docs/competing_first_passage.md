@@ -7,7 +7,27 @@ Vanden-Eijnden 2009, *Transition Path Theory for Markov Jump Processes*,
 Multiscale Model. Simul. 7(3), DOI 10.1137/070699500). Module:
 [`viability/competing_first_passage.py`](../src/scoped_correspondence/viability/competing_first_passage.py).
 Verification (synthetic control cases only):
-[`verify_competing_first_passage.py`](../verification/verify_competing_first_passage.py) (5/5).
+[`verify_competing_first_passage.py`](../verification/verify_competing_first_passage.py) (6/6).
+
+**Correction (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+finding R4 — a real bug, independently reproduced before fixing):** `committor`
+and `mean_hitting_time` relied on `np.linalg.solve(L_DD, ...)` SUCCEEDING as
+their only absorption check. For a genuinely CLOSED interior class (e.g. two
+interior states `i,j` that only cycle between each other at rates 0.3/0.4,
+never reaching `A` or `B`), `L_DD` is exactly singular in exact arithmetic,
+but floating-point LAPACK returned a FINITE (`~3.15e16`, a rounding artifact
+of a near-singular system) "mean hitting time" instead of raising — silently
+reporting nonsense as if it were a real answer, while the true value is
+infinite. **Fixed** by an explicit graph-reachability check performed BEFORE
+any linear solve: does every interior state have a directed path of
+strictly positive transition rates to `A∪B`? This is a structural, floating-
+point-independent condition, never inferred from whether a solve happens to
+succeed. The finite-horizon computation (`finite_horizon_hitting_probabilities`)
+remains valid for the SAME non-absorbing chain — `p_unresolved=1` for the
+closed interior states is a legitimate answer there, not an error. The
+published 4-state control case (`q=(0.6,0.9)`, `m=(0.6,0.4)`) is unaffected
+and independently re-confirmed unchanged by this fix.
 
 ## The question
 

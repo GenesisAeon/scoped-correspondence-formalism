@@ -21,6 +21,20 @@ Checks:
      independent trapezoidal quadrature over the recorded trajectory), must
      equal the total pulse mass (u_pulse * pulse_duration = 1.0) for every n.
   5. ScopeViolationError guards (pulse longer than horizon).
+  6. SCF_REVIEW_C0_C7_4ed0cd9.md finding R1 (a real bug, independently
+     reproduced before fixing): the original grid-based event search fully
+     MISSED a narrow negative dip in R (Astra's exact closed-form
+     counterexample, R0=0.19281716266490573) -- reporting no first-passage
+     event while simultaneously reporting a negative R_min_value, an
+     internal contradiction. The exact, grid-free breakpoint construction
+     now finds the true crossing (t*~1.0172498198798665) to <1e-9.
+  7. Three further exact cases from the review's own acceptance criteria: a
+     true TANGENTIAL touch (R reaches exactly 0 and recovers, without ever
+     going strictly negative), a construction with NO violation at all
+     (R_min stays strictly positive, consistent with first_passage_time is
+     None -- no self-contradiction), and a case whose global minimum lies
+     exactly AT a segment boundary (t=0, under a large enough inflow that R
+     is monotonically increasing throughout).
 """
 from __future__ import annotations
 
@@ -118,12 +132,61 @@ def check_scope_violation_guards():
     return {"raised": 1}
 
 
+def check_r1_narrow_dip_not_missed():
+    """SCF_REVIEW_C0_C7_4ed0cd9.md finding R1: Astra's exact closed-form
+    construction makes R dip to exactly -1e-7 at a precisely known time,
+    narrower than the old fixed grid's spacing there."""
+    R0 = 0.19281716266490573
+    expected_t_star = 1.0172498198798665
+    r = run_fixed_experiment(1, R0=R0)
+    require(r.first_passage_time is not None, "the narrow dip must be found, not silently missed")
+    require(abs(r.first_passage_time - expected_t_star) < 1e-6,
+            f"first_passage_time should be ~{expected_t_star!r}, got {r.first_passage_time!r}")
+    require(r.R_min_value < 0.0, "R_min_value must be negative here, consistent with a real crossing having been found")
+    return {"first_passage_time": r.first_passage_time, "R_min_value": r.R_min_value}
+
+
+def check_tangential_touch_no_violation_and_boundary_minimum():
+    A = 5.0 * (1.0 - np.exp(-0.2))
+    t_star = 0.2 + np.log(A / 0.4)
+
+    # A true tangential touch: R reaches EXACTLY 0 at t_star and recovers --
+    # this must still register as an event (plan: "first REACHING of R<=0"),
+    # with R_min_value exactly 0, not negative.
+    R0_tangent = 1.0 - 0.4 * (t_star + 1.0)
+    r_tangent = run_fixed_experiment(1, R0=R0_tangent)
+    require(r_tangent.first_passage_time is not None, "a true tangential touch at R=0 must still count as reaching R<=0")
+    require(abs(r_tangent.first_passage_time - t_star) < 1e-6, f"tangential touch time should be ~{t_star!r}, got {r_tangent.first_passage_time!r}")
+    require(abs(r_tangent.R_min_value) < 1e-6, f"R_min_value at a true tangential touch should be ~0, got {r_tangent.R_min_value!r}")
+
+    # No violation at all: a large R0 keeps R strictly positive throughout --
+    # first_passage_time must be None AND R_min_value must be strictly
+    # positive (no self-contradiction between the two, unlike the old bug).
+    r_none = run_fixed_experiment(1, R0=5.0)
+    require(r_none.first_passage_time is None, "a comfortably large R0 should never breach")
+    require(r_none.R_min_value > 0.0, "R_min_value must be POSITIVE when first_passage_time is None -- no self-contradiction")
+
+    # Global minimum exactly at a segment boundary (t=0): a large enough
+    # inflow keeps R monotonically increasing throughout, so its minimum is
+    # exactly the initial value at the very first breakpoint.
+    r_boundary = run_fixed_experiment(1, R0=0.1, inflow=10.0)
+    require(abs(r_boundary.R_min_time - 0.0) < 1e-12, f"minimum should be exactly at t=0, got {r_boundary.R_min_time!r}")
+    require(abs(r_boundary.R_min_value - 0.1) < 1e-9, f"minimum value should be exactly R0=0.1, got {r_boundary.R_min_value!r}")
+    return {
+        "tangent": {"t": r_tangent.first_passage_time, "R_min": r_tangent.R_min_value},
+        "none": {"first_passage": r_none.first_passage_time, "R_min": r_none.R_min_value},
+        "boundary": {"t": r_boundary.R_min_time, "R_min": r_boundary.R_min_value},
+    }
+
+
 CHECKS = [
     ("first_passage_ordering", check_first_passage_ordering),
     ("first_passage_matches_R_zero", check_first_passage_matches_R_zero),
     ("peak_and_minimum_need_not_move_together", check_peak_and_minimum_need_not_move_together),
     ("mass_balance", check_mass_balance),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("r1_narrow_dip_not_missed", check_r1_narrow_dip_not_missed),
+    ("tangential_touch_no_violation_and_boundary_minimum", check_tangential_touch_no_violation_and_boundary_minimum),
 ]
 
 

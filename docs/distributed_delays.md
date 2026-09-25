@@ -8,8 +8,53 @@ section 7. Modules:
 [`validation/distributed_delay_pilot.py`](../src/scoped_correspondence/validation/distributed_delay_pilot.py)
 (the plan's fixed pre-declared downstream-buffer experiment). Verification
 (synthetic control cases only):
-[`verify_phase_type_delays.py`](../verification/verify_phase_type_delays.py) (6/6),
-[`verify_distributed_delay_pilot.py`](../verification/verify_distributed_delay_pilot.py) (5/5).
+[`verify_phase_type_delays.py`](../verification/verify_phase_type_delays.py) (7/7),
+[`verify_distributed_delay_pilot.py`](../verification/verify_distributed_delay_pilot.py) (7/7).
+
+**Correction (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+finding R4 — a real bug, independently reproduced before fixing, shared with
+`docs/competing_first_passage.md`):** `validate_phase_type` relied only on
+`np.linalg.solve(-T, ...)` succeeding to certify absorption. A NONTRIVIAL
+closed 2-phase class (phases only cycling at rates 0.3/0.4, zero exit rate
+from either) PASSED validation with a finite (`~3.15e16`, meaningless) mean
+dwell time instead of raising. **Fixed** by an explicit graph-reachability
+check (does every phase have a positive-rate path to some phase with a
+positive exit rate?) performed BEFORE any linear solve — a structural,
+floating-point-independent condition. All phases are required to reach an
+exit (not only those reachable under the given `alpha`), since a `PhaseType`
+object can be reused later with a different `alpha`.
+
+**Correction (2026-09-25, response to
+[SCF_REVIEW_C0_C7_4ed0cd9.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_C0_C7_4ed0cd9.md),
+finding R1 — a real bug, independently reproduced before fixing):** the
+original event/extremum search scanned a dense (≥500-point) fixed grid per
+segment, then refined a found bracket exactly with `brentq` — but the SEARCH
+itself was not exhaustive: a dip narrower than the local grid spacing was
+invisible to it. Astra's exact closed-form construction (`n=1`,
+`R0=0.19281716266490573`) makes `R` dip to exactly `-1e-7` at
+`t*≈1.0179568433377357` and recover — narrower than the grid could resolve —
+so the old code reported `first_passage_time=None` while *simultaneously*
+reporting a negative `R_min_value` at that very time, an internal
+self-contradiction. **Fixed** by replacing the grid scan with an exact,
+grid-free construction: for an Erlang(n) chain under constant input, the
+output has the closed form `y(τ)=u+e^{-kτ}P(τ)` for a real polynomial `P` of
+degree `≤n-1` computed directly from the current stage occupancies (cross-
+checked to machine precision against the module's own exact propagation);
+`y`'s stationary points are exactly the real roots of `P'-kP`
+(`numpy.poly1d.roots`, not a grid), which partition each segment into pieces
+where `R'` is provably monotone, in turn bracketing `R`'s own stationary
+points exactly, in turn bracketing any `R=0` crossing exactly — no dip, no
+matter how narrow, can be missed between two exactly-located breakpoints.
+The fix recovers Astra's exact crossing time (`t*=1.017249819880103` vs. the
+independently stated `1.0172498198798665`) and the exact `n=1` output peak
+(`t=0.2`, height `0.9063462346100907`, matching Astra's independently stated
+`0.90634623461` — the old `minimize_scalar`-based peak search had also been
+only approximate: `t≈0.20000342107`, height `≈0.90634313394`). The **already-
+published `n∈{1,2,4,8}` results below were essentially unaffected** — every
+value changes only in the 6th–7th significant digit, since none of those
+four particular cases sits as close to a hidden razor-thin dip as Astra's
+adversarially constructed counterexample.
 
 ## Why a single lag isn't enough
 

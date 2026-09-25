@@ -70,6 +70,35 @@ def _as_matrix(x, shape, name: str) -> np.ndarray:
     return arr
 
 
+def _validate_covariance(M: np.ndarray, name: str, tol: float = 1e-9) -> None:
+    """**Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    R9 -- a real bug, independently reproduced before fixing):** ``update``
+    checked ONLY that the innovation covariance ``S=HPH^T+R`` was positive
+    definite -- but that check alone does not catch an invalid ``R`` (or
+    ``P``/``W``) directly: a negative measurement variance can still leave
+    ``S`` positive (``S`` is a SUM), and the mathematically-correct Joseph
+    form then produces a NEGATIVE posterior variance from that invalid input
+    (Astra's exact counterexample: ``P=[[1]]``, ``R=[[-0.5]]``, ``H=[[1]]``
+    gives ``S=0.5>0`` -- passing the old check -- yet the posterior variance
+    comes out to exactly ``-1``). **Fixed** by validating that every
+    covariance matrix (``P`` at `KalmanState` CONSTRUCTION -- covering the
+    public constructor directly, not only the exported functions --, and
+    ``W``/``R`` at every ``predict``/``update`` call) is symmetric (checked
+    BEFORE any numerical symmetrization, which is used only to absorb
+    demonstrably small rounding deviations, never to silently accept a
+    genuinely asymmetric input) and positive SEMI-definite. This is
+    independent of, and in addition to, the existing strict positive-
+    DEFINITE requirement on ``S`` itself.
+    """
+    if not np.allclose(M, M.T, atol=1e-9):
+        raise ScopeViolationError(f"{name} must be symmetric; got {M!r}")
+    eigvals = np.linalg.eigvalsh(0.5 * (M + M.T))
+    if np.min(eigvals) < -tol:
+        raise ScopeViolationError(
+            f"{name} must be positive semi-definite; got minimum eigenvalue {float(np.min(eigvals))!r}"
+        )
+
+
 @dataclass(frozen=True)
 class KalmanState:
     """A Gaussian belief ``N(mean, cov)`` over the state vector."""
@@ -83,6 +112,9 @@ class KalmanState:
             raise ScopeViolationError(f"mean must be 1-D; got shape {self.mean.shape}")
         if self.cov.shape != (n, n):
             raise ScopeViolationError(f"cov must have shape ({n},{n}); got {self.cov.shape}")
+        if not np.all(np.isfinite(self.cov)) or not np.all(np.isfinite(self.mean)):
+            raise ScopeViolationError("mean and cov must be finite")
+        _validate_covariance(self.cov, "cov")
 
 
 def make_state(mean, cov) -> KalmanState:
@@ -98,6 +130,7 @@ def predict(state: KalmanState, F, W, G=None, u=None) -> KalmanState:
     n = state.mean.shape[0]
     F = _as_matrix(F, (n, n), "F")
     W = _as_matrix(W, (n, n), "W")
+    _validate_covariance(W, "W")
     mean_pred = F @ state.mean
     if (G is None) != (u is None):
         raise ScopeViolationError("G and u must be given together or not at all")
@@ -130,8 +163,7 @@ def update(state: KalmanState, y, H, R, D=None, u=None, min_eig_ratio: float = 1
     m = y.shape[0]
     H = _as_matrix(H, (m, n), "H")
     R = _as_matrix(R, (m, m), "R")
-    if not np.allclose(R, R.T, atol=1e-12):
-        raise ScopeViolationError("R must be symmetric")
+    _validate_covariance(R, "R")
 
     y_pred = H @ state.mean
     if (D is None) != (u is None):

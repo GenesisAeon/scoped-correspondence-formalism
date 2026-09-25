@@ -96,10 +96,47 @@ def validate_phase_type(pt: PhaseType, tol: float = 1e-9) -> None:
         raise ScopeViolationError("r must equal -T @ 1 exactly")
     if np.any(r < -tol):
         raise ScopeViolationError("exit rates r must be non-negative")
+
+    # **Correction (2026-09-25, response to SCF_REVIEW_C0_C7_4ed0cd9.md finding
+    # R4 -- a real bug, independently reproduced before fixing):** relying on
+    # ``np.linalg.solve(-T, ...)`` succeeding as the ONLY absorption check is
+    # not sufficient: for a phase that never reaches an exit (e.g. two phases
+    # that only transition between each other, with r=(0,0)), ``-T`` is
+    # exactly singular in exact arithmetic, but floating-point LAPACK can
+    # still return a FINITE (~3.15e16, a rounding artifact) "mean dwell time"
+    # instead of raising -- while the true value is infinite (this phase
+    # never absorbs at all). Checked directly here via the GRAPH condition,
+    # independent of floating-point conditioning: does every phase have a
+    # directed path of strictly positive rates to some phase with a positive
+    # EXIT rate? (ALL phases are required, not only those reachable under
+    # ``alpha`` -- the stricter, unambiguous choice the review asked to be
+    # decided explicitly, since a PhaseType can be reused with a different
+    # ``alpha`` later.)
+    has_direct_exit = r > tol
+    reachable = set(np.where(has_direct_exit)[0].tolist())
+    changed = True
+    while changed:
+        changed = False
+        for i in range(n):
+            if i in reachable:
+                continue
+            for j in range(n):
+                if T[i, j] > tol and j in reachable:
+                    reachable.add(i)
+                    changed = True
+                    break
+    unreachable = [i for i in range(n) if i not in reachable]
+    if unreachable:
+        raise ScopeViolationError(
+            f"phase(s) {unreachable!r} cannot reach any exit via a positive-rate path -- "
+            f"this phase-type never absorbs from there (infinite mean dwell time), not merely "
+            f"numerically fragile"
+        )
+
     # Absorption a.s. from every state reachable under alpha requires T to be
     # non-singular (a genuinely defective/never-absorbing phase-type is out of
-    # scope here) -- checked via the SAME solve used by mean_dwell_time, not a
-    # separate eigenvalue heuristic.
+    # scope here) -- checked via the SAME solve used by mean_dwell_time, ON
+    # TOP OF (never instead of) the graph check above.
     try:
         m = np.linalg.solve(-T, np.ones(n))
     except np.linalg.LinAlgError as e:

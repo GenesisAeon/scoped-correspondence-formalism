@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C4 (competing first-passage targets and committors)",
-  "timestamp": "2026-09-25T13:01:22+02:00",
+  "timestamp": "2026-09-25T17:18:31+02:00",
   "python": "3.11.9",
   "checks": {
     "control_case_committor_and_mean_time": {
@@ -55,6 +55,18 @@
         "q_macro_interior": 0.5714285714285715,
         "p_B_H1_micro": 0.2876655406906231,
         "p_B_H1_macro": 0.28766554069062317
+      }
+    },
+    "r4_closed_interior_class_raises": {
+      "status": "pass",
+      "detail": {
+        "raised": 2,
+        "p_unresolved_H10": [
+          0.0,
+          1.0,
+          1.0,
+          0.0
+        ]
       }
     }
   }
