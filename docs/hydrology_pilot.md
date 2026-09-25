@@ -10,7 +10,43 @@ finding R7. Modules:
 [`validation/hydrology_pilot.py`](../src/scoped_correspondence/validation/hydrology_pilot.py).
 Verification (synthetic/local-server-only, no network access needed):
 [`verify_http_range_reader.py`](../verification/verify_http_range_reader.py) (4/4),
-[`verify_hydrology_pilot.py`](../verification/verify_hydrology_pilot.py) (5/5).
+[`verify_hydrology_pilot.py`](../verification/verify_hydrology_pilot.py) (7/7).
+
+**Correction (2026-09-25, response to
+[SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md](../prompts/Answers/nicht_stationäre_Treiber/SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md),
+Paket C0 — two real bugs in the code that produced the numbers below,
+independently reproduced before fixing):**
+
+- **Finding A:** the persistence baseline's prediction for the FIRST test
+  day used that day's OWN target value (`pred_persist_test[0] =
+  Q_test[0]`) — a self-referential, artificially perfect "prediction"
+  instead of the actually prior day's discharge. Reproduced exactly:
+  `Q_test=[10,12,13]` gave `[10,10,12]` (day 0 predicts itself).
+- **Finding B:** the reservoir state was propagated across
+  `train_mask | test_mask` — the union of only the two disjoint periods —
+  silently skipping the ~1826 days (2006–2010) strictly between training
+  and test. The state at the end of 2005 was fed directly into the first
+  simulated test day as if zero time had passed. Reproduced exactly on a
+  synthetic exact-generator case with a real gap: the old union
+  construction gave MAE `~1.1×10⁻³` against the true trajectory; the
+  fixed full-calendar-span construction gives MAE `0.0` (identical to
+  the true trajectory).
+
+Both fixed by simulating over the FULL CONTIGUOUS calendar span from the
+start of training through the end of testing (never a union of disjoint
+sub-periods) — new regression checks `c0_finding_a_...` and
+`c0_finding_b_...` in `verify_hydrology_pilot.py`. **Measured impact on
+the 6 real catchments below: small.** Every catchment's best-model ranking
+is UNCHANGED (persistence still wins overall on all 6; the two-reservoir
+model still beats the one-reservoir model on all 6) — the corrected
+numbers differ from the original ones only in the 3rd–4th significant
+digit for most catchments, because these reservoirs' fitted decay rates
+are fast enough, and the actually-observed 2006–2010 precipitation drives
+the state to a comparable regime by 2011 regardless of the 2005 starting
+condition. This is a property of these 6 catchments' specific dynamics,
+not a general guarantee — a catchment with much slower reservoir decay or
+a longer gap could show a materially different, uncorrected result. The
+tables below show the CORRECTED numbers only.
 
 ## This pilot was previously (wrongly) called blocked
 
@@ -78,11 +114,11 @@ from Paket B3a — including the R3/R3b numerical fixes from Paket 8).
 
 | Gauge | Persistence | Seasonal | 1-Reservoir | 2-Reservoir | Best |
 |---|---:|---:|---:|---:|---|
-| DEA11490 | **0.064** | 0.129 | 0.126 | 0.101 | persistence |
-| DE211310 | **0.095** | 0.412 | 0.425 | 0.414 | persistence |
+| DEA11490 | **0.064** | 0.129 | 0.123 | 0.100 | persistence |
+| DE211310 | **0.095** | 0.412 | 0.424 | 0.413 | persistence |
 | DEE10610 | **0.561** | 1.547 | 1.356 | 1.237 | persistence |
 | DEA11180 | **0.078** | 0.371 | 0.357 | 0.352 | persistence |
-| DE110500 | **0.384** | 1.115 | 0.875 | 0.872 | persistence |
+| DE110500 | **0.384** | 1.115 | 0.876 | 0.873 | persistence |
 | DEG10330 | **0.233** | 1.158 | 1.098 | 1.096 | persistence |
 
 **Persistence wins overall MAE on all 6 catchments, decisively.** This is
@@ -100,8 +136,8 @@ persistence itself is one of the plan's own prescribed baselines
 worse.
 
 **But the two-reservoir model DOES beat the one-reservoir model on all 6
-catchments** (0.101<0.126, 0.414<0.425, 1.237<1.356, 0.352<0.357,
-0.872<0.875, 1.096<1.098) — a consistent, if sometimes small, improvement
+catchments** (0.100<0.123, 0.413<0.424, 1.237<1.356, 0.352<0.357,
+0.873<0.876, 1.096<1.098) — a consistent, if sometimes small, improvement
 from adding the second time scale, answering the plan's actual central
 question about time-scale structure independently of whether either beats
 persistence.

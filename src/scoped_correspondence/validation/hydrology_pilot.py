@@ -13,6 +13,33 @@ claims an operational forecast).
 The driving input is ``u(t) = c * P(t)`` (plan section 9.2): ``c`` is an
 effective, TRAINING-ONLY-fitted runoff coefficient, not a claim of a
 complete water balance with identified actual evapotranspiration.
+
+**Correction (2026-09-25, response to
+prompts/Answers/nicht_stationäre_Treiber/SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md,
+Paket C0 -- two real bugs, independently reproduced before fixing):**
+
+**Finding A:** the persistence baseline's prediction for the FIRST test day
+used that day's OWN target value (``pred_persist_test[0] = Q_test[0]``),
+giving it a free, artificially perfect prediction instead of the actually
+prior day's discharge. Reproduced exactly: for ``Q_test=[10,12,13]`` the
+old code gave ``[10,10,12]`` (day 0 predicts itself).
+
+**Finding B:** the reservoir state was propagated across ``train_mask |
+test_mask`` -- the UNION of only the two disjoint periods -- silently
+skipping every day strictly between the training and test windows (e.g.
+2006-2010 between a 1991-2005 training period and a 2011-2020 test
+period). The state at the end of training was fed directly into the first
+simulated test day as if zero time had passed, instead of draining/filling
+through the actual intervening ~1826 days. Reproduced exactly: a
+2005-2011 stand-in span with 2005-only training and 2011-only test gave
+672 combined days instead of the true 2352 calendar days.
+
+Both are fixed by simulating over the FULL CONTIGUOUS calendar span from
+the start of training through the end of testing (``full_span_mask``,
+never a union of disjoint sub-periods) -- this correctly propagates state
+through any gap years (never used for fitting or scoring) and gives the
+persistence baseline access to the actual prior-day value, including the
+last gap-year day immediately before the first test day.
 """
 
 from __future__ import annotations
@@ -161,19 +188,30 @@ def run_catchment_hydro_pilot(
     fit1, _ = _fit_1res(P_train, Q_train)
     fit2, _ = _fit_2res(P_train, Q_train)
 
-    combined_mask = train_mask | test_mask
-    P_full, Q_full = P_filled[combined_mask], Q[combined_mask]
-    test_in_combined = test_mask[combined_mask]
+    # Finding B fix: simulate over the FULL CONTIGUOUS span from the start of training
+    # through the end of testing -- not just the union of the two disjoint periods --
+    # so any gap years (e.g. 2006-2010 between a 1991-2005/2011-2020 split) are actually
+    # propagated through the reservoir state instead of silently skipped.
+    full_span_mask = (years >= train_years[0]) & (years <= test_years[1])
+    P_full, Q_full = P_filled[full_span_mask], Q[full_span_mask]
+    train_in_full = train_mask[full_span_mask]
+    test_in_full = test_mask[full_span_mask]
 
     pred1_full = _simulate_1res(P_full, fit1["c"], fit1["k"])
     pred2_full = _simulate_2res(P_full, fit2["c"], fit2["k_fast"], fit2["k_slow"], fit2["alpha_fast"])
-    pred1_test, pred2_test = pred1_full[test_in_combined], pred2_full[test_in_combined]
+    pred1_test, pred2_test = pred1_full[test_in_full], pred2_full[test_in_full]
 
     Q_test = Q[test_mask]
     dates_test = np.asarray(dates)[test_mask]
     valid_test = ~np.isnan(Q_test)
 
-    pred_persist_test = np.concatenate([[Q_test[0]], Q_test[:-1]])
+    # Finding A fix: shift the FULL span's discharge series by one day (using the actual
+    # prior day's observed value, including the last gap-year day for the first test day),
+    # not the test period's own first value predicting itself. A day with no predecessor
+    # anywhere in the loaded data (only possible at the very start of the full span, i.e.
+    # if that ever fell inside the test period) is marked NaN, never silently substituted.
+    pred_persist_full = np.concatenate([[np.nan], Q_full[:-1]])
+    pred_persist_test = pred_persist_full[test_in_full]
     doy_train = np.array([d[5:10] for d in np.asarray(dates)[train_mask]])
     doy_test = np.array([d[5:10] for d in dates_test])
     doy_mean: Dict[str, float] = {}

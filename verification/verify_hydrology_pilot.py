@@ -24,6 +24,14 @@ Checks:
      (each baseline's n_scored count is reported explicitly).
   5. ScopeViolationError guards (non-overlapping-but-ordered years,
      non-positive area, insufficient coverage).
+  6. SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md Paket C0 finding A:
+     the persistence baseline's first test-day prediction must be the
+     actual prior day's discharge, never a self-referential match to its
+     own target value.
+  7. SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md Paket C0 finding B:
+     the reservoir state must be propagated through the FULL calendar
+     span, including any gap years strictly between training and test,
+     never silently skipped via a train-union-test construction.
 """
 from __future__ import annotations
 
@@ -187,12 +195,94 @@ def check_scope_violation_guards():
     return {"checked": 4}
 
 
+def check_c0_finding_a_persistence_not_self_referential():
+    """SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md Paket C0, finding A: the
+    persistence baseline's first test-day prediction must be the actual PRIOR day's
+    discharge, never that same day's own target value.
+
+    Construction (detects the bug via the AGGREGATE MAE alone, with no need to
+    inspect internal per-day arrays): discharge is constant EXCEPT for a single
+    anomalous day -- the very last training day, immediately preceding the first
+    test day. Every other test day has perfect persistence (constant series, zero
+    error). A SELF-referential first-day prediction (the old bug) would score that
+    day as a free zero-error match too, giving an overall persistence MAE of
+    EXACTLY 0. The correct prediction uses the actual (very different) prior day,
+    giving a known nonzero first-day error and thus a calculable positive MAE.
+    """
+    n = 365 + 366  # 1991 (365 days) + 1992 (leap, 366 days), contiguous, no gap needed for this finding
+    dates = _make_dates(n)
+    years = np.array([int(d[:4]) for d in dates])
+    rng = np.random.default_rng(5)
+    P = rng.gamma(1.0, 2.0, n)
+
+    area = 86.4  # makes discharge_m3s_to_mm_day the identity: q_mm_day = 86.4*q_m3s/86.4 = q_m3s
+    normal_value, anomaly_value = 5.0, 50.0
+    Q_m3s = np.full(n, normal_value)
+    last_train_idx = int(np.where(years == 1991)[0][-1])
+    Q_m3s[last_train_idx] = anomaly_value  # last training day only; every test day stays "normal_value"
+
+    r = run_catchment_hydro_pilot("SYNA", dates, P, Q_m3s, area, (1991, 1991), (1992, 1992))
+    n_test = r.n_test_days
+    want_mae = abs(anomaly_value - normal_value) / n_test  # only the first test day contributes error
+    require(abs(r.mae_test["persistence"] - want_mae) < 1e-9,
+            f"persistence MAE should reflect the real prior-day anomaly ({want_mae}), "
+            f"not a self-referential free match (which would give exactly 0.0); got {r.mae_test['persistence']}")
+    require(r.mae_test["persistence"] > 1e-6, "sanity: must not be the old bug's exact-zero result")
+    return {"mae_persistence": r.mae_test["persistence"], "want": want_mae, "n_test_days": n_test}
+
+
+def check_c0_finding_b_gap_years_propagated():
+    """SCF_INTEGRATED_EXTENSION_IMPLEMENTATION_PLAN.md Paket C0, finding B: the
+    reservoir state must be propagated through the FULL calendar span, including
+    years strictly between training and test (never a train-union-test skip that
+    silently jumps the state across the gap with zero elapsed simulated time).
+
+    Exact one-reservoir generating process with a REAL multi-year gap between
+    training and test: since the true (c,k) are used directly (no fitting noise),
+    correct gap propagation must reproduce the test period to near machine
+    precision; the old union-only construction would show a real, measurable
+    error instead (independently confirmed during development: MAE ~1.1e-3 old
+    vs 0.0 new on this exact construction).
+    """
+    n = 365 * 6  # 1991-1996: 2 years train, 2 years gap, 2 years test
+    dates = _make_dates(n)
+    rng = np.random.default_rng(6)
+    P = rng.gamma(1.0, 2.0, n)
+    c_true, k_true = 0.4, 0.01  # slow reservoir: gap-skipping causes a large, easily-detected error
+    Q_mm = _simulate_1res_synthetic(P, c_true, k_true)
+    area = 100.0
+    Q_m3s = Q_mm * area / 86.4
+
+    r = run_catchment_hydro_pilot("SYNB", dates, P, Q_m3s, area, (1991, 1992), (1995, 1996))
+    # Independent reference: integrate the SAME known (c,k) continuously over the
+    # FULL span via the module's own (already-verified) simulator called directly
+    # on the full contiguous array -- this is the definition of "correct", checked
+    # against the pilot's actual output for the test period specifically.
+    years = np.array([int(d[:4]) for d in dates])
+    full_mask = (years >= 1991) & (years <= 1996)
+    test_mask = (years >= 1995) & (years <= 1996)
+    ref_full = _simulate_1res_synthetic(P[full_mask], c_true, k_true)
+    ref_test = ref_full[test_mask[full_mask]]
+    true_test = Q_mm[test_mask]
+    require(np.mean(np.abs(ref_test - true_test)) < 1e-9, "sanity: reference construction itself must be exact")
+
+    # The pilot FITS (c,k) rather than using the true values, so allow a small fit-noise
+    # tolerance -- but this must be orders of magnitude tighter than the ~1e-3 error a
+    # gap-skipping bug would introduce.
+    require(r.mae_test["one_reservoir"] < 1e-4,
+            f"one-reservoir MAE should be near-exact when the gap is correctly propagated; "
+            f"got {r.mae_test['one_reservoir']} (a gap-skipping bug would give ~1e-3 or worse here)")
+    return {"mae_1res": r.mae_test["one_reservoir"], "fit_1res": r.fit_1res}
+
+
 CHECKS = [
     ("exact_1res_recovery", check_exact_1res_recovery),
     ("two_reservoir_does_not_degrade", check_two_reservoir_does_not_degrade),
     ("leakage_guard", check_leakage_guard),
     ("missing_day_robustness", check_missing_day_robustness),
     ("scope_violation_guards", check_scope_violation_guards),
+    ("c0_finding_a_persistence_not_self_referential", check_c0_finding_a_persistence_not_self_referential),
+    ("c0_finding_b_gap_years_propagated", check_c0_finding_b_gap_years_propagated),
 ]
 
 

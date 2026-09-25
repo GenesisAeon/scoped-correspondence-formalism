@@ -1,6 +1,6 @@
 {
   "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B3b (hydrology pilot, synthetic-only CI check)",
-  "timestamp": "2026-09-25T07:27:07+02:00",
+  "timestamp": "2026-09-25T10:54:39+02:00",
   "python": "3.11.9",
   "checks": {
     "exact_1res_recovery": {
@@ -21,13 +21,13 @@
           "alpha_fast": 0.3894578963837001
         },
         "mae_test": {
-          "persistence": 0.021084210512946323,
+          "persistence": 0.021124729687102477,
           "seasonal": 0.1254855908007922,
           "one_reservoir": 3.552341239559081e-05,
           "two_reservoir": 1.1737501495025895e-07
         },
         "mae_low_flow_test": {
-          "persistence": 0.013383661834519415,
+          "persistence": 0.01367044317393531,
           "seasonal": 0.18583611196581978,
           "one_reservoir": 3.5646105276643676e-05,
           "two_reservoir": 1.1194467450533752e-07
@@ -74,6 +74,24 @@
       "status": "pass",
       "detail": {
         "checked": 4
+      }
+    },
+    "c0_finding_a_persistence_not_self_referential": {
+      "status": "pass",
+      "detail": {
+        "mae_persistence": 0.12295081967213115,
+        "want": 0.12295081967213115,
+        "n_test_days": 366
+      }
+    },
+    "c0_finding_b_gap_years_propagated": {
+      "status": "pass",
+      "detail": {
+        "mae_1res": 2.175384345082517e-05,
+        "fit_1res": {
+          "c": 0.3999884288214718,
+          "k": 0.009999316951941607
+        }
       }
     }
   }
