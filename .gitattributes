@@ -9,3 +9,9 @@ data/owid_covid_china_world_daily_2020.csv -text
 data/noaa_mauna_loa_co2_annual_1959_2025.txt -text
 data/owid_covid_germany_usa_daily_2020.csv -text
 data/climateindicator_erf_best_aggregates_1750_2025.csv -text
+data/camels_de/CAMELS_DE_DEA11490_precip_discharge.csv -text
+data/camels_de/CAMELS_DE_DE211310_precip_discharge.csv -text
+data/camels_de/CAMELS_DE_DEE10610_precip_discharge.csv -text
+data/camels_de/CAMELS_DE_DEA11180_precip_discharge.csv -text
+data/camels_de/CAMELS_DE_DE110500_precip_discharge.csv -text
+data/camels_de/CAMELS_DE_DEG10330_precip_discharge.csv -text
