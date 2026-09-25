@@ -85,6 +85,8 @@ _EXPLICIT_CATEGORY = {
     "verify_linear_state_estimation.py": "math",
     "verify_hydrology_state_estimation.py": "math",
     "verify_controlled_correspondence.py": "math",
+    "verify_phase_type_delays.py": "math",
+    "verify_distributed_delay_pilot.py": "math",
 }
 
 

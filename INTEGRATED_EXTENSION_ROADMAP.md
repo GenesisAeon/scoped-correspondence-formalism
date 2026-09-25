@@ -23,7 +23,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | C0 | Hydrologische Zeitachse korrigieren (zwei reale Bugs) | ✅ erledigt |
 | C1 | Zustandsschätzung und Beobachtbarkeit | ✅ erledigt |
 | C2 | Korrespondenzen unter deklarierten Aktionen | ✅ erledigt |
-| C3 | Verweildauern und verteilte Verzögerungen | ⏳ offen |
+| C3 | Verweildauern und verteilte Verzögerungen | ✅ erledigt |
 | C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ⏳ offen |
 | C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ⏳ offen |
 | C6 | Wiederholte Kooperation und Wert zusätzlicher Information | ⏳ offen |
@@ -129,6 +129,42 @@ Verifiziert: `verify_controlled_correspondence.py` (5/5). Docs:
 `docs/controlled_correspondence.md`. `capability_overview.md`/`.json`
 erweitert.
 
+## C3 — Verweildauern und verteilte Verzögerungen (erledigt)
+
+`dynamics/phase_type_delays.py`: Erlang/Phasentyp-Ketten, exakte Fortpflanzung
+unter stückweise konstantem Eingang über den Standard-Trick der erweiterten
+Matrixexponential (kein ODE-Löser, keine Toleranz zu wählen, exakt auch bei
+singulärem `T`).
+
+Hand-nachgerechnete Kontrollwerte vor jedem Code: Erlang(1) und Erlang(2)
+mit `τ=1` haben beide mittlere Verweildauer 1; die CDF-Rangfolge KEHRT SICH
+zwischen `t=0,25` (`F1>F2`) und `t=2` (`F1<F2`) um — eine kleinere Varianz
+ist nicht bei jedem Horizont "schneller". Erlang(2)-Impulsantwort-Peak bei
+`t=0,5`, Höhe `2/e`.
+
+**Realer Fehler vor jeder Ergebnisveröffentlichung gefunden:** Die erste
+Implementierung des festen Experiments (`validation/distributed_delay_pilot.py`,
+`n∈{1,2,4,8}`, `τ=1`, Rechteckimpuls `u=5` auf `[0,0,2)`, Horizont 5,
+`R(0)=0,1`, `dR/dt=0,4-y(t)`) prüfte nur die Endpunkte jedes stückweise
+konstanten Segments auf Vorzeichenwechsel — das übersieht ein Abtauchen-und-
+Erholen INNERHALB eines Segments. Da `R` hier zunächst fällt und sich später
+wieder erholt, meldete der fehlerhafte Code für alle vier `n` fälschlich
+"kein Grenzdurchgang". Behoben durch dichte Segment-Abtastung + `brentq`-
+Verfeinerung, gegengeprüft durch direkte Auswertung von `R` am gemeldeten
+Zeitpunkt (`|R|<1e-8`).
+
+**Reales Ergebnis:** Ein echter Grenzdurchgang (`R≤0`) tritt für JEDES der
+vier `n` ein (0,406 / 0,845 / 1,037 / 1,093 — später bei größerem `n`).
+Peak-Ausgang und Puffer-Minimum ranken `n` aber NICHT gleich: `n=4` hat
+einen kleineren Ausgangs-Peak als `n=1` (0,888<0,906), aber ein
+schlechteres (negativeres) Minimum (-0,1088<-0,0928) — exakt die im Plan
+genannte Warnung, dass Peak- und Minimum-Änderung nicht dieselbe Richtung
+haben müssen.
+
+Verifiziert: `verify_phase_type_delays.py` (6/6),
+`verify_distributed_delay_pilot.py` (5/5). Docs: `docs/distributed_delays.md`.
+`capability_overview.md`/`.json` erweitert.
+
 ## Nächste Schritte
 
-C3 (Verweildauern und verteilte Verzögerungen) als nächstes.
+C4 (Konkurrierende Ziele, Kommittoren, Ereigniserhaltung) als nächstes.

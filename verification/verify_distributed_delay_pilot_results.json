@@ -1,0 +1,43 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C3 (distributed-delay downstream-buffer pilot)",
+  "timestamp": "2026-09-25T12:08:34+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "first_passage_ordering": {
+      "status": "pass",
+      "detail": {
+        "1": 0.4060430815997538,
+        "2": 0.8446652864757331,
+        "4": 1.0371678730744711,
+        "8": 1.092656009698057
+      }
+    },
+    "first_passage_matches_R_zero": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "peak_and_minimum_need_not_move_together": {
+      "status": "pass",
+      "detail": {
+        "peak_n1": 0.9063431339370648,
+        "peak_n4": 0.8882692509841396,
+        "R_min_n1": -0.09281726266487222,
+        "R_min_n4": -0.10878516255895332
+      }
+    },
+    "mass_balance": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "raised": 1
+      }
+    }
+  }
+}

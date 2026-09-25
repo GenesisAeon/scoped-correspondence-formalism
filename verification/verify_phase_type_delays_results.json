@@ -1,0 +1,77 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C3 (phase-type/Erlang delay chains)",
+  "timestamp": "2026-09-25T12:12:21+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "control_values_n1_n2": {
+      "status": "pass",
+      "detail": {
+        "cdf": {
+          "0.25": [
+            0.22119921692859512,
+            0.09020401043104986
+          ],
+          "1.0": [
+            0.6321205588285577,
+            0.5939941502901634
+          ],
+          "2.0": [
+            0.8646647167633873,
+            0.9084218055563291
+          ]
+        }
+      }
+    },
+    "impulse_peak": {
+      "status": "pass",
+      "detail": {
+        "t_peak": 0.5,
+        "height": 0.7357588823428846
+      }
+    },
+    "cdf_ranking_reverses": {
+      "status": "pass",
+      "detail": {
+        "f1_025": 0.22119921692859512,
+        "f2_025": 0.09020401043104986,
+        "f1_2": 0.8646647167633873,
+        "f2_2": 0.9084218055563291
+      }
+    },
+    "mean_dwell_time_independent_cross_check": {
+      "status": "pass",
+      "detail": {
+        "checked": [
+          [
+            1,
+            1.0
+          ],
+          [
+            2,
+            1.0
+          ],
+          [
+            4,
+            2.5
+          ],
+          [
+            8,
+            3.0
+          ]
+        ]
+      }
+    },
+    "propagate_linear_constant_input_closed_form": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "raised": 3
+      }
+    }
+  }
+}

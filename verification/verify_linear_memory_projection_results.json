@@ -1,7 +1,7 @@
 {
   "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 3 (linear memory projection)",
   "source": "Chorin, A. J.; Hald, O. H.; Kupferman, R. (2000): Optimal prediction and the Mori-Zwanzig representation of irreversible processes. PNAS 97, 2968-2973.",
-  "timestamp": "2026-09-25T11:53:03+02:00",
+  "timestamp": "2026-09-25T12:11:46+02:00",
   "python": "3.11.9",
   "checks": {
     "kernel_hand_arithmetic": {

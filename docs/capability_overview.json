@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "Paket C2 (controlled Markov correspondence, integrated extension roadmap)",
+    "as_of_commit": "Paket C3 (distributed delays, integrated extension roadmap)",
     "schema": [
       "module",
       "question",
@@ -349,6 +349,18 @@
         "verify_controlled_correspondence.py"
       ],
       "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C2: reports the exact minimax single-row replacement and its residual error when a class is not exactly lumpable, but does not implement an approximate-aggregation error bound. Admissibility-constraint consistency under action refinement is not separately implemented -- see docs/controlled_correspondence.md."
+    },
+    {
+      "module": "dynamics/phase_type_delays.py + validation/distributed_delay_pilot.py",
+      "question": "Does the SHAPE of a distributed delay (not just its mean) change when/how badly a downstream buffer breaches a threshold?",
+      "model_class": "Phase-type/Erlang delay chains (dz/dt=z@T+u*alpha, y=z@r), propagated exactly under piecewise-constant input via the augmented-matrix-exponential trick; combined with a linear downstream buffer.",
+      "assumptions": "Only Erlang chains (a one-parameter phase-type family) are exercised in the fixed experiment; the buffer is linear and unconstrained (can go negative, by design -- no clipping).",
+      "evidence_type": "hand-verified Erlang(1)/Erlang(2) control values (CDF, impulse response) + a fixed, pre-declared experiment (n in {1,2,4,8}) whose parameters were fixed before any result was seen",
+      "verification_scripts": [
+        "verify_phase_type_delays.py",
+        "verify_distributed_delay_pilot.py"
+      ],
+      "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C3: a real bug (missed a dip-and-recovery strictly inside one piecewise-constant segment, checking only segment endpoints) was found and fixed before any result was reported -- the original code wrongly reported no breach for any n. Peak output and buffer minimum do not rank n the same way (n=4 has a smaller peak than n=1 but a worse minimum), confirmed as an explicit pair of inequalities. General (non-Erlang) phase-type structures are implemented and control-case verified but not exercised in the fixed pilot -- see docs/distributed_delays.md."
     }
   ]
 }

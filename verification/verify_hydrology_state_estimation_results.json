@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1 (hydrology daily-mean Kalman state estimation, synthetic-only)",
-  "timestamp": "2026-09-25T11:52:36+02:00",
+  "timestamp": "2026-09-25T12:11:20+02:00",
   "python": "3.11.9",
   "checks": {
     "state_space_matches_existing_formulas": {
