@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C2 (controlled Markov correspondence)",
-  "timestamp": "2026-09-25T12:48:22+02:00",
+  "timestamp": "2026-09-25T13:01:32+02:00",
   "python": "3.11.9",
   "checks": {
     "positive_case_exact": {

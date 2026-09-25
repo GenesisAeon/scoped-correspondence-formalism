@@ -27,7 +27,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ✅ erledigt |
 | C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ✅ erledigt |
 | C6 | Wiederholte Kooperation und Wert zusätzlicher Information | ✅ erledigt |
-| C7 | Gemeinsame Auswertung und Fähigkeitsübersicht | ⏳ offen |
+| C7 | Gemeinsame Auswertung und Fähigkeitsübersicht | ✅ erledigt |
 
 Reihenfolge (Plan Abschnitt 2): C0 → C1 → C2 → C3 → C4 → C5 → C6 → C7.
 
@@ -261,6 +261,39 @@ Verifiziert: `verify_sequential_information_pilot.py` (6/6). Docs:
 `docs/sequential_information_pilot.md`. `capability_overview.md`/`.json`
 erweitert.
 
-## Nächste Schritte
+## C7 — Integration, Nachweis und Abschluss (erledigt)
 
-C7 (gemeinsame Auswertung und Fähigkeitsübersicht) als letztes Paket.
+`docs/capability_overview.md`/`.json` inkrementell mit jedem Paket um genau
+die vom Bestandsschema geforderten Felder erweitert (Frage, Modellklasse,
+Voraussetzungen, Evidenzart, Prüfskripte, bekannte Grenzen) — 6 neue
+Einträge (C1–C6), gleiches Schema wie die 28 bestehenden Modul-Einträge.
+
+**Vergleichsseite nach Plan Abschnitt 11.1:**
+
+| Paket | Welche Information fehlte zuvor? | Was wurde neu prüfbar? | Wann reicht die einfachere Darstellung? | Wann scheitert die Übertragung (kleinstes Gegenbeispiel)? | Was ist empirisch untersucht? | Was bleibt offen? |
+|---|---|---|---|---|---|---|
+| C1 | Zustand (Speicher nicht direkt beobachtbar, nur Tagesmittel-Abfluss) | Kalman-Zustandskorrektur mit exaktem Tagesmittel-Messoperator; Beobachtbarkeitsrang | Bei DEA11490 (kleinstes/schnellstes Gebiet) schlägt Korrektur sogar Persistenz; an 5/6 Gebieten bleibt der offene Regelkreis der einfachere, nicht schlechtere Ausgangspunkt | `F=0,5·I`: Beobachtbarkeitsrang fällt auf 1 (Zustandsdifferenz für `H=(1,1)` für alle Zeit unsichtbar) | 6 CAMELS-DE-Einzugsgebiete, 1991–2005 Training/2006–2010 Lücke/2011–2020 Test, konditionierter Hindcast; dieselben 6 Gebiete waren bereits Explorationspanel aus B3b, keine unabhängige Bestätigung | C1c: unabhängiges, per Metadaten VOR Ergebniseinsicht ausgewähltes Bestätigungspanel |
+| C2 | Eingriffsabbildung (aktionsabhängige Vergröberung ungeprüft) | Exakte/starke Vergröberung `P^a·C=C·Q^ω(a)`, geprüft separat pro Aktion | Wenn alle Mikroaktionen derselben Makroaktion identische Blocksummen liefern (Kontrollfall: Passiv+Intervention beide exakt) | Zwei geänderte Intervention-Zeilen (Austritt 0,1 vs. 0,3 zur zweiten Klasse) — keine einzelne Makro-Zeile passt beide | keins (rein analytischer Kontrollfall) | Keine Näherungsschranke für inexakte Vergröberung implementiert |
+| C3 | Verweildauerform (nur Mittelwert, keine Form der Verzögerung) | Erlang/Phasentyp-Kette, exakte Fortpflanzung unter stückweise konstantem Eingang | Wenn nur der Mittelwert zählt (nicht das Timing eines Grenzdurchgangs) | CDF-Rangfolge kehrt sich zwischen `t=0,25` und `t=2` um (Erlang(1) vs. Erlang(2), gleicher Mittelwert) | keins (festes, vorab deklariertes synthetisches Experiment) | Transportverzögerung mit expliziten Zwischenzuständen (Anschluss an C5) nicht gebaut |
+| C4 | Konkurrierendes Ziel (nur eine Sicherheitsgrenze, kein zweiter konkurrierender Ausgang) | Kommittor `q(x)`, mittlere Zeit `m(x)`, Grenzwahrscheinlichkeiten über festen Horizont | Bei exakter Vergröberung (Brücke zu C2) reicht die kleinere Makrokette exakt | Singuläres `L_DD` — ein Zustand erreicht `A∪B` nie sicher | keins | Vollständige Transition-Path-Ströme (C4b) mit Ergodizitätsprüfung |
+| C5 | Netzrestriktion (Kantenkapazitäten, gemeinsames Budget ungeprüft) | Sicherheit über ganzes Regelintervall, Netz-QP mit vier getrennten Status | Entkoppelter Fall (0 Kanten) reduziert exakt auf die geschlossene Drei-Puffer-Form | Feste Umverteilungsregel wird NACH Abklingen einer Lastspitze schlechter als gar keine Reaktion; myopisches QP baut vor bekannter Spitze keine Reserve auf | keins (deklariertes Modellbeispiel, explizit keine echten Netzdaten) | Transportverzögerung (Anschluss an C3); allgemeiner Netzwerkfall nur durch Mehrfachstarts, nicht durch geschlossene Form/volle aktive-Mengen-Prüfung abgesichert |
+| C6 | Nachrichtenzeit (Alterung von Information, Kosten wiederholter Abfrage ungeprüft) | Bellman-Optimalwert für Beobachten-oder-nicht über mehrere Entscheidungen | Bei `p=0,5` (keine Persistenz zwischen Schritten): Messen lohnt exakt bei `c<0,5` | `p=0`: eine Politik, die IMMER misst, ist trotz perfekter, aber kostenpflichtiger Information suboptimal gegenüber "einmal messen, dann für immer sicher wissen" | keins (analytischer Kontrollfall + repräsentatives Parameterpanel) | Volles `(p,c,Verzögerung,Horizont)`-Kreuzprodukt aus dem Plan nicht erschöpfend durchlaufen |
+
+Keine domänenübergreifende Mittelwert-Rangliste gebildet (inkompatible
+Einheiten/Fragestellungen, wie schon bei B7). Transferierbar sind die
+Verfahren (exakte Randwertprobleme, Blocksummen-/Lumpability-Prüfungen,
+Bellman-Rekursionen), nicht die Parameterwerte.
+
+**Zurückgestellte Teilaufgaben, sichtbar gehalten (Plan Abschnitt 11.2,
+Punkt 8):** C1c (unabhängiges Bestätigungspanel), C4b (vollständige
+Transition-Path-Ströme mit Ergodizitätsprüfung), C3↔C5-Transportverzögerung
+mit expliziten Zwischenzuständen, C6's volles Parameter-Kreuzprodukt. Die
+sechs Kernfähigkeiten C1–C6 selbst gelten dadurch NICHT als reduziert — jede
+hat einen hand-nachgerechneten Kontrollfall, ein registriertes Prüfskript
+und (außer C2/C3/C4/C6, die rein analytisch bleiben) mindestens einen realen
+oder fest deklarierten Anwendungsfall.
+
+**Volle Regression zum Abschluss dieser Runde:** 77/77 Mathe-Prüfungen,
+0 defekte Links (287 geprüfte relative Links über 205 Markdown-Dateien) —
+siehe Commit-Historie für die einzelnen Zwischenstände je Paket (C0 bis C6,
+je mit eigenem grünen CI-Lauf).

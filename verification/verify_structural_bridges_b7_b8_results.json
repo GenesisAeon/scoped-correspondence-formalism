@@ -97,12 +97,12 @@
     },
     "concept_origin": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Review_f8e249f.md",
     "disclaimer": "Two additional bridges (B7, B8), continuing docs/structural_relations.md's B1/B2 numbering. Uses only existing repo APIs; no new production module; no shared kernel API (Astra's explicit caution); does not mutate dynamics/, viability/, or validation/.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 4 (structural bridges B7, B8)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source_document": "docs/structural_relations.md",
-    "timestamp": "2026-09-25T07:29:06+02:00"
+    "timestamp": "2026-09-25T13:11:17+02:00"
   }
 }

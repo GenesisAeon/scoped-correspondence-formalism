@@ -56,12 +56,12 @@
       }
     },
     "data_provenance_note": "Real per-row data (see data/real_data_manifest.json entry owid_covid_world_daily_2020_2023); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' Incidence proxy is cases_7day_avg (smoothed), not raw daily counts -- inherits the moving-average autocorrelation caveat from the early-warning discussion.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "NONSTATIONARY_ROADMAP.md package 5a (COVID renewal-equation R_t)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-25T07:25:16+02:00"
+    "timestamp": "2026-09-25T13:01:57+02:00"
   }
 }

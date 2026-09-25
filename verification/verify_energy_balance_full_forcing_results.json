@@ -46,12 +46,12 @@
       }
     },
     "data_provenance_note": "Real per-row data (see data/real_data_manifest.json entry climateindicator_erf_best_aggregates_1750_2025); CC BY 4.0, attribution required: 'Indicators of Global Climate Change 2025, DOI 10.5281/zenodo.7883757.'",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 5 (energy balance CO2-only vs. full forcing)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "Smith, Walsh, Gillett, Hausfather, Palmer, von Schuckmann, Ribes, Forster et al., Indicators of Global Climate Change 2025, DOI 10.5281/zenodo.7883757 (effective radiative forcing best-estimate aggregates, ClimateIndicator/data repository, pinned git tag v2026.06.02).",
-    "timestamp": "2026-09-25T07:25:32+02:00"
+    "timestamp": "2026-09-25T13:02:46+02:00"
   }
 }

@@ -113,11 +113,11 @@
       }
     },
     "data_provenance_note": "Germany/United States: real per-row data (see data/real_data_manifest.json entry owid_covid_germany_usa_daily_2020); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' Omicron-window World data reuses the already-stored, already-verified data/owid_covid_world_daily_2020_2023.csv -- no new fetch.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 5 (COVID multi-country/multi-window generalization)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source": "Applies validation.covid_pilot's existing, unchanged exponential-growth fitting procedure to new countries and a new time window, per Astra's 2026-09-21 review of commit f8e249f (SCF_Review_f8e249f.md).",
-    "timestamp": "2026-09-25T07:25:05+02:00"
+    "timestamp": "2026-09-25T13:01:47+02:00"
   }
 }

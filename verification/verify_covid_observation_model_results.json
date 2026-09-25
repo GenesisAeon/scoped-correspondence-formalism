@@ -334,12 +334,12 @@
       }
     },
     "data_provenance_note": "Real per-row data (see data/real_data_manifest.json entry owid_covid_world_daily_2020_2023); attribution required under CC BY 4.0: 'Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.' Raw new_cases (NOT cases_7day_avg) is the observed count here -- the whole point of this module.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 5 (COVID observation model)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
-    "timestamp": "2026-09-25T07:25:08+02:00"
+    "timestamp": "2026-09-25T13:01:49+02:00"
   }
 }

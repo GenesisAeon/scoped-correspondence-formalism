@@ -105,12 +105,12 @@
       }
     },
     "disclaimer": "No parameter here was chosen by looking at rolling-origin performance; model selection is fixed by the already-shipped fitting functions.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "MECHANISTIC_VALIDATION_ROADMAP.md package 2 (common temporal forecast evaluation)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "This module applies validation.rolling_origin (already-verified generic harness) to dynamics.energy_balance, dynamics.etas, and validation.covid_renewal for the first time, per Astra's 2026-09-21 review of commit f8e249f (SCF_Review_f8e249f.md).",
-    "timestamp": "2026-09-25T07:27:21+02:00"
+    "timestamp": "2026-09-25T13:08:10+02:00"
   }
 }

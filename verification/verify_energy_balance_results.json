@@ -402,12 +402,12 @@
     },
     "data_provenance_note": "Real per-row data: data/noaa_mauna_loa_co2_annual_1959_2025.txt (NOAA GML Mauna Loa annual-mean CO2, public domain) and data/noaa_global_temp_anomaly_1880_2025.csv (see data/real_data_manifest.json). CO2-ONLY forcing is a major documented simplification -- see module docstring.",
     "disclaimer": "CO2-only forcing; fitted parameters do not claim to recover true physical climate-system constants (aerosols, other GHGs, volcanic, solar forcing all omitted). See module docstring.",
-    "numpy": "2.2.6",
+    "numpy": "2.4.6",
     "package": "NONSTATIONARY_ROADMAP.md package 5b (two-layer energy balance model)",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-25T07:25:24+02:00"
+    "timestamp": "2026-09-25T13:02:38+02:00"
   }
 }
