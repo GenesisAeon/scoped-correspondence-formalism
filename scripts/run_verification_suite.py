@@ -90,6 +90,7 @@ _EXPLICIT_CATEGORY = {
     "verify_competing_first_passage.py": "math",
     "verify_resource_network_control.py": "math",
     "verify_resource_network_pilot.py": "math",
+    "verify_sequential_information_pilot.py": "math",
 }
 
 

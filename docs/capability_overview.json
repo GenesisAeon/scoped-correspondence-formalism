@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "Paket C5 (resource network control, integrated extension roadmap)",
+    "as_of_commit": "Paket C6 (sequential information value, integrated extension roadmap)",
     "schema": [
       "module",
       "question",
@@ -384,6 +384,17 @@
         "verify_resource_network_pilot.py"
       ],
       "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C5: a real bug (whole_interval_safety's uncertainty-flavored 'not_certified' status was reused to also classify/propagate an already-negative but CERTAIN state, silently freezing its trajectory) was found via an independent hand-computation cross-check and fixed before any result was reported. Real result: a fixed (non-adaptive) redistribution rule can end up WORSE than doing nothing once the load spike it was meant for has passed; a myopic (per-interval-only) optimizer builds no reserve ahead of a KNOWN future spike and can underperform even a naive constant policy at the moment that spike hits -- matching the plan's own caution that a successful single QP proves neither infinite safety nor recursive feasibility. See docs/resource_network_control.md and docs/resource_network_pilot.md."
+    },
+    {
+      "module": "validation/sequential_information_pilot.py",
+      "question": "When is it worth paying for a costly observation across a sequence of decisions, with information that ages over time?",
+      "model_class": "Binary hidden Markov state with a deterministic belief-contraction update T(b)=p+(1-2p)b; optimal value via plain backward Bellman recursion over a finite decision tree (no discretized POMDP solver, no LLM dependency).",
+      "assumptions": "Binary state, binary/finite messages and actions, a short finite horizon (exact enumeration, no learned policy); the reported optimal 'action' is the first decision only, not a full extracted policy over all reachable beliefs.",
+      "evidence_type": "hand-verified 2-decision control case (V_2(0.5)=1.7) + a mandatory free-option property checked over 2250 (horizon,belief,p,c) combinations + a representative (p,c) parameter panel",
+      "verification_scripts": [
+        "verify_sequential_information_pilot.py"
+      ],
+      "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C6: the full (p, c, delay, horizon<=5) cross-product panel named in the plan is not exhaustively run -- a representative (p,c) panel at fixed horizon 5 is used instead, demonstrating the same qualitative phenomena (a threshold at c=0.5 when p=0.5, 'measure once then coast forever' when p=0, and that p and 1-p give identical values). See docs/sequential_information_pilot.md."
     }
   ]
 }

@@ -26,7 +26,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | C3 | Verweildauern und verteilte Verzögerungen | ✅ erledigt |
 | C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ✅ erledigt |
 | C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ✅ erledigt |
-| C6 | Wiederholte Kooperation und Wert zusätzlicher Information | ⏳ offen |
+| C6 | Wiederholte Kooperation und Wert zusätzlicher Information | ✅ erledigt |
 | C7 | Gemeinsame Auswertung und Fähigkeitsübersicht | ⏳ offen |
 
 Reihenfolge (Plan Abschnitt 2): C0 → C1 → C2 → C3 → C4 → C5 → C6 → C7.
@@ -228,6 +228,39 @@ Verifiziert: `verify_resource_network_control.py` (5/5),
 `docs/resource_network_control.md`, `docs/resource_network_pilot.md`.
 `capability_overview.md`/`.json` erweitert.
 
+## C6 — Wiederholte Kooperation und Wert zusätzlicher Information (erledigt)
+
+`validation/sequential_information_pilot.py`: binärer verborgener Zustand,
+Glaubenszustand `b`, Übergang `T(b)=p+(1-2p)b`; optimaler Wert via
+Bellman-Rückwärtsrekursion (volle Enumeration, kein POMDP-Löser, keine
+LLM-Abhängigkeit).
+
+Hand-nachgerechneter Kontrollfall vor jedem Code: `p=0,1`, `c=0,2`, 2
+Entscheidungen ab `b=0,5`. Nie messen: 1,0. Immer messen: 1,6. Einmal
+messen, dann Persistenz ausnutzen: 1,7 — genau der Bellman-Optimalwert
+`V_2(0,5)=1,7`. Alterung der Information nach perfekter Beobachtung:
+Trefferquote `1/2+1/2|1-2p|^d`, für `p=0,1`: `d=1→0,9`, `d=2→0,82`,
+`d=10→0,5536870912`.
+
+**Pflichtprüfung "freie Option":** über 2250 Kombinationen
+(`h,b,p,c`) geprüft, dass eine optionale, kostenpflichtige Beobachtung den
+Optimalwert nie schlechter macht als eine Politik ohne diese Option
+überhaupt.
+
+Symmetrischer Fehlerkanal: bei `q=0,7` (schlechter als Zufall) erreicht der
+optimale (invertierende) Decoder weiterhin 0,7, während ein naiver Decoder
+nur 0,3 erreicht.
+
+Repräsentatives `(p,c)`-Panel (Horizont 5) zeigt: bei `p=0` lohnt sich
+"einmal messen, dann für immer sicher wissen"; bei `p=0,5` (kein
+Zusammenhang zwischen Schritten) kippt die optimale Entscheidung exakt bei
+`c=0,5`. Volles `(p,c,Verzögerung,Horizont)`-Kreuzprodukt aus dem Plan nicht
+erschöpfend durchlaufen.
+
+Verifiziert: `verify_sequential_information_pilot.py` (6/6). Docs:
+`docs/sequential_information_pilot.md`. `capability_overview.md`/`.json`
+erweitert.
+
 ## Nächste Schritte
 
-C6 (Wiederholte Kooperation und Wert zusätzlicher Information) als nächstes.
+C7 (gemeinsame Auswertung und Fähigkeitsübersicht) als letztes Paket.

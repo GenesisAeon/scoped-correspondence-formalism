@@ -1,0 +1,58 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C6 (dynamic value of information)",
+  "timestamp": "2026-09-25T12:53:26+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "control_case_v2_0_5": {
+      "status": "pass",
+      "detail": {
+        "never": 1.0,
+        "always": 1.6,
+        "measure_once": 1.7000000000000002,
+        "bellman": 1.7,
+        "action": "measure"
+      }
+    },
+    "message_aging_control_values": {
+      "status": "pass",
+      "detail": {
+        "1": 0.9,
+        "2": 0.8200000000000001,
+        "10": 0.5536870912
+      }
+    },
+    "iterated_belief_matches_direct_iteration": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "free_option_property": {
+      "status": "pass",
+      "detail": {
+        "trials": 750
+      }
+    },
+    "symmetric_channel_decoders": {
+      "status": "pass",
+      "detail": {
+        "q_0.3": {
+          "q": 0.3,
+          "optimal_accuracy": 0.7,
+          "naive_accuracy": 0.7
+        },
+        "q_0.7": {
+          "q": 0.7,
+          "optimal_accuracy": 0.7,
+          "naive_accuracy": 0.30000000000000004
+        }
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "raised": 7
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "milestone": "M7_contextuality_core",
   "kind": "Legacy equivalence s01–s06 + F13 ScopeViolationError guard",
-  "generated_at_utc": "2026-09-25T10:36:03.607503+00:00",
+  "generated_at_utc": "2026-09-25T10:48:16.702837+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "scipy": "1.15.3",
