@@ -11,10 +11,39 @@
       "license": "U.S. Government work; public domain (USGS data policy).",
       "attribution_required": false,
       "row_count_excluding_header": 3974,
-      "columns": ["time", "latitude", "longitude", "depth", "mag", "magType", "nst", "gap", "dmin", "rms", "net", "id", "updated", "place", "type", "horizontalError", "depthError", "magError", "magNst", "status", "locationSource", "magSource"],
-      "date_range": ["2000-01-01", "2026-09-20"],
+      "columns": [
+        "time",
+        "latitude",
+        "longitude",
+        "depth",
+        "mag",
+        "magType",
+        "nst",
+        "gap",
+        "dmin",
+        "rms",
+        "net",
+        "id",
+        "updated",
+        "place",
+        "type",
+        "horizontalError",
+        "depthError",
+        "magError",
+        "magNst",
+        "status",
+        "locationSource",
+        "magSource"
+      ],
+      "date_range": [
+        "2000-01-01",
+        "2026-09-20"
+      ],
       "filter_applied": "minmagnitude=6.0 (server-side, no client-side row filtering)",
-      "suggested_modules": ["percolation (magnitude-frequency / Gutenberg-Richter as a branching-process style threshold comparison)", "dynamics.early_warning (temporal clustering / critical slowing down candidate)"],
+      "suggested_modules": [
+        "percolation (magnitude-frequency / Gutenberg-Richter as a branching-process style threshold comparison)",
+        "dynamics.early_warning (temporal clustering / critical slowing down candidate)"
+      ],
       "notes": "Raw bytes as returned by the API, unmodified."
     },
     {
@@ -27,11 +56,20 @@
       "license": "U.S. Government work; public domain (NOAA data policy).",
       "attribution_required": false,
       "row_count_excluding_header_and_comments": 146,
-      "columns": ["Year", "Departure from Average"],
-      "date_range": ["1880", "2025"],
+      "columns": [
+        "Year",
+        "Departure from Average"
+      ],
+      "date_range": [
+        "1880",
+        "2025"
+      ],
       "units": "Degrees Celsius, departure from the 1901-2000 average, annual (Jan-Dec) mean, global land+ocean",
       "filter_applied": "none (full published annual series)",
-      "suggested_modules": ["dynamics (cubic normal form / tipping-point framing, illustrative only -- no claim that this series follows that model)", "identifiability (trend estimation, profile likelihood on a fitted rate)"],
+      "suggested_modules": [
+        "dynamics (cubic normal form / tipping-point framing, illustrative only -- no claim that this series follows that model)",
+        "identifiability (trend estimation, profile likelihood on a fitted rate)"
+      ],
       "notes": "Raw bytes as returned by NOAA, including NOAA's own '#'-prefixed header comment lines (title/units/base period), unmodified."
     },
     {
@@ -45,10 +83,27 @@
       "attribution_required": true,
       "attribution_text": "Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.",
       "row_count_excluding_header": 1143,
-      "columns": ["date", "location", "new_cases", "new_deaths", "total_cases", "total_deaths", "weekly_cases", "weekly_deaths", "biweekly_cases", "biweekly_deaths"],
-      "date_range": ["2020-01-22", "2023-03-09"],
+      "columns": [
+        "date",
+        "location",
+        "new_cases",
+        "new_deaths",
+        "total_cases",
+        "total_deaths",
+        "weekly_cases",
+        "weekly_deaths",
+        "biweekly_cases",
+        "biweekly_deaths"
+      ],
+      "date_range": [
+        "2020-01-22",
+        "2023-03-09"
+      ],
       "filter_applied": "location == 'World' only (client-side row filter on the public source file, which covers 232 locations; the full file is much larger and available unfiltered at source_url)",
-      "suggested_modules": ["percolation / dynamics (epidemic growth-threshold comparison)", "validation (model-vs-persistence-baseline pilot analogous to docs/cygnus_pilot.md, but with confirmed real per-row data)"],
+      "suggested_modules": [
+        "percolation / dynamics (epidemic growth-threshold comparison)",
+        "validation (model-vs-persistence-baseline pilot analogous to docs/cygnus_pilot.md, but with confirmed real per-row data)"
+      ],
       "notes": "Header row plus only the rows where location=='World' were kept from the source file; no values were altered, estimated, or interpolated."
     },
     {
@@ -62,10 +117,26 @@
       "attribution_required": true,
       "attribution_text": "Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.",
       "row_count_excluding_header": 128,
-      "columns": ["date", "location", "new_cases", "new_deaths", "total_cases", "total_deaths", "weekly_cases", "weekly_deaths", "biweekly_cases", "biweekly_deaths"],
-      "date_range": ["2020-01-22", "2020-03-25"],
+      "columns": [
+        "date",
+        "location",
+        "new_cases",
+        "new_deaths",
+        "total_cases",
+        "total_deaths",
+        "weekly_cases",
+        "weekly_deaths",
+        "biweekly_cases",
+        "biweekly_deaths"
+      ],
+      "date_range": [
+        "2020-01-22",
+        "2020-03-25"
+      ],
       "filter_applied": "location in ('China','World') AND date in [2020-01-22, 2020-03-25] (client-side row filter on the same public source file as owid_covid_world_daily_2020_2023; same source file hash c07ddfe8... confirmed unchanged since 2026-09-20 retrieval)",
-      "suggested_modules": ["validation.covid_country_decomposition (NONSTATIONARY_ROADMAP.md package 2: decompose the World Pilot A aggregate into China vs. Rest-of-World components and test how much of the apparent effective-rate change is explained by shifting country composition vs. genuine within-component rate change)"],
+      "suggested_modules": [
+        "validation.covid_country_decomposition (NONSTATIONARY_ROADMAP.md package 2: decompose the World Pilot A aggregate into China vs. Rest-of-World components and test how much of the apparent effective-rate change is explained by shifting country composition vs. genuine within-component rate change)"
+      ],
       "notes": "64 dates x 2 locations = 128 rows; no values altered, estimated, or interpolated. China's first date (2020-01-22) has an empty new_cases field in the source file (kept as-is, not imputed)."
     },
     {
@@ -78,11 +149,20 @@
       "license": "U.S. Government work; public domain (NOAA data policy); NOAA requests citation of the data providers (see the file's own header) in publications.",
       "attribution_required": false,
       "row_count_excluding_header_and_comments": 67,
-      "columns": ["year", "mean_ppm", "uncertainty_ppm"],
-      "date_range": ["1959", "2025"],
+      "columns": [
+        "year",
+        "mean_ppm",
+        "uncertainty_ppm"
+      ],
+      "date_range": [
+        "1959",
+        "2025"
+      ],
       "units": "Annual mean atmospheric CO2 mole fraction, parts per million (ppm), Mauna Loa Observatory.",
       "filter_applied": "none (full published annual series)",
-      "suggested_modules": ["dynamics.energy_balance (NONSTATIONARY_ROADMAP.md package 5b: CO2-only radiative forcing F=5.35*ln(CO2/CO2_ref), Myhre et al. 1998, driving a two-layer energy balance model calibrated against noaa_global_temp_anomaly_1880_2025)"],
+      "suggested_modules": [
+        "dynamics.energy_balance (NONSTATIONARY_ROADMAP.md package 5b: CO2-only radiative forcing F=5.35*ln(CO2/CO2_ref), Myhre et al. 1998, driving a two-layer energy balance model calibrated against noaa_global_temp_anomaly_1880_2025)"
+      ],
       "notes": "Raw bytes as returned by NOAA, including NOAA's own '#'-prefixed header comment lines, unmodified. CO2-only forcing is a major documented simplification (aerosols, other GHGs, volcanic/solar forcing all omitted) -- see docs/energy_balance.md."
     },
     {
@@ -96,10 +176,26 @@
       "attribution_required": true,
       "attribution_text": "Data: Our World in Data / Johns Hopkins University CSSE COVID-19 Data Repository.",
       "row_count_excluding_header": 123,
-      "columns": ["date", "location", "new_cases", "new_deaths", "total_cases", "total_deaths", "weekly_cases", "weekly_deaths", "biweekly_cases", "biweekly_deaths"],
-      "date_range": ["2020-01-22", "2020-03-25"],
+      "columns": [
+        "date",
+        "location",
+        "new_cases",
+        "new_deaths",
+        "total_cases",
+        "total_deaths",
+        "weekly_cases",
+        "weekly_deaths",
+        "biweekly_cases",
+        "biweekly_deaths"
+      ],
+      "date_range": [
+        "2020-01-22",
+        "2020-03-25"
+      ],
       "filter_applied": "location in ('Germany','United States') AND date in [2020-01-22, 2020-03-25] (client-side row filter on the same public source file as owid_covid_world_daily_2020_2023/owid_covid_china_world_daily_2020; same source file, re-fetched fresh 2026-09-22). United States' first row is 2020-01-22 (its own first reported case); Germany's first row is 2020-01-27 (its own first reported case) -- neither is a filtering artifact.",
-      "suggested_modules": ["validation.covid_multi_country (MECHANISTIC_VALIDATION_ROADMAP.md package 5: apply covid_pilot.py's UNCHANGED exponential-growth fitting procedure to countries beyond the World aggregate, using the exact same fixed calib/holdout calendar window)"],
+      "suggested_modules": [
+        "validation.covid_multi_country (MECHANISTIC_VALIDATION_ROADMAP.md package 5: apply covid_pilot.py's UNCHANGED exponential-growth fitting procedure to countries beyond the World aggregate, using the exact same fixed calib/holdout calendar window)"
+      ],
       "notes": "123 rows total across the two locations; no values altered, estimated, or interpolated."
     },
     {
@@ -113,12 +209,237 @@
       "attribution_required": true,
       "attribution_text": "Smith, Walsh, Gillett, Hausfather, Palmer, von Schuckmann, Ribes, Forster et al., Indicators of Global Climate Change 2025, DOI 10.5281/zenodo.7883757.",
       "row_count_excluding_header": 276,
-      "columns": ["time", "timebound_lower", "timebound_upper", "CO2", "CH4", "N2O", "aerosol-radiation_interactions", "aerosol-cloud_interactions", "O3", "contrails", "land_use", "BC_on_snow", "H2O_stratospheric", "solar", "volcanic", "aerosol", "nonco2wmghg", "halogen", "anthro", "total", "minor"],
-      "date_range": ["1750.5", "2025.5"],
+      "columns": [
+        "time",
+        "timebound_lower",
+        "timebound_upper",
+        "CO2",
+        "CH4",
+        "N2O",
+        "aerosol-radiation_interactions",
+        "aerosol-cloud_interactions",
+        "O3",
+        "contrails",
+        "land_use",
+        "BC_on_snow",
+        "H2O_stratospheric",
+        "solar",
+        "volcanic",
+        "aerosol",
+        "nonco2wmghg",
+        "halogen",
+        "anthro",
+        "total",
+        "minor"
+      ],
+      "date_range": [
+        "1750.5",
+        "2025.5"
+      ],
       "units": "Effective radiative forcing, W/m^2, relative to a 1750 baseline, best-estimate (median) annual time series.",
       "filter_applied": "none (full published annual series); fetched fresh from the pinned git tag v2026.06.02 for full reproducibility, matching the version cited in Astra's 2026-09-21 review (SCF_Review_f8e249f.md).",
-      "suggested_modules": ["dynamics.energy_balance (MECHANISTIC_VALIDATION_ROADMAP.md package 5: CO2-only forcing, already used via noaa_mauna_loa_co2_annual_1959_2025.txt + the Myhre et al. 1998 formula, vs. this dataset's own directly-computed CO2 column AND its 'total' column -- all anthropogenic + natural forcings -- for a genuine CO2-only vs. full-forcing model comparison)"],
+      "suggested_modules": [
+        "dynamics.energy_balance (MECHANISTIC_VALIDATION_ROADMAP.md package 5: CO2-only forcing, already used via noaa_mauna_loa_co2_annual_1959_2025.txt + the Myhre et al. 1998 formula, vs. this dataset's own directly-computed CO2 column AND its 'total' column -- all anthropogenic + natural forcings -- for a genuine CO2-only vs. full-forcing model comparison)"
+      ],
       "notes": "Raw bytes as returned by GitHub, unmodified. 'total' includes solar and volcanic natural forcing in addition to anthropogenic forcing ('anthro'); both are provided as separate columns. This is a MUCH more complete forcing specification than the CO2-only Myhre formula already used elsewhere in this repo -- see docs/energy_balance.md for the comparison."
+    },
+    {
+      "id": "camels_de_DEA11490_precip_discharge",
+      "file": "data/camels_de/CAMELS_DE_DEA11490_precip_discharge.csv",
+      "sha256": "84c5e76a9722a446469efadf4764731708e7048b4260c812e2bd40168b61bacb",
+      "source_name": "CAMELS-DE: hydrometeorological time series and attributes for 1582 catchments in Germany (Loritz et al. 2024, ESSD 16, 5625-5642)",
+      "source_url": "https://zenodo.org/records/13837553/files/camels_de.zip",
+      "retrieved_at_utc": "2026-09-24T21:40:00Z",
+      "license": "CC-BY-4.0",
+      "attribution_required": true,
+      "attribution_text": "Loritz, R. et al. (2024). CAMELS-DE: hydro-meteorological time series and attributes for 1582 catchments in Germany. Earth System Science Data 16, 5625-5642. DOI: 10.5194/essd-16-5625-2024.",
+      "row_count_excluding_header": 25568,
+      "columns": [
+        "date",
+        "precipitation_mean",
+        "discharge_vol_obs"
+      ],
+      "date_range": [
+        "1951-01-01",
+        "2020-12-31"
+      ],
+      "filter_applied": "Single gauge DEA11490 selected from CAMELS-DE's full timeseries member 'timeseries/CAMELS_DE_hydromet_timeseries_DEA11490.csv' via selective HTTP-range ZIP extraction (no full-archive download); trimmed to 3 columns from the original 22 (date, precipitation_mean, discharge_vol_obs) -- no row filtering.",
+      "catchment_attributes": {
+        "area_km2": 129.38,
+        "dams_num": 0.0,
+        "frac_snow": 0.02,
+        "flow_perc_complete": 98.831
+      },
+      "suggested_modules": [
+        "dynamics.linear_reservoirs",
+        "validation.hydrology_pilot"
+      ],
+      "notes": "Selected per the documented rule in data/camels_de_adapter.py (record length >=1991-2020, completeness>=95%, 3 unregulated + 3 regulated catchments spanning low/median/high snow fraction) -- see docs/hydrology_pilot.md. Values are the raw columns as returned by the source CSV, unmodified (unit conversion to mm/day is done at analysis time, not baked into the stored file)."
+    },
+    {
+      "id": "camels_de_DE211310_precip_discharge",
+      "file": "data/camels_de/CAMELS_DE_DE211310_precip_discharge.csv",
+      "sha256": "887dac950c81bfe7d63f7261c7f54214107b860e4125656c6dfbb7ecdf46480e",
+      "source_name": "CAMELS-DE: hydrometeorological time series and attributes for 1582 catchments in Germany (Loritz et al. 2024, ESSD 16, 5625-5642)",
+      "source_url": "https://zenodo.org/records/13837553/files/camels_de.zip",
+      "retrieved_at_utc": "2026-09-24T21:40:00Z",
+      "license": "CC-BY-4.0",
+      "attribution_required": true,
+      "attribution_text": "Loritz, R. et al. (2024). CAMELS-DE: hydro-meteorological time series and attributes for 1582 catchments in Germany. Earth System Science Data 16, 5625-5642. DOI: 10.5194/essd-16-5625-2024.",
+      "row_count_excluding_header": 25568,
+      "columns": [
+        "date",
+        "precipitation_mean",
+        "discharge_vol_obs"
+      ],
+      "date_range": [
+        "1951-01-01",
+        "2020-12-31"
+      ],
+      "filter_applied": "Single gauge DE211310 selected from CAMELS-DE's full timeseries member 'timeseries/CAMELS_DE_hydromet_timeseries_DE211310.csv' via selective HTTP-range ZIP extraction (no full-archive download); trimmed to 3 columns from the original 22 (date, precipitation_mean, discharge_vol_obs) -- no row filtering.",
+      "catchment_attributes": {
+        "area_km2": 722.09,
+        "dams_num": 0.0,
+        "frac_snow": 0.09,
+        "flow_perc_complete": 100.0
+      },
+      "suggested_modules": [
+        "dynamics.linear_reservoirs",
+        "validation.hydrology_pilot"
+      ],
+      "notes": "Selected per the documented rule in data/camels_de_adapter.py (record length >=1991-2020, completeness>=95%, 3 unregulated + 3 regulated catchments spanning low/median/high snow fraction) -- see docs/hydrology_pilot.md. Values are the raw columns as returned by the source CSV, unmodified (unit conversion to mm/day is done at analysis time, not baked into the stored file)."
+    },
+    {
+      "id": "camels_de_DEE10610_precip_discharge",
+      "file": "data/camels_de/CAMELS_DE_DEE10610_precip_discharge.csv",
+      "sha256": "16c823a03a01525e0d4e2b34b9920170f109e4375ce86a451aee38ce98ccc587",
+      "source_name": "CAMELS-DE: hydrometeorological time series and attributes for 1582 catchments in Germany (Loritz et al. 2024, ESSD 16, 5625-5642)",
+      "source_url": "https://zenodo.org/records/13837553/files/camels_de.zip",
+      "retrieved_at_utc": "2026-09-24T21:40:00Z",
+      "license": "CC-BY-4.0",
+      "attribution_required": true,
+      "attribution_text": "Loritz, R. et al. (2024). CAMELS-DE: hydro-meteorological time series and attributes for 1582 catchments in Germany. Earth System Science Data 16, 5625-5642. DOI: 10.5194/essd-16-5625-2024.",
+      "row_count_excluding_header": 25568,
+      "columns": [
+        "date",
+        "precipitation_mean",
+        "discharge_vol_obs"
+      ],
+      "date_range": [
+        "1951-01-01",
+        "2020-12-31"
+      ],
+      "filter_applied": "Single gauge DEE10610 selected from CAMELS-DE's full timeseries member 'timeseries/CAMELS_DE_hydromet_timeseries_DEE10610.csv' via selective HTTP-range ZIP extraction (no full-archive download); trimmed to 3 columns from the original 22 (date, precipitation_mean, discharge_vol_obs) -- no row filtering.",
+      "catchment_attributes": {
+        "area_km2": 24.41,
+        "dams_num": 0.0,
+        "frac_snow": 0.25,
+        "flow_perc_complete": 100.0
+      },
+      "suggested_modules": [
+        "dynamics.linear_reservoirs",
+        "validation.hydrology_pilot"
+      ],
+      "notes": "Selected per the documented rule in data/camels_de_adapter.py (record length >=1991-2020, completeness>=95%, 3 unregulated + 3 regulated catchments spanning low/median/high snow fraction) -- see docs/hydrology_pilot.md. Values are the raw columns as returned by the source CSV, unmodified (unit conversion to mm/day is done at analysis time, not baked into the stored file)."
+    },
+    {
+      "id": "camels_de_DEA11180_precip_discharge",
+      "file": "data/camels_de/CAMELS_DE_DEA11180_precip_discharge.csv",
+      "sha256": "41f6c186fe92872c270bd2705a112716eb3a9c39cbf9a99748ad8fe70c7cd13a",
+      "source_name": "CAMELS-DE: hydrometeorological time series and attributes for 1582 catchments in Germany (Loritz et al. 2024, ESSD 16, 5625-5642)",
+      "source_url": "https://zenodo.org/records/13837553/files/camels_de.zip",
+      "retrieved_at_utc": "2026-09-24T21:40:00Z",
+      "license": "CC-BY-4.0",
+      "attribution_required": true,
+      "attribution_text": "Loritz, R. et al. (2024). CAMELS-DE: hydro-meteorological time series and attributes for 1582 catchments in Germany. Earth System Science Data 16, 5625-5642. DOI: 10.5194/essd-16-5625-2024.",
+      "row_count_excluding_header": 25568,
+      "columns": [
+        "date",
+        "precipitation_mean",
+        "discharge_vol_obs"
+      ],
+      "date_range": [
+        "1951-01-01",
+        "2020-12-31"
+      ],
+      "filter_applied": "Single gauge DEA11180 selected from CAMELS-DE's full timeseries member 'timeseries/CAMELS_DE_hydromet_timeseries_DEA11180.csv' via selective HTTP-range ZIP extraction (no full-archive download); trimmed to 3 columns from the original 22 (date, precipitation_mean, discharge_vol_obs) -- no row filtering.",
+      "catchment_attributes": {
+        "area_km2": 4264.33,
+        "dams_num": 14.0,
+        "frac_snow": 0.03,
+        "flow_perc_complete": 99.996
+      },
+      "suggested_modules": [
+        "dynamics.linear_reservoirs",
+        "validation.hydrology_pilot"
+      ],
+      "notes": "Selected per the documented rule in data/camels_de_adapter.py (record length >=1991-2020, completeness>=95%, 3 unregulated + 3 regulated catchments spanning low/median/high snow fraction) -- see docs/hydrology_pilot.md. Values are the raw columns as returned by the source CSV, unmodified (unit conversion to mm/day is done at analysis time, not baked into the stored file)."
+    },
+    {
+      "id": "camels_de_DE110500_precip_discharge",
+      "file": "data/camels_de/CAMELS_DE_DE110500_precip_discharge.csv",
+      "sha256": "0c17475805e681fecc63a40c698f541767630a9d1e061daa7b4c34cfe0a7c672",
+      "source_name": "CAMELS-DE: hydrometeorological time series and attributes for 1582 catchments in Germany (Loritz et al. 2024, ESSD 16, 5625-5642)",
+      "source_url": "https://zenodo.org/records/13837553/files/camels_de.zip",
+      "retrieved_at_utc": "2026-09-24T21:40:00Z",
+      "license": "CC-BY-4.0",
+      "attribution_required": true,
+      "attribution_text": "Loritz, R. et al. (2024). CAMELS-DE: hydro-meteorological time series and attributes for 1582 catchments in Germany. Earth System Science Data 16, 5625-5642. DOI: 10.5194/essd-16-5625-2024.",
+      "row_count_excluding_header": 25568,
+      "columns": [
+        "date",
+        "precipitation_mean",
+        "discharge_vol_obs"
+      ],
+      "date_range": [
+        "1951-01-01",
+        "2020-12-31"
+      ],
+      "filter_applied": "Single gauge DE110500 selected from CAMELS-DE's full timeseries member 'timeseries/CAMELS_DE_hydromet_timeseries_DE110500.csv' via selective HTTP-range ZIP extraction (no full-archive download); trimmed to 3 columns from the original 22 (date, precipitation_mean, discharge_vol_obs) -- no row filtering.",
+      "catchment_attributes": {
+        "area_km2": 68.14,
+        "dams_num": 2.0,
+        "frac_snow": 0.08,
+        "flow_perc_complete": 99.984
+      },
+      "suggested_modules": [
+        "dynamics.linear_reservoirs",
+        "validation.hydrology_pilot"
+      ],
+      "notes": "Selected per the documented rule in data/camels_de_adapter.py (record length >=1991-2020, completeness>=95%, 3 unregulated + 3 regulated catchments spanning low/median/high snow fraction) -- see docs/hydrology_pilot.md. Values are the raw columns as returned by the source CSV, unmodified (unit conversion to mm/day is done at analysis time, not baked into the stored file)."
+    },
+    {
+      "id": "camels_de_DEG10330_precip_discharge",
+      "file": "data/camels_de/CAMELS_DE_DEG10330_precip_discharge.csv",
+      "sha256": "d8f39ccaace58ab825527b4eb53599e9dee2555dd55517d9931c89a974bc613e",
+      "source_name": "CAMELS-DE: hydrometeorological time series and attributes for 1582 catchments in Germany (Loritz et al. 2024, ESSD 16, 5625-5642)",
+      "source_url": "https://zenodo.org/records/13837553/files/camels_de.zip",
+      "retrieved_at_utc": "2026-09-24T21:40:00Z",
+      "license": "CC-BY-4.0",
+      "attribution_required": true,
+      "attribution_text": "Loritz, R. et al. (2024). CAMELS-DE: hydro-meteorological time series and attributes for 1582 catchments in Germany. Earth System Science Data 16, 5625-5642. DOI: 10.5194/essd-16-5625-2024.",
+      "row_count_excluding_header": 25568,
+      "columns": [
+        "date",
+        "precipitation_mean",
+        "discharge_vol_obs"
+      ],
+      "date_range": [
+        "1951-01-01",
+        "2020-12-31"
+      ],
+      "filter_applied": "Single gauge DEG10330 selected from CAMELS-DE's full timeseries member 'timeseries/CAMELS_DE_hydromet_timeseries_DEG10330.csv' via selective HTTP-range ZIP extraction (no full-archive download); trimmed to 3 columns from the original 22 (date, precipitation_mean, discharge_vol_obs) -- no row filtering.",
+      "catchment_attributes": {
+        "area_km2": 123.15,
+        "dams_num": 4.0,
+        "frac_snow": 0.19,
+        "flow_perc_complete": 100.0
+      },
+      "suggested_modules": [
+        "dynamics.linear_reservoirs",
+        "validation.hydrology_pilot"
+      ],
+      "notes": "Selected per the documented rule in data/camels_de_adapter.py (record length >=1991-2020, completeness>=95%, 3 unregulated + 3 regulated catchments spanning low/median/high snow fraction) -- see docs/hydrology_pilot.md. Values are the raw columns as returned by the source CSV, unmodified (unit conversion to mm/day is done at analysis time, not baked into the stored file)."
     }
   ]
 }

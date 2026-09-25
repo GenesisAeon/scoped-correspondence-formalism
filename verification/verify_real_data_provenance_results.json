@@ -20,7 +20,7 @@
       },
       "manifest_sha256": {
         "detail": {
-          "entries_checked": 7,
+          "entries_checked": 13,
           "results": [
             {
               "file": "data/usgs_earthquakes_m6plus_2000_2026.csv",
@@ -56,6 +56,36 @@
               "file": "data/climateindicator_erf_best_aggregates_1750_2025.csv",
               "id": "climateindicator_erf_best_aggregates_1750_2025",
               "sha256": "a417eb171097a1013f51f92538c5af5ebddacc3cfc946157620f73accd360ddd"
+            },
+            {
+              "file": "data/camels_de/CAMELS_DE_DEA11490_precip_discharge.csv",
+              "id": "camels_de_DEA11490_precip_discharge",
+              "sha256": "84c5e76a9722a446469efadf4764731708e7048b4260c812e2bd40168b61bacb"
+            },
+            {
+              "file": "data/camels_de/CAMELS_DE_DE211310_precip_discharge.csv",
+              "id": "camels_de_DE211310_precip_discharge",
+              "sha256": "887dac950c81bfe7d63f7261c7f54214107b860e4125656c6dfbb7ecdf46480e"
+            },
+            {
+              "file": "data/camels_de/CAMELS_DE_DEE10610_precip_discharge.csv",
+              "id": "camels_de_DEE10610_precip_discharge",
+              "sha256": "16c823a03a01525e0d4e2b34b9920170f109e4375ce86a451aee38ce98ccc587"
+            },
+            {
+              "file": "data/camels_de/CAMELS_DE_DEA11180_precip_discharge.csv",
+              "id": "camels_de_DEA11180_precip_discharge",
+              "sha256": "41f6c186fe92872c270bd2705a112716eb3a9c39cbf9a99748ad8fe70c7cd13a"
+            },
+            {
+              "file": "data/camels_de/CAMELS_DE_DE110500_precip_discharge.csv",
+              "id": "camels_de_DE110500_precip_discharge",
+              "sha256": "0c17475805e681fecc63a40c698f541767630a9d1e061daa7b4c34cfe0a7c672"
+            },
+            {
+              "file": "data/camels_de/CAMELS_DE_DEG10330_precip_discharge.csv",
+              "id": "camels_de_DEG10330_precip_discharge",
+              "sha256": "d8f39ccaace58ab825527b4eb53599e9dee2555dd55517d9931c89a974bc613e"
             }
           ]
         },
@@ -141,6 +171,6 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "purpose": "provenance + sanity checks for data/real_data_manifest.json entries",
     "python": "3.11.9",
-    "timestamp": "2026-09-22T12:48:17+02:00"
+    "timestamp": "2026-09-25T07:29:04+02:00"
   }
 }

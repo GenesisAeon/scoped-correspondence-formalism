@@ -25,7 +25,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | B2a | Fluidrückstau und Bestandsbrücke | ✅ erledigt |
 | B2b | CTMC-Erstpassage und Queue-Pilot | ✅ erledigt |
 | B3a | Lineare Reservoirs und Gedächtnisbrücke | ✅ erledigt |
-| B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ⛔ blockiert (dokumentiert, nicht praktikabel in dieser Umgebung) |
+| B3b | CAMELS-DE-Datenpilot (echte externe Daten) | ✅ erledigt (Blocker durch Astras R7-Befund aufgelöst) |
 | B4 | Diffusions-Erstpassage (Brownsche Bewegung mit Drift) | ✅ erledigt |
 | B5a | Kapazitätsmodelle und Beobachtungs-Ablation | ✅ erledigt |
 | B5b | NASA-Batteriedatenpilot (echte externe Daten, Lizenz laut Astra ungeklärt) | ✅ erledigt (Lizenz-Blocker sauber behandelt) |
@@ -193,30 +193,46 @@ Rechtszensierung (min. beobachtete Kapazität 1,4005 Ah, nie ≤1,4 Ah
 innerhalb 168 Zyklen). Verifiziert: `verify_battery_aging_pilot.py` (6/6).
 Docs: `docs/battery_aging_pilot.md`.
 
-## B3b — CAMELS-DE-Datenpilot (blockiert, konkret dokumentiert)
+## B3b — CAMELS-DE-Datenpilot (erledigt, Blocker durch R7 aufgelöst)
 
-Netzwerkzugriff auf Zenodo funktioniert (`zenodo.org/records/13837553`,
-HTTP 200 bestätigt), aber der Datensatz liegt nur als EIN EINZIGES Archiv
-vor: `camels_de.zip`, `2.178.320.889` Bytes (≈2,18 GB) — kein Teildownload
-einzelner Einzugsgebiete über die Zenodo-API möglich, kein Zwischenformat
-mit selektivem Zugriff verfügbar. Für die verfügbare Umgebung (begrenzter
-Arbeitsspeicher/Zeit für einen einzelnen Download- und Entpackschritt
-dieser Größe innerhalb eines Werkzeugaufrufs) nicht praktikabel.
+Die ursprüngliche Einschätzung ("blockiert, da nur ein 2,18-GB-Archiv ohne
+Teildownload") war falsch — Astras Zweitreview (Befund R7) zeigte, dass der
+Zenodo-Host echte HTTP-Range-Requests unterstützt. `data/http_range_reader.py`
+(`HTTPRangeFile`, mit explizitem Abbruch falls ein Server Range ignoriert)
+erlaubt `zipfile.ZipFile`, das zentrale Verzeichnis zu lesen und einzelne
+Mitglieder gezielt zu extrahieren — insgesamt **unter 20 MB** übertragen für
+den gesamten Piloten (4 Attributtabellen + 6 vollständige 70-Jahre-Zeitreihen),
+statt der vollen 2,18 GB.
 
-Gemäß Plan Abschnitt 16 ("Ein blockierter Datenpilot bleibt offen") und
-Abschnitt 5.1 (analytische/synthetische Teile fertigstellen, Datenblock mit
-konkretem Grund offen führen): B3a (Reservoir-Mathematik, Gedächtnisbrücke)
-ist vollständig abgeschlossen und unabhängig von B3b; nur der ECHTE
-Datenpilot (6 Einzugsgebiete, Zeitteilung 1991–2020, Panel-Auswertung nach
-Plan Abschnitt 9.4–9.6) bleibt unausgeführt. Kein synthetischer Ersatz wird
-als Abschluss dieses Datenpilots ausgegeben (Plan Abschnitt 16: "Ein
-synthetischer Ersatz schließt keinen verlangten realen Datenpilot ab").
+**Auswahl** (vor jeder Modellbewertung fixiert, `data/camels_de_adapter.py`):
+6 Einzugsgebiete aus 196 Kandidaten (Datenreihe ≥1991–2020, Vollständigkeit
+≥95 %) — je 3 unregulierte und 3 regulierte, mit niedrigem/mittlerem/hohem
+Schneeanteil. Lizenz **CC-BY-4.0** (Loritz et al. 2024, ESSD 16, 5625–5642)
+— erlaubt, anders als der NASA-Batteriefall, das Einchecken kleiner
+abgeleiteter Auszüge. 6 CSV-Exzerpte (`data/camels_de/`, nur
+`date`/`precipitation_mean`/`discharge_vol_obs`) plus Manifest-Einträge in
+`data/real_data_manifest.json` (hash-geprüft durch
+`verify_real_data_provenance.py`).
 
-**Konkreter Blocker für eine Wiederaufnahme:** Zugriff auf einen
-Teildownload einzelner CAMELS-DE-Einzugsgebiete (z. B. über eine künftige
-gefilterte API, einen Data-Mirror mit Einzeldateien, oder ausreichend
-Zeit/Speicher für den vollen 2,18-GB-Download in einer Umgebung mit
-entsprechenden Ressourcen).
+**Echtes Ergebnis** (bedingter Hindcast, Training 1991–2005, Test 2011–2020,
+MAE mm/Tag): **Persistenz gewinnt auf allen 6 Einzugsgebieten deutlich**
+gegenüber Saisonreferenz, Ein- und Zwei-Speicher-Modell — ein ehrliches
+Negativergebnis für die mechanistischen Modelle (erwartbar: tägliche
+Abflussreihen sind stark autokorreliert, ein einmal trainiertes,
+niederschlagsgetriebenes Konzeptmodell ohne Nachführung schlägt selten eine
+Vortagesreferenz über ein ganzes Jahrzehnt). **Das Zwei-Speicher-Modell
+schlägt jedoch das Ein-Speicher-Modell auf allen 6 Einzugsgebieten**
+konsistent (wenn auch oft nur leicht) — die eigentliche Leitfrage nach dem
+Nutzen einer zweiten Zeitskala beantwortet sich damit unabhängig vom
+Vergleich mit Persistenz. Niedrigwasser-Teilmenge: gemischtes Ergebnis
+(Zwei-Speicher gewinnt bei 2 von 6, verliert bei 4 von 6 gegenüber
+Ein-Speicher). Eine reale Datenlücke (ein einzelner fehlender Tag in einer
+70-Jahre-Reihe) hätte die Persistenz-MAE fälschlich auf NaN gesetzt — behoben
+durch je-Baseline-Gültigkeitsmasken mit explizit ausgewiesener Stichprobengröße
+(`n_scored`). Details, volle Tabellen: `docs/hydrology_pilot.md`.
+
+Verifiziert (synthetisch/lokaler Server, kein Netzwerk nötig):
+`verify_http_range_reader.py` (4/4), `verify_hydrology_pilot.py` (5/5).
 
 ## B7 — Gemeinsamer Ergebnisvergleich und Fähigkeitsübersicht (erledigt)
 
@@ -231,7 +247,7 @@ gleiches Schema wie die 18 bestehenden Modul-Einträge.
 | Domäne | Welche Information verlor die Vereinfachung? | Reichte ein einfacheres Modell? | Was war exakt herleitbar vs. nur an Daten beobachtet? |
 |---|---|---|---|
 | Warteschlangen (B2) | Zeitliche Form des Lastverlaufs bei gleicher Gesamtlast (Laststoß vs. gleichmäßig) | Nein für Ereignisrisiko: Mittelwertmodell meldet 0% Rückstau, Stochastik ~5,6% Treffwahrscheinlichkeit bei GLEICHEN Raten | Beide Modelle exakt herleitbar (Fluid-ODE, absorbierender CTMC-Generator); kein Datenpilot in dieser Runde |
-| Hydrologie (B3) | Zweite Abfluss-Zeitskala; Anfangsspeicher-Aufteilung nicht identifizierbar aus der Summe | Unbeantwortet — echter Datenpilot blockiert (B3b) | Reservoir-Update und Faltung exakt herleitbar; reale Einzugsgebiets-Frage bleibt offen |
+| Hydrologie (B3) | Zweite Abfluss-Zeitskala; Anfangsspeicher-Aufteilung nicht identifizierbar aus der Summe | Ja für die Zeitskalen-Frage (Zwei-Speicher schlägt Ein-Speicher auf allen 6 echten Einzugsgebieten); Nein gegenüber Persistenz (verliert auf allen 6) | Reservoir-Update und Faltung exakt herleitbar; echter Piloten-Lauf auf 6 CAMELS-DE-Einzugsgebieten (CC-BY-4.0) abgeschlossen |
 | Diffusions-Erstpassage (B4) | Durchgangsrisiko bei positivem Erwartungswert (`E[X_1]=2`, aber `P(Erreichen)≈9%`) | Nein — Mittelwertaussage allein ist irreführend | Vollständig exakt herleitbar (Reflexionsprinzip); keine reale Datenfrage in dieser Runde |
 | Batteriealterung (B5) | Ob Alterung linear oder als Potenzgesetz verläuft — uneinheitlich je Zelle | Uneinheitlich: linear gewinnt bei 2/4, Potenzgesetz bei 2/4 realen Zellen, Persistenz nie | Modelle exakt herleitbar; reale Zellen zeigen echte Rechtszensierung (B0007) — Lizenz verhindert Redistribution, Ergebnis nur manuell reproduziert |
 | Kooperative Agenten (B6) | Ob getrennte Beobachtungen gemeinsam mehr Information tragen als einzeln (Synergie) | Nein für XOR (0,5→1,0 mit Nachricht); Ja für Redundanz (Kommunikation hilft nie) | Vollständig exakt durch Enumeration; PID-Zerlegung vom vorhandenen Löser bestätigt, nicht neu behauptet |
@@ -241,7 +257,7 @@ Keine domänenübergreifende Mittelwert-Rangliste gebildet (Plan Abschnitt
 (exakte Diskriminanten-/Erstpassage-/Faltungskonstruktionen), nicht die
 Parameterwerte.
 
-**Offene Teilaufgaben, sichtbar gehalten:** B3b (CAMELS-DE, blockiert),
+**Offene Teilaufgaben, sichtbar gehalten:**
 B6b (wiederholte Agentenaufgabe/OpenSpiel, ausdrücklich optional), der
 Themenatlas (Ökologie/Energie/Verkehr/Lieferketten/Neurowissenschaft/
 Astronomie, zweite Ausbaurunde) und B0's verbleibende Frage nach

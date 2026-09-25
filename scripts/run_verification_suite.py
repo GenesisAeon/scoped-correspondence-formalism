@@ -72,6 +72,12 @@ _EXPLICIT_CATEGORY = {
     # access, despite the module it tests being about real-world battery data.
     "verify_battery_aging_pilot.py": "math",
     "verify_cooperative_agents_pilot.py": "math",
+    # Runs entirely against a synthetic (exact-recovery) generating process and
+    # a local HTTP test server -- no real CAMELS-DE data or external network
+    # access, despite testing modules that are USED for a real data pilot
+    # (see docs/hydrology_pilot.md for the real, manually-reproduced results).
+    "verify_hydrology_pilot.py": "math",
+    "verify_http_range_reader.py": "math",
 }
 
 

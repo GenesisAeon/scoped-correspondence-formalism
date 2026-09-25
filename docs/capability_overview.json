@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "4667d78 (SCF_DOMAIN_EXPANSION_IMPLEMENTATION_PLAN.md Pakete B0-B6a; B3b/B5b's real-data components documented as open/handled blockers)",
+    "as_of_commit": "R7 fix (CAMELS-DE hydrology pilot resumed, B3b complete)",
     "schema": [
       "module",
       "question",
@@ -280,15 +280,18 @@
       "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B2: for rho=0.5<1 (stable mean), the deterministic fluid model reports peak backlog exactly 0 while the stochastic model with the SAME mean rates gives P(hit K)~5.6% -- a mean/fluid statement is never a stochastic safety proof. A real trace-driven pilot (plan section 8.4) is explicitly deferred."
     },
     {
-      "module": "dynamics/linear_reservoirs.py",
-      "question": "Does a model with two discharge time scales improve on a single reservoir under the same input and observation, and is the split identifiable?",
+      "module": "dynamics/linear_reservoirs.py + data/http_range_reader.py + data/camels_de_adapter.py + validation/hydrology_pilot.py",
+      "question": "Does a model with two discharge time scales improve on a single reservoir under the same input and observation, and is the split identifiable? -- now answered on real German catchments, not only synthetically.",
       "model_class": "Parallel linear reservoirs (dS_j/dt = alpha_j*u - k_j*S_j), exact closed-form update and Mori-Zwanzig-style convolution kernel.",
       "assumptions": "Linear reservoirs only -- no nonlinear runoff, snow, or evapotranspiration processes.",
-      "evidence_type": "synthetic/analytic; plan's fixed control numbers reproduced exactly and cross-checked against an independent solve_ivp integration",
+      "evidence_type": "synthetic/analytic (reservoir mechanics, cross-checked against solve_ivp); real data pilot on 6 CAMELS-DE catchments (CC-BY-4.0), reproduced once during development and committed as small derived CSV excerpts under data/camels_de/ with full manifest provenance",
       "verification_scripts": [
-        "verify_linear_reservoirs.py"
+        "verify_linear_reservoirs.py",
+        "verify_http_range_reader.py",
+        "verify_hydrology_pilot.py",
+        "verify_real_data_provenance.py"
       ],
-      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B3a: k1=k2 and alpha2=0 both reduce to the single-reservoir case; different initial storage splits with the SAME total S0 are demonstrably NOT identifiable from the observed total alone. The real CAMELS-DE data pilot (Paket B3b) remains an open, explicitly documented data blocker (only a single ~2.18GB Zenodo archive is available, no partial catchment download) -- not executed in this environment."
+      "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B3a: k1=k2 and alpha2=0 both reduce to the single-reservoir case; different initial storage splits with the SAME total S0 are demonstrably NOT identifiable from the observed total alone. Paket B3b (response to SCF_Review_fcc9a43.md finding R7): the earlier 'blocked, single 2.18GB archive' assessment was wrong -- the archive's host honors HTTP Range requests, extracting 6 selected catchments' timeseries with <20MB transferred. Real result: persistence beats all four compared models (seasonal, 1-reservoir, 2-reservoir) on all 6 catchments in raw MAE (an honest negative result, and an expected hydrological pattern for a once-fit, non-updated conceptual model over a full decade) -- but the 2-reservoir model consistently beats the 1-reservoir model on all 6 catchments, answering the actual time-scale question independently of the persistence comparison. Low-flow-window comparison between 1- and 2-reservoir is genuinely mixed (2 wins, 4 losses). Six catchments, one country/climate regime -- not claimed representative; see docs/hydrology_pilot.md for full tables."
     },
     {
       "module": "viability/first_passage_diffusion.py",

@@ -1,0 +1,80 @@
+{
+  "package": "DOMAIN_EXPANSION_ROADMAP.md Paket B3b (hydrology pilot, synthetic-only CI check)",
+  "timestamp": "2026-09-25T07:27:07+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "exact_1res_recovery": {
+      "status": "pass",
+      "detail": {
+        "gauge_id": "SYN",
+        "area_km2": 100.0,
+        "n_train_days": 731,
+        "n_test_days": 729,
+        "fit_1res": {
+          "c": 0.4000181093237679,
+          "k": 0.04999532078011942
+        },
+        "fit_2res": {
+          "c": 0.40000004821838375,
+          "k_fast": 0.050093458200101554,
+          "k_slow": 0.04994047220247173,
+          "alpha_fast": 0.3894578963837001
+        },
+        "mae_test": {
+          "persistence": 0.021084210512946323,
+          "seasonal": 0.1254855908007922,
+          "one_reservoir": 3.552341239559081e-05,
+          "two_reservoir": 1.1737501495025895e-07
+        },
+        "mae_low_flow_test": {
+          "persistence": 0.013383661834519415,
+          "seasonal": 0.18583611196581978,
+          "one_reservoir": 3.5646105276643676e-05,
+          "two_reservoir": 1.1194467450533752e-07
+        },
+        "q10_train_mm_day": 0.6390509939797802,
+        "n_low_flow_test_days": 103,
+        "n_scored": {
+          "persistence": 729,
+          "seasonal": 729,
+          "one_reservoir": 729,
+          "two_reservoir": 729
+        }
+      }
+    },
+    "two_reservoir_does_not_degrade": {
+      "status": "pass",
+      "detail": {
+        "mae_1res": 1.8749849360447815e-05,
+        "mae_2res": 4.212498145124229e-08
+      }
+    },
+    "leakage_guard": {
+      "status": "pass",
+      "detail": {
+        "fit_1res": {
+          "c": 0.34998220315086537,
+          "k": 0.07999326623015791
+        }
+      }
+    },
+    "missing_day_robustness": {
+      "status": "pass",
+      "detail": {
+        "n_scored": {
+          "persistence": 727,
+          "seasonal": 728,
+          "one_reservoir": 728,
+          "two_reservoir": 728
+        },
+        "n_test_days": 728
+      }
+    },
+    "scope_violation_guards": {
+      "status": "pass",
+      "detail": {
+        "checked": 4
+      }
+    }
+  }
+}
