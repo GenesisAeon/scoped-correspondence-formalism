@@ -24,7 +24,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | C1 | Zustandsschätzung und Beobachtbarkeit | ✅ erledigt |
 | C2 | Korrespondenzen unter deklarierten Aktionen | ✅ erledigt |
 | C3 | Verweildauern und verteilte Verzögerungen | ✅ erledigt |
-| C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ⏳ offen |
+| C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ✅ erledigt |
 | C5 | Kleine Ressourcennetzwerke mit wiederholten Eingriffen | ⏳ offen |
 | C6 | Wiederholte Kooperation und Wert zusätzlicher Information | ⏳ offen |
 | C7 | Gemeinsame Auswertung und Fähigkeitsübersicht | ⏳ offen |
@@ -165,6 +165,30 @@ Verifiziert: `verify_phase_type_delays.py` (6/6),
 `verify_distributed_delay_pilot.py` (5/5). Docs: `docs/distributed_delays.md`.
 `capability_overview.md`/`.json` erweitert.
 
+## C4 — Konkurrierende Ziele, Kommittoren, Ereigniserhaltung (erledigt)
+
+`viability/competing_first_passage.py`: Kommittor `q(x)=P(B vor A|Start x)`
+und mittlere Zeit `m(x)` als lineare Gleichungssysteme (nie explizite
+Inverse), plus Grenzwahrscheinlichkeiten über festem Horizont via
+Matrixexponential.
+
+Hand-nachgerechneter 4-Zustands-Kontrollfall vor jedem Code:
+`(q_i,q_j)=(0,6;0,9)`, `(m_i,m_j)=(0,6;0,4)`, `p_B(H=1)=(0,467359895563;
+0,829637179582)`. Ratenskalierung um `c`: `q` unverändert, `m` durch `c`
+geteilt, Grenzwahrscheinlichkeiten bei `H→H/c` ebenfalls unverändert.
+
+**Brücke zu C2:** Ein handkonstruierter 6-Zustands/3-Klassen-Generator,
+exakt vergröberbar (wiederverwendet `closure.generator_lumpability.
+is_exact_generator_lumpability`, nicht neu implementiert). Die zwei
+Mikro-Zustände derselben Interior-Klasse erhalten IDENTISCHEN Kommittor und
+IDENTISCHE mittlere Zeit, die exakt mit dem 3-Zustands-Makro-Kommittor
+übereinstimmen — geprüft sowohl auf Randwertproblem-Ebene als auch über
+feste Horizonte.
+
+Verifiziert: `verify_competing_first_passage.py` (5/5). Docs:
+`docs/competing_first_passage.md`. `capability_overview.md`/`.json`
+erweitert. Kein Realdaten-Pilot in diesem Paket.
+
 ## Nächste Schritte
 
-C4 (Konkurrierende Ziele, Kommittoren, Ereigniserhaltung) als nächstes.
+C5 (Kleine Ressourcennetzwerke mit wiederholten Eingriffen) als nächstes.

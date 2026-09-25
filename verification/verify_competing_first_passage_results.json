@@ -1,0 +1,61 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C4 (competing first-passage targets and committors)",
+  "timestamp": "2026-09-25T12:20:14+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "control_case_committor_and_mean_time": {
+      "status": "pass",
+      "detail": {
+        "q_i": 0.6,
+        "q_j": 0.8999999999999999,
+        "m_i": 0.6,
+        "m_j": 0.39999999999999997
+      }
+    },
+    "control_case_finite_horizon": {
+      "status": "pass",
+      "detail": {
+        "p_B": [
+          0.0,
+          0.4673598955630216,
+          0.8296371795820594,
+          1.0
+        ],
+        "p_unresolved": [
+          0.0,
+          0.178201061982455,
+          0.0924695044907703,
+          0.0
+        ]
+      }
+    },
+    "rate_rescaling_invariance": {
+      "status": "pass",
+      "detail": {
+        "checked_c": [
+          0.1,
+          2.0,
+          7.5
+        ]
+      }
+    },
+    "singular_L_DD_raises": {
+      "status": "pass",
+      "detail": {
+        "raised": 2
+      }
+    },
+    "bridge_to_c2_lumpability": {
+      "status": "pass",
+      "detail": {
+        "q_micro_interior": [
+          0.5714285714285715,
+          0.5714285714285715
+        ],
+        "q_macro_interior": 0.5714285714285715,
+        "p_B_H1_micro": 0.2876655406906231,
+        "p_B_H1_macro": 0.28766554069062317
+      }
+    }
+  }
+}

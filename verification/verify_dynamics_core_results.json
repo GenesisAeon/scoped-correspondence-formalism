@@ -1,7 +1,7 @@
 {
   "milestone": "M2_dynamics_core",
   "kind": "MIG equivalence (legacy verify_formalism vs Dynamics API)",
-  "generated_at_utc": "2026-09-25T10:08:47.525495+00:00",
+  "generated_at_utc": "2026-09-25T10:21:04.273796+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "count": 3,
