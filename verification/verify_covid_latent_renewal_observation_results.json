@@ -2,7 +2,7 @@
   "package": "CAPABILITY_EXPANSION_ROADMAP.md Priority 2 (COVID latent renewal + observation)",
   "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
   "default_coverage": 0.8,
-  "timestamp": "2026-09-24T14:16:53+02:00",
+  "timestamp": "2026-09-25T07:25:03+02:00",
   "python": "3.11.9",
   "checks": {
     "weekday_multiplier_hand_recovery": {

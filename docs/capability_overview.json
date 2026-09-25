@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "R7 fix (CAMELS-DE hydrology pilot resumed, B3b complete)",
+    "as_of_commit": "Paket C1 (hydrology state estimation, integrated extension roadmap)",
     "schema": [
       "module",
       "question",
@@ -326,6 +326,18 @@
         "verify_cooperative_agents_pilot.py"
       ],
       "known_limits": "DOMAIN_EXPANSION_ROADMAP.md Paket B6a: results are precise answers about the specific manipulated game environment only -- explicitly not human cognition, consciousness, or a general intelligence measure. Repeated/dynamic tasks with delayed feedback and LLM-agent extensions (plan section 12.4) are deliberately deferred."
+    },
+    {
+      "module": "observation/linear_state_estimation.py + validation/hydrology_state_estimation.py",
+      "question": "Does a Kalman state correction using the actual daily-mean discharge help a mechanistic reservoir model -- including on real catchments?",
+      "model_class": "Linear-Gaussian Kalman filter (predict/update, Joseph-form covariance, no explicit matrix inverse) connected to dynamics/linear_reservoirs.py via the exact daily-mean measurement operator (H_Delta, D_Delta derived from the same closed forms as reservoir_interval_discharge).",
+      "assumptions": "Linear-Gaussian noise model; process noise scale and measurement noise variance are calibrated per catchment/reservoir-count from training data only (inner time-ordered validation), not physically derived; unconstrained (storage can go negative).",
+      "evidence_type": "hand-verified control case + independent joint-Gaussian-conditioning cross-check (never the same filter function called against itself); real data pilot on the same 6 CAMELS-DE catchments as validation/hydrology_pilot.py",
+      "verification_scripts": [
+        "verify_linear_state_estimation.py",
+        "verify_hydrology_state_estimation.py"
+      ],
+      "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1: measurement correction reduces MAE substantially vs. the open-loop model at ALL 6 catchments and all 3 lead times (1/3/7 days), but beats the persistence baseline outright at only 1 of 6 (DEA11490). The inner-validation noise calibration always selects the LARGEST tested process-noise scale (w_scale=1e6) -- checked to be a genuine saturating plateau, not an artifact of too narrow a grid. The unconstrained Gaussian filter produces negative posterior storage on a non-trivial fraction of days at every catchment (reported explicitly, never clipped). Observability diagnostics (observability_matrix/observability_report) are control-case verified but not separately run on the fitted per-catchment (F,H) pairs. A metadata-pre-selected independent confirmation panel (C1c) is explicitly deferred -- see docs/hydrology_state_estimation.md."
     }
   ]
 }

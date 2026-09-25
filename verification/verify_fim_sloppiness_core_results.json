@@ -5,20 +5,20 @@
   "meta": {
     "doi_raju": "10.1103/PhysRevE.98.052112",
     "doi_transtrum": "10.1103/PhysRevE.83.036701",
-    "platform": "Linux-6.12.94+-x86_64-with-glibc2.41",
-    "python": "3.13.5",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
     "source": "Transtrum, Machta & Sethna 2011, Geometry of nonlinear least squares with applications to sloppy models and optimization, Phys. Rev. E 83, 036701; DOI 10.1103/PhysRevE.83.036701. Raju, Marks, Kreutz, et al. / Raju et al. 2018, Information geometry and the renormalization group, Phys. Rev. E 98, 052112 (sloppy / stiff eigendirection language).",
-    "timestamp_local": "2026-09-18T23:53:04"
+    "timestamp_local": "2026-09-25T11:36:20"
   },
   "milestone": 23,
   "name": "fisher_information_sloppiness",
   "passed": 4,
   "report": {
     "exponential_decay_sloppy": {
-      "anisotropy": 50.91996781536404,
+      "anisotropy": 50.91996781536395,
       "eigenvalues": [
-        0.35527170033386374,
-        0.006977060583032574
+        0.3552717003338638,
+        0.006977060583032588
       ],
       "fim": [
         [
@@ -27,7 +27,7 @@
         ],
         [
           -0.17196656101408106,
-          0.20859783879154942
+          0.20859783879154944
         ]
       ],
       "formula": "g = J.T @ J / sigma**2",
@@ -51,8 +51,8 @@
           -0.2706705664732254
         ]
       ],
-      "lambda_max": 0.35527170033386374,
-      "lambda_min": 0.006977060583032574,
+      "lambda_max": 0.3552717003338638,
+      "lambda_min": 0.006977060583032588,
       "model": "f=theta1*exp(-theta2*t)",
       "note": "NOT equated to identifiability_jacobian_rank (SVD rank of J)",
       "sigma": 1.0,
@@ -86,7 +86,7 @@
     },
     "not_jacobian_rank_formula": {
       "contrast": "jacobian_rank reports numerical rank of J (structural); fim anisotropy reports lambda_max/lambda_min of g=J.T@J/sigma^2 (metric). Same J, different formulas -- not equated.",
-      "fim_anisotropy": 50.91996781536404,
+      "fim_anisotropy": 50.91996781536395,
       "jacobian_rank": 2,
       "source_has_raju_doi": true,
       "source_has_transtrum_doi": true

@@ -21,7 +21,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | Paket | Inhalt | Status |
 |---|---|---|
 | C0 | Hydrologische Zeitachse korrigieren (zwei reale Bugs) | ✅ erledigt |
-| C1 | Zustandsschätzung und Beobachtbarkeit | ⏳ offen |
+| C1 | Zustandsschätzung und Beobachtbarkeit | ✅ erledigt |
 | C2 | Korrespondenzen unter deklarierten Aktionen | ⏳ offen |
 | C3 | Verweildauern und verteilte Verzögerungen | ⏳ offen |
 | C4 | Konkurrierende Ziele, Kommittoren, Ereigniserhaltung | ⏳ offen |
@@ -71,7 +71,40 @@ Verifiziert: `verify_hydrology_pilot.py` (7/7, zwei neue Regressionen
 `c0_finding_a_...` und `c0_finding_b_...`). Docs: `docs/hydrology_pilot.md`
 (neuer Correction-Block, korrigierte Tabellen).
 
+## C1 — Zustandsschätzung und Beobachtbarkeit (erledigt)
+
+`observation/linear_state_estimation.py` (generischer Kalman-Kern:
+predict/update, Joseph-Form-Kovarianz, keine explizite Matrixinversion,
+Beobachtbarkeitsmatrix/-rang) + `validation/hydrology_state_estimation.py`
+(Tagesmittel-Messoperator, der `dynamics/linear_reservoirs.py` exakt
+wiederverwendet, Rauschkalibrierung, 2×2-Realdaten-Panel).
+
+Hand-nachgerechneter Kontrollfall vor jedem Code: `F=diag(1/2,1/4)`,
+`H=(1,1)`, `m⁻=0`, `P⁻=I`, `R=1`, `y=3`, `W=0` → `K=(1/3,1/3)`, `m⁺=(1,1)`,
+`P⁺=[[2/3,-1/3],[-1/3,2/3]]`; unabhängig ein zweites Mal geprüft durch
+direkte Konditionierung der analytisch konstruierten gemeinsamen
+Gauß-Verteilung (nie den Filter zweimal gegen sich selbst aufrufen).
+
+**Reales Ergebnis (dieselben 6 CAMELS-DE-Einzugsgebiete, 2011–2020):**
+Zustandskorrektur mit dem tatsächlichen Tagesmittel-Abfluss verbessert die
+MAE gegenüber dem offenen Regelkreis an ALLEN 6 Gebieten und allen drei
+Vorlaufzeiten (1/3/7 Tage) deutlich (z. B. DEG10330 Ein-Speicher:
+1,098→0,273 bei Vorlaufzeit 1, eine Reduktion um 75 %) — schlägt die
+Persistenz-Baseline aus `hydrology_pilot.md` aber nur an einem der 6
+Gebiete (DEA11490, dem kleinsten/schnellsten). Die innere Validierung wählt
+durchgehend den größten getesteten Prozessrauschen-Skalenwert (`w_scale=1e6`)
+— geprüft als echtes Sättigungsplateau (Inner-Validation-MAE 0,1338 bei
+`w_scale=1`, 0,0978 bei `1e5`, 0,09776 bei `1e8`), kein verstecktes
+Rastermaximum. Der ungebundene Gauß-Filter erzeugt an allen 6 Gebieten an
+einem nicht trivialen Anteil der Tage negative Speicherzustände — offen
+berichtet, nie genullt.
+
+Verifiziert: `verify_linear_state_estimation.py` (6/6),
+`verify_hydrology_state_estimation.py` (7/7). Docs:
+`docs/hydrology_state_estimation.md`. `capability_overview.md`/`.json`
+erweitert. C1c (unabhängiges, vorab per Metadaten ausgewähltes
+Bestätigungspanel) explizit zurückgestellt.
+
 ## Nächste Schritte
 
-C1 (Zustandsschätzung und Beobachtbarkeit) als nächstes — laut Plan der
-mit Abstand größte Einzelaufwand der ersten Etappe.
+C2 (Korrespondenzen unter deklarierten Aktionen) als nächstes.

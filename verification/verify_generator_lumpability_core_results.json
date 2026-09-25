@@ -49,7 +49,7 @@
       }
     }
   ],
-  "core_py_git_blob_sha": "326c102c132ee1b635dcbbbabf777f8f3922ef52",
+  "core_py_git_blob_sha": "a71e7e3dca835b367393fa9d0f6d5d647d989b2b",
   "expected_master_core_blob_sha": "dc3367eddeb8dce099d5fff4fe9c97e2b25b7756",
   "partition_matrix_source": "scoped_correspondence.closure.core.partition_matrix",
   "sources": {
@@ -64,7 +64,7 @@
     }
   },
   "meta": {
-    "timestamp": "2026-09-17T13:11:00+02:00",
+    "timestamp": "2026-09-25T11:37:06+02:00",
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "numpy": "2.2.6",

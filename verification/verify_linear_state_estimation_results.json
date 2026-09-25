@@ -1,0 +1,74 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1 (linear-Gaussian state estimation core)",
+  "timestamp": "2026-09-25T11:38:52+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "control_case_update": {
+      "status": "pass",
+      "detail": {
+        "K": [
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "m_plus": [
+          1.0,
+          1.0
+        ],
+        "P_plus": [
+          [
+            0.6666666666666667,
+            -0.33333333333333337
+          ],
+          [
+            -0.33333333333333337,
+            0.6666666666666667
+          ]
+        ]
+      }
+    },
+    "predict_after_update_control_case": {
+      "status": "pass",
+      "detail": {
+        "pred_mean": 0.75,
+        "pred_var": 1.125
+      }
+    },
+    "observability_control_case": {
+      "status": "pass",
+      "detail": {
+        "det_obs": -0.25,
+        "rank_obs": 2,
+        "rank_unobs": 1,
+        "sv_unobs": [
+          1.5811388300841898,
+          0.0
+        ]
+      }
+    },
+    "joseph_form_symmetric_psd": {
+      "status": "pass",
+      "detail": {
+        "trials": 20
+      }
+    },
+    "independent_conditioning_cross_check": {
+      "status": "pass",
+      "detail": {
+        "mean_A": [
+          0.8696649623250808,
+          0.049475242195909624
+        ],
+        "mean_B": [
+          0.8696649623250808,
+          0.049475242195909624
+        ]
+      }
+    },
+    "singular_innovation_raises": {
+      "status": "pass",
+      "detail": {
+        "raised": true
+      }
+    }
+  }
+}

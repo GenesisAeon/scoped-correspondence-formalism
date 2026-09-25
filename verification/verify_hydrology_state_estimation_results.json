@@ -1,0 +1,71 @@
+{
+  "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1 (hydrology daily-mean Kalman state estimation, synthetic-only)",
+  "timestamp": "2026-09-25T11:38:19+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "state_space_matches_existing_formulas": {
+      "status": "pass",
+      "detail": {
+        "max_diff_state": 8.881784197001252e-16,
+        "max_diff_obs": 1.7763568394002505e-15
+      }
+    },
+    "no_correction_matches_open_loop": {
+      "status": "pass",
+      "detail": {
+        "max_diff_vs_open_loop": 4.440892098500626e-16,
+        "n_updates_applied": 0
+      }
+    },
+    "correction_converges_to_truth": {
+      "status": "pass",
+      "detail": {
+        "mae_corrected": 0.000381562502273336,
+        "mae_open_loop": 0.03849669669093756
+      }
+    },
+    "no_future_leakage": {
+      "status": "pass",
+      "detail": {
+        "t_check": 40,
+        "fc_a": 0.7591757452932483,
+        "fc_b": 0.7591757452932483
+      }
+    },
+    "negative_storage_reported_not_clipped": {
+      "status": "pass",
+      "detail": {
+        "n_negative_storage_days": 60,
+        "min_mean": -69.72452701860628
+      }
+    },
+    "calibrate_process_noise_reasonable": {
+      "status": "pass",
+      "detail": {
+        "w_scale": 1e-05,
+        "R": 0.0008915705473222376,
+        "mae_chosen": 0.02232481736877727,
+        "mae_too_small": 0.02232387600952727,
+        "mae_too_large": 0.03151192741759352
+      }
+    },
+    "run_catchment_pilot_end_to_end": {
+      "status": "pass",
+      "detail": {
+        "mae_test": {
+          "corrected": {
+            "1": 0.015697598224641333,
+            "3": 0.015696358431312285,
+            "7": 0.015695996740235394
+          },
+          "open_loop": {
+            "1": 0.01569431235485461,
+            "3": 0.01569431235485461,
+            "7": 0.01569431235485461
+          }
+        },
+        "w_scale": 0.0001
+      }
+    }
+  }
+}

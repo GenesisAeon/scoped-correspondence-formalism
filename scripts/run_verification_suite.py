@@ -78,6 +78,12 @@ _EXPLICIT_CATEGORY = {
     # (see docs/hydrology_pilot.md for the real, manually-reproduced results).
     "verify_hydrology_pilot.py": "math",
     "verify_http_range_reader.py": "math",
+    # Purely synthetic control cases and cross-checks against already-verified
+    # closed-form reservoir formulas -- no real CAMELS-DE data or network access,
+    # despite connecting to the same module used for a real data pilot (see
+    # docs/hydrology_state_estimation.md for the real, manually-reproduced results).
+    "verify_linear_state_estimation.py": "math",
+    "verify_hydrology_state_estimation.py": "math",
 }
 
 

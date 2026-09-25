@@ -1,7 +1,7 @@
 {
   "milestone": "M6_cygnus_pilot",
   "kind": "illustrative method demonstration on unverified per-epoch data (honesty over beauty)",
-  "generated_at_utc": "2026-09-20T17:23:41.227440+00:00",
+  "generated_at_utc": "2026-09-25T05:25:19.093711+00:00",
   "python": "3.11.9",
   "numpy": "2.2.6",
   "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\cygnus_x1_radio_epochs.yaml",

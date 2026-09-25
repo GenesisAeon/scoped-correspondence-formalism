@@ -1,7 +1,7 @@
 {
   "milestone": "M4_membership_core",
   "kind": "Hand-checkable membership / T5 checks + t10 viability cross-check",
-  "generated_at_utc": "2026-09-16T20:31:29.015320+00:00",
+  "generated_at_utc": "2026-09-25T09:38:54.401532+00:00",
   "python": "3.11.9",
   "numpy": "2.2.6",
   "count": 4,
