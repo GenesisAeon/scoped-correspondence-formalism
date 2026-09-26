@@ -23,7 +23,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | G2 | Exakter Homologievertrag mit Zeitabbildung | G1 | ✅ erledigt |
 | G3 | Kontrollmodelle und Beobachtungsäquivalenz | G1–G2 | ✅ erledigt |
 | G4 | Reproduzierbarer SPARC-Adapter | G0 | ✅ erledigt |
-| G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | offen |
+| G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | ✅ erledigt |
 | G6 | Quellengetreue Yoon-Reproduktion | vollständige Quelle plus G0–G3 | 🚫 blockiert (Quelle fehlt) |
 | G7 | Dokumentation und Fähigkeitsbilanz | fertige Teilpakete | offen |
 
@@ -272,3 +272,43 @@ Byte-Bereichs-Parser.
 gegen die tatsächlich heruntergeladenen Dateien: 175 Metadaten-Zeilen,
 3391 Komponentenzeilen, identische Galaxienmengen in beiden Tabellen).
 Volle Regression: 98/98 grün.
+
+## G5 — Kleiner Datenpilot und Identifizierbarkeit (erledigt)
+
+Neu: `src/scoped_correspondence/validation/galaxy_pilot.py`,
+`verification/verify_galaxy_pilot.py` (Kategorie `math`, registriert),
+`docs/galaxy_pilot.md` (der echte, einmalig reproduzierte Pilotlauf gegen
+die realen lokalen SPARC-Dateien — analog zum etablierten
+`docs/hydrology_pilot.md`-Muster: das CI-Skript bleibt rein synthetisch,
+das Dokument ist der Nachweis des echten Laufs). Volle Details, Tabellen
+und Einordnung in `docs/galaxy_pilot.md`; hier nur die Kurzfassung.
+
+**Eingefrorene Auswahl (§10.1):** von 175 SPARC-Galaxien erfüllen 94 die
+Eignungskriterien; deterministische 6+6-Dev/Eval-Auswahl über drei
+SBeff-Drittel und SHA-256-Ranking reproduziert exakt wie im Plan
+beschrieben — kein Drittel unterschritt die Mindestanzahl.
+
+**Modus A (§10.2, deskriptiv):** alle 12 ausgewählten Galaxien
+konvergieren, keine trifft eine Rechengrenze. `mu_h` streut über fast
+eine Größenordnung (97–997 Msun/pc²) — auf dieser kleinen Stichprobe
+**keine auffällige Konstanz**, was die G0-Populationsbefunde (Donato
+~141, Yoon ~174 Msun/pc²) nicht widerlegt, da Methodik und Stichprobe
+hier bewusst anders (kleiner, andere Fit-Prozedur) sind.
+
+**Modus B (§10.3–10.4, gehaltener Außenradien-Test):** kein Baseline
+gewinnt einheitlich über die 6 Evaluationsgalaxien (Burkert 2/6 klar
+besser, MOND 3/6, NFW 1/6) — ehrliches, nicht vorab festgelegtes
+Ergebnis. UGC02487 fällt mit einem deutlichen MOND-Ausreißer (RMSE 62
+km/s) auf, als auffälliger Einzelfall vermerkt, nicht als systematisches
+MOND-Versagen überinterpretiert.
+
+**7/7 Pflichtkontrollen grün (§10.5):** exakte rauschfreie Rückgewinnung;
+Informationsverlust bei reiner Innenkurve unter realistischem Rauschen
+(5 Rauschzüge, `r0`-Fehler durchgängig >10-fach schlechter innen als
+weitreichend — die reine Rauschfreiheit allein hätte das nicht gezeigt);
+700-vs-900-Vorzeichenregression; Entfernungsskalierung reproduziert exakt
+die G2-Homologie-Vorhersage (verbindet G2+G4+G5); Lecktest bit-identisch;
+Beobachtungsäquivalenz aus G3 wiederverwendet; Randtreffer korrekt
+gemeldet bei außerhalb der Rechengrenzen liegendem wahren Wert.
+
+Volle Regression: 99/99 grün.

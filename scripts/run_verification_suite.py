@@ -104,6 +104,7 @@ _EXPLICIT_CATEGORY = {
     # check marked "skipped") when they are absent -- Standard-CI never
     # needs them.
     "verify_sparc_real_local.py": "data",
+    "verify_galaxy_pilot.py": "math",
 }
 
 

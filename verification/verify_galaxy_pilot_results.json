@@ -1,0 +1,65 @@
+{
+  "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G5 (mandatory synthetic controls, Plan \u00a710.5)",
+  "timestamp": "2026-09-26T14:34:04+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "exact_noiseless_recovery_wide_range": {
+      "status": "pass",
+      "detail": {
+        "rho0_relerr": 9.251858538542972e-16,
+        "r0_relerr": 4.547473508864641e-16
+      }
+    },
+    "inner_radius_information_loss": {
+      "status": "pass",
+      "detail": {
+        "wide_r0_relerr": [
+          0.059395797683573164,
+          0.04165279450687088,
+          0.03176219155591798,
+          0.024014120921984915,
+          0.02021093896846605
+        ],
+        "inner_r0_relerr": [
+          0.8742442696830737,
+          15.666640545251386,
+          0.946798908191672,
+          0.7291029196216038,
+          0.9054684695408117
+        ]
+      }
+    },
+    "sign_convention_700_not_900": {
+      "status": "pass",
+      "detail": {
+        "v_bar_sq": 700.0
+      }
+    },
+    "distance_scaling_matches_g2_homology": {
+      "status": "pass",
+      "detail": {
+        "rho0_scaled": 0.01199999999999999,
+        "r0_scaled": 7500.000000000005
+      }
+    },
+    "leak_test_holdout_does_not_affect_training": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "observation_equivalence_same_g_same_vc": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "boundary_hit_reported_for_out_of_bounds_truth": {
+      "status": "pass",
+      "detail": {
+        "fitted_rho0": 1.0000000000000021e-05,
+        "boundary_hit": "True"
+      }
+    }
+  }
+}
