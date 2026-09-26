@@ -1,0 +1,63 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "statewise_minimal_intervention_matches_plan_table": {
+      "(0.0, 2.0)": {
+        "u": [
+          1.0,
+          0.0
+        ],
+        "cost": 1.0
+      },
+      "(1.0, 1.0)": {
+        "u": [
+          0.0,
+          0.0
+        ],
+        "cost": 0.0
+      },
+      "(2.0, 0.0)": {
+        "u": [
+          0.0,
+          1.0
+        ],
+        "cost": 1.0
+      }
+    },
+    "uniform_budget1_impossible_budget2_possible": {
+      "minimal_uniform_u": [
+        1.0,
+        1.0
+      ],
+      "minimal_uniform_budget": 2.0
+    },
+    "minimal_uniform_intervention_infeasible_beyond_box": {
+      "raised": true
+    },
+    "sign_based_policy_matches_statewise_and_uniform_costs": {
+      "per_state_u": {
+        "(0.0, 2.0)": [
+          1.0,
+          0.0
+        ],
+        "(1.0, 1.0)": [
+          0.0,
+          0.0
+        ],
+        "(2.0, 0.0)": [
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "three_information_modes_table": {
+      "A": 2.0,
+      "B": 1.0,
+      "C": 1.0
+    },
+    "reused_functions_are_the_existing_unmodified_ones": {
+      "same_function_objects": true
+    }
+  }
+}

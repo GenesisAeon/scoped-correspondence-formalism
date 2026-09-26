@@ -19,7 +19,7 @@ Verletzungen, volle Suiten-Regression nach jedem Paket.
 | H2 | Tragende Annahmen und Inkonsistenzkerne | H1 | ✅ erledigt |
 | H3 | Beobachtungsabhängige Identifikation | H1 | ✅ erledigt |
 | H4 | Endliche Entscheidungen unter deklarierter Ungewissheit | H1 | ✅ erledigt |
-| H5 | Integrierter Pufferpilot (K5, kontinuierlich) | H1, H4 | offen |
+| H5 | Integrierter Pufferpilot (K5, kontinuierlich) | H1, H4 | ✅ erledigt |
 | H6a | Adapter an bestehende SCF-Berichte (Pflicht) | H1–H3 | offen |
 | H6b | Optional: synthetischer Galaxienfall | H6a | offen |
 | H6c | Zurückgestellt: echte SPARC-Berichte | H6a | 🚫 zurückgestellt |
@@ -274,3 +274,50 @@ Wahrscheinlichkeiten, expliziter `uniformly_feasible=False`-Fall).
 `verify_epistemic_finite.py` weiterhin 9/9, `verify_epistemic_supports.py`
 weiterhin 7/7, `verify_epistemic_identification.py` weiterhin 6/6 grün,
 volle lokale Regression grün, Linkprüfung 0 kaputte relative Links.
+
+## H5 — Integrierter Pufferpilot (K5, kontinuierlich) (erledigt)
+
+`docs/epistemic_buffer_pilot.md` (vor dem Code geschrieben) und
+`src/scoped_correspondence/validation/epistemic_buffer_pilot.py`
+verdrahten die H4-Unterscheidung zustandsweise vs. uniform zulässig mit
+der bereits vorhandenen, unabhängig geprüften Zwei-Puffer-CBF-QP-
+Maschinerie (`viability/coupled_buffer_cbf_qp.py`: `BufferSpec`,
+`sustained_safety_over_horizon`, `solve_cbf_qp`) — keine neue
+Sicherheits-/Optimierungslogik, nur eine Instanziierung für die exakte
+K5-Faser (dieselbe Faser wie K4: `{(0,2),(1,1),(2,0)}`, Drain 1, Horizont
+1, `0<=u_i<=1`, gemeinsames Budget `u1+u2<=B`). Da Horizont und Drain
+hier exakt 1 sind, fällt der Plan-Ausdruck `min{x_i(0), x_i(0)+u_i-1}>=0`
+exakt mit der bereits vorhandenen Formel in `sustained_safety_over_horizon`
+zusammen — bestätigt, kein neuer Sonderfall im Code.
+
+`statewise_minimal_intervention` reproduziert exakt die Plan-Tabelle:
+`(0,2)→u=(1,0)` Kosten 1, `(1,1)→u=(0,0)` Kosten 0, `(2,0)→u=(0,1)`
+Kosten 1. `minimal_uniform_intervention` berechnet die minimale
+gemeinsame Intervention in GESCHLOSSENER FORM (pro Pufferindex das
+Maximum der CBF-Anforderung über die ganze Faser, keine Suche) und liefert
+exakt `u=(1,1)`, Budget 2 — zusätzlich numerisch gegen
+`sustained_safety_over_horizon` sowie ein 21×21-Gitter über alle
+`u1+u2<=1`-Kandidaten gegengeprüft: kein einziger Gitterpunkt ist für
+alle drei Faserzustände gleichzeitig sicher, was den Plan-Beweis
+(`u1>=1` UND `u2>=1`, also `u1+u2>=2`) unabhängig stützt.
+
+Drei Informationsmodi (`evaluate_information_modes`): A) keine
+Beobachtung, ein gemeinsames `u` → Worst-Case-Kosten 2; B) nur
+`sign(x1-x2)` vor dem Eingriff beobachtet, zustandsabhängige Politik →
+Worst-Case-Kosten 1; C) voller Zustand beobachtet, zustandsweise
+CBF-QP-optimal → Worst-Case-Kosten 1. B und C fallen in diesem konkreten
+Beispiel zusammen — explizit als Beobachtung für DIESES Beispiel
+dokumentiert, keine allgemeine Aussage über Vorzeichen- vs.
+Vollzustandsinformation.
+
+`verify_epistemic_buffer_pilot.py`: 6/6 Checks grün (Plan-Tabelle exakt
+reproduziert, Budget-1-Unmöglichkeit/Budget-2-Möglichkeit inkl.
+Gittergegenprobe, `minimal_uniform_intervention` verweigert bei zu engen
+Box-Grenzen statt still zu klemmen, Vorzeichen-Politik stimmt mit
+zustandsweisen Kosten überein, alle drei Informationsmodi, Sanity-Check
+dass tatsächlich die bestehenden `viability`-Funktionsobjekte
+wiederverwendet werden, keine lokale Kopie). `verify_epistemic_finite.py`
+weiterhin 9/9, `verify_epistemic_supports.py` weiterhin 7/7,
+`verify_epistemic_identification.py` weiterhin 6/6,
+`verify_epistemic_decisions.py` weiterhin 8/8 grün, volle lokale
+Regression grün, Linkprüfung 0 kaputte relative Links.
