@@ -19,7 +19,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | Paket | Inhalt | Abhängigkeit | Status |
 |---|---|---|---|
 | G0 | Quellen-, Einheiten- und Hypothesenregister | keine | ✅ erledigt |
-| G1 | Sphärische Profile und getrennte Flächendichtebegriffe | G0 | offen |
+| G1 | Sphärische Profile und getrennte Flächendichtebegriffe | G0 | ✅ erledigt |
 | G2 | Exakter Homologievertrag mit Zeitabbildung | G1 | offen |
 | G3 | Kontrollmodelle und Beobachtungsäquivalenz | G1–G2 | offen |
 | G4 | Reproduzierbarer SPARC-Adapter | G0 | offen |
@@ -68,5 +68,59 @@ Code implementiert werden — es ist noch keine Implementierung.
 
 **Keine Repository-Struktur unter `src/` oder `verification/` wurde für
 G0 angelegt** — der Plan verlangt für G0 nur das Register, keinen Code.
+
+## G1 — Sphärische Profile und getrennte Flächendichtebegriffe (erledigt)
+
+Neu: `src/scoped_correspondence/astrophysics/` (`units.py`,
+`spherical_profiles.py`), `verification/verify_galaxy_profiles.py`
+(Kategorie `math`, rein synthetisch/analytisch, in `run_verification_suite.py`
+explizit registriert).
+
+Drei Halo-Profile implementiert, jeweils mit exakter geschlossener
+Massenformel plus kleinwinkelstabiler Reihenentwicklung (Plan §6.2) gegen
+Auslöschung nahe `x=0`:
+
+- **Burkert** (`f(x)=1/[(1+x)(1+x^2)]`): `Sigma_col(0) = (pi/2)*mu_h`.
+- **Pseudoisothermisch** (`f(x)=1/(1+x^2)`): `Sigma_col(0) = pi*mu_h`.
+- **NFW** (`f(x)=1/[x(1+x)^2]`): zentrale Dichte divergiert — `mu_h` und
+  `sigma_col0()` werden bewusst NICHT angeboten (`sigma_col0()` gibt
+  `None` zurück); stattdessen ein eigenständig benanntes
+  `scale_product() = rho_s*r_s`, das nirgends mit einem endlichen
+  Zentraldichte-Produkt verwechselbar ist.
+
+Drei getrennte Größen (Plan §6.1) bleiben durchgängig unterschiedlich
+benannt: `mu_h` (Profilparameterprodukt), `sigma_col0()` (tatsächliche
+zentrale Säulendichte), eine Apertur-gemittelte Projektionsdichte ist
+bewusst NICHT implementiert (eigene, spätere Größe).
+
+**10/10 Prüfungen grün** in `verify_galaxy_profiles.py`, jede gegen eine
+vom Produktionscode unabhängige Route (`scipy.integrate.quad`, eigene
+Handrechnung, oder Konsistenzbedingung):
+
+- G0-Regressionsanker (Burkert-Referenzfall exakt reproduziert, inklusive
+  SI-Umrechnung von `g(r0)`)
+- Massen-Quadratur (Burkert/Pseudoisothermisch/NFW) bei `x` von 0.01 bis 50
+- Zentrale Säulendichte per unabhängiger Linienintegration
+  (`scipy.integrate.quad` bis `np.inf`)
+- `pi/2`- bzw. `pi`-Faktor bestätigt und als verschieden nachgewiesen
+- Positivität und Monotonie der eingeschlossenen Masse auf einem
+  logarithmischen Radiusgitter
+- Zentrale Grenzwerte `M(0)=0`, `g(0)=0`, `v_c(0)=0`; NFW-Zentraldichte
+  bei `r=0` wirft explizit (kein stillschweigendes `inf`/`NaN`)
+- Stetigkeit an der Reihen-/Geschlossene-Form-Umschaltstelle
+- NFW `scale_product()` bleibt von `mu_h` streng getrennt
+
+**Gefundene und behobene Fehler während der Implementierung** (alle vor
+dem ersten grünen Lauf entdeckt, nicht nachträglich toleriert):
+Vorzeichenfehler in der `pc`-Basis-Gravitationskonstante (`G_ASTRO_PC`
+war fälschlich durch 1000 geteilt statt multipliziert — Faktor 10⁶-Fehler
+in `g(r)` [SI], durch den G0-Regressionsanker sofort aufgedeckt);
+0-dimensionale-Array-Handhabung bei skalarem `r=0` in `g()`/`circular_
+velocity()` (numpy verweigert `float()` auf Shape-(1,)-Arrays); zu große
+obere Integrationsgrenze (`5e6*r0` statt `np.inf`) ließ `scipy.integrate.
+quad` divergent erscheinen.
+
 Die für G1 vorgeschlagene Struktur (`src/scoped_correspondence/astrophysics/`,
-`verification/verify_galaxy_*.py`) existiert entsprechend noch nicht.
+`verification/verify_galaxy_*.py`) existiert damit; `verify_galaxy_homology.py`,
+`verify_galaxy_observation_maps.py`, `verify_sparc_adapter.py`,
+`verify_galaxy_pilot.py` folgen erst mit G2/G3/G4/G5.

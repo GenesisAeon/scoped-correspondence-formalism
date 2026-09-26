@@ -1,0 +1,132 @@
+{
+  "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G1 (spherical halo profiles, synthetic/analytic only)",
+  "timestamp": "2026-09-26T11:41:12+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "burkert_reference_case_g0_regression": {
+      "status": "pass",
+      "detail": {
+        "mu_h": 150.0,
+        "M_r0": 2157240694.994271,
+        "g_r0_si": 3.341025353735502e-11,
+        "v_c_r0": 55.61293113984167
+      }
+    },
+    "burkert_mass_quadrature": {
+      "status": "pass",
+      "detail": {
+        "x=0.01": {
+          "closed": 280.6227649835155,
+          "quad": 280.62276498306267
+        },
+        "x=0.1": {
+          "closed": 261548.6463959725,
+          "quad": 261548.64639597718
+        },
+        "x=1.0": {
+          "closed": 107862034.74971355,
+          "quad": 107862034.7497136
+        },
+        "x=5.0": {
+          "closed": 868336024.4898843,
+          "quad": 868336024.4898844
+        },
+        "x=50.0": {
+          "closed": 2669061608.191896,
+          "quad": 2669061608.191907
+        }
+      }
+    },
+    "pseudo_isothermal_mass_quadrature": {
+      "status": "pass",
+      "detail": {
+        "x=0.01": {
+          "closed": 1005.2493348802928,
+          "quad": 1005.2493348779196
+        },
+        "x=0.1": {
+          "closed": 999320.5435686122,
+          "quad": 999320.5435686277
+        },
+        "x=1.0": {
+          "closed": 647223891.1847554,
+          "quad": 647223891.1847553
+        },
+        "x=5.0": {
+          "closed": 10937565607.756718,
+          "quad": 10937565607.756718
+        },
+        "x=50.0": {
+          "closed": 146119347798.18854,
+          "quad": 146119347798.1886
+        }
+      }
+    },
+    "nfw_mass_quadrature": {
+      "status": "pass",
+      "detail": {
+        "x=0.01": {
+          "closed": 775042.7539296268,
+          "quad": 775042.7539296208
+        },
+        "x=0.1": {
+          "closed": 69132142.70531304,
+          "quad": 69132142.70531298
+        },
+        "x=1.0": {
+          "closed": 3033948817.543527,
+          "quad": 3033948817.543527
+        },
+        "x=5.0": {
+          "closed": 15054922537.676552,
+          "quad": 15054922537.676554
+        },
+        "x=50.0": {
+          "closed": 46361008626.628654,
+          "quad": 46361008626.62865
+        }
+      }
+    },
+    "central_column_density_quadrature": {
+      "status": "pass",
+      "detail": {
+        "burkert_quad_x2": 62.83185307179586,
+        "burkert_closed": 62.83185307179586,
+        "pseudo_quad_x2": 125.66370614359174,
+        "pseudo_closed": 125.66370614359172
+      }
+    },
+    "column_density_factors_pi_half_and_pi": {
+      "status": "pass",
+      "detail": {
+        "burkert_factor": 1.5707963267948966,
+        "pseudo_iso_factor": 3.141592653589793
+      }
+    },
+    "positivity_and_monotonic_mass": {
+      "status": "pass",
+      "detail": {
+        "checked_profiles": 3,
+        "grid_points": 40
+      }
+    },
+    "central_limits_M0_g0_vc0": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "series_closed_form_continuity": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "nfw_scale_product_not_mu_h": {
+      "status": "pass",
+      "detail": {
+        "scale_product": 60.0
+      }
+    }
+  }
+}

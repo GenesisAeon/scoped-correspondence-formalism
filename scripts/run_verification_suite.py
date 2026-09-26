@@ -91,6 +91,10 @@ _EXPLICIT_CATEGORY = {
     "verify_resource_network_control.py": "math",
     "verify_resource_network_pilot.py": "math",
     "verify_sequential_information_pilot.py": "math",
+    # G1 (GALAXY_DYNAMICS_ROADMAP.md): purely analytic/synthetic profile
+    # checks against independent scipy.integrate.quad routes -- no real
+    # SPARC data (that arrives only with G4/G5).
+    "verify_galaxy_profiles.py": "math",
 }
 
 
