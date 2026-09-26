@@ -97,6 +97,13 @@ _EXPLICIT_CATEGORY = {
     "verify_galaxy_profiles.py": "math",
     "verify_galaxy_homology.py": "math",
     "verify_galaxy_observation_maps.py": "math",
+    "verify_sparc_adapter.py": "math",
+    # Deliberately "data": looks for the real, license-unresolved SPARC
+    # files at a documented LOCAL-ONLY path (never committed, see
+    # docs/sparc_data_provenance.md) and skips cleanly (exit 0, each
+    # check marked "skipped") when they are absent -- Standard-CI never
+    # needs them.
+    "verify_sparc_real_local.py": "data",
 }
 
 

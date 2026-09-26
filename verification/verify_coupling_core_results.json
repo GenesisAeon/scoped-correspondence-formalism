@@ -1,7 +1,7 @@
 {
   "milestone": "M2_coupling_core",
   "kind": "MIG equivalence (legacy verify_formalism vs Coupling API)",
-  "generated_at_utc": "2026-09-26T10:12:23.851087+00:00",
+  "generated_at_utc": "2026-09-26T12:08:53.515764+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "count": 2,

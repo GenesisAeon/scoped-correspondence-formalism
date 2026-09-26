@@ -1,0 +1,43 @@
+{
+  "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G4 (SPARC adapter, REAL local files)",
+  "timestamp": "2026-09-26T14:18:36+02:00",
+  "python": "3.11.9",
+  "raw_dir": "D:\\mandala\\scf_external_data\\sparc",
+  "checks": {
+    "sha256_matches_provenance_record": {
+      "status": "pass",
+      "detail": {
+        "ok": true,
+        "dir": "D:\\mandala\\scf_external_data\\sparc"
+      }
+    },
+    "real_metadata_table_parses_and_validates": {
+      "status": "pass",
+      "detail": {
+        "n_rows": 175
+      }
+    },
+    "real_component_table_parses_and_validates": {
+      "status": "pass",
+      "detail": {
+        "n_rows": 3391,
+        "n_galaxies": 175,
+        "n_negative_vgas_rows": 361
+      }
+    },
+    "metadata_and_component_galaxy_sets_match": {
+      "status": "pass",
+      "detail": {
+        "n_common_galaxies": 175
+      }
+    },
+    "real_baryonic_combination_runs_on_a_negative_gas_row": {
+      "status": "pass",
+      "detail": {
+        "galaxy": "DDO064",
+        "Vgas_kms": -1.13,
+        "v_bar_sq": 0.6439000000000001
+      }
+    }
+  }
+}

@@ -22,7 +22,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | G1 | Sphärische Profile und getrennte Flächendichtebegriffe | G0 | ✅ erledigt |
 | G2 | Exakter Homologievertrag mit Zeitabbildung | G1 | ✅ erledigt |
 | G3 | Kontrollmodelle und Beobachtungsäquivalenz | G1–G2 | ✅ erledigt |
-| G4 | Reproduzierbarer SPARC-Adapter | G0 | offen |
+| G4 | Reproduzierbarer SPARC-Adapter | G0 | ✅ erledigt |
 | G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | offen |
 | G6 | Quellengetreue Yoon-Reproduktion | vollständige Quelle plus G0–G3 | 🚫 blockiert (Quelle fehlt) |
 | G7 | Dokumentation und Fähigkeitsbilanz | fertige Teilpakete | offen |
@@ -220,3 +220,55 @@ registriert).
 **7/7 Prüfungen grün.** Volle Regression: 96/96 grün (der zuvor
 beobachtete `verify_http_range_reader.py`-Flake trat in diesem Lauf nicht
 auf, bestätigt als Flake, nicht als Regression).
+
+## G4 — Reproduzierbarer SPARC-Adapter (erledigt)
+
+**Checkpoint mit Johann (2026-09-26):** vor dem Abruf echter SPARC-Daten
+nachgefragt, da der Plan (§9.1) die Weiterverbreitungsrechte der
+Rohdateien als ungeklärt (nicht verboten) markiert. Johanns Entscheidung
+(Option 1): lokal herunterladen und das echte Byte-Schema prüfen; Quelle,
+Abrufzeit, SHA-256 und Lizenzstatus "ungeklärt" dokumentieren, auch für
+den lokalen Pilotlauf; Parser, Downloadanleitung, Doku und synthetische
+Tests committen; Rohdaten und Ausschnitte davon vorerst außerhalb des
+Repos halten. Genau so umgesetzt.
+
+Neu: `src/scoped_correspondence/validation/sparc_data.py`,
+`verification/verify_sparc_adapter.py` (Kategorie `math`, synthetische
+Fixtures), `verification/verify_sparc_real_local.py` (Kategorie `data`,
+echte lokale Dateien, skippt sauber mit Exit 0 wenn nicht vorhanden),
+`docs/sparc_data_provenance.md` (vollständige Provenienz: Quelle,
+Abrufzeitpunkt 2026-09-26T11:55:23Z, SHA-256 beider Dateien, Lizenzstatus
+ungeklärt, lokaler Speicherort `D:\mandala\scf_external_data\sparc\`
+außerhalb des Repos).
+
+**Wichtiger Fund beim Abgleich mit den echten Live-Dateien:** Der eigene
+gedruckte Byte-für-Byte-Header von `SPARC_Lelli2016c.mrt` (Metadatentabelle)
+stimmt NICHT mit seinen eigenen Live-Daten überein — der Header nennt
+Byte 12–13 für das Hubble-Typ-Feld `T`, aber alle 175 echten Datenzeilen
+haben `T`s Ziffern tatsächlich bei Byte 13–14, und die Gesamtzeilenlänge
+ist 131 Bytes statt der im Header implizierten 113. Reaktion: statt einem
+nachweislich falschen Byte-Schema zu vertrauen, wird die Metadatentabelle
+über validierte Whitespace-Tokenisierung geparst (exakt 19 Felder pro
+Zeile gefordert, empirisch an allen 175 echten Zeilen bestätigt, bevor
+diese Entscheidung fiel). Die Komponententabelle (`MassModels_Lelli2016c.mrt`)
+wurde dagegen Byte für Byte gegen ihre eigene echte Kopfzeile bestätigt —
+exakte Übereinstimmung mit Plan §9.2 — und behält den festen
+Byte-Bereichs-Parser.
+
+- **`combine_baryonic_v2`**: Plan-Beispiel `v_gas=-10, v_disk=40,
+  Upsilon_d=0,5` ergibt exakt `700`, nicht `900`; zusätzlich an einer
+  ECHTEN Zeile mit negativem `Vgas` ausgeführt (361 von 3391 echten
+  Komponentenzeilen haben negatives `Vgas` — der Vorzeichenfall tritt in
+  echten Daten tatsächlich auf, nicht nur im Lehrbuchbeispiel).
+- **`scale_distance`**/**`scale_inclination`**: `g_bar=v_bar²/r`
+  bestätigt entfernungsunabhängig am selben Winkelort; Inklinations-Hin-
+  und-Rück-Transformation exakt reversibel.
+- Validierung: doppelte Galaxiennamen (Metadaten), doppelte Radien und
+  nicht-positive Radien/Fehler (Komponenten), fehlende `---`-Trennlinie —
+  alle werfen klar, statt still falsch zu parsen.
+
+**11/11 synthetische Prüfungen grün** (`verify_sparc_adapter.py`).
+**5/5 echte Prüfungen grün, NICHT übersprungen** (`verify_sparc_real_local.py`,
+gegen die tatsächlich heruntergeladenen Dateien: 175 Metadaten-Zeilen,
+3391 Komponentenzeilen, identische Galaxienmengen in beiden Tabellen).
+Volle Regression: 98/98 grün.
