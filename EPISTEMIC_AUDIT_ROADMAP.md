@@ -18,7 +18,7 @@ Verletzungen, volle Suiten-Regression nach jedem Paket.
 | H1 | Endliche Aussagen und nichtleere Evidenz | H0 | ✅ erledigt |
 | H2 | Tragende Annahmen und Inkonsistenzkerne | H1 | ✅ erledigt |
 | H3 | Beobachtungsabhängige Identifikation | H1 | ✅ erledigt |
-| H4 | Endliche Entscheidungen unter deklarierter Ungewissheit | H1 | offen |
+| H4 | Endliche Entscheidungen unter deklarierter Ungewissheit | H1 | ✅ erledigt |
 | H5 | Integrierter Pufferpilot (K5, kontinuierlich) | H1, H4 | offen |
 | H6a | Adapter an bestehende SCF-Berichte (Pflicht) | H1–H3 | offen |
 | H6b | Optional: synthetischer Galaxienfall | H6a | offen |
@@ -231,4 +231,46 @@ markiert statt als perfekte Identifikation missverstanden, K8
 Dynamik-vs-Beobachtbarkeit, Budgetabbruch propagiert Unvollständigkeit
 statt sie stillschweigend zu verschweigen). `verify_epistemic_finite.py`
 weiterhin 9/9 und `verify_epistemic_supports.py` weiterhin 7/7 grün,
+volle lokale Regression grün, Linkprüfung 0 kaputte relative Links.
+
+## H4 — Endliche Entscheidungen unter deklarierter Ungewissheit (erledigt)
+
+`src/scoped_correspondence/epistemic/decisions.py` implementiert
+`uniform_safe_actions(fiber, actions, safety) -> ActionSetReport` und
+`compare_decisions(loss_matrix, *, criterion, probabilities=None) ->
+DecisionReport`.
+
+`uniform_safe_actions` hält die beiden im Plan (§4.5) ausdrücklich
+getrennten Aussagen auseinander: zustandsweise zulässig (`forall w exists
+u: safe(w,u)`) vs. uniform zulässig (`exists u forall w: safe(w,u)`,
+`U_uniform(F) = ∩ U_safe(w)`). K5 (dieselbe Faser F(2)={(0,2),(1,1),(2,0)}
+wie K4, endlich diskretisiert auf u∈{0,1}²) reproduziert exakt den
+Plan-Befund: bei Budget 1 (Aktionen (0,0),(1,0),(0,1)) ist jeder Zustand
+einzeln kontrollierbar, aber `U_uniform(F)=∅` — erst mit der Budget-2-
+Aktion (1,1) wird die Faser uniform zulässig, `U_uniform(F)={(1,1)}`. Eine
+leere oder unvollständig gescannte Faser liefert nie eine zulässige
+Handlung.
+
+`compare_decisions` validiert die Verlusttabelle streng (endliche Werte,
+identische Zustandsmengen über alle Aktionen, bei `expected_loss`
+explizit deklarierte, auf 1 summierende Wahrscheinlichkeiten — die
+Kandidatenzahl ist niemals ein impliziter Gleichverteilungs-Prior) und
+implementiert drei bewusst NICHT austauschbare Kriterien: `minimax`,
+`minimax_regret`, `expected_loss`. K6 vor der Implementierung von Hand
+nachvollzogen: Minimax wählt B (Verlust 6 < 10), Minimax-Regret wählt A
+(Regret 4 < 6) — auf DERSELBEN Tabelle unterschiedliche Entscheidungen.
+Der Erwartungsverlust-Vergleich mit exakten `Fraction`-Wahrscheinlich-
+keiten kippt exakt bei p=3/5=0,6 (Gleichstand exakt an der Grenze, kein
+Rundungsartefakt durch Gleitkommazahlen). Unentschieden werden immer als
+vollständige Menge gebundener Aktionen gemeldet, nie willkürlich
+aufgelöst.
+
+`verify_epistemic_decisions.py`: 8/8 Checks grün (K5 zustandsweise-aber-
+nicht-uniform bei Budget 1, K5 uniform zulässig bei Budget 2, leere/
+unvollständige Faser nie vakuos zulässig, K6 Minimax-vs-Minimax-Regret-
+Widerspruch, K6 Erwartungsverlust-Kreuzung exakt bei p=0,6, Unentschieden-
+Behandlung, Validierung verwirft unendliche/NaN-Verluste und ungültige
+Wahrscheinlichkeiten, expliziter `uniformly_feasible=False`-Fall).
+`verify_epistemic_finite.py` weiterhin 9/9, `verify_epistemic_supports.py`
+weiterhin 7/7, `verify_epistemic_identification.py` weiterhin 6/6 grün,
 volle lokale Regression grün, Linkprüfung 0 kaputte relative Links.

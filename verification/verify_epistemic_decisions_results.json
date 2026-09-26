@@ -1,0 +1,57 @@
+{
+  "n_passed": 8,
+  "n_total": 8,
+  "results": {
+    "k5_statewise_feasible_but_not_uniform_at_budget1": {
+      "statewise_feasible": true,
+      "uniformly_feasible": false
+    },
+    "k5_uniform_feasible_at_budget2": {
+      "uniform_safe_actions": [
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "empty_and_incomplete_fiber_never_vacuously_feasible": {
+      "empty_ok": false,
+      "incomplete_ok": false
+    },
+    "k6_minimax_and_minimax_regret_disagree": {
+      "minimax_scores": {
+        "A": 10,
+        "B": 6
+      },
+      "regret_scores": {
+        "A": 4,
+        "B": 6
+      }
+    },
+    "k6_expected_loss_crossover_at_p_0_6": {
+      "below_p0.6": [
+        "A"
+      ],
+      "above_p0.6": [
+        "B"
+      ],
+      "at_p0.6": [
+        "A",
+        "B"
+      ]
+    },
+    "tie_handling_reports_all_tied_actions": {
+      "chosen": [
+        "B",
+        "C"
+      ]
+    },
+    "loss_matrix_validation_rejects_bad_inputs": {
+      "all_rejections_raised": true
+    },
+    "no_uniform_feasible_action_result_is_explicit": {
+      "fiber_size": 3,
+      "uniform_safe_actions": []
+    }
+  }
+}

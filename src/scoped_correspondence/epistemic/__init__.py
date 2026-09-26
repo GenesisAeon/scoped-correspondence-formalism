@@ -10,6 +10,7 @@ See `EPISTEMIC_AUDIT_ROADMAP.md` for package status.
 """
 from __future__ import annotations
 
+from .decisions import ActionSetReport, DecisionReport, compare_decisions, uniform_safe_actions
 from .finite import audit_finite_claim
 from .observation_fibers import (
     FiberReport,
@@ -29,9 +30,11 @@ from .supports import (
 )
 
 __all__ = [
+    "ActionSetReport",
     "AssumptionSpec",
     "ClaimReport",
     "ClaimSpec",
+    "DecisionReport",
     "DeletionStep",
     "FiberReport",
     "FiniteDomainSpec",
@@ -40,9 +43,11 @@ __all__ = [
     "MacroObservabilityReport",
     "SupportReport",
     "audit_finite_claim",
+    "compare_decisions",
     "find_minimal_inconsistent_core",
     "find_minimal_support",
     "identified_values",
     "macro_dynamics_and_observability",
     "observation_fiber",
+    "uniform_safe_actions",
 ]

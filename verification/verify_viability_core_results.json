@@ -1,7 +1,7 @@
 {
   "milestone": "M3_viability_core",
   "kind": "MIG equivalence (legacy transformations vs Viability API)",
-  "generated_at_utc": "2026-09-26T18:50:05.634405+00:00",
+  "generated_at_utc": "2026-09-26T19:06:42.716063+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "count": 4,
