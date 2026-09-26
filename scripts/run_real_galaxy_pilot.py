@@ -8,6 +8,11 @@ This does NOT generate plot images -- that remains open follow-up work
 (honestly flagged, not fabricated); the JSON/CSV outputs below are
 structured so that plots can be produced deterministically from them.
 
+Writes FOUR CSV files (galaxy_pilot_profile_likelihood.csv,
+galaxy_pilot_sensitivity.csv, galaxy_pilot_mode_b_scores.csv,
+galaxy_pilot_mode_b_sensitivity_explorative.csv) plus the two JSON result
+files -- keep this count in sync with docs/galaxy_pilot.md.
+
 Usage:
     python scripts/run_real_galaxy_pilot.py --sparc-dir D:/mandala/scf_external_data/sparc \\
         --out-dir D:/mandala/scf_external_data/galaxy_pilot_results
@@ -15,6 +20,12 @@ Usage:
 Never downloads anything and never modifies repository source files. Exits
 non-zero (without running the pilot) if the two raw files' SHA-256 don't
 match the retrieval record in docs/sparc_data_provenance.md.
+
+Mode B is computed and exported BEFORE Mode A (SCF_FOLLOWUP_REVIEW_84848a4.md,
+"Verbleibende Berichtsarbeit": no proven data leak exists today since Mode A
+does not consume Mode B's fit parameters, but freezing/exporting the
+held-out evaluation first is the more future-proof order for any later
+refactor).
 """
 from __future__ import annotations
 
@@ -23,6 +34,7 @@ import csv
 import datetime as dt
 import hashlib
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -32,7 +44,11 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from scoped_correspondence.validation.galaxy_pilot import (  # noqa: E402
+    LOG_RHO_BOUNDS,
+    LOG_RSCALE_KPC_BOUNDS,
+    _fit_nfw_holdout,
     distance_inclination_sensitivity,
+    distance_inclination_sensitivity_mode_b,
     evaluate_baselines_on_holdout,
     fit_burkert_descriptive,
     galaxy_component_rows,
@@ -55,6 +71,25 @@ def _sha256(path: Path) -> str:
     h = hashlib.sha256()
     h.update(path.read_bytes())
     return h.hexdigest()
+
+
+def _sanitize_for_json(obj):
+    """Strict-JSON serialization (SCF_FOLLOWUP_REVIEW_84848a4.md F2):
+    Python's `json.dumps` happily writes the non-standard `NaN`/`Infinity`
+    literals for float('nan')/float('inf') -- replace them with `None`
+    (`null`) recursively before dumping, and coerce numpy bool_/scalar
+    types to native Python types."""
+    if isinstance(obj, dict):
+        return {k: _sanitize_for_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_sanitize_for_json(v) for v in obj]
+    if isinstance(obj, float):
+        return None if (math.isnan(obj) or math.isinf(obj)) else obj
+    if isinstance(obj, bool):
+        return obj
+    if hasattr(obj, "item"):  # numpy scalar (bool_, float64, int64, ...)
+        return _sanitize_for_json(obj.item())
+    return obj
 
 
 def main() -> int:
@@ -84,17 +119,82 @@ def main() -> int:
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     timestamp = dt.datetime.now().astimezone().isoformat(timespec="seconds")
+    declared_bounds = {
+        "log_rho_bounds_msun_pc3": list(LOG_RHO_BOUNDS),
+        "log_rscale_kpc_bounds": list(LOG_RSCALE_KPC_BOUNDS),
+    }
 
+    # -------------------------------------------------------------------
+    # Mode B FIRST (held-out test), including the actual training fit
+    # parameters/bounds for both halo families -- not just the scores.
+    # -------------------------------------------------------------------
+    mode_b = {
+        "generated_at": timestamp,
+        "sparc_dir": str(args.sparc_dir),
+        "declared_bounds": declared_bounds,
+        "scores": [],
+        "training_fits": [],
+        "sensitivity_explorative": [],
+    }
+    score_csv_rows = []
+    mode_b_sensitivity_rows = []
+    for g in sel.eval_galaxies:
+        rows = galaxy_component_rows(comp_rows, g)
+        split = train_test_split_outer(rows)
+
+        fit_a = fit_burkert_descriptive(split.train_rows, galaxy=g)
+        halo_b, fit_b = _fit_nfw_holdout(split, upsilon_d=0.5, upsilon_b=0.7)
+        mode_b["training_fits"].append({
+            "galaxy": g, "n_train": len(split.train_rows), "n_test": len(split.test_rows),
+            "A_burkert": {"rho0_msun_pc3": fit_a.rho0_msun_pc3, "r0_pc": fit_a.r0_pc,
+                          "status": fit_a.status, "boundary_hit": fit_a.boundary_hit},
+            "B_nfw": {"rho_s_msun_pc3": halo_b.rho_s_msun_pc3, "r_s_pc": halo_b.r_s_pc,
+                      "status": fit_b.status, "boundary_hit": fit_b.boundary_hit},
+        })
+
+        scores = evaluate_baselines_on_holdout(g, split)
+        for s in scores:
+            mode_b["scores"].append({
+                "galaxy": s.galaxy, "baseline": s.baseline,
+                "primary_mae_kms": s.primary_mae_kms, "primary_rmse_kms": s.primary_rmse_kms,
+                "diagnostic_mae_kms": s.diagnostic_mae_kms, "diagnostic_rmse_kms": s.diagnostic_rmse_kms,
+                "n_test": s.n_test, "n_invalid": s.n_invalid, "n_scored": s.n_scored, "status": s.status,
+                "train_status": s.train_status, "train_boundary_hit": s.train_boundary_hit,
+            })
+            score_csv_rows.append([s.galaxy, s.baseline, s.primary_mae_kms, s.primary_rmse_kms,
+                                    s.diagnostic_mae_kms, s.diagnostic_rmse_kms,
+                                    s.n_test, s.n_invalid, s.n_scored, s.status,
+                                    s.train_status, s.train_boundary_hit])
+
+        # Explorative extension (F2 follow-up "Enger naechster Auftrag" #4):
+        # D/i sensitivity for THIS held-out test, explicitly separate from
+        # the primary Mode B scores above.
+        mode_b_sens_scenarios = distance_inclination_sensitivity_mode_b(split, meta_by_id[g], galaxy=g)
+        for sc in mode_b_sens_scenarios:
+            for s in sc.scores:
+                mode_b_sensitivity_rows.append({
+                    "galaxy": g, "scenario": sc.name, "inclination_rescale_k": sc.inclination_rescale_k,
+                    "baseline": s.baseline,
+                    "diagnostic_mae_kms": s.diagnostic_mae_kms, "diagnostic_rmse_kms": s.diagnostic_rmse_kms,
+                    "diagnostic_rmse_kms_rescaled": s.diagnostic_rmse_kms / sc.inclination_rescale_k,
+                    "status": s.status,
+                })
+
+    # -------------------------------------------------------------------
+    # Mode A (descriptive fit, profile likelihood, D/i sensitivity).
+    # -------------------------------------------------------------------
     all_12 = list(sel.dev_galaxies) + list(sel.eval_galaxies)
     mode_a = {
         "generated_at": timestamp,
         "sparc_dir": str(args.sparc_dir),
+        "declared_bounds": declared_bounds,
         "selection": {
             "n_eligible_total": sel.n_eligible_total,
             "tercile_sizes": list(sel.tercile_sizes),
             "dev_galaxies": list(sel.dev_galaxies),
             "eval_galaxies": list(sel.eval_galaxies),
             "exclusions_count": len(sel.exclusions),
+            "exclusions": list(sel.exclusions),
         },
         "fits": [],
         "profile_likelihood": {},
@@ -133,29 +233,12 @@ def main() -> int:
         for s in scenarios:
             sensitivity_csv_rows.append([g, s.name, s.rho0_msun_pc3, s.r0_pc, s.mu_h, s.status, s.boundary_hit])
 
-    mode_b = {
-        "generated_at": timestamp,
-        "sparc_dir": str(args.sparc_dir),
-        "scores": [],
-    }
-    score_csv_rows = []
-    for g in sel.eval_galaxies:
-        rows = galaxy_component_rows(comp_rows, g)
-        split = train_test_split_outer(rows)
-        scores = evaluate_baselines_on_holdout(g, split)
-        for s in scores:
-            mode_b["scores"].append({
-                "galaxy": s.galaxy, "baseline": s.baseline, "mae_kms": s.mae_kms, "rmse_kms": s.rmse_kms,
-                "n_test": s.n_test, "n_invalid": s.n_invalid,
-                "train_status": s.train_status, "train_boundary_hit": s.train_boundary_hit,
-            })
-            score_csv_rows.append([s.galaxy, s.baseline, s.mae_kms, s.rmse_kms, s.n_test, s.n_invalid,
-                                    s.train_status, s.train_boundary_hit])
+    mode_b["sensitivity_explorative"] = mode_b_sensitivity_rows
 
-    (args.out_dir / "galaxy_pilot_mode_a_results.json").write_text(
-        json.dumps(mode_a, indent=2, default=bool), encoding="utf-8")
     (args.out_dir / "galaxy_pilot_mode_b_results.json").write_text(
-        json.dumps(mode_b, indent=2, default=bool), encoding="utf-8")
+        json.dumps(_sanitize_for_json(mode_b), indent=2), encoding="utf-8")
+    (args.out_dir / "galaxy_pilot_mode_a_results.json").write_text(
+        json.dumps(_sanitize_for_json(mode_a), indent=2), encoding="utf-8")
 
     with open(args.out_dir / "galaxy_pilot_profile_likelihood.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
@@ -169,13 +252,23 @@ def main() -> int:
 
     with open(args.out_dir / "galaxy_pilot_mode_b_scores.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["galaxy", "baseline", "mae_kms", "rmse_kms", "n_test", "n_invalid",
+        w.writerow(["galaxy", "baseline", "primary_mae_kms", "primary_rmse_kms",
+                     "diagnostic_mae_kms", "diagnostic_rmse_kms",
+                     "n_test", "n_invalid", "n_scored", "status",
                      "train_status", "train_boundary_hit"])
         w.writerows(score_csv_rows)
 
-    print(f"Wrote Mode A ({len(mode_a['fits'])} fits, {len(mode_a['profile_likelihood'])} profile scans, "
-          f"{len(mode_a['sensitivity'])} sensitivity scans) and Mode B ({len(mode_b['scores'])} scores) "
-          f"to {args.out_dir}")
+    with open(args.out_dir / "galaxy_pilot_mode_b_sensitivity_explorative.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["galaxy", "scenario", "inclination_rescale_k", "baseline",
+                                           "diagnostic_mae_kms", "diagnostic_rmse_kms",
+                                           "diagnostic_rmse_kms_rescaled", "status"])
+        w.writeheader()
+        w.writerows(mode_b_sensitivity_rows)
+
+    print(f"Wrote Mode B ({len(mode_b['scores'])} scores, {len(mode_b['training_fits'])} training fits, "
+          f"{len(mode_b_sensitivity_rows)} explorative sensitivity rows) and "
+          f"Mode A ({len(mode_a['fits'])} fits, {len(mode_a['profile_likelihood'])} profile scans, "
+          f"{len(mode_a['sensitivity'])} sensitivity scans) to {args.out_dir}")
     return 0
 
 

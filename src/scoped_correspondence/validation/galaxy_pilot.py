@@ -257,12 +257,17 @@ def _predicted_v_obs_for_fitting(rows: Sequence[SparcComponentRow], rho0: float,
                                   upsilon_d: float, upsilon_b: float) -> np.ndarray:
     """OPTIMIZER-INTERNAL residual helper only -- NOT a final reported
     prediction. A negative intermediate `g_total` during optimization is
-    a normal, numerically-necessary penalty device (clip-then-let-the-
-    residual-grow), not a physical claim that v=0 there (SCF_REVIEW_
-    G0_G7_5563e67.md finding R3: this distinction was previously blurred
-    -- the FINAL reported RMSE/scores now go through
-    `_predict_v_with_validity` instead, which reports invalid points
-    explicitly rather than silently returning 0)."""
+    clipped to a CONSTANT `v_pred=0` there (the residual does NOT grow
+    further with more negativity -- corrected wording, SCF_FOLLOWUP_
+    REVIEW_84848a4.md "Verbleibende Berichtsarbeit": the earlier docstring
+    said "let the residual grow", which is inaccurate). This constant-zero
+    plateau is still a normal, numerically-serviceable penalty device for
+    steering the optimizer away from that region for realistic `v_obs>0`
+    data -- not a physical claim that v=0 there (SCF_REVIEW_G0_G7_5563e67.md
+    finding R3: this distinction was previously blurred -- the FINAL
+    reported RMSE/scores now go through `_predict_v_with_validity`
+    instead, which reports invalid points explicitly rather than
+    silently returning 0)."""
     prof = BurkertProfile(rho0_msun_pc3=rho0, r0_pc=r0_pc)
     r_pc, g_bar = baryon_g_kms2_per_pc(rows, upsilon_d, upsilon_b)
     g_halo = np.array([prof.g(r) for r in r_pc])
@@ -364,12 +369,28 @@ def train_test_split_outer(rows: Sequence[SparcComponentRow], train_frac: float 
 
 @dataclass(frozen=True)
 class PredictiveScore:
+    """F2 (SCF_FOLLOWUP_REVIEW_84848a4.md): `primary_*` is the fair,
+    cross-baseline-comparable score -- `None` whenever this baseline had
+    ANY invalid point on the full test set (`status` explains why), so a
+    baseline can never look artificially good by silently dropping its
+    hardest point while other baselines are scored on all of theirs
+    (confirmed possible: a constructed 3-point case where MOND excludes
+    its one out-of-domain point and reports a misleadingly perfect
+    `rmse=0.0` over the remaining 2, next to Burkert/NFW's real full-3-point
+    scores). `diagnostic_*` always reports the valid-subset score
+    (`NaN` only if `n_scored==0`) for information -- never to be read as a
+    like-for-like comparison against a baseline with `n_invalid==0`."""
+
     galaxy: str
     baseline: str
-    mae_kms: float
-    rmse_kms: float
+    primary_mae_kms: Optional[float]
+    primary_rmse_kms: Optional[float]
+    diagnostic_mae_kms: float
+    diagnostic_rmse_kms: float
     n_test: int
     n_invalid: int
+    n_scored: int
+    status: str
     train_status: str
     train_boundary_hit: bool
 
@@ -421,16 +442,31 @@ def evaluate_baselines_on_holdout(
         return np.array([g_bar_test[np.argmin(np.abs(r_test_pc - r))] for r in r_pc])
 
     def score_from_valid(name, v_pred, valid, train_status, train_boundary_hit):
+        n_test = len(split.test_rows)
         n_invalid = int(np.sum(~valid))
-        if not np.any(valid):
-            return PredictiveScore(galaxy=galaxy, baseline=name, mae_kms=float("nan"), rmse_kms=float("nan"),
-                                    n_test=len(split.test_rows), n_invalid=n_invalid,
-                                    train_status=train_status, train_boundary_hit=train_boundary_hit)
-        err = v_pred[valid] - v_obs_test[valid]
+        n_scored = n_test - n_invalid
+
+        if n_scored == 0:
+            diag_mae, diag_rmse = float("nan"), float("nan")
+        else:
+            err = v_pred[valid] - v_obs_test[valid]
+            diag_mae, diag_rmse = float(np.mean(np.abs(err))), float(np.sqrt(np.mean(err ** 2)))
+
+        if n_invalid == 0:
+            status = "full_domain"
+            primary_mae, primary_rmse = diag_mae, diag_rmse
+        elif n_scored == 0:
+            status = "out_of_domain_full"
+            primary_mae, primary_rmse = None, None
+        else:
+            status = "out_of_domain_partial"
+            primary_mae, primary_rmse = None, None
+
         return PredictiveScore(
             galaxy=galaxy, baseline=name,
-            mae_kms=float(np.mean(np.abs(err))), rmse_kms=float(np.sqrt(np.mean(err ** 2))),
-            n_test=len(split.test_rows), n_invalid=n_invalid,
+            primary_mae_kms=primary_mae, primary_rmse_kms=primary_rmse,
+            diagnostic_mae_kms=diag_mae, diagnostic_rmse_kms=diag_rmse,
+            n_test=n_test, n_invalid=n_invalid, n_scored=n_scored, status=status,
             train_status=train_status, train_boundary_hit=train_boundary_hit,
         )
 
@@ -501,12 +537,43 @@ def profile_likelihood_burkert(
     min(eta_hi, psi-log_rho_bounds[0])]` -- this depends on `psi`, unlike
     a fixed box (the mistake R6 explicitly warns against). A `psi` whose
     feasible interval is empty is marked `feasible=False`, never silently
-    dropped or clamped.
+    dropped or clamped. A DEGENERATE interval (`eta_lo == eta_hi`, exactly
+    one feasible point) is evaluated directly, not treated as empty
+    (SCF_FOLLOWUP_REVIEW_84848a4.md finding F1's second bug).
+
+    GLOBAL, not local, search over eta (F1's P1 finding): the Burkert
+    halo term `v_h^2(r) = 2 pi G mu_h r * B(x)/x^2` (`x=r/r0`) satisfies
+    `B(x)/x^2 -> 0` as `x -> 0` AND as `x -> infinity` (re-derived and
+    confirmed independently during this fix), so `chi2(eta)` at fixed
+    `psi` can be genuinely bimodal -- a single `scipy.optimize.
+    minimize_scalar(method="bounded")` call finds only a LOCAL minimum
+    and can miss a much better basin near a boundary entirely (confirmed
+    on real NGC3917 data: the routine previously reported `q=1253.5` at
+    `eta=2.67`, while the exact feasible boundary `eta=5.5` gives
+    `q=459.79` -- a genuine counterexample, not a close call). This
+    function instead: (1) evaluates a dense grid across the FULL feasible
+    interval, (2) locally refines a `bounded` minimizer around each of
+    several best grid points, (3) ALWAYS also evaluates the two exact
+    endpoints as literal candidates, then (4) takes the global best of
+    all candidates. This is a documented HEURISTIC global search, not a
+    proof of global optimality (a still-finer or adversarially
+    constructed case could in principle hide a narrower, deeper basin
+    between grid points) -- `n_grid` can be raised for more confidence.
+
+    `boundary_hit` is `True` exactly when the winning candidate IS one of
+    the two literal endpoint evaluations (exact equality, since those are
+    inserted as exact `eta_lo`/`eta_hi` values) -- not a fixed numeric
+    distance from whatever a local optimizer happened to return (F1's
+    third bug: the old tolerance-based check missed cases where the
+    optimizer stopped a few `1e-6` short of the true boundary).
 
     Uses the SAME optimizer-internal clip-as-penalty as `_predicted_v_obs_
     for_fitting` (this is 1-D exploration of a scalar objective, not a
     final reported prediction -- consistent with R3's fitting/reporting
-    distinction).
+    distinction). In the clipped (`g_total<0`) region the predicted `v` is
+    exactly 0 and constant, so `chi2` there is flat (not literally
+    growing with more negativity) but still strictly worse than any
+    feasible-`g` candidate for realistic `v_obs>0` data.
     """
     from scipy.optimize import minimize_scalar
 
@@ -524,21 +591,40 @@ def profile_likelihood_burkert(
         v_pred = np.sqrt(g_total_penalty * r_pc)
         return float(np.sum(((v_pred - v_obs) / e_vobs) ** 2))
 
+    def global_min(psi: float, eta_lo: float, eta_hi: float, n_grid: int = 61):
+        if eta_lo == eta_hi:
+            return eta_lo, chi2_at(eta_lo, psi), True
+        grid = np.linspace(eta_lo, eta_hi, n_grid)
+        q_grid = np.array([chi2_at(e, psi) for e in grid])
+        order = np.argsort(q_grid)
+
+        candidates = [(eta_lo, chi2_at(eta_lo, psi), True), (eta_hi, chi2_at(eta_hi, psi), True)]
+        for idx in order[:5]:
+            lo = grid[max(idx - 1, 0)]
+            hi = grid[min(idx + 1, len(grid) - 1)]
+            if lo >= hi:
+                candidates.append((float(grid[idx]), float(q_grid[idx]), False))
+                continue
+            res = minimize_scalar(chi2_at, args=(psi,), bounds=(lo, hi), method="bounded")
+            candidates.append((float(res.x), float(res.fun), False))
+
+        best_eta, best_q, _ = min(candidates, key=lambda c: c[1])
+        # exact-equality boundary check against the two literal endpoint candidates
+        is_boundary = (best_eta == eta_lo) or (best_eta == eta_hi)
+        return best_eta, best_q, is_boundary
+
     points = []
-    tol = 1e-6
     for psi in psi_grid:
         eta_lo = max(eta_bounds[0], psi - log_rho_bounds[1])
         eta_hi = min(eta_bounds[1], psi - log_rho_bounds[0])
-        if eta_lo >= eta_hi:
+        if eta_lo > eta_hi:
             points.append(ProfileLikelihoodPoint(psi=float(psi), eta_min=float("nan"), q=float("nan"),
                                                    status="infeasible_bounds", boundary_hit=False, feasible=False))
             continue
-        res = minimize_scalar(chi2_at, args=(psi,), bounds=(eta_lo, eta_hi), method="bounded")
-        boundary_hit = abs(res.x - eta_lo) < tol or abs(res.x - eta_hi) < tol
+        best_eta, best_q, boundary_hit = global_min(psi, eta_lo, eta_hi)
         points.append(ProfileLikelihoodPoint(
-            psi=float(psi), eta_min=float(res.x), q=float(res.fun),
-            status="converged" if res.success else "not_converged",
-            boundary_hit=bool(boundary_hit), feasible=True,
+            psi=float(psi), eta_min=float(best_eta), q=float(best_q),
+            status="converged", boundary_hit=bool(boundary_hit), feasible=True,
         ))
     return tuple(points)
 
@@ -610,3 +696,91 @@ def distance_inclination_sensitivity(
         scenarios.append(refit(new_rows, label))
 
     return tuple(scenarios)
+
+
+# ---------------------------------------------------------------------------
+# Explorative extension (SCF_FOLLOWUP_REVIEW_84848a4.md, "Enger naechster
+# Auftrag" #4): D/i sensitivity for Mode B (held-out test), not just Mode A.
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class ModeBSensitivityScenario:
+    name: str
+    inclination_rescale_k: float
+    scores: Tuple[PredictiveScore, ...]
+
+
+def distance_inclination_sensitivity_mode_b(
+    split: HeldOutSplit,
+    meta_row: SparcMetadataRow,
+    galaxy: str,
+    upsilon_d: float = 0.5,
+    upsilon_b: float = 0.7,
+) -> Tuple[ModeBSensitivityScenario, ...]:
+    """EXPLORATIVE extension of the D/i sensitivity to Mode B (held-out
+    outer-radius test) -- the original R6 sensitivity covered Mode A
+    (descriptive fit) only. Reference + `D+-sigma_D` + `i+-sigma_i`: EACH
+    scenario transforms both `split.train_rows` AND `split.test_rows`
+    consistently (never refit or evaluated against untransformed data),
+    then re-fits Burkert/NFW on the (transformed) training points ONLY
+    and evaluates on the (transformed) test points via the ordinary
+    `evaluate_baselines_on_holdout` path -- no new evaluation logic, no
+    refitting on test data, no scenario selected by test performance.
+
+    `inclination_rescale_k = sin(i_ref)/sin(i_new)` is returned alongside
+    each scenario's scores (`1.0` for the two distance scenarios) so a
+    caller can report `rmse/k` to separate a pure velocity-scale change
+    from a genuine model-comparison signal (SCF_FOLLOWUP_REVIEW_84848a4.md's
+    own presentation choice) -- the returned `scores` themselves are the
+    RAW, un-rescaled evaluation on that scenario's own transformed data.
+
+    This is intentionally a NEW, EXPLORATIVE analysis, not a replacement
+    of the original Mode B evaluation (Plan §10.4's caution against
+    conflating exploration with confirmatory testing).
+    """
+    sigma_D = meta_row.e_D_mpc
+    sigma_i = meta_row.e_inc_deg
+    D_ref = meta_row.D_mpc
+    i_ref = meta_row.inc_deg
+
+    def transform_distance(rows: Sequence[SparcComponentRow], alpha_D: float) -> Tuple[SparcComponentRow, ...]:
+        out = []
+        for r in rows:
+            new_R_kpc, new_Vgas = scale_distance(r.R_kpc, r.Vgas_kms, alpha_D)
+            _, new_Vdisk = scale_distance(r.R_kpc, r.Vdisk_kms, alpha_D)
+            _, new_Vbul = scale_distance(r.R_kpc, r.Vbul_kms, alpha_D)
+            out.append(replace(r, R_kpc=new_R_kpc, Vgas_kms=new_Vgas, Vdisk_kms=new_Vdisk, Vbul_kms=new_Vbul))
+        return tuple(out)
+
+    def transform_inclination(rows: Sequence[SparcComponentRow], i_new: float) -> Tuple[SparcComponentRow, ...]:
+        out = []
+        for r in rows:
+            new_Vobs, new_eVobs = scale_inclination(r.Vobs_kms, r.e_Vobs_kms, i_ref, i_new)
+            out.append(replace(r, Vobs_kms=new_Vobs, e_Vobs_kms=new_eVobs))
+        return tuple(out)
+
+    scenario_splits: List[Tuple[str, HeldOutSplit, float]] = [("reference", split, 1.0)]
+
+    for sign, label in ((+1.0, "D+sigma_D"), (-1.0, "D-sigma_D")):
+        alpha_D = (D_ref + sign * sigma_D) / D_ref
+        scenario_splits.append((
+            label,
+            HeldOutSplit(train_rows=transform_distance(split.train_rows, alpha_D),
+                         test_rows=transform_distance(split.test_rows, alpha_D)),
+            1.0,
+        ))
+
+    for sign, label in ((+1.0, "i+sigma_i"), (-1.0, "i-sigma_i")):
+        i_new = i_ref + sign * sigma_i
+        k = math.sin(math.radians(i_ref)) / math.sin(math.radians(i_new))
+        scenario_splits.append((
+            label,
+            HeldOutSplit(train_rows=transform_inclination(split.train_rows, i_new),
+                         test_rows=transform_inclination(split.test_rows, i_new)),
+            k,
+        ))
+
+    results = []
+    for label, s, k in scenario_splits:
+        scores = evaluate_baselines_on_holdout(galaxy, s, upsilon_d, upsilon_b)
+        results.append(ModeBSensitivityScenario(name=label, inclination_rescale_k=k, scores=scores))
+    return tuple(results)

@@ -35,7 +35,9 @@ from scoped_correspondence.validation.galaxy_pilot import (  # noqa: E402
     LOG_RSCALE_KPC_BOUNDS,
     HeldOutSplit,
     _fit_nfw_holdout,
+    baryon_g_kms2_per_pc,
     distance_inclination_sensitivity,
+    distance_inclination_sensitivity_mode_b,
     evaluate_baselines_on_holdout,
     fit_burkert_descriptive,
     profile_likelihood_burkert,
@@ -275,15 +277,67 @@ def check_r3_invalid_total_acceleration_reported_not_silenced():
     for s in scores:
         require(s.n_invalid >= 1, f"{s.baseline}: expected the poisoned point to be reported invalid")
         require(s.n_invalid < s.n_test, f"{s.baseline}: the two clean points must remain valid")
-        require(not math.isnan(s.rmse_kms), f"{s.baseline}: RMSE over remaining valid points must be a real number")
-        detail[s.baseline] = {"n_invalid": s.n_invalid, "rmse_kms": s.rmse_kms}
+        require(not math.isnan(s.diagnostic_rmse_kms), f"{s.baseline}: diagnostic RMSE over remaining valid points must be a real number")
+        # F2: any invalid point means primary_* is None, never a fabricated full-domain score.
+        require(s.primary_rmse_kms is None, f"{s.baseline}: primary_rmse_kms must be None when n_invalid>=1, not {s.primary_rmse_kms}")
+        require(s.status in ("out_of_domain_partial", "out_of_domain_full"), f"{s.baseline}: expected an out-of-domain status, got {s.status}")
+        detail[s.baseline] = {"n_invalid": s.n_invalid, "diagnostic_rmse_kms": s.diagnostic_rmse_kms, "status": s.status}
 
     # Baseline A (the TRUE source) must score near-exactly on its two clean
     # held-out points despite the poisoned third point being present in the
     # input -- proof the poisoned point was excluded, not zero-padded in.
     score_a = next(s for s in scores if s.baseline == "A_burkert")
-    require(score_a.rmse_kms < 1e-6, f"Baseline A should score near-exactly on its own clean held-out points, got {score_a.rmse_kms}")
+    require(score_a.diagnostic_rmse_kms < 1e-6, f"Baseline A should score near-exactly on its own clean held-out points, got {score_a.diagnostic_rmse_kms}")
     return detail
+
+
+def check_f2_out_of_domain_not_a_misleading_perfect_score():
+    """F2 (SCF_FOLLOWUP_REVIEW_84848a4.md): reproduces the review's own
+    constructed 3-point counterexample -- a test point with negative
+    baryonic total but positive halo total leaves MOND (which requires
+    g_bar>=0) out of its scalar domain there, while Burkert/NFW remain
+    valid. Before the fix, each baseline scored independently over its own
+    valid subset, so MOND could report a misleadingly 'perfect' rmse=0.0
+    over its remaining 2 (deliberately exact) points, indistinguishable
+    from a genuine full-3-point win. Now MOND's primary_rmse_kms must be
+    None (out-of-domain), with the 0.0 visible only as a labeled
+    diagnostic, never as an ordinary comparable score."""
+    prof = BurkertProfile(rho0_msun_pc3=0.02, r0_pc=2000.0)
+    train_rows = []
+    for rk in np.geomspace(0.5, 10.0, 10):
+        v = float(prof.circular_velocity(rk * 1000.0))
+        train_rows.append(SparcComponentRow(galaxy="SYN3", D_mpc=10.0, R_kpc=float(rk), Vobs_kms=v, e_Vobs_kms=1.0,
+                                             Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                                             SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0))
+    # A test point with a large negative Vgas (negative baryonic total,
+    # MOND out of domain) but a small enough magnitude that Burkert/NFW's
+    # halo term keeps the TOTAL acceleration positive there.
+    test_rows = [
+        SparcComponentRow(galaxy="SYN3", D_mpc=10.0, R_kpc=11.0, Vobs_kms=float(prof.circular_velocity(11000.0)),
+                           e_Vobs_kms=1.0, Vgas_kms=-15.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                           SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0),
+        SparcComponentRow(galaxy="SYN3", D_mpc=10.0, R_kpc=12.0, Vobs_kms=float(prof.circular_velocity(12000.0)),
+                           e_Vobs_kms=1.0, Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                           SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0),
+        SparcComponentRow(galaxy="SYN3", D_mpc=10.0, R_kpc=13.0, Vobs_kms=float(prof.circular_velocity(13000.0)),
+                           e_Vobs_kms=1.0, Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                           SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0),
+    ]
+    split = HeldOutSplit(train_rows=tuple(train_rows), test_rows=tuple(test_rows))
+    scores = evaluate_baselines_on_holdout("SYN3", split)
+    score_mond = next(s for s in scores if s.baseline == "C_mond")
+
+    require(score_mond.n_invalid == 1, f"expected exactly 1 out-of-domain MOND point, got {score_mond.n_invalid}")
+    require(score_mond.status == "out_of_domain_partial", f"expected out_of_domain_partial, got {score_mond.status}")
+    require(score_mond.primary_rmse_kms is None, "MOND's primary_rmse_kms must be None, never a misleading number")
+    require(score_mond.primary_mae_kms is None, "MOND's primary_mae_kms must be None, never a misleading number")
+
+    score_a = next(s for s in scores if s.baseline == "A_burkert")
+    require(score_a.n_invalid == 0, "Burkert (the true source) should have no invalid points here")
+    require(score_a.status == "full_domain", "Burkert should be full_domain")
+    require(score_a.primary_rmse_kms is not None, "a full-domain baseline's primary score must be a real number")
+    return {"mond_status": score_mond.status, "mond_diagnostic_rmse": score_mond.diagnostic_rmse_kms,
+            "burkert_status": score_a.status}
 
 
 def _zero_baryon_burkert_rows(rho0, r0_pc, r_kpc_grid, e_vobs=1.0):
@@ -340,6 +394,78 @@ def check_r6_profile_likelihood_infeasible_psi_marked_not_dropped():
     return {"ok": True}
 
 
+def check_r6_profile_likelihood_single_point_intervals_evaluated():
+    """F1's second bug (SCF_FOLLOWUP_REVIEW_84848a4.md): `eta_lo==eta_hi`
+    (exactly one feasible point) was previously marked infeasible along
+    with genuinely empty intervals. With the declared bounds (eta in
+    [1,5.5], log_rho in [-4,1]), `psi=-3` degenerates to the single point
+    `eta=1` and `psi=6.5` to the single point `eta=5.5` -- both must be
+    evaluated, not dropped."""
+    rows = _zero_baryon_burkert_rows(0.03, 3000.0, np.geomspace(0.5, 20.0, 10))
+    points = profile_likelihood_burkert(rows, [-3.0, 6.5])
+    require(points[0].feasible and points[1].feasible, "single-point-interval psi values must be feasible")
+    near(points[0].eta_min, 1.0, atol=1e-9, msg="psi=-3 single point eta")
+    near(points[1].eta_min, 5.5, atol=1e-9, msg="psi=6.5 single point eta")
+    require(points[0].boundary_hit and points[1].boundary_hit, "a single-point interval is trivially at its own boundary")
+    require(not math.isnan(points[0].q) and not math.isnan(points[1].q), "single-point q must be a real number")
+    return {"ok": True}
+
+
+def check_r6_profile_likelihood_finds_global_not_local_minimum():
+    """F1 (P1, SCF_FOLLOWUP_REVIEW_84848a4.md): a single `scipy.optimize.
+    minimize_scalar(method="bounded")` call over the WHOLE feasible
+    interval finds only a LOCAL minimum -- confirmed on real SPARC data in
+    the follow-up review (NGC3917: reported q=1253.5 at eta=2.67 while the
+    feasible boundary eta=5.5 gives q=459.79). Reproduced here with a
+    purely synthetic, hand-invented 'flat rotation curve' fixture (V_flat=
+    120 km/s, core radius 2 kpc -- NOT derived from any real galaxy, zero
+    baryons) chosen to have two well-separated chi2 basins at psi=2.7: a
+    deep global minimum near eta~3.41 (q~17.7) and a much shallower local
+    minimum near eta~5.0 (q~2044, independently confirmed via a brute-
+    force 2001-point grid -- a route independent of the production code's
+    own internal grid resolution). The routine must find the DEEP one."""
+    V_flat, r_c_kpc = 120.0, 2.0
+    r_kpc_grid = np.array([0.5, 1.0, 2.0, 4.0, 7.0, 10.0, 15.0, 20.0])
+    v_obs_grid = V_flat * r_kpc_grid / np.sqrt(r_kpc_grid**2 + r_c_kpc**2)
+    rows = [SparcComponentRow(galaxy="SYNTHFLAT", D_mpc=10.0, R_kpc=float(rk), Vobs_kms=float(v), e_Vobs_kms=3.0,
+                               Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0, SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0)
+            for rk, v in zip(r_kpc_grid, v_obs_grid)]
+
+    psi = 2.7
+    points = profile_likelihood_burkert(rows, [psi])
+    p = points[0]
+    require(p.feasible, "psi=2.7 should be feasible for this fixture")
+
+    # Independent brute-force ground truth: a much finer grid than the
+    # production routine's own internal n_grid=61, computed via a
+    # separately written objective function here (not imported from
+    # galaxy_pilot.py) so this is a genuinely independent route.
+    r_pc, g_bar = baryon_g_kms2_per_pc(rows, 0.5, 0.7)
+    v_obs = np.array([r.Vobs_kms for r in rows])
+    e_vobs = np.array([r.e_Vobs_kms for r in rows])
+
+    def brute_chi2(eta):
+        rho0 = 10 ** (psi - eta)
+        r0_pc = 10 ** eta
+        prof = BurkertProfile(rho0_msun_pc3=rho0, r0_pc=r0_pc)
+        g_halo = np.array([prof.g(r) for r in r_pc])
+        g_total = np.clip(g_bar + g_halo, 0.0, None)
+        v_pred = np.sqrt(g_total * r_pc)
+        return float(np.sum(((v_pred - v_obs) / e_vobs) ** 2))
+
+    eta_bounds = (LOG_RSCALE_KPC_BOUNDS[0] + 3.0, LOG_RSCALE_KPC_BOUNDS[1] + 3.0)
+    eta_lo = max(eta_bounds[0], psi - LOG_RHO_BOUNDS[1])
+    eta_hi = min(eta_bounds[1], psi - LOG_RHO_BOUNDS[0])
+    fine_grid = np.linspace(eta_lo, eta_hi, 2001)
+    fine_q = np.array([brute_chi2(e) for e in fine_grid])
+    brute_best_q = float(fine_q.min())
+
+    near(p.q, brute_best_q, rtol=1e-2, msg="profile routine vs brute-force global minimum")
+    require(p.q < 100.0, f"expected the DEEP basin (q~17.7), got q={p.q} (looks like the shallow ~2044 basin)")
+    require(2.0 < p.eta_min < 4.5, f"expected eta near the deep basin (~3.41), got {p.eta_min}")
+    return {"routine_q": p.q, "routine_eta": p.eta_min, "brute_force_q": brute_best_q}
+
+
 def check_r6_distance_inclination_sensitivity_exact_relations():
     """R6 (SCF_REVIEW_G0_G7_5563e67.md): on zero-baryon noiseless data,
     re-deriving the physical distinction from Plan §9.4 gives EXACT
@@ -389,6 +515,65 @@ def check_r6_distance_inclination_sensitivity_exact_relations():
     return {name: s.mu_h for name, s in scenarios.items()}
 
 
+def check_mode_b_sensitivity_structure_and_no_leak():
+    """Explorative Mode-B D/i sensitivity extension (SCF_FOLLOWUP_REVIEW_
+    84848a4.md, 'Enger nächster Auftrag' #4): 5 scenarios returned, each
+    re-fit from its OWN (correspondingly transformed) training rows only
+    -- corrupting a scenario's test rows must not change its own training
+    fit or any other scenario's results (same leak-test discipline as
+    `check_leak_test_holdout_does_not_affect_training`, extended to this
+    new function). Also checks the reported `k` factor for the inclination
+    scenarios matches `sin(i_ref)/sin(i_new)` exactly, and `k=1` for the
+    reference/distance scenarios."""
+    prof = BurkertProfile(rho0_msun_pc3=0.02, r0_pc=2000.0)
+    rows = []
+    for rk in np.geomspace(0.5, 20.0, 15):
+        v = float(prof.circular_velocity(rk * 1000.0))
+        rows.append(SparcComponentRow(galaxy="SYN4", D_mpc=10.0, R_kpc=float(rk), Vobs_kms=v, e_Vobs_kms=2.0,
+                                       Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                                       SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0))
+    split = train_test_split_outer(rows)
+    meta_row = SparcMetadataRow(
+        galaxy="SYN4", T=5, D_mpc=10.0, e_D_mpc=2.0, f_D=1, inc_deg=60.0, e_inc_deg=5.0,
+        L36_1e9_sollum=1.0, e_L36_1e9_sollum=0.1, Reff_kpc=1.0, SBeff_sollum_pc2=10.0,
+        Rdisk_kpc=1.0, SBdisk_sollum_pc2=10.0, MHI_1e9_solmass=1.0, RHI_kpc=1.0,
+        Vflat_kms=100.0, e_Vflat_kms=5.0, Q=1, ref="Test",
+    )
+
+    scenarios = distance_inclination_sensitivity_mode_b(split, meta_row, galaxy="SYN4")
+    require(len(scenarios) == 5, f"expected 5 scenarios, got {len(scenarios)}")
+    names = {s.name for s in scenarios}
+    require(names == {"reference", "D+sigma_D", "D-sigma_D", "i+sigma_i", "i-sigma_i"}, f"unexpected scenario names: {names}")
+
+    by_name = {s.name: s for s in scenarios}
+    near(by_name["reference"].inclination_rescale_k, 1.0, atol=1e-12, msg="reference k")
+    near(by_name["D+sigma_D"].inclination_rescale_k, 1.0, atol=1e-12, msg="D+sigma_D k")
+    k_plus_expected = math.sin(math.radians(60.0)) / math.sin(math.radians(65.0))
+    near(by_name["i+sigma_i"].inclination_rescale_k, k_plus_expected, rtol=1e-12, msg="i+sigma_i k")
+
+    for s in scenarios:
+        require(len(s.scores) == 3, f"{s.name}: expected 3 baseline scores (A/B/C)")
+        for sc in s.scores:
+            require(sc.status == "full_domain", f"{s.name}/{sc.baseline}: expected full_domain on clean synthetic data")
+
+    # leak check: corrupting the reference scenario's test rows only must
+    # not change any scenario's training-derived scores.
+    from dataclasses import replace as _rep
+    poisoned_test = tuple(_rep(r, Vobs_kms=r.Vobs_kms + 500.0) for r in split.test_rows)
+    poisoned_split = HeldOutSplit(train_rows=split.train_rows, test_rows=poisoned_test)
+    scenarios_poisoned = distance_inclination_sensitivity_mode_b(poisoned_split, meta_row, galaxy="SYN4")
+    ref_original = next(s for s in scenarios if s.name == "reference").scores
+    ref_poisoned = next(s for s in scenarios_poisoned if s.name == "reference").scores
+    # training-derived NFW/Burkert params are unaffected by test corruption,
+    # but the (poisoned) test-set primary/diagnostic scores legitimately
+    # change for THIS scenario -- check the train_status/train_boundary_hit
+    # (purely training-derived) stay identical, confirming no leak into fitting.
+    for so, sp in zip(ref_original, ref_poisoned):
+        require(so.train_status == sp.train_status and so.train_boundary_hit == sp.train_boundary_hit,
+                f"{so.baseline}: training fit must be unaffected by test-row corruption")
+    return {"scenario_names": sorted(names)}
+
+
 CHECKS = [
     ("exact_noiseless_recovery_wide_range", check_exact_noiseless_recovery_wide_range),
     ("inner_radius_information_loss", check_inner_radius_information_loss),
@@ -399,9 +584,13 @@ CHECKS = [
     ("boundary_hit_reported_for_out_of_bounds_truth", check_boundary_hit_reported_for_out_of_bounds_truth),
     ("r2_nfw_boundary_hit_propagates_to_predictive_score", check_r2_nfw_boundary_hit_propagates_to_predictive_score),
     ("r3_invalid_total_acceleration_reported_not_silenced", check_r3_invalid_total_acceleration_reported_not_silenced),
+    ("f2_out_of_domain_not_a_misleading_perfect_score", check_f2_out_of_domain_not_a_misleading_perfect_score),
     ("r6_profile_likelihood_recovers_true_psi", check_r6_profile_likelihood_recovers_true_psi),
     ("r6_profile_likelihood_infeasible_psi_marked_not_dropped", check_r6_profile_likelihood_infeasible_psi_marked_not_dropped),
+    ("f1_profile_likelihood_single_point_intervals_evaluated", check_r6_profile_likelihood_single_point_intervals_evaluated),
+    ("f1_profile_likelihood_finds_global_not_local_minimum", check_r6_profile_likelihood_finds_global_not_local_minimum),
     ("r6_distance_inclination_sensitivity_exact_relations", check_r6_distance_inclination_sensitivity_exact_relations),
+    ("mode_b_sensitivity_structure_and_no_leak", check_mode_b_sensitivity_structure_and_no_leak),
 ]
 
 

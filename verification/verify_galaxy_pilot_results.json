@@ -1,6 +1,6 @@
 {
   "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G5 (mandatory synthetic controls, Plan \u00a710.5)",
-  "timestamp": "2026-09-26T16:35:16+02:00",
+  "timestamp": "2026-09-26T19:24:21+02:00",
   "python": "3.11.9",
   "checks": {
     "exact_noiseless_recovery_wide_range": {
@@ -73,16 +73,27 @@
       "detail": {
         "A_burkert": {
           "n_invalid": 1,
-          "rmse_kms": 3.552713678800501e-15
+          "diagnostic_rmse_kms": 3.552713678800501e-15,
+          "status": "out_of_domain_partial"
         },
         "B_nfw": {
           "n_invalid": 1,
-          "rmse_kms": 4.252534768212731
+          "diagnostic_rmse_kms": 4.252534768212731,
+          "status": "out_of_domain_partial"
         },
         "C_mond": {
           "n_invalid": 1,
-          "rmse_kms": 28.548029849858274
+          "diagnostic_rmse_kms": 28.548029849858274,
+          "status": "out_of_domain_partial"
         }
+      }
+    },
+    "f2_out_of_domain_not_a_misleading_perfect_score": {
+      "status": "pass",
+      "detail": {
+        "mond_status": "out_of_domain_partial",
+        "mond_diagnostic_rmse": 28.89781845175165,
+        "burkert_status": "full_domain"
       }
     },
     "r6_profile_likelihood_recovers_true_psi": {
@@ -90,13 +101,27 @@
       "detail": {
         "true_psi": 1.954242509439325,
         "best_psi": 1.954242509439325,
-        "best_q": 7.290104129029672e-11
+        "best_q": 7.284172125446784e-12
       }
     },
     "r6_profile_likelihood_infeasible_psi_marked_not_dropped": {
       "status": "pass",
       "detail": {
         "ok": true
+      }
+    },
+    "f1_profile_likelihood_single_point_intervals_evaluated": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "f1_profile_likelihood_finds_global_not_local_minimum": {
+      "status": "pass",
+      "detail": {
+        "routine_q": 17.688747143060723,
+        "routine_eta": 3.4078898992921447,
+        "brute_force_q": 17.68925269176161
       }
     },
     "r6_distance_inclination_sensitivity_exact_relations": {
@@ -107,6 +132,18 @@
         "D-sigma_D": 112.50000000000004,
         "i+sigma_i": 82.1773911636449,
         "i-sigma_i": 100.59461526818488
+      }
+    },
+    "mode_b_sensitivity_structure_and_no_leak": {
+      "status": "pass",
+      "detail": {
+        "scenario_names": [
+          "D+sigma_D",
+          "D-sigma_D",
+          "i+sigma_i",
+          "i-sigma_i",
+          "reference"
+        ]
       }
     }
   }

@@ -165,25 +165,45 @@ Antwort auf `SCF_REVIEW_G0_G7_5563e67.md` Befund R6: `psi`/`eta` oben sind
 nur die Koordinaten des jeweiligen Bestfits, keine Profil-Likelihood.
 Reproduzierbar über `scripts/run_real_galaxy_pilot.py --sparc-dir ...
 --out-dir ...` (Hash-geprüft, schreibt `galaxy_pilot_mode_a_results.json`,
-`galaxy_pilot_mode_b_results.json` und zwei CSV-Dateien lokal — **keine
+`galaxy_pilot_mode_b_results.json` und drei CSV-Dateien lokal — **keine
 Bilder erzeugt**, das bleibt offene Folgearbeit, hier ehrlich als nicht
 erledigt vermerkt statt behauptet).
+
+**Nachtrag (Folgereview `SCF_FOLLOWUP_REVIEW_84848a4.md`, 2026-09-26):**
+Die ursprüngliche Profil-Likelihood-Routine fand nur ein lokales statt das
+globale Minimum (`scipy.optimize.minimize_scalar(method="bounded")` über
+das gesamte zulässige Intervall kann eine bessere Lösung nahe einer Grenze
+komplett übersehen — am echten NGC3917-Datensatz nachgewiesen: gemeldet
+wurde `q=1253,5`, während der zulässige Randwert `eta=5,5` bereits
+`q=459,79` liefert). Behoben durch ein Raster-plus-Verfeinerung-Verfahren,
+das immer auch die exakten Intervallgrenzen als Kandidaten prüft — **alle
+Zahlen unten sind nach diesem Fix neu erzeugt**, frühere Kurven waren
+teilweise falsch und sind überholt.
 
 ### 6.1 Profil-Likelihood `q(psi) = min_eta chi2`
 
 Für alle 12 Galaxien über ein Fenster von ±1 dex um den jeweiligen
 Bestfit-`psi`, mit korrekt aus den deklarierten Grenzen transformiertem,
 `psi`-abhängigem zulässigem `eta`-Bereich (`eta in [1, 5.5]` geschnitten
-mit `eta in [psi-1, psi+4]`): **keine der 12×41 Rasterpunkte trifft eine
-Grenze oder ist unzulässig**, `q` steigt in jedem Fall deutlich vom
-Minimum an (Faktor 10–800 innerhalb ±1 dex) — auf synthetischen
-Daten wird das Profil-Minimum exakt am wahren `psi` gefunden
-(`verify_galaxy_pilot.py`, `r6_profile_likelihood_recovers_true_psi`).
-Das ist eine echte, nachvollziehbare Kurvenform statt der vorherigen
-reinen Bestfit-Koordinate — aber weiterhin kein kalibriertes
-Konfidenzintervall (Plan §10.2: "Eine Schwellenüberschreitung ist nur
-unter angegebenen Fehler- und Regularitätsannahmen als Konfidenzgrenze
-interpretierbar").
+mit `eta in [psi-1, psi+4]`), **nach dem F1-Fix neu erzeugt** (siehe
+Nachtrag oben — die ursprüngliche Routine fand teils nur ein lokales
+Minimum): keine unzulässigen Rasterpunkte, aber **22 von 492 Punkten bei
+5 von 12 Galaxien treffen tatsächlich eine Grenze** (NGC0024 6/41,
+NGC3521 5/41, NGC3893 4/41, NGC3726 4/41, NGC3917 2/41, F568-V1 1/41) —
+die ursprüngliche Aussage "keine der 12×41 Rasterpunkte trifft eine
+Grenze" war falsch und ist hiermit zurückgenommen. `q` steigt weiterhin in
+jedem Fall deutlich vom Minimum an; auf synthetischen Daten wird das
+Profil-Minimum exakt am wahren `psi` gefunden
+(`verify_galaxy_pilot.py`, `r6_profile_likelihood_recovers_true_psi`),
+und ein eigens konstruierter, echt bimodaler Testfall bestätigt, dass die
+Routine das tiefere globale statt eines flacheren lokalen Minimums findet
+(`f1_profile_likelihood_finds_global_not_local_minimum`). Das ist eine
+echte, nachvollziehbare Kurvenform statt der vorherigen reinen
+Bestfit-Koordinate — aber weiterhin kein kalibriertes Konfidenzintervall
+(Plan §10.2: "Eine Schwellenüberschreitung ist nur unter angegebenen
+Fehler- und Regularitätsannahmen als Konfidenzgrenze interpretierbar"),
+und die Grenztreffer zeigen, dass die deklarierten Rechengrenzen bei
+einem Teil der Galaxien tatsächlich einschränkend wirken.
 
 ### 6.2 Entfernungs-/Inklinations-Sensitivität
 
@@ -213,21 +233,57 @@ nachvollzogen, nicht nur übernommen.
 | F583-4 | 1,97× | 111,7 | 85,9 / 150,4 / 83,5 / 164,4 |
 | NGC3917 | 1,55× | 238,1 | 192,7 / 298,2 / 233,5 / 243,7 |
 | DDO168 | 1,31× | 102,1 | 96,1 / 108,9 / 90,7 / 118,9 |
-| NGC3726 (eval) | 1,16× | — | siehe oben |
 | NGC3109 | 1,16× | 99,1 | 93,4 / 105,4 / 93,0 / 107,6 |
 | NGC0024 | 1,15× | 595,7 | 558,4 / 636,9 / 558,7 / 640,2 |
 
-**Konkreter Befund zu UGC02487** (Modus-B-MOND-Ausreißer, Abschnitt 5):
-Die 2,65-fache Spannweite zeigt, dass ein erheblicher Teil der Unsicherheit
-in `mu_h` allein aus der Entfernungs-/Inklinationsfehlerspanne dieser
-Galaxie stammt — **ein plausibler Beitrag zum MOND-Ausreißer**, aber diese
-Sensitivität allein beweist noch keine Ursache; sie bestätigt nur, dass
-UGC02487 empirisch stärker auf D/i-Annahmen reagiert als die übrigen elf
-Galaxien außer NGC3521, was ihn als Kandidaten für eine spätere, genauere
-Nachrechnung markiert.
+**Konkreter Befund zu UGC02487** (Modus-B-MOND-Ausreißer, Abschnitt 5): die
+2,65-fache Spannweite zeigt eine deutliche Empfindlichkeit von `mu_h`
+gegenüber der Entfernungs-/Inklinationsfehlerspanne dieser Galaxie
+(abgeschwächte Formulierung gegenüber der Erstfassung, Folgereview-Punkt:
+"ein erheblicher Teil der Unsicherheit stammt aus…" war eine zu starke,
+nicht direkt belegte Aussage). Das ist Modus A (deskriptiver Fit) — ob und
+wie stark sich das auf den Modus-B-Ausreißer selbst auswirkt, zeigt
+Abschnitt 6.3.
 
 **Weiterhin offen (ehrlich als solches geführt, nicht stillschweigend
 fallengelassen):** Plot-Erzeugung aus den Ergebnisdateien; ein gemeinsamer
 Referenzrahmen für D/i-Grenzen über alle Galaxien hinweg (aktuell je
-Galaxie aus ihrer eigenen Metadatenzeile); eine Ausweitung der
-Sensitivität auf Modus B (gehaltener Außenradientest).
+Galaxie aus ihrer eigenen Metadatenzeile).
+
+### 6.3 Explorative Modus-B-Sensitivität (Folgereview-Auftrag, 2026-09-26)
+
+Antwort auf `SCF_FOLLOWUP_REVIEW_84848a4.md`s Auftrag Nr. 4: dieselben
+fünf Szenarien (Referenz, `D±σ_D`, `i±σ_i`) jetzt auf den gehaltenen
+Außenradientest (Modus B, Abschnitt 5) angewendet, nicht nur auf den
+deskriptiven Fit. Jedes Szenario transformiert Trainings- UND Testpunkte
+konsistent und refittet Burkert/NFW ausschließlich auf den (transformierten)
+Trainingspunkten — kein Nachfitten auf Testpunkten, keine Auswahl nach
+Testleistung. Bei Inklinationsszenarien ist der RMSE zusätzlich auf die
+Referenz-Geschwindigkeitsskala zurückgerechnet (`RMSE/k`,
+`k=sin(i_ref)/sin(i_neu)`), um eine reine Skalenänderung vom eigentlichen
+Modellvergleichssignal zu trennen.
+
+**UGC02487** (RMSE in km/s, Referenzskala):
+
+| Szenario | Burkert | NFW | MOND |
+|---|---:|---:|---:|
+| Referenz | 14,5660 | 9,7009 | 62,1372 |
+| `D+σ_D` | 14,4819 | 9,4965 | 42,6309 |
+| `D−σ_D` | 14,5107 | 9,8171 | 83,1863 |
+| `i+σ_i` | 14,3443 | 9,3170 | 30,9482 |
+| `i−σ_i` | 14,4321 | 9,8478 | 95,4022 |
+
+(Unskalierter MOND-RMSE bei `i+σ_i`: 27,7275 km/s.) Diese Tabelle wurde
+unabhängig gegen `SCF_FOLLOWUP_REVIEW_84848a4.md`s eigene Gegenrechnung
+abgeglichen — exakte Übereinstimmung auf 4 Nachkommastellen.
+
+**Einordnung:** D/i-Annahmen beeinflussen den MOND-RMSE deutlich (Faktor
+~3,5 zwischen `i+σ_i` und `i−σ_i`), während Burkert und NFW über alle
+fünf Szenarien nahezu stabil bleiben. **NFW bleibt in allen fünf
+Szenarien vor MOND** — die D/i-Empfindlichkeit ist ein gezeigter Beitrag
+zum MOND-Ausreißer, aber weder eine vollständige Erklärung noch eine
+Entscheidung zwischen physikalischen Theorien. Gemeinsame D/i-Variationen,
+andere M/L-Annahmen oder eine andere MOND-Interpolationsfunktion wurden
+hier nicht geprüft. **Explizit explorativ**, keine neue konfirmatorische
+Bewertung — der bereits bekannte Modus-B-Test (Abschnitt 5) macht diese
+Zusatzanalyse zu einer Nachbetrachtung, nicht zu einem Ersatzbefund.

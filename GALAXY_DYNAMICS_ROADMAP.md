@@ -366,21 +366,22 @@ Muster wie `INTEGRATED_EXTENSION_ROADMAP.md`s eigene C0–C7-Tabelle.
   implementiert und gegen unabhängige Routen — Quadratur, algebraische
   Gegenbeispiele, Handrechnung — bestätigt).
 - **Synthetisch geprüft:** 5 Skripte, Kategorie `math` (Stand nach dem
-  Review-Fix unten): `verify_galaxy_profiles.py` (12), `verify_galaxy_
-  homology.py` (7), `verify_galaxy_observation_maps.py` (7),
-  `verify_sparc_adapter.py` (14), `verify_galaxy_pilot.py` (12) — **52
-  Einzelprüfungen**, alle grün. (Frühere Paket-Commits nennen kleinere
-  Zahlen für einzelne Skripte, z. B. G1 "10/10" — das war zum jeweiligen
-  Commit-Zeitpunkt korrekt; der Review-Fix hat seither pro Fund gezielte
-  Regressionsprüfungen ergänzt. Dieser Absatz nennt den aktuellen Stand.)
+  Followup-Review-Fix unten): `verify_galaxy_profiles.py` (12),
+  `verify_galaxy_homology.py` (7), `verify_galaxy_observation_maps.py`
+  (7), `verify_sparc_adapter.py` (14), `verify_galaxy_pilot.py` (16) —
+  **56 Einzelprüfungen**, alle grün. (Frühere Paket-Commits nennen
+  kleinere Zahlen für einzelne Skripte, z. B. G1 "10/10" — das war zum
+  jeweiligen Commit-Zeitpunkt korrekt; jede Review-Runde hat seither pro
+  Fund gezielte Regressionsprüfungen ergänzt. Dieser Absatz nennt den
+  aktuellen Stand.)
 - **Mit echten Daten ausgeführt:** `verify_sparc_real_local.py` (Kategorie
   `data`, 5/5, nicht übersprungen) und G5 (`docs/galaxy_pilot.md`, echter
-  94-Galaxien-Auswahllauf plus 12-Galaxien-Pilot, seit dem Review-Fix
-  erweitert um Profil-Likelihood und D/i-Sensitivität für alle 12
-  Galaxien via `scripts/run_real_galaxy_pilot.py`) — beide gegen die
-  tatsächlichen lokalen SPARC-Dateien, Lizenzstatus ungeklärt, deshalb
-  nicht in Standard-CI. **Insgesamt 57 Einzelprüfungen** über alle 6
-  G-Serie-Skripte (52 synthetisch + 5 echt).
+  94-Galaxien-Auswahllauf plus 12-Galaxien-Pilot, erweitert um
+  Profil-Likelihood (nach dem F1-Fix neu erzeugt), D/i-Sensitivität für
+  Modus A und Modus B via `scripts/run_real_galaxy_pilot.py`) — beide
+  gegen die tatsächlichen lokalen SPARC-Dateien, Lizenzstatus ungeklärt,
+  deshalb nicht in Standard-CI. **Insgesamt 61 Einzelprüfungen** über
+  alle 6 G-Serie-Skripte (56 synthetisch + 5 echt).
 - **Explorativ:** G5s Modus-B-Baseline-Vergleich (6 Evaluationsgalaxien,
   ausdrücklich als vorsichtige Pilotbeschreibung deklariert, keine
   Siegerbehauptung).
@@ -485,3 +486,76 @@ Populationskonstante; Prüfzahlen aktualisiert (siehe Fähigkeitsbilanz
 oben: 52 synthetisch + 5 echt = 57 nach dem Review-Fix, vorher 42+5=47).
 
 Volle Regression nach allen R1–R7-Korrekturen: siehe Commit.
+
+## Followup-Review-Fix (`SCF_FOLLOWUP_REVIEW_84848a4.md`, 2026-09-26)
+
+Astras Folgereview auf den Review-Fix-Commit `84848a4` bestätigte R1–R7,
+fand aber einen neuen kritischen Fehler (F1) und einen
+Vergleichbarkeits-Fund (F2) in der neuen G5-Erweiterung. Beide unabhängig
+reproduziert vor der Korrektur.
+
+**F1 (P1, kritisch) — Profil-Likelihood fand nur ein lokales statt das
+globale Minimum:** `profile_likelihood_burkert` nutzte einen einzigen
+`scipy.optimize.minimize_scalar(method="bounded")`-Aufruf über das
+gesamte zulässige Intervall. Da der Burkert-Halo-Term `v_h²(r) ~
+mu_h*r*B(x)/x²` sowohl für `x→0` als auch `x→∞` gegen null geht, kann
+`chi2(eta)` bei festem `psi` echt bimodal sein — ein lokaler Optimierer
+übersieht dann eine bessere Lösung nahe einer Grenze vollständig.
+**Unabhängig am echten NGC3917-Datensatz bestätigt:** bei `psi=3,3768`
+meldete die Routine `q=1253,5` bei `eta=2,67`, während der zulässige
+Randwert `eta=5,5` bereits `q=459,79` liefert — exakt Astras Zahlen
+reproduziert. Zusätzlich zwei kleinere Fehler in derselben Routine:
+Randerkennung per fester `1e-6`-Toleranz übersah Fälle, in denen der
+Optimierer knapp vor der echten Grenze stoppte (NGC0024-Beispiel exakt
+reproduziert); `eta_lo==eta_hi` (genau ein zulässiger Punkt) wurde
+fälschlich als unzulässig markiert.
+
+**Fix:** Raster-Scan über das volle zulässige Intervall plus lokale
+Verfeinerung um die besten Kandidaten, **immer** inklusive der beiden
+exakten Intervallgrenzen als Kandidaten; Randstatus per exaktem
+Gleichheitsvergleich mit diesen Kandidaten statt fester Toleranz;
+Einzelpunkt-Intervalle direkt ausgewertet. Alle vier Astra-Gegenbeispiele
+(NGC3917 zweimal, NGC0024, beide Einzelpunkt-Fälle) exakt reproduziert
+und als Regressionen übernommen, plus ein rein synthetischer bimodaler
+Testfall (unabhängig gegen ein 2001-Punkte-Grobraster geprüft). **Alle
+12 Profilkurven neu erzeugt:** 22 von 492 Punkten bei 5 von 12 Galaxien
+treffen tatsächlich eine Grenze (vorher fälschlich 0 gemeldet) — Details
+in `docs/galaxy_pilot.md` §6.1. Die Sensitivitätsfaktoren (NGC3521 5,17×,
+UGC02487 2,65×) waren von diesem Fehler nicht betroffen (andere Routine)
+und bleiben unverändert.
+
+**F2 (P2) — MAE/RMSE auf unterschiedlichen Punktmengen sind kein fairer
+Modellvergleich:** jede Baseline wurde nur über ihre eigenen gültigen
+Testpunkte bewertet, sodass eine Baseline einen schwierigen Punkt
+"verlieren" und daneben mit kleinerem RMSE dastehen konnte (Astras
+Konstruktion: MOND meldet `RMSE=0,0` nach Ausschluss von 1/3 Punkten,
+während Burkert/NFW alle 3 bewerten). Kein nachgewiesener Fehler in den
+12 Pilotgalaxien selbst (dort tritt der Fall nicht auf), aber eine echte
+Vertragslücke. **Fix:** `PredictiveScore` trennt jetzt `primary_*`
+(`None`, sobald diese Baseline auch nur einen ungültigen Punkt hat —
+niemals eine beschönigte Zahl) von `diagnostic_*` (immer über die
+gültige Teilmenge, klar als Diagnose gekennzeichnet) plus `n_scored` und
+einem `status`-Feld (`full_domain`/`out_of_domain_partial`/
+`out_of_domain_full`). Astras Konstruktionsfall exakt reproduziert und
+als Regression übernommen. Strikte JSON-Serialisierung in der CLI
+ergänzt (`NaN`/`Infinity` werden zu `null`, nicht als nichtstandardkonforme
+Literale geschrieben).
+
+**Zusätzlich umgesetzt (Berichtsarbeit + Auftrag Nr. 4):** doppelte
+NGC3726-Zeile in `docs/galaxy_pilot.md` §6.2 entfernt; CSV-Anzahl in
+CLI-Dokumentation korrigiert; Mode-B-Export um tatsächliche
+Trainingsparameter/-grenzen und Auswahlausschlussgründe ergänzt;
+ungenauer Kommentar zum Optimierer-Clip präzisiert; Modus B wird jetzt
+vor Modus A berechnet/exportiert (kein nachgewiesenes Datenleck, aber
+zukunftssicherer). **Neue explorative Erweiterung:** D/i-Sensitivität
+jetzt auch für den gehaltenen Außenradientest (Modus B) verfügbar
+(`distance_inclination_sensitivity_mode_b`) — für UGC02487 exakt gegen
+Astras eigene Gegenrechnung abgeglichen (4 Nachkommastellen), zeigt NFW
+in allen 5 Szenarien vor MOND bleibend, siehe `docs/galaxy_pilot.md` §6.3.
+
+Neue/geänderte Prüfungen in `verify_galaxy_pilot.py`: 16 statt 12
+(4 neue F1/F2/Modus-B-Sensitivität-Regressionen). Aktualisierte
+Gesamtzahl: 56 synthetisch + 5 echt = 61 Einzelprüfungen über die 6
+G-Serie-Skripte.
+
+Volle Regression nach F1/F2-Korrekturen: siehe Commit.

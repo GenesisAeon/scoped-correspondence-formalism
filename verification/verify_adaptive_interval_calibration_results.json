@@ -5,7 +5,7 @@
   "source_pid": "Angelopoulos, A. N.; Cand\u00e8s, E. J.; Tibshirani, R. J. (2023): Conformal PID Control for Time Series Prediction. NeurIPS. https://papers.neurips.cc/paper_files/paper/2023/hash/47f2fad8c1111d07f83c91be7870f8db-Abstract-Conference.html",
   "pid_scope_note": "Implements only the Proportional + Integral terms of Conformal PID Control; the published method's learned scorecaster and bounded saturation link are NOT implemented.",
   "default_alpha_target": 0.2,
-  "timestamp": "2026-09-26T16:30:53+02:00",
+  "timestamp": "2026-09-26T19:19:49+02:00",
   "python": "3.11.9",
   "checks": {
     "aci_update_hand_arithmetic": {

@@ -1,7 +1,7 @@
 {
   "milestone": "M6c_noaa_temp_pilot",
   "kind": "real-data trend pilot on verified per-row data (honesty over beauty)",
-  "generated_at_utc": "2026-09-26T14:41:07.726884+00:00",
+  "generated_at_utc": "2026-09-26T17:30:47.233651+00:00",
   "python": "3.11.9",
   "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\noaa_global_temp_anomaly_1880_2025.csv",
   "data_sha256": "f34a93b449635cb8ffbf180e1cf60f1964ec20cc1283960846cd2b1ae8175afb",

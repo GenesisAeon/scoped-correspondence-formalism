@@ -1,7 +1,7 @@
 {
   "milestone": "M6b_covid_pilot",
   "kind": "real-data growth-phase pilot on verified per-row data (honesty over beauty)",
-  "generated_at_utc": "2026-09-26T14:32:43.868729+00:00",
+  "generated_at_utc": "2026-09-26T17:21:48.821026+00:00",
   "python": "3.11.9",
   "data_path": "D:\\mandala\\scoped-correspondence-formalism\\data\\owid_covid_world_daily_2020_2023.csv",
   "data_sha256": "abd452a8e84db2fd885c2c8eca5b9b0d04b1bb624e893fa6cb62921b05379387",
