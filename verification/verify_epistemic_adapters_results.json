@@ -1,0 +1,45 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "correspondence_report_ok_wraps_as_entailed_numerical_sample": {
+      "logical_status": "entailed_in_scope",
+      "evidence_kind": "numerical_sample"
+    },
+    "correspondence_report_failure_carries_worst_witness": {
+      "negative_witness": {
+        "at_state": 1.0,
+        "at_time": 2.0,
+        "residual": 0.42
+      }
+    },
+    "invalid_empirical_status_rejected": {
+      "rejected": true
+    },
+    "k8_macro_observability_splits_into_two_separate_evidence_kinds": {
+      "dynamics": {
+        "status": "entailed_in_scope",
+        "evidence_kind": "numerical_sample"
+      },
+      "observability": {
+        "status": "negation_entailed_in_scope",
+        "evidence_kind": "exhaustive_finite"
+      }
+    },
+    "h6b_galaxy_two_radius_degeneracy_as_identification_example": {
+      "y": [
+        0.40142432512015397,
+        0.23214595373451075
+      ],
+      "families_matching_y": [
+        "burkert",
+        "nfw"
+      ],
+      "out_of_sample_rel_diffs": {
+        "r=500.0": 1.1311384884289017,
+        "r=12000.0": 0.312636461753786,
+        "r=30000.0": 0.8576817558007251
+      }
+    }
+  }
+}

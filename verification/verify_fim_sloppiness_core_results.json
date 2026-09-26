@@ -8,7 +8,7 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source": "Transtrum, Machta & Sethna 2011, Geometry of nonlinear least squares with applications to sloppy models and optimization, Phys. Rev. E 83, 036701; DOI 10.1103/PhysRevE.83.036701. Raju, Marks, Kreutz, et al. / Raju et al. 2018, Information geometry and the renormalization group, Phys. Rev. E 98, 052112 (sloppy / stiff eigendirection language).",
-    "timestamp_local": "2026-09-26T21:15:12"
+    "timestamp_local": "2026-09-26T21:33:03"
   },
   "milestone": 23,
   "name": "fisher_information_sloppiness",

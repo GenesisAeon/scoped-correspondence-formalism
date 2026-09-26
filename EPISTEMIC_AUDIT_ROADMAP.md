@@ -20,8 +20,8 @@ Verletzungen, volle Suiten-Regression nach jedem Paket.
 | H3 | Beobachtungsabhängige Identifikation | H1 | ✅ erledigt |
 | H4 | Endliche Entscheidungen unter deklarierter Ungewissheit | H1 | ✅ erledigt |
 | H5 | Integrierter Pufferpilot (K5, kontinuierlich) | H1, H4 | ✅ erledigt |
-| H6a | Adapter an bestehende SCF-Berichte (Pflicht) | H1–H3 | offen |
-| H6b | Optional: synthetischer Galaxienfall | H6a | offen |
+| H6a | Adapter an bestehende SCF-Berichte (Pflicht) | H1–H3 | ✅ erledigt |
+| H6b | Optional: synthetischer Galaxienfall | H6a | ✅ erledigt |
 | H6c | Zurückgestellt: echte SPARC-Berichte | H6a | 🚫 zurückgestellt |
 | H7 | Dokumentation, CLI, CI, Abschluss | H1–H6a | offen |
 
@@ -321,3 +321,54 @@ weiterhin 9/9, `verify_epistemic_supports.py` weiterhin 7/7,
 `verify_epistemic_identification.py` weiterhin 6/6,
 `verify_epistemic_decisions.py` weiterhin 8/8 grün, volle lokale
 Regression grün, Linkprüfung 0 kaputte relative Links.
+
+## H6a — Adapter an bestehende SCF-Berichte (erledigt)
+
+`src/scoped_correspondence/epistemic/adapters.py` implementiert
+`claim_report_from_correspondence(report, *, claim_id,
+empirical_status="synthetic_only") -> ClaimReport` (wickelt
+`correspondence.contract.CorrespondenceReport` ein) und
+`claim_reports_from_macro_observability(report, *, dynamics_claim_id,
+observability_claim_id) -> (ClaimReport, ClaimReport)` (wickelt H3s
+`MacroObservabilityReport` für K8 ein). Beide leiten NICHTS neu her,
+sondern übersetzen nur bereits vorhandene, bereits unabhängig geprüfte
+Berichte in das `ClaimReport`-Vokabular — ohne stille Statusanhebung:
+
+- `CorrespondenceReport` (endliche Stichprobe aus (Zustand,Zeit)-Paaren,
+  Toleranz-basiert) wird `evidence_kind="numerical_sample"`,
+  `domain_relationship="grid_of_continuous_space"` (die zugrunde
+  liegenden Modelle sind typischerweise kontinuierlich — eine endliche
+  Stichprobe daraus darf niemals als vollständige Abdeckung dieses
+  Raums gemeldet werden). `empirical_status` bleibt `"synthetic_only"`,
+  solange der Aufrufer nicht ausdrücklich `"evaluated_on_declared_data"`
+  übergibt.
+- K8s Dynamik-Ergebnis (`check_controlled_correspondence`, Float-Toleranz)
+  und Beobachtbarkeits-Ergebnis (`is_union_of_classes`, exakter
+  Mengenvergleich) werden als ZWEI getrennte `ClaimReport`s mit ZWEI
+  verschiedenen `evidence_kind`s ausgegeben (`numerical_sample` bzw.
+  `exhaustive_finite`) — nie zu einem gemeinsamen Feld verschmolzen.
+
+## H6b — Optional: synthetischer Galaxienfall (erledigt)
+
+Statt paralleler neuer Produktionslogik wird die bereits vorhandene,
+bereits unabhängig geprüfte Zwei-Radien-Kreuzfamilien-Entartung aus
+`verify_galaxy_observation_maps.py::check_observation_equivalence_
+cross_family_degeneracy` in `verify_epistemic_adapters.py` mit denselben
+zugrunde liegenden Klassen (`BurkertProfile`, `NFWProfile`) neu
+aufgesetzt und in H3-Vokabular gerahmt (nicht der Verifikations-Code
+selbst wiederverwendet, sondern dieselben Produktionsprofilklassen):
+die Beobachtung y=(g(r_a), g(r_b)) wird von einem festen Burkert- UND
+einem passend gefitteten NFW-Profil EXAKT reproduziert — die Familie
+selbst ist bei y NICHT identifiziert, obwohl y selbst trivial
+identifiziert ist. Außerhalb von y (bei drei weiteren Radien) divergieren
+beide Profile um mehr als 10 %, was bestätigt, dass dies eine echte
+Entartung und keine Beinahe-Gleichheit überall ist. H6c (echte
+SPARC-Berichte) bleibt wie geplant ausdrücklich zurückgestellt.
+
+`verify_epistemic_adapters.py`: 5/5 Checks grün (passierender
+CorrespondenceReport wird numerical_sample/entailed_in_scope, scheiternder
+CorrespondenceReport trägt den tatsächlich schlechtesten Zeugen, ungültiger
+empirical_status wird verworfen, K8 spaltet sich in zwei verschiedene
+evidence_kind-Felder auf, H6b-Galaxienentartung). Alle H1-H5-Suiten
+weiterhin grün, volle lokale Regression grün, Linkprüfung 0 kaputte
+relative Links.
