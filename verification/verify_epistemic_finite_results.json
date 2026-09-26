@@ -1,0 +1,68 @@
+{
+  "package": "EPISTEMIC_AUDIT_ROADMAP.md Paket H1 (finite claims, synthetic/analytic only)",
+  "timestamp": "2026-09-26T20:01:42+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "four_complete_outcomes": {
+      "status": "pass",
+      "detail": {
+        "no_admissible": "no_admissible_model_in_scope",
+        "entailed": "entailed_in_scope",
+        "negation": "negation_entailed_in_scope",
+        "underdetermined": "underdetermined"
+      }
+    },
+    "counterexample_does_not_auto_prove_negation": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "empty_input_vs_empty_admissible_set": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "k2_vacuous_antecedent": {
+      "status": "pass",
+      "detail": {
+        "vacuity_kind": "antecedent_never_holds"
+      }
+    },
+    "k3_scope_extension_refutes": {
+      "status": "pass",
+      "detail": {
+        "counterexample": 2
+      }
+    },
+    "grid_of_continuous_space_flagged": {
+      "status": "pass",
+      "detail": {
+        "domain_relationship": "grid_of_continuous_space"
+      }
+    },
+    "abort_before_after_witnesses": {
+      "status": "pass",
+      "detail": {
+        "budget0": "incomplete",
+        "budget1": "incomplete",
+        "budget2": "underdetermined",
+        "budget3_even_prefix": "incomplete"
+      }
+    },
+    "reproducible_witnesses_stable_ids": {
+      "status": "pass",
+      "detail": {
+        "status": "underdetermined"
+      }
+    },
+    "predicate_error_stays_error_not_silent_removal": {
+      "status": "pass",
+      "detail": {
+        "n_errors": 1,
+        "status": "incomplete"
+      }
+    }
+  }
+}

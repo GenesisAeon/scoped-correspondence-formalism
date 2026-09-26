@@ -340,6 +340,6 @@
     "python": "3.11.9",
     "scipy": "1.15.3",
     "source": "Gneiting & Raftery 2007, Strictly Proper Scoring Rules, Prediction, and Estimation, JASA 102:359-378, DOI 10.1198/016214506000001437 (interval score, eq. 43; log score).",
-    "timestamp": "2026-09-26T19:21:42+02:00"
+    "timestamp": "2026-09-26T20:00:47+02:00"
   }
 }

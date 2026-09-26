@@ -97,6 +97,6 @@
     "scipy": "1.15.3",
     "scope_warning": "Temporal-only ETAS on a pooled global catalog is a qualitative self-excitation test, not a calibrated regional hazard model.",
     "source": "prompts/Answers/nicht_station\u00e4re_Treiber/SCF_Nichtstationaere_Treiber_und_Kippen.md",
-    "timestamp": "2026-09-26T19:23:47+02:00"
+    "timestamp": "2026-09-26T20:02:55+02:00"
   }
 }
