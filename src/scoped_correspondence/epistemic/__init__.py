@@ -12,11 +12,23 @@ from __future__ import annotations
 
 from .finite import audit_finite_claim
 from .records import AssumptionSpec, ClaimReport, ClaimSpec, FiniteDomainSpec
+from .supports import (
+    DeletionStep,
+    InconsistentCoreReport,
+    SupportReport,
+    find_minimal_inconsistent_core,
+    find_minimal_support,
+)
 
 __all__ = [
     "AssumptionSpec",
     "ClaimReport",
     "ClaimSpec",
+    "DeletionStep",
     "FiniteDomainSpec",
+    "InconsistentCoreReport",
+    "SupportReport",
     "audit_finite_claim",
+    "find_minimal_inconsistent_core",
+    "find_minimal_support",
 ]

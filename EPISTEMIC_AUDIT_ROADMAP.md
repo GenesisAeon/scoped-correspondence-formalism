@@ -15,8 +15,8 @@ Verletzungen, volle Suiten-Regression nach jedem Paket.
 | Paket | Inhalt | Abhängigkeit | Status |
 |---|---|---|---|
 | H0 | Bestandsaufnahme und Quellenvertrag | keine | ✅ erledigt |
-| H1 | Endliche Aussagen und nichtleere Evidenz | H0 | offen |
-| H2 | Tragende Annahmen und Inkonsistenzkerne | H1 | offen |
+| H1 | Endliche Aussagen und nichtleere Evidenz | H0 | ✅ erledigt |
+| H2 | Tragende Annahmen und Inkonsistenzkerne | H1 | ✅ erledigt |
 | H3 | Beobachtungsabhängige Identifikation | H1 | offen |
 | H4 | Endliche Entscheidungen unter deklarierter Ungewissheit | H1 | offen |
 | H5 | Integrierter Pufferpilot (K5, kontinuierlich) | H1, H4 | offen |
@@ -103,3 +103,87 @@ Kein Freitext-Parser, kein `eval`. Exakter Kern nutzt bool/int/`Fraction`
 (Standard: 4096 Kandidaten, 4096 untersuchte Annahmenteilmengen, insgesamt
 1.000.000 Prädikatauswertungen). Ein Budgetabbruch bestätigt weder
 Minimalität noch universelle Gültigkeit.
+
+## H1 — Endliche Aussagen und nichtleere Evidenz (erledigt, Commit `649cd95`)
+
+`src/scoped_correspondence/epistemic/{records,finite}.py` implementieren
+die ausführbare Form der H0-Ergebnistabelle: `audit_finite_claim(domain,
+assumptions, claim, *, budget)` liefert einen `ClaimReport` mit genau
+einem der fünf Logikstatus (`no_admissible_model_in_scope`,
+`entailed_in_scope`, `negation_entailed_in_scope`, `underdetermined`,
+`incomplete`), Zwei-Zeugen-Frühabbruch, und der B⇒C-Vakuitätsprüfung
+(`antecedent_reachable_in_scope`, `vacuity_kind`).
+
+Zwei Bugs beim ersten Testlauf (4/9 grün) gefunden und behoben, bevor
+committet wurde:
+
+- `finite.py`: die Vakuitätsprüfung lief auch bei `n_admissible==0`
+  (widersprüchliche Annahmen) und setzte fälschlich
+  `antecedent_reachable_in_scope=False` statt `None` — das sind zwei
+  verschiedene Fälle (`docs/epistemic_scope.md` §2). Mit
+  `n_admissible > 0`-Wächter behoben.
+- `verify_epistemic_finite.py`: `check_abort_before_after_witnesses`
+  erwartete für `budget=2` `"incomplete"`, obwohl beide Zeugen (0 gerade,
+  1 ungerade) innerhalb des Budgets gefunden werden — der
+  Zwei-Zeugen-Frühabbruch greift dort bereits VOR Budgeterschöpfung,
+  also ist das per Definition `"underdetermined"`. Test korrigiert und um
+  einen echten Budget-Erschöpfung-vor-Gegenzeuge-Fall (Kandidaten in
+  gerade-dann-ungerade-Reihenfolge) ergänzt.
+
+9/9 `verify_epistemic_finite.py` grün, volle lokale Regression (100/100)
+und Linkprüfung (0 kaputte relative Links) grün.
+
+## H2 — Tragende Annahmen und Inkonsistenzkerne (erledigt)
+
+`src/scoped_correspondence/epistemic/supports.py` implementiert
+`find_minimal_support(domain, assumptions, claim, *, background=(),
+subset_budget, candidate_budget) -> SupportReport` und
+`find_minimal_inconsistent_core(domain, assumptions, *, background=(),
+subset_budget, candidate_budget) -> InconsistentCoreReport`.
+
+Beide nutzen dasselbe Löschverfahren (S6, Marques-Silva & Janota):
+Start bei einer bereits tragenden bzw. bereits unerfüllbaren
+Ausgangsmenge (ein anderer Start wird explizit verweigert, nicht
+stillschweigend "repariert"), dann Entfernungsversuche in genau der vom
+Aufrufer übergebenen Reihenfolge — jede Entfernung wird über
+`audit_finite_claim` unabhängig neu geprüft und der volle `ClaimReport`
+als Zeuge im `DeletionStep` gespeichert, nie nur ein Bool. Eine
+Inkonsistenzkern-Suche braucht keine eigene Zielaussage: intern wird ein
+konstant-wahres `_SATISFIABILITY_PROBE`-Ziel an `audit_finite_claim`
+übergeben, wodurch `logical_status` allein zwischen
+`no_admissible_model_in_scope` (unerfüllbar) und `entailed_in_scope`
+(erfüllbar) unterscheidet.
+
+Teilmengenminimal ist NICHT kleinste Kardinalität: unterschiedliche
+Entfernungsreihenfolgen liefern für K1 absichtlich unterschiedliche,
+beide gültige Ergebnisse — es gibt keinen versteckten "finde alle"-Modus
+(Plan §4.3). `background`-Annahmen werden immer angewendet, sind aber nie
+Entfernungskandidaten und erscheinen nie in `support_ids`/`core_ids`,
+nur separat in `background_ids`.
+
+Beide Suchen teilen sich EIN laufendes Kandidaten-Scan-Budget über alle
+verschachtelten `audit_finite_claim`-Aufrufe hinweg (Plan §6.3: "Die
+Gesamtgrenze gilt auch über verschachtelte Supportprüfungen hinweg"),
+zusätzlich zu einer separaten Obergrenze für die Anzahl versuchter
+Annahmenteilmengen (`subset_budget`).
+
+K1 vor der Implementierung von Hand nachvollzogen (Reihenfolge
+[A1,A2,A3,A4] → Löschversuche A1 kept, A2 removed, A3 removed, A4 kept →
+{A1,A4}; Reihenfolge [A1,A4,A3,A2] → A1 kept, A4 removed, A3 kept, A2
+kept → {A1,A2,A3}; mit A5=¬r analog für beide Inkonsistenzkerne) —
+stimmt exakt mit den in H0 unabhängig berechneten Referenzwerten
+überein und wurde danach 1:1 vom Code reproduziert.
+
+`verify_epistemic_supports.py` deckt alle in Plan §7 geforderten
+Pflichtprüfungen ab: K1 vollständig (beide Kardinalitäten für Supports
+UND Kerne), Löschzeugen (jeder Schritt trägt seinen eigenen
+`ClaimReport`), konstante wahre Aussage mit leerem Support,
+widersprüchlicher Ausgangsfall (wird verweigert, nicht "repariert"),
+mehrere alternative Supports (aus derselben Eingabe, nur andere
+Reihenfolge), Budgetabbruch (sowohl `subset_budget` als auch
+`candidate_budget` einzeln getestet, nie als falsche Minimalität
+gemeldet), unveränderte Hintergrundannahmen.
+
+7/7 `verify_epistemic_supports.py` grün, `verify_epistemic_finite.py`
+weiterhin 9/9 grün, volle lokale Regression grün, Linkprüfung 0 kaputte
+relative Links.

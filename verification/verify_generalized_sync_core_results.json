@@ -64,7 +64,7 @@
   "LUHMANN_DISCLAIMER": "mathematische Fassung im Sinne dynamischer Mitführung, KEINE Luhmann-Soziologie, KEINE Gleichsetzung.",
   "platform": "Windows-10-10.0.19045-SP0",
   "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
-  "timestamp_local": "2026-09-26T20:03:43.374043+02:00",
+  "timestamp_local": "2026-09-26T20:24:16.127022+02:00",
   "forbidden_untouched_by_design": [
     "src/scoped_correspondence/coupling/core.py",
     "src/scoped_correspondence/dynamics/contraction.py",

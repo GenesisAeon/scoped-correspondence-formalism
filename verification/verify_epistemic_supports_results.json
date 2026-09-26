@@ -1,0 +1,71 @@
+{
+  "n_passed": 7,
+  "n_total": 7,
+  "results": {
+    "k1_two_minimal_supports": {
+      "order_a_support": [
+        "A1_p",
+        "A4_p_implies_r"
+      ],
+      "order_b_support": [
+        "A1_p",
+        "A2_p_implies_q",
+        "A3_q_implies_r"
+      ]
+    },
+    "k1_two_minimal_cores": {
+      "order_a_core": [
+        "A1_p",
+        "A4_p_implies_r",
+        "A5_not_r"
+      ],
+      "order_b_core": [
+        "A1_p",
+        "A2_p_implies_q",
+        "A3_q_implies_r",
+        "A5_not_r"
+      ]
+    },
+    "deletion_witnesses_are_rechecked": {
+      "n_steps": 4,
+      "kept_ids": [
+        "A1_p",
+        "A4_p_implies_r"
+      ]
+    },
+    "constant_true_claim_empty_support": {
+      "support_ids": []
+    },
+    "contradictory_starting_set_refused": {
+      "support_ids": null,
+      "notes": [
+        "starting set does not entail the claim in scope (status=no_admissible_model_in_scope); a deletion search requires an already satisfiable, already-entailing starting set"
+      ]
+    },
+    "budget_abort_no_false_minimality": {
+      "subset_budget_1_status": [
+        false,
+        null
+      ],
+      "subset_budget_10_status": [
+        true,
+        [
+          "A1_p",
+          "A4_p_implies_r"
+        ]
+      ],
+      "candidate_budget_2_status": [
+        false,
+        null
+      ]
+    },
+    "background_assumptions_never_removed_or_hidden": {
+      "background_ids": [
+        "A1_p"
+      ],
+      "support_ids": [
+        "A4_p_implies_r"
+      ]
+    }
+  }
+}
