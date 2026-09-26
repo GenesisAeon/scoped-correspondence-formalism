@@ -25,7 +25,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | G4 | Reproduzierbarer SPARC-Adapter | G0 | ✅ erledigt |
 | G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | ✅ erledigt |
 | G6 | Quellengetreue Yoon-Reproduktion | vollständige Quelle plus G0–G3 | 🚫 blockiert (Quelle fehlt) |
-| G7 | Dokumentation und Fähigkeitsbilanz | fertige Teilpakete | offen |
+| G7 | Dokumentation und Fähigkeitsbilanz | fertige Teilpakete | ✅ erledigt |
 
 Reihenfolge (Plan Abschnitt 4): G0 → G1 → G2 → G3 → G4 → G5 → G7.
 G6 wird eingeschoben, sobald eine vollständige Autor-, Preprint- oder
@@ -312,3 +312,72 @@ Beobachtungsäquivalenz aus G3 wiederverwendet; Randtreffer korrekt
 gemeldet bei außerhalb der Rechengrenzen liegendem wahren Wert.
 
 Volle Regression: 99/99 grün.
+
+## G7 — Dokumentation und Fähigkeitsbilanz (erledigt)
+
+`docs/capability_overview.json`/`.md` bleibt unverändert — dessen
+`_meta.as_of_commit`-Markierung gehört zur eigenständigen Abstammungslinie
+der ursprünglichen Milestone-Roadmap (Paket 0 → ... → C7) und listet
+ohnehin nur 29 kuratierte Kernmodule, nicht jedes Domain-Expansion-Paket
+(C1–C6 haben dort ebenfalls keine eigenen Einträge bekommen, nur der
+C7-Meta-Marker wurde aktualisiert). Diese additive Galaxiendynamik-Roadmap
+ist ein eigenständiger Strang; ihre Fähigkeitsbilanz gehört hierher, nicht
+in die fremde Abstammungslinie hineingemischt — folgt damit demselben
+Muster wie `INTEGRATED_EXTENSION_ROADMAP.md`s eigene C0–C7-Tabelle.
+
+### Paketübersicht mit Commits
+
+| Paket | Commit | Ergebnis |
+|---|---|---|
+| G0 | `df5881a` | Quellen-/Einheiten-/Hypothesenregister, 9 Kontrollwerte unabhängig nachgerechnet |
+| G1 | `37386b8` | Burkert/Pseudoisothermisch/NFW, 10/10 Prüfungen |
+| G2 | `9d9f16f` | Exakte Homologie + Zeitabbildung, 7/7 Prüfungen, 4 negative Kontrollen |
+| G3 | `5629a06` | Effektive-Dichte-Operator, MOND-Kontrollfall, Baselines A/B/C, 7/7 Prüfungen |
+| G4 | `3bf7482` | SPARC-Adapter, 11/11 synthetisch + 5/5 echt (nicht übersprungen) |
+| G5 | `373c978` | 94/175 geeignete Galaxien, 6+6-Pilot, 7/7 Pflichtkontrollen |
+| G6 | — | 🚫 blockiert (Yoon-Volltext weiterhin nicht beschafft) |
+| G7 | dieser Commit | Diese Fähigkeitsbilanz |
+
+### Fähigkeitsbilanz (Plan §13.1)
+
+| Befund | Angemessene Aussage | Darüber hinaus nicht belegt |
+|---|---|---|
+| G1: drei Halo-Profile mit exakten geschlossenen Massenformeln, gegen unabhängige Quadratur bestätigt | SCF bildet diese Profile mathematisch korrekt ab | Welches Profil die Natur tatsächlich realisiert |
+| G2: Homologie analytisch hergeleitet und an Kreisbahn-Flow plus Vektorfeld-Identität bestätigt, 4 negative Kontrollen zeigen echte Verletzungen | SCF beschreibt eine exakte strukturtreue Abbildung dieser Testteilchen-Modelle | Selbstkonsistente Sternverteilungsentwicklung, Kollisionen, kosmologische Expansion, relativistische Metrik |
+| G3: identisches `g(r)` ergibt identisches `v_c(r)`; ein NFW-Profil trifft ein Burkert-Profil exakt an 2 Radien, weicht sonst >10% ab | Beobachtungsäquivalenz für diese Observable an endlich vielen Punkten ist real und konkret demonstriert | Beobachtungsäquivalenz für Linsenwirkung, relativistische Potentiale oder kosmologische Strukturentwicklung |
+| G4: SPARC-Header-Diskrepanz selbst entdeckt und korrekt behandelt (Whitespace-Tokenisierung statt falschem Byte-Schema) | Der Adapter ist gegen die tatsächlichen Live-Daten verifiziert, nicht nur gegen die (teils fehlerhafte) Dokumentation | Allgemeingültigkeit für andere/zukünftige SPARC-Dateiversionen ungeprüft |
+| G5: `mu_h` streut über fast eine Größenordnung auf 12 Galaxien; kein Baseline gewinnt einheitlich im Außenradientest | Bedingter Pilotbefund unter den hier getroffenen Profil-, Auswahl- und Fehlerannahmen | Universelle Halo-Flächendichtekonstante; Entscheidung Dunkle Materie vs. MOND |
+| G5: `r0`-Rückgewinnung bei reiner Innenkurve unter realistischem Rauschen durchgängig >10× schlechter als bei weitreichender Abdeckung | Identifizierbarkeit hängt konkret nachweisbar vom Radiusabdeckungsbereich ab | Dass jede reale SPARC-Innenkurve genau diesen Faktor zeigt (nur an synthetischen Daten gezeigt) |
+| G6: Yoon (2026) nur als Abstract/Pressemitteilung verfügbar | Das berichtete Ergebnis (~173,78 Msun/pc²) ist dokumentiert, nicht reproduziert | Jede Gleichung, jeder Vorfaktor oder jede Fehlerquelle der Originalarbeit |
+
+### Explizite Trennung (Plan §13.1, abschließend)
+
+- **Implementiert:** `astrophysics.spherical_profiles`, `.galaxy_homology`,
+  `.acceleration_relations` (G1–G3); `validation.sparc_data`,
+  `.galaxy_pilot` (G4–G5).
+- **Mathematisch begründet:** Burkert/Pseudoisothermisch-Massenformeln,
+  exakte Homologie-Skalierung, effektive-Dichte-Operator-Identität,
+  MOND-Grenzfälle (alle in G0 unabhängig vorab nachgerechnet, dann in G1–G3
+  implementiert und gegen unabhängige Routen — Quadratur, algebraische
+  Gegenbeispiele, Handrechnung — bestätigt).
+- **Synthetisch geprüft:** alle 5 `verify_galaxy_*.py`-Skripte (math),
+  49 Einzelprüfungen über G1–G5 hinweg, alle grün.
+- **Mit echten Daten ausgeführt:** G4 (`verify_sparc_real_local.py`, 5/5,
+  nicht übersprungen) und G5 (`docs/galaxy_pilot.md`, echter 94-Galaxien-
+  Auswahllauf plus 12-Galaxien-Pilot) — beide gegen die tatsächlichen
+  lokalen SPARC-Dateien, Lizenzstatus ungeklärt, deshalb nicht in
+  Standard-CI.
+- **Explorativ:** G5s Modus-B-Baseline-Vergleich (6 Evaluationsgalaxien,
+  ausdrücklich als vorsichtige Pilotbeschreibung deklariert, keine
+  Siegerbehauptung).
+- **Blockiert:** G6 (Yoon-Volltext), dokumentiert in
+  `docs/yoon_2026_source_audit.md`, sichtbar offen gehalten statt
+  stillschweigend fallengelassen.
+
+**Erfolg im Sinne des Plans (Abschnitt 15):** eine nachvollziehbare,
+prüfbare Verbindung von Mathematik (G0–G3) und Beobachtung (G4–G5) wurde
+hergestellt — und lässt, wie vom Plan erwartet, mehrere physikalische
+Erklärungen offen (G5 Modus B). G0–G5 und G7 sind vollständig; G6 bleibt
+der einzige offene Punkt, mit einem konkret dokumentierten
+Freigabe-Kriterium (`docs/yoon_2026_source_audit.md`), nicht als vage
+"zukünftige Arbeit".
