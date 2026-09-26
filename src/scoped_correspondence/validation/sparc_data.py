@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import List, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 
 # ---------------------------------------------------------------------------
@@ -187,10 +187,31 @@ def _data_section(text: str) -> List[str]:
     return [ln for ln in lines[last_sep + 1:] if ln.strip()]
 
 
+#: ALL float fields of SparcMetadataRow (SCF_REVIEW_G0_G7_5563e67.md
+#: finding R5: the previous list omitted SBeff_sollum_pc2, which drives
+#: tercile sorting AND the `SBeff>0` eligibility check -- `inf>0` is True
+#: and `log10(inf)` doesn't raise, so an `inf` silently passed both and
+#: corrupted sort order; not hit by the current real files, but a real gap).
+_METADATA_FLOAT_FIELDS = (
+    "D_mpc", "e_D_mpc", "inc_deg", "e_inc_deg", "L36_1e9_sollum",
+    "e_L36_1e9_sollum", "Reff_kpc", "SBeff_sollum_pc2", "Rdisk_kpc",
+    "SBdisk_sollum_pc2", "MHI_1e9_solmass", "RHI_kpc", "Vflat_kms", "e_Vflat_kms",
+)
+
+#: ALL float fields of SparcComponentRow (finding R5: the previous list
+#: omitted D_mpc -- a NaN there passed silently and would corrupt any
+#: cross-table distance check without this).
+_COMPONENT_FLOAT_FIELDS = (
+    "D_mpc", "R_kpc", "Vobs_kms", "e_Vobs_kms", "Vgas_kms", "Vdisk_kms",
+    "Vbul_kms", "SBdisk_sollum_pc2", "SBbul_sollum_pc2",
+)
+
+
 def parse_metadata_table(text: str) -> List[SparcMetadataRow]:
     """Parse the full metadata table text into rows, validating along the way.
 
-    Raises on: non-unique galaxy names, non-finite numeric fields.
+    Raises on: non-unique galaxy names, non-finite numeric fields (ALL
+    float fields, not a subset -- see `_METADATA_FLOAT_FIELDS`).
     """
     rows = [parse_metadata_line(ln) for ln in _data_section(text)]
     names = [r.galaxy for r in rows]
@@ -198,7 +219,7 @@ def parse_metadata_table(text: str) -> List[SparcMetadataRow]:
         dupes = sorted({n for n in names if names.count(n) > 1})
         raise ValueError(f"duplicate galaxy names in metadata table: {dupes}")
     for r in rows:
-        for field_name in ("D_mpc", "e_D_mpc", "inc_deg", "e_inc_deg", "Vflat_kms"):
+        for field_name in _METADATA_FLOAT_FIELDS:
             v = getattr(r, field_name)
             if not math.isfinite(v):
                 raise ValueError(f"non-finite {field_name} for galaxy {r.galaxy}: {v}")
@@ -208,13 +229,14 @@ def parse_metadata_table(text: str) -> List[SparcMetadataRow]:
 def parse_component_table(text: str) -> List[SparcComponentRow]:
     """Parse the full component table text into rows, validating along the way.
 
-    Raises on: non-finite numeric fields, non-positive radii, non-positive
-    reported velocity errors, duplicate radii within the same galaxy.
+    Raises on: non-finite numeric fields (ALL float fields, see
+    `_COMPONENT_FLOAT_FIELDS`), non-positive radii, non-positive reported
+    velocity errors, duplicate radii within the same galaxy.
     """
     rows = [parse_component_line(ln) for ln in _data_section(text)]
     by_galaxy: dict = {}
     for r in rows:
-        for field_name in ("R_kpc", "Vobs_kms", "e_Vobs_kms", "Vgas_kms", "Vdisk_kms", "Vbul_kms"):
+        for field_name in _COMPONENT_FLOAT_FIELDS:
             v = getattr(r, field_name)
             if not math.isfinite(v):
                 raise ValueError(f"non-finite {field_name} for galaxy {r.galaxy}: {v}")
@@ -227,6 +249,45 @@ def parse_component_table(text: str) -> List[SparcComponentRow]:
         if len(radii) != len(set(radii)):
             raise ValueError(f"duplicate radii within galaxy {galaxy}: {sorted(radii)}")
     return rows
+
+
+def validate_cross_table_consistency(
+    meta_rows: Sequence[SparcMetadataRow],
+    comp_rows: Sequence[SparcComponentRow],
+    d_mpc_atol: float = 0.01,
+) -> None:
+    """Cross-table check (SCF_REVIEW_G0_G7_5563e67.md finding R5): neither
+    `parse_metadata_table` nor `parse_component_table` alone can catch a
+    galaxy whose declared distance differs between the two tables, or
+    between two rows of the SAME galaxy in the component table -- a
+    self-constructed 10 Mpc vs 100 Mpc mismatch previously passed both
+    parsers and reached galaxy selection undetected. `d_mpc_atol=0.01`
+    matches the tables' own 2-decimal-place (F6.2) formatting precision.
+
+    Raises on: a metadata galaxy ID with no component rows (or vice
+    versa), inconsistent `D_mpc` within a galaxy's own component rows, or
+    a `D_mpc` mismatch between the two tables for the same galaxy.
+    """
+    meta_by_id = {r.galaxy: r for r in meta_rows}
+    comp_by_id: Dict[str, List[SparcComponentRow]] = {}
+    for r in comp_rows:
+        comp_by_id.setdefault(r.galaxy, []).append(r)
+
+    meta_only = set(meta_by_id) - set(comp_by_id)
+    comp_only = set(comp_by_id) - set(meta_by_id)
+    if meta_only:
+        raise ValueError(f"galaxies in metadata table with no component rows: {sorted(meta_only)}")
+    if comp_only:
+        raise ValueError(f"galaxies in component table with no metadata row: {sorted(comp_only)}")
+
+    for galaxy, rows in comp_by_id.items():
+        distances = {r.D_mpc for r in rows}
+        if len(distances) > 1 and (max(distances) - min(distances)) > d_mpc_atol:
+            raise ValueError(f"inconsistent D_mpc within component rows for {galaxy}: {sorted(distances)}")
+        meta_d = meta_by_id[galaxy].D_mpc
+        comp_d = rows[0].D_mpc
+        if abs(meta_d - comp_d) > d_mpc_atol:
+            raise ValueError(f"D_mpc mismatch for {galaxy}: metadata={meta_d}, component={comp_d}")
 
 
 # ---------------------------------------------------------------------------

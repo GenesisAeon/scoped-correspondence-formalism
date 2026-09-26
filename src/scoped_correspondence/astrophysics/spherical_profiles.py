@@ -93,14 +93,25 @@ class BurkertProfile:
     def _mass_bracket(self, x: np.ndarray) -> np.ndarray:
         """``ln(1+x) + 0.5*ln(1+x^2) - arctan(x)``, stabilised near x=0.
 
-        Series (Plan §6.2, first four terms of ``M/(4 pi rho0 r0^3)``,
-        doubled here since ``M = 2 pi rho0 r0^3 * bracket``):
-        ``x^3/3 - x^4/4 + x^7/7 - x^8/8``.
+        Independently re-derived via direct Taylor expansion (SCF_REVIEW_
+        G0_G7_5563e67.md finding R1, confirmed 2026-09-26): with
+        ``ln(1+x) = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - x^6/6 + x^7/7 -
+        x^8/8``, ``0.5*ln(1+x^2) = x^2/2 - x^4/4 + x^6/6 - x^8/8``, and
+        ``arctan(x) = x - x^3/3 + x^5/5 - x^7/7``, every term through
+        ``x^2``, ``x^5``, ``x^6`` cancels and the ``x^3``/``x^7`` terms
+        DOUBLE (they appear with the same sign in the ln-sum and via
+        ``-(-arctan)``), giving ``bracket(x) = 2*x^3/3 - x^4/2 + 2*x^7/7 -
+        x^8/4 = 2*(x^3/3 - x^4/4 + x^7/7 - x^8/8)``. The series below was
+        previously missing this factor of 2 (docstring said "doubled
+        here", the code did not), silently halving mass/acceleration and
+        giving ``v_c`` only ``1/sqrt(2)`` of the correct value for
+        ``x < series_switch_x`` -- see `verify_galaxy_profiles.py`'s
+        `check_burkert_series_matches_closed_form_at_tiny_x` regression.
         """
         small = np.abs(x) < self.series_switch_x
         with np.errstate(all="ignore"):
             closed = np.log1p(x) + 0.5 * np.log1p(x**2) - np.arctan(x)
-        series = x**3 / 3.0 - x**4 / 4.0 + x**7 / 7.0 - x**8 / 8.0
+        series = 2.0 * (x**3 / 3.0 - x**4 / 4.0 + x**7 / 7.0 - x**8 / 8.0)
         return np.where(small, series, closed)
 
     def enclosed_mass(self, r_pc):
@@ -283,14 +294,31 @@ class NFWProfile:
         return _restore_shape(val, r_pc)
 
     def g(self, r_pc):
+        """Radial acceleration magnitude [(km/s)^2/pc], r > 0 only.
+
+        **r=0 raises**, it is not evaluated as 0 (SCF_REVIEW_G0_G7_5563e67.md
+        finding R4, confirmed 2026-09-26): unlike Burkert/pseudo-isothermal
+        (finite central density -> g(r)->0 continuously as r->0), NFW's
+        enclosed mass is `M(r) ~ 2*pi*rho_s*r_s*r^2` for small r, so
+        `g(r) = G*M(r)/r^2 -> 2*pi*G*rho_s*r_s`, a NONZERO one-sided limit
+        (independently re-derived and confirmed: 4.0536... (km/s)^2/pc for
+        rho_s=0.05, r_s=3000 pc). The radial *direction* is additionally
+        undefined exactly at the origin. Rather than silently return an
+        arbitrary single number for an ill-defined vector field point
+        (matching `density()`'s existing r=0 convention), this raises.
+        Callers needing the one-sided scalar limit should evaluate at a
+        small positive r (see `verify_galaxy_profiles.py`'s
+        `check_nfw_nonzero_one_sided_central_limit`).
+        """
         r = _as_radius_array(r_pc)
+        if np.any(r == 0):
+            raise ValueError("NFW g(r) is undefined at r=0 (direction undefined, "
+                              "one-sided limit is nonzero -- see docstring)")
         r1 = np.atleast_1d(r)
         x1 = r1 / self.r_s_pc
         bracket1 = self._mass_bracket(x1)
-        mass_over_r2 = np.zeros_like(r1, dtype=float)
-        nz = r1 > 0
-        mass_over_r2[nz] = (
-            4.0 * math.pi * self.rho_s_msun_pc3 * self.r_s_pc**3 * bracket1[nz] / r1[nz] ** 2
+        mass_over_r2 = (
+            4.0 * math.pi * self.rho_s_msun_pc3 * self.r_s_pc**3 * bracket1 / r1 ** 2
         )
         val = G_ASTRO_PC * mass_over_r2
         return _restore_shape(val, r_pc)

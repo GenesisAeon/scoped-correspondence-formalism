@@ -83,10 +83,21 @@ from the plan text) before writing the parser:
   61-67 SBdisk, 69-76 SBbul).
 - **Metadata table** (`SPARC_Lelli2016c.mrt`): the plan defers to "die
   dortige Bytebeschreibung" (§9.2) rather than giving its own byte table;
-  the real header gives 1-11 Galaxy, 12-13 T, 14-19 D, 20-24 e_D, 25-26
-  f_D, 27-30 Inc, 31-34 e_Inc, 35-41 L[3.6], 42-48 e_L[3.6], 49-53 Reff,
-  54-61 SBeff, 62-66 Rdisk, 67-74 SBdisk, 75-81 MHI, 82-86 RHI, 87-91
-  Vflat, 92-96 e_Vflat, 97-99 Q, 100-113 Ref. -- note this table has NO
-  1-byte gaps between fields (fully packed), unlike the component table's
-  small gaps; `sparc_data.py` encodes each table's byte ranges
-  separately and explicitly rather than assuming a shared convention.
+  the file's own printed header claims 1-11 Galaxy, 12-13 T, 14-19 D,
+  20-24 e_D, 25-26 f_D, 27-30 Inc, 31-34 e_Inc, 35-41 L[3.6], 42-48
+  e_L[3.6], 49-53 Reff, 54-61 SBeff, 62-66 Rdisk, 67-74 SBdisk, 75-81 MHI,
+  82-86 RHI, 87-91 Vflat, 92-96 e_Vflat, 97-99 Q, 100-113 Ref.
+
+  **Correction (SCF_REVIEW_G0_G7_5563e67.md finding R5/editorial, confirmed
+  2026-09-26 by directly indexing the real data lines): this printed
+  header does NOT match its own live data.** All 175 real rows have `T`'s
+  digits at bytes 13-14, not the claimed 12-13, and every subsequent
+  field is shifted the same way; the real line length is 131 bytes, not
+  the 113 implied by the header's last field. Rather than trust a
+  byte schema already shown to be wrong for this file, `sparc_data.py`
+  parses the metadata table via validated whitespace tokenization
+  (exactly 19 fields required per row, confirmed empirically against all
+  175 real rows) — it does **not** use fixed byte ranges for this table
+  at all. The component table's real header WAS separately confirmed
+  byte-for-byte correct against its own data (matches Plan §9.2 exactly)
+  and keeps the fixed-byte-range parser.

@@ -99,6 +99,59 @@ def check_parse_metadata_line_wrong_token_count_raises():
     return {"ok": True}
 
 
+def check_r5_metadata_inf_sbeff_rejected():
+    """R5 regression (SCF_REVIEW_G0_G7_5563e67.md): SBeff was previously
+    NOT in the finiteness check list, so `inf` passed the parser AND the
+    later `SBeff>0` eligibility test (`inf>0` is True, `log10(inf)`
+    doesn't raise) -- it would have silently corrupted tercile sorting."""
+    tokens = _SYNTH_METADATA_LINE.split()
+    tokens[10] = "inf"  # SBeff is the 11th token (0-indexed 10)
+    bad_line = " ".join(tokens)
+    text = "\n".join(["-" * 20, bad_line])
+    try:
+        parse_metadata_table(text)
+        raise AssertionError("expected ValueError for infinite SBeff")
+    except ValueError as e:
+        require("SBeff" in str(e), f"expected an SBeff-related error, got: {e}")
+    return {"ok": True}
+
+
+def check_r5_component_nan_distance_rejected():
+    """R5 regression: D_mpc was previously NOT in the component table's
+    finiteness check list, so `nan` passed silently -- undetectable by
+    any downstream cross-table distance consistency check."""
+    bad_line = _SYNTH_COMPONENT_LINE[:12] + "   nan" + _SYNTH_COMPONENT_LINE[18:]
+    text = "\n".join(["-" * 20, bad_line])
+    try:
+        parse_component_table(text)
+        raise AssertionError("expected ValueError for NaN D_mpc")
+    except ValueError as e:
+        require("D_mpc" in str(e), f"expected a D_mpc-related error, got: {e}")
+    return {"ok": True}
+
+
+def check_r5_cross_table_distance_mismatch_rejected():
+    """R5 regression: a self-constructed, otherwise-valid dataset with
+    metadata distance 10 Mpc and component distance 100 Mpc for the same
+    galaxy previously passed selection entirely -- no cross-table
+    reference-distance check existed."""
+    from scoped_correspondence.validation.sparc_data import validate_cross_table_consistency
+
+    meta_text = "\n".join(["-" * 20, _SYNTH_METADATA_LINE])
+    meta_rows = parse_metadata_table(meta_text)  # D_mpc = 10.00
+
+    mismatched_component_line = _SYNTH_COMPONENT_LINE[:12] + "100.00" + _SYNTH_COMPONENT_LINE[18:]
+    comp_text = "\n".join(["-" * 20, mismatched_component_line])
+    comp_rows = parse_component_table(comp_text)  # D_mpc = 100.00
+
+    try:
+        validate_cross_table_consistency(meta_rows, comp_rows)
+        raise AssertionError("expected ValueError for a 10 vs 100 Mpc cross-table distance mismatch")
+    except ValueError as e:
+        require("D_mpc mismatch" in str(e), f"expected a D_mpc-mismatch error, got: {e}")
+    return {"ok": True}
+
+
 def check_metadata_table_duplicate_galaxy_raises():
     text = "\n".join(["-" * 20, _SYNTH_METADATA_LINE, _SYNTH_METADATA_LINE])
     try:
@@ -193,6 +246,9 @@ CHECKS = [
     ("sign_convention_700_not_900", check_sign_convention_700_not_900),
     ("distance_scaling_and_g_bar_cancellation", check_distance_scaling_and_g_bar_cancellation),
     ("inclination_scaling_round_trip", check_inclination_scaling_round_trip),
+    ("r5_metadata_inf_sbeff_rejected", check_r5_metadata_inf_sbeff_rejected),
+    ("r5_component_nan_distance_rejected", check_r5_component_nan_distance_rejected),
+    ("r5_cross_table_distance_mismatch_rejected", check_r5_cross_table_distance_mismatch_rejected),
 ]
 
 

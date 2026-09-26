@@ -100,6 +100,78 @@ def check_burkert_mass_quadrature():
     return results
 
 
+def check_burkert_series_matches_closed_form_at_tiny_x():
+    """R1 regression (SCF_REVIEW_G0_G7_5563e67.md): the small-x series
+    branch of BurkertProfile._mass_bracket was previously missing a factor
+    of 2, halving mass/acceleration for x < series_switch_x. Checks, each
+    against a route independent of the fixed production formula itself:
+
+    1. Uniform-density sphere limit: for x -> 0, rho(r) -> rho0 (constant),
+       so M(r) -> (4/3)*pi*rho0*r^3 exactly -- the leading term of ANY
+       correct small-x expansion, not tied to this profile's particular
+       series coefficients.
+    2. Independent quadrature at x=1e-6 and x=1e-4 (previously untested;
+       the old quadrature check started only at x=0.01, Astra's finding
+       R1: "Die unabhängige Massenquadratur beginnt erst bei x=0.01").
+    3. A TIGHT switch-point continuity check immediately either side of
+       `series_switch_x` (not the old 0.5x/2x comparison, which admitted
+       mass ratios up to ~3200 and could not have caught a factor-of-2 bug).
+    """
+    rho0, r0 = 0.05, 3000.0
+    prof = BurkertProfile(rho0_msun_pc3=rho0, r0_pc=r0)
+
+    # 1. Uniform-density-sphere limit. M/(uniform sphere) = 1 - (3/4)*x +
+    # O(x^2) (next series term), so the tolerance must accommodate that
+    # leading correction, not just floating-point noise -- it still easily
+    # separates the correct answer (~1) from the old factor-2 bug (~0.5).
+    for x in (1e-6, 1e-5, 1e-4):
+        r_pc = x * r0
+        M = prof.enclosed_mass(r_pc)
+        M_uniform_sphere = (4.0 / 3.0) * math.pi * rho0 * r_pc**3
+        near(M / M_uniform_sphere, 1.0, atol=1.0 * x, rtol=0.0,
+             msg=f"uniform-density-sphere limit at x={x} (would be 0.5 under the old factor-2 bug)")
+
+    # 2. Independent quadrature deep inside the series regime.
+    results = {}
+    for x in (1e-6, 1e-4):
+        r_pc = x * r0
+        M_closed = prof.enclosed_mass(r_pc)
+        M_quad, _ = integrate.quad(lambda rp: 4.0 * math.pi * rp**2 * prof.density(rp), 0.0, r_pc, limit=200)
+        near(M_closed, M_quad, rtol=1e-4,
+             msg=f"Burkert mass quadrature deep in series regime at x={x} (old bug: off by factor 2)")
+        results[f"x={x}"] = {"closed": M_closed, "quad": M_quad}
+
+    # 3. Tight switch-point continuity (relative jump, not an order-of-magnitude window).
+    sw = prof.series_switch_x
+    eps = sw * 1e-6
+    M_below = prof.enclosed_mass((sw - eps) * r0)
+    M_above = prof.enclosed_mass((sw + eps) * r0)
+    # rtol=1e-5, not 1e-6: the CLOSED form itself loses a few digits to
+    # cancellation this close to the switch point (that cancellation is
+    # exactly why the series branch exists) -- still >100x tighter than
+    # the old 0.5x/2x window that admitted ratios up to ~3200.
+    near(M_below, M_above, rtol=1e-5, msg="tight switch-point continuity (series vs closed form)")
+
+    # 4. Recovered density within the series branch itself (not just mass).
+    r_pc = 1e-5 * r0
+    rho_recovered = effective_density_via_finite_difference(prof.g, r_pc)
+    near(rho_recovered, prof.density(r_pc), rtol=1e-4,
+         msg="density recovery from g(r) inside the series branch (old bug: g halved -> rho halved)")
+
+    return results
+
+
+def effective_density_via_finite_difference(g_fn, r_pc, rel_step=1e-5):
+    """rho_eff(r) = 1/(4 pi G r^2) d/dr[r^2 g(r)] -- independent route,
+    duplicated here (not imported from acceleration_relations.py) so this
+    G1 regression does not depend on the G3 module."""
+    h = r_pc * rel_step
+    def r2g(r):
+        return r**2 * g_fn(r)
+    d_r2g = (r2g(r_pc + h) - r2g(r_pc - h)) / (2.0 * h)
+    return d_r2g / (4.0 * math.pi * G_ASTRO_PC * r_pc**2)
+
+
 def check_pseudo_isothermal_mass_quadrature():
     rho0, r0 = 0.03, 2000.0
     prof = PseudoIsothermalProfile(rho0_msun_pc3=rho0, r0_pc=r0)
@@ -188,20 +260,49 @@ def check_positivity_and_monotonic_mass():
 
 
 def check_central_limits():
+    """Burkert/pseudo-isothermal: g(0)=0 and v_c(0)=0 are genuine
+    continuous limits (finite central density). NFW is different -- see
+    `check_nfw_central_behaviour_is_not_a_zero_limit` below (SCF_REVIEW_
+    G0_G7_5563e67.md finding R4)."""
     burkert = BurkertProfile(rho0_msun_pc3=0.05, r0_pc=1000.0)
     pseudo = PseudoIsothermalProfile(rho0_msun_pc3=0.05, r0_pc=1000.0)
-    nfw = NFWProfile(rho_s_msun_pc3=0.01, r_s_pc=2000.0)
 
-    for prof in (burkert, pseudo, nfw):
+    for prof in (burkert, pseudo):
         near(prof.enclosed_mass(0.0), 0.0, atol=1e-8, msg=f"{type(prof).__name__} M(0)")
         near(prof.g(0.0), 0.0, atol=1e-12, msg=f"{type(prof).__name__} g(0)")
         near(prof.circular_velocity(0.0), 0.0, atol=1e-8, msg=f"{type(prof).__name__} v_c(0)")
 
-    # Burkert/pseudo-isothermal: finite central density -> f(0)=1.
     near(burkert.density(0.0), burkert.rho0_msun_pc3, rtol=1e-12, msg="Burkert f(0)=1")
     near(pseudo.density(0.0), pseudo.rho0_msun_pc3, rtol=1e-12, msg="pseudo-iso f(0)=1")
 
-    # NFW: central density is explicitly not evaluable (diverges) and
+    return {"ok": True}
+
+
+def check_nfw_central_behaviour_is_not_a_zero_limit():
+    """NFW (finding R4): M(0)=0 and v_c(0)=0 ARE genuine continuous limits
+    (M(r)~2*pi*rho_s*r_s*r^2 -> 0, so G*M(r)/r -> 0). But g(r)=G*M(r)/r^2
+    does NOT vanish as r->0 -- it approaches 2*pi*G*rho_s*r_s, a nonzero
+    one-sided limit, independently re-derived from the small-x mass
+    series. g(0) itself is undefined (direction undefined at the origin)
+    and must raise, not silently return 0 or the nonzero limit."""
+    nfw = NFWProfile(rho_s_msun_pc3=0.05, r_s_pc=3000.0)
+
+    near(nfw.enclosed_mass(0.0), 0.0, atol=1e-8, msg="NFW M(0)")
+    near(nfw.circular_velocity(0.0), 0.0, atol=1e-8, msg="NFW v_c(0)")
+
+    try:
+        nfw.g(0.0)
+        raise AssertionError("NFW g(0) should raise (direction undefined at the origin), not return a number")
+    except ValueError:
+        pass
+
+    expected_limit = 2.0 * math.pi * G_ASTRO_PC * nfw.rho_s_msun_pc3 * nfw.r_s_pc
+    near(expected_limit, 4.053641607755213, rtol=1e-9, msg="independently re-derived NFW central g-limit")
+    g_near_zero = nfw.g(nfw.r_s_pc * 1e-9)
+    near(g_near_zero, expected_limit, rtol=1e-6, msg="NFW g(r) one-sided limit as r->0+")
+    require(abs(g_near_zero) > 1.0, "the NFW one-sided central limit must NOT be mistaken for zero")
+
+    # Central density is explicitly not evaluable (diverges) and
     # sigma_col0() must not silently produce a finite number.
     try:
         nfw.density(0.0)
@@ -210,7 +311,7 @@ def check_central_limits():
         pass
     require(nfw.sigma_col0() is None, "NFW sigma_col0() must be None (undefined), not a fabricated finite number")
 
-    return {"ok": True}
+    return {"one_sided_limit": g_near_zero, "expected": expected_limit}
 
 
 def check_series_closed_form_continuity():
@@ -255,6 +356,8 @@ CHECKS = [
     ("column_density_factors_pi_half_and_pi", check_column_density_factors_are_pi_half_and_pi),
     ("positivity_and_monotonic_mass", check_positivity_and_monotonic_mass),
     ("central_limits_M0_g0_vc0", check_central_limits),
+    ("nfw_central_behaviour_is_not_a_zero_limit", check_nfw_central_behaviour_is_not_a_zero_limit),
+    ("burkert_series_matches_closed_form_at_tiny_x", check_burkert_series_matches_closed_form_at_tiny_x),
     ("series_closed_form_continuity", check_series_closed_form_continuity),
     ("nfw_scale_product_not_mu_h", check_nfw_scale_product_not_confused_with_mu_h),
 ]

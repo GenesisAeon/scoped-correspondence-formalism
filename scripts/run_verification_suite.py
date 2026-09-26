@@ -115,6 +115,22 @@ def classify(path: Path) -> str:
     return "data" if any(marker in text for marker in _DATA_MARKERS) else "math"
 
 
+def _script_was_all_skipped(path: Path) -> bool:
+    """SCF_REVIEW_G0_G7_5563e67.md finding R7: a script that skips all its
+    checks (missing optional local data, e.g. `verify_sparc_real_local.py`)
+    exits 0 by design -- but that must not be summarized as "passed" by
+    the runner. Every `verify_*.py` writes its own report to
+    `<script_stem>_results.json`; if that report sets `"all_skipped":
+    true`, this script's run counts as SKIPPED, not PASSED. Scripts
+    without that field (the overwhelming majority) are unaffected."""
+    results_path = path.with_name(path.stem + "_results.json")
+    try:
+        data = json.loads(results_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return bool(data.get("all_skipped", False))
+
+
 def run_math_and_data(category: str) -> int:
     env = dict(os.environ, PYTHONPATH=str(REPO / "src"), PYTHONIOENCODING="utf-8")
     scripts = sorted(VER.glob("verify_*.py"))
@@ -136,18 +152,25 @@ def run_math_and_data(category: str) -> int:
         except subprocess.TimeoutExpired:
             code = 124
             tail = ["TIMEOUT"]
+        skipped = code == 0 and _script_was_all_skipped(path)
         results.append(
             {
                 "script": path.name,
                 "returncode": code,
+                "skipped": skipped,
                 "seconds": round(time.monotonic() - start, 2),
                 "tail": tail,
             }
         )
-    passed = sum(r["returncode"] == 0 for r in results)
+    passed = sum(r["returncode"] == 0 and not r["skipped"] for r in results)
+    skipped_scripts = [r for r in results if r["skipped"]]
     failed = [r for r in results if r["returncode"] != 0]
-    print(json.dumps({"category": category, "count": len(results), "passed": passed,
-                       "failed_count": len(failed)}, indent=2))
+    print(json.dumps({
+        "category": category, "count": len(results),
+        "passed": passed, "skipped": len(skipped_scripts), "failed_count": len(failed),
+    }, indent=2))
+    for r in skipped_scripts:
+        print("SKIP", r["script"], "(all checks skipped -- see its own results.json, not counted as passed)")
     for r in failed:
         print("FAIL", r["script"], r["tail"])
     return 0 if not failed else 1

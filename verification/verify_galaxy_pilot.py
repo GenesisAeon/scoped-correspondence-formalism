@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import math
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -26,16 +27,23 @@ if str(SRC) not in sys.path:
 from scoped_correspondence.astrophysics import (  # noqa: E402
     BurkertProfile,
     HomologyScaling,
+    NFWProfile,
     circular_velocity_from_g,
 )
 from scoped_correspondence.validation.galaxy_pilot import (  # noqa: E402
     LOG_RHO_BOUNDS,
     LOG_RSCALE_KPC_BOUNDS,
+    HeldOutSplit,
+    _fit_nfw_holdout,
+    distance_inclination_sensitivity,
+    evaluate_baselines_on_holdout,
     fit_burkert_descriptive,
+    profile_likelihood_burkert,
     train_test_split_outer,
 )
 from scoped_correspondence.validation.sparc_data import (  # noqa: E402
     SparcComponentRow,
+    SparcMetadataRow,
     combine_baryonic_v2,
     scale_distance,
 )
@@ -203,6 +211,184 @@ def check_boundary_hit_reported_for_out_of_bounds_truth():
     return {"fitted_rho0": fit.rho0_msun_pc3, "boundary_hit": fit.boundary_hit}
 
 
+def check_r2_nfw_boundary_hit_propagates_to_predictive_score():
+    """R2 regression (SCF_REVIEW_G0_G7_5563e67.md): NFW previously got a
+    single fit start and no boundary expansion (unlike Burkert), and
+    `success`/boundary status never reached `PredictiveScore` -- a real
+    NGC3109 NFW training fit hit the lower rho_s bound undetected.
+    Reproduced synthetically: data sourced from an NFW halo far below the
+    declared lower bound forces the NFW training fit to hit it, and this
+    must now be visible on the returned PredictiveScore."""
+    true_rho_s_extreme = 10 ** (LOG_RHO_BOUNDS[0] - 3.0)
+    prof = NFWProfile(rho_s_msun_pc3=true_rho_s_extreme, r_s_pc=3000.0)
+    r_kpc_grid = np.geomspace(0.2, 20.0, 15)
+    rows = []
+    for rk in r_kpc_grid:
+        r_pc = rk * 1000.0
+        v = float(prof.circular_velocity(r_pc))
+        rows.append(SparcComponentRow(galaxy="SYN", D_mpc=10.0, R_kpc=float(rk), Vobs_kms=v, e_Vobs_kms=1.0,
+                                       Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                                       SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0))
+    n_train = int(0.7 * len(rows))
+    split = HeldOutSplit(train_rows=tuple(rows[:n_train]), test_rows=tuple(rows[n_train:]))
+
+    halo_b, fit_b = _fit_nfw_holdout(split, 0.5, 0.7)
+    require(fit_b.boundary_hit, "expected the isolated NFW training fit to hit a declared bound")
+
+    scores = evaluate_baselines_on_holdout("SYN", split)
+    score_b = next(s for s in scores if s.baseline == "B_nfw")
+    require(score_b.train_boundary_hit, "PredictiveScore for B_nfw must surface the training boundary hit")
+    require(score_b.train_status == "converged", "boundary-hit fit can still be a converged optimizer result")
+    return {"fit_b_boundary_hit": bool(fit_b.boundary_hit), "score_b_boundary_hit": bool(score_b.train_boundary_hit)}
+
+
+def check_r3_invalid_total_acceleration_reported_not_silenced():
+    """R3 regression (SCF_REVIEW_G0_G7_5563e67.md): a genuinely negative
+    total acceleration was previously clipped to 0 before sqrt, reporting
+    a fake v_pred=0 with no error status. Reproduced with one poisoned
+    test-radius row (extreme negative Vgas) among otherwise clean data --
+    all three baselines must report n_invalid>=1 for that point and
+    compute MAE/RMSE only over the remaining valid points, never silently
+    treating the poisoned point as v_pred=0."""
+    prof = BurkertProfile(rho0_msun_pc3=0.02, r0_pc=2000.0)
+    train_rows = []
+    for rk in np.geomspace(0.5, 10.0, 10):
+        r_pc = rk * 1000.0
+        v = float(prof.circular_velocity(r_pc))
+        train_rows.append(SparcComponentRow(galaxy="SYN2", D_mpc=10.0, R_kpc=float(rk), Vobs_kms=v, e_Vobs_kms=1.0,
+                                             Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                                             SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0))
+    test_rows = [
+        SparcComponentRow(galaxy="SYN2", D_mpc=10.0, R_kpc=12.0, Vobs_kms=50.0, e_Vobs_kms=1.0,
+                           Vgas_kms=-500.0, Vdisk_kms=0.0, Vbul_kms=0.0, SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0),
+        SparcComponentRow(galaxy="SYN2", D_mpc=10.0, R_kpc=13.0, Vobs_kms=float(prof.circular_velocity(13000.0)),
+                           e_Vobs_kms=1.0, Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                           SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0),
+        SparcComponentRow(galaxy="SYN2", D_mpc=10.0, R_kpc=14.0, Vobs_kms=float(prof.circular_velocity(14000.0)),
+                           e_Vobs_kms=1.0, Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                           SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0),
+    ]
+    split = HeldOutSplit(train_rows=tuple(train_rows), test_rows=tuple(test_rows))
+    scores = evaluate_baselines_on_holdout("SYN2", split)
+
+    detail = {}
+    for s in scores:
+        require(s.n_invalid >= 1, f"{s.baseline}: expected the poisoned point to be reported invalid")
+        require(s.n_invalid < s.n_test, f"{s.baseline}: the two clean points must remain valid")
+        require(not math.isnan(s.rmse_kms), f"{s.baseline}: RMSE over remaining valid points must be a real number")
+        detail[s.baseline] = {"n_invalid": s.n_invalid, "rmse_kms": s.rmse_kms}
+
+    # Baseline A (the TRUE source) must score near-exactly on its two clean
+    # held-out points despite the poisoned third point being present in the
+    # input -- proof the poisoned point was excluded, not zero-padded in.
+    score_a = next(s for s in scores if s.baseline == "A_burkert")
+    require(score_a.rmse_kms < 1e-6, f"Baseline A should score near-exactly on its own clean held-out points, got {score_a.rmse_kms}")
+    return detail
+
+
+def _zero_baryon_burkert_rows(rho0, r0_pc, r_kpc_grid, e_vobs=1.0):
+    prof = BurkertProfile(rho0_msun_pc3=rho0, r0_pc=r0_pc)
+    rows = []
+    for rk in r_kpc_grid:
+        v = float(prof.circular_velocity(rk * 1000.0))
+        rows.append(SparcComponentRow(galaxy="SYN", D_mpc=10.0, R_kpc=float(rk), Vobs_kms=v, e_Vobs_kms=e_vobs,
+                                       Vgas_kms=0.0, Vdisk_kms=0.0, Vbul_kms=0.0,
+                                       SBdisk_sollum_pc2=0.0, SBbul_sollum_pc2=0.0))
+    return rows
+
+
+def check_r6_profile_likelihood_recovers_true_psi():
+    """R6 (SCF_REVIEW_G0_G7_5563e67.md): `psi`/`eta` in `DescriptiveFitResult`
+    were only the best fit's own coordinates, not a profile -- Astra's
+    concrete task was a real `q(psi) = min_eta chi2(...)` scan. On
+    noiseless data generated from a known Burkert profile, the scan's
+    minimum must land exactly at the true `psi`, with `q` rising away
+    from it on both sides (a genuine profile shape, not a flat line)."""
+    true_rho0, true_r0 = 0.03, 3000.0
+    true_psi = math.log10(true_rho0 * true_r0)
+    rows = _zero_baryon_burkert_rows(true_rho0, true_r0, np.geomspace(0.5, 20.0, 15))
+
+    psi_grid = np.linspace(true_psi - 1.0, true_psi + 1.0, 41)
+    points = profile_likelihood_burkert(rows, psi_grid)
+    require(all(p.feasible for p in points), "all grid points should be feasible for this psi range/bounds")
+    best = min(points, key=lambda p: p.q)
+    near(best.psi, true_psi, atol=0.02 * (psi_grid[1] - psi_grid[0]), msg="profile-likelihood minimum vs true psi")
+    require(best.q < 1e-6, f"chi2 at the true psi should be ~0 for noiseless data, got {best.q}")
+
+    # q must actually rise away from the minimum on both sides (a real
+    # profile, not e.g. every point silently collapsing to the same value).
+    idx = points.index(best)
+    require(idx > 2 and idx < len(points) - 3, "true psi should not sit at the very edge of this test's grid")
+    require(points[idx - 5].q > 10.0 * best.q, "q should rise well above the minimum 5 grid steps to the left")
+    require(points[idx + 5].q > 10.0 * best.q, "q should rise well above the minimum 5 grid steps to the right")
+    return {"true_psi": true_psi, "best_psi": best.psi, "best_q": best.q}
+
+
+def check_r6_profile_likelihood_infeasible_psi_marked_not_dropped():
+    """R6: a psi whose feasible eta-interval is empty (given the psi-
+    dependent bound intersection) must be marked infeasible, never
+    silently clamped into the box or dropped from the output list."""
+    rows = _zero_baryon_burkert_rows(0.03, 3000.0, np.geomspace(0.5, 20.0, 10))
+    # eta bounds (declared) = [1, 5.5]; log_rho bounds = [-4, 1]; a psi far
+    # below both (e.g. -10) makes [psi-1, psi+4] disjoint from [1, 5.5].
+    psi_grid = [-10.0, 0.5, 3.0]
+    points = profile_likelihood_burkert(rows, psi_grid)
+    require(len(points) == len(psi_grid), "one output point per input psi, even if infeasible")
+    require(not points[0].feasible, "psi=-10 should be infeasible given the declared bounds")
+    require(math.isnan(points[0].q), "an infeasible point's q must be NaN, not a fabricated number")
+    require(points[2].feasible, "psi=3.0 should be feasible")
+    return {"ok": True}
+
+
+def check_r6_distance_inclination_sensitivity_exact_relations():
+    """R6 (SCF_REVIEW_G0_G7_5563e67.md): on zero-baryon noiseless data,
+    re-deriving the physical distinction from Plan §9.4 gives EXACT
+    closed-form relations, independently derived here (not copied from the
+    production code) and checked against it:
+
+    Distance (only R_kpc/baryon components rescale, Vobs is a direct
+    spectroscopic measurement and stays fixed): a Burkert fit to the SAME
+    v(r) values but at radii relabelled by `alpha_D` recovers exactly
+    `rho0/alpha_D**2` and `r0*alpha_D` (independently verified: this
+    reproduces the identical v(r) curve, since M(alpha*r; rho0/alpha^2,
+    r0*alpha) = alpha*M_true(r), so v_c is unchanged).
+
+    Inclination (only Vobs/e_Vobs rescale by a constant factor k=sin(i_ref)
+    /sin(i_new), radius untouched): since Burkert's M(r) is linear in
+    rho0 for fixed r0, a uniform v-rescaling by k is matched exactly by
+    `rho0*k**2` with r0 UNCHANGED.
+    """
+    true_rho0, true_r0 = 0.03, 3000.0
+    rows = _zero_baryon_burkert_rows(true_rho0, true_r0, np.geomspace(0.5, 20.0, 15))
+    meta_row = SparcMetadataRow(
+        galaxy="SYN", T=5, D_mpc=10.0, e_D_mpc=2.0, f_D=1, inc_deg=60.0, e_inc_deg=5.0,
+        L36_1e9_sollum=1.0, e_L36_1e9_sollum=0.1, Reff_kpc=1.0, SBeff_sollum_pc2=10.0,
+        Rdisk_kpc=1.0, SBdisk_sollum_pc2=10.0, MHI_1e9_solmass=1.0, RHI_kpc=1.0,
+        Vflat_kms=100.0, e_Vflat_kms=5.0, Q=1, ref="Test",
+    )
+    scenarios = {s.name: s for s in distance_inclination_sensitivity(rows, meta_row)}
+
+    near(scenarios["reference"].rho0_msun_pc3, true_rho0, rtol=1e-6, msg="reference rho0")
+    near(scenarios["reference"].r0_pc, true_r0, rtol=1e-6, msg="reference r0")
+
+    for sign, name in ((+1.0, "D+sigma_D"), (-1.0, "D-sigma_D")):
+        alpha_D = (meta_row.D_mpc + sign * meta_row.e_D_mpc) / meta_row.D_mpc
+        near(scenarios[name].rho0_msun_pc3, true_rho0 / alpha_D**2, rtol=1e-4, msg=f"{name} rho0")
+        near(scenarios[name].r0_pc, true_r0 * alpha_D, rtol=1e-4, msg=f"{name} r0")
+
+    for sign, name in ((+1.0, "i+sigma_i"), (-1.0, "i-sigma_i")):
+        i_new = meta_row.inc_deg + sign * meta_row.e_inc_deg
+        k = math.sin(math.radians(meta_row.inc_deg)) / math.sin(math.radians(i_new))
+        near(scenarios[name].rho0_msun_pc3, true_rho0 * k**2, rtol=1e-3, msg=f"{name} rho0")
+        near(scenarios[name].r0_pc, true_r0, rtol=1e-4, msg=f"{name} r0 (inclination must not move r0)")
+
+    # Genuine sensitivity, not a no-op: every scenario's mu_h must differ
+    # measurably from the reference and from each other.
+    mu_hs = {name: s.mu_h for name, s in scenarios.items()}
+    require(len(set(round(v, 6) for v in mu_hs.values())) == len(mu_hs), f"expected 5 distinct mu_h values, got {mu_hs}")
+    return {name: s.mu_h for name, s in scenarios.items()}
+
+
 CHECKS = [
     ("exact_noiseless_recovery_wide_range", check_exact_noiseless_recovery_wide_range),
     ("inner_radius_information_loss", check_inner_radius_information_loss),
@@ -211,6 +397,11 @@ CHECKS = [
     ("leak_test_holdout_does_not_affect_training", check_leak_test_holdout_does_not_affect_training),
     ("observation_equivalence_same_g_same_vc", check_observation_equivalence_same_g_same_vc),
     ("boundary_hit_reported_for_out_of_bounds_truth", check_boundary_hit_reported_for_out_of_bounds_truth),
+    ("r2_nfw_boundary_hit_propagates_to_predictive_score", check_r2_nfw_boundary_hit_propagates_to_predictive_score),
+    ("r3_invalid_total_acceleration_reported_not_silenced", check_r3_invalid_total_acceleration_reported_not_silenced),
+    ("r6_profile_likelihood_recovers_true_psi", check_r6_profile_likelihood_recovers_true_psi),
+    ("r6_profile_likelihood_infeasible_psi_marked_not_dropped", check_r6_profile_likelihood_infeasible_psi_marked_not_dropped),
+    ("r6_distance_inclination_sensitivity_exact_relations", check_r6_distance_inclination_sensitivity_exact_relations),
 ]
 
 

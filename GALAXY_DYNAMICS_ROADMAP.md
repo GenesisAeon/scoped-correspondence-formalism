@@ -26,6 +26,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | ✅ erledigt |
 | G6 | Quellengetreue Yoon-Reproduktion | vollständige Quelle plus G0–G3 | 🚫 blockiert (Quelle fehlt) |
 | G7 | Dokumentation und Fähigkeitsbilanz | fertige Teilpakete | ✅ erledigt |
+| Review-Fix | Korrektur von R1–R7 aus `SCF_REVIEW_G0_G7_5563e67.md` | G0–G7 | ✅ erledigt |
 
 Reihenfolge (Plan Abschnitt 4): G0 → G1 → G2 → G3 → G4 → G5 → G7.
 G6 wird eingeschoben, sobald eine vollständige Autor-, Preprint- oder
@@ -291,9 +292,13 @@ beschrieben — kein Drittel unterschritt die Mindestanzahl.
 **Modus A (§10.2, deskriptiv):** alle 12 ausgewählten Galaxien
 konvergieren, keine trifft eine Rechengrenze. `mu_h` streut über fast
 eine Größenordnung (97–997 Msun/pc²) — auf dieser kleinen Stichprobe
-**keine auffällige Konstanz**, was die G0-Populationsbefunde (Donato
-~141, Yoon ~174 Msun/pc²) nicht widerlegt, da Methodik und Stichprobe
-hier bewusst anders (kleiner, andere Fit-Prozedur) sind.
+**keine auffällige Konstanz**, was weder Donatos empirischen Befund
+(~141 Msun/pc², echte größere Population) noch Yoons berichtete,
+modellabhängige Rechnung (~174 Msun/pc², G6 mangels Volltext nicht
+nachvollzogen) widerlegt — beide sind unterschiedliche Belegarten, nicht
+eine gemeinsame Populationskonstante (SCF_REVIEW_G0_G7_5563e67.md,
+redaktioneller Punkt 3), und Methodik/Stichprobe sind hier bewusst anders
+(kleiner, andere Fit-Prozedur).
 
 **Modus B (§10.3–10.4, gehaltener Außenradien-Test):** kein Baseline
 gewinnt einheitlich über die 6 Evaluationsgalaxien (Burkert 2/6 klar
@@ -360,13 +365,22 @@ Muster wie `INTEGRATED_EXTENSION_ROADMAP.md`s eigene C0–C7-Tabelle.
   MOND-Grenzfälle (alle in G0 unabhängig vorab nachgerechnet, dann in G1–G3
   implementiert und gegen unabhängige Routen — Quadratur, algebraische
   Gegenbeispiele, Handrechnung — bestätigt).
-- **Synthetisch geprüft:** alle 5 `verify_galaxy_*.py`-Skripte (math),
-  49 Einzelprüfungen über G1–G5 hinweg, alle grün.
-- **Mit echten Daten ausgeführt:** G4 (`verify_sparc_real_local.py`, 5/5,
-  nicht übersprungen) und G5 (`docs/galaxy_pilot.md`, echter 94-Galaxien-
-  Auswahllauf plus 12-Galaxien-Pilot) — beide gegen die tatsächlichen
-  lokalen SPARC-Dateien, Lizenzstatus ungeklärt, deshalb nicht in
-  Standard-CI.
+- **Synthetisch geprüft:** 5 Skripte, Kategorie `math` (Stand nach dem
+  Review-Fix unten): `verify_galaxy_profiles.py` (12), `verify_galaxy_
+  homology.py` (7), `verify_galaxy_observation_maps.py` (7),
+  `verify_sparc_adapter.py` (14), `verify_galaxy_pilot.py` (12) — **52
+  Einzelprüfungen**, alle grün. (Frühere Paket-Commits nennen kleinere
+  Zahlen für einzelne Skripte, z. B. G1 "10/10" — das war zum jeweiligen
+  Commit-Zeitpunkt korrekt; der Review-Fix hat seither pro Fund gezielte
+  Regressionsprüfungen ergänzt. Dieser Absatz nennt den aktuellen Stand.)
+- **Mit echten Daten ausgeführt:** `verify_sparc_real_local.py` (Kategorie
+  `data`, 5/5, nicht übersprungen) und G5 (`docs/galaxy_pilot.md`, echter
+  94-Galaxien-Auswahllauf plus 12-Galaxien-Pilot, seit dem Review-Fix
+  erweitert um Profil-Likelihood und D/i-Sensitivität für alle 12
+  Galaxien via `scripts/run_real_galaxy_pilot.py`) — beide gegen die
+  tatsächlichen lokalen SPARC-Dateien, Lizenzstatus ungeklärt, deshalb
+  nicht in Standard-CI. **Insgesamt 57 Einzelprüfungen** über alle 6
+  G-Serie-Skripte (52 synthetisch + 5 echt).
 - **Explorativ:** G5s Modus-B-Baseline-Vergleich (6 Evaluationsgalaxien,
   ausdrücklich als vorsichtige Pilotbeschreibung deklariert, keine
   Siegerbehauptung).
@@ -377,7 +391,97 @@ Muster wie `INTEGRATED_EXTENSION_ROADMAP.md`s eigene C0–C7-Tabelle.
 **Erfolg im Sinne des Plans (Abschnitt 15):** eine nachvollziehbare,
 prüfbare Verbindung von Mathematik (G0–G3) und Beobachtung (G4–G5) wurde
 hergestellt — und lässt, wie vom Plan erwartet, mehrere physikalische
-Erklärungen offen (G5 Modus B). G0–G5 und G7 sind vollständig; G6 bleibt
-der einzige offene Punkt, mit einem konkret dokumentierten
-Freigabe-Kriterium (`docs/yoon_2026_source_audit.md`), nicht als vage
-"zukünftige Arbeit".
+Erklärungen offen (G5 Modus B). G6 bleibt der einzige offene Punkt, mit
+einem konkret dokumentierten Freigabe-Kriterium
+(`docs/yoon_2026_source_audit.md`), nicht als vage "zukünftige Arbeit".
+
+**Nachtrag (Review-Fix, 2026-09-26): die obige Aussage "G0–G5 und G7 sind
+vollständig" war zu stark, bevor die unten dokumentierten Korrekturen
+gemacht wurden** — ein externes Review (`SCF_REVIEW_G0_G7_5563e67.md`)
+fand einen echten numerischen Fehler und mehrere Lücken bei
+Statusweitergabe/Abnahme. Der Abschnitt "Review-Fix" unten dokumentiert
+die Korrekturen; erst danach ist die Vollständigkeitsaussage wieder
+gerechtfertigt.
+
+## Review-Fix (`SCF_REVIEW_G0_G7_5563e67.md`, 2026-09-26)
+
+Unabhängiges Review von Astra gegen Commit `5563e67`. Alle 7 Befunde
+(R1–R7) vor der Korrektur selbst unabhängig am Code nachvollzogen (nicht
+blind übernommen), dann in der vom Review empfohlenen Reihenfolge behoben.
+
+**R1 (P1, kritisch) — Faktor-2-Fehler in der Burkert-Reihenentwicklung:**
+`BurkertProfile._mass_bracket`s Klein-`x`-Reihe fehlte ein Faktor 2 (Docstring
+sagte "doubled here", der Code tat es nicht) — Masse/Beschleunigung waren
+für `x < 1e-3` halbiert, `v_c` nur `1/sqrt(2)` des korrekten Werts. Selbst
+per Taylor-Entwicklung nachgerechnet und bestätigt: `B(x) = 2*(x³/3 -
+x⁴/4 + x⁷/7 - x⁸/8 + ...)`. Betraf die veröffentlichten Pilotresultate
+NICHT (kleinster `r/r0` unter den 12 finalen Modus-A-Fits: ~0,056, weit
+über der betroffenen Region) — nach dem Fix erneut geprüft: alle 12
+`mu_h`-Werte bit-identisch zu vorher. Neue Regressionen in
+`verify_galaxy_profiles.py`: unabhängige Quadratur bei `x=1e-6,1e-4`,
+Kugel-mit-gleichförmiger-Dichte-Grenzwert, enger Umschalttest (statt des
+alten 0,5×/2×-Fensters, das Verhältnisse bis 3200 zuließ).
+
+**R4 — NFW-Zentralgrenzwert:** `g(0)=0` war als "zentraler Grenzwert" für
+alle drei Profile getestet, obwohl NFWs echter einseitiger Grenzwert
+`2*pi*G*rho_s*r_s` (unabhängig bestätigt: 4,053641607755213 für
+`rho_s=0,05, r_s=3000`) nicht Null ist. `NFWProfile.g(0)` wirft jetzt
+explizit (Richtung im Ursprung undefiniert, analog zu `density(0)`)
+statt einen von zwei möglichen Werten stillschweigend zu wählen.
+
+**R2 — NFW-Fit-Ungleichbehandlung:** Baseline B (NFW) bekam im
+Modus-B-Vergleich nur einen Startwert und keine Grenzerweiterung, im
+Gegensatz zu Baseline A (Burkert); ein realer NGC3109-Trainingslauf traf
+unbemerkt die untere `rho_s`-Grenze. Beide Halo-Familien laufen jetzt
+über dieselbe `_fit_halo_least_squares`-Routine (3 Starts, eine
+Grenzerweiterung); `PredictiveScore` trägt jetzt `train_status` und
+`train_boundary_hit`. Reale Auswirkung: NGC3109/NFW-RMSE ändert sich von
+11,268 auf 11,041 km/s (weiterhin klar von Burkert geschlagen, keine
+Änderung der Rangfolge); der Randtreffer ist jetzt sichtbar.
+
+**R3 — stilles Nullsetzen negativer Gesamtbeschleunigung:** Drei Stellen
+clippten `g_total` vor der Wurzel auf 0, meldeten also fälschlich `v=0`
+ohne Fehlerstatus. Getrennt behoben: der Clip bleibt als dokumentiertes
+Optimierer-internes Straf-Device während der Anpassung (`_predicted_v_obs_
+for_fitting`), aber die ENDGÜLTIG berichteten Werte laufen jetzt über
+`_predict_v_with_validity`, die ungültige Punkte explizit als `NaN` markiert
+und aus MAE/RMSE ausschließt, mit `n_invalid` je Baseline. Betraf keine der
+12 Pilotgalaxien bei den aktuellen Referenzannahmen.
+
+**R5 — unvollständige Datenvalidierung:** `SBeff` (steuert Drittelauswahl)
+fehlte in der Metadaten-Endlichkeitsprüfung, `D_mpc` in der
+Komponenten-Endlichkeitsprüfung; keine tabellenübergreifende
+Entfernungskonsistenzprüfung existierte. Jetzt: alle Float-Felder beider
+Tabellen geprüft, plus neue `validate_cross_table_consistency` (in
+`select_frozen_sample` aufgerufen). Betraf die echten aktuellen Dateien
+nicht — reine Vertragslücke, jetzt mit drei neuen Regressionen in
+`verify_sparc_adapter.py` geschlossen.
+
+**R6 — G5-Abnahme unvollständig:** `psi`/`eta` waren nur Bestfit-
+Koordinaten, keine Profil-Likelihood; keine D/i-Sensitivität; kein
+eingecheckter reproduzierbarer lokaler Pilot-Aufruf. Jetzt: echte
+`q(psi)=min_eta chi2`-Profile (`profile_likelihood_burkert`, korrekt
+`psi`-abhängige Grenzen), `D±sigma_D`/`i±sigma_i`-Sensitivität
+(`distance_inclination_sensitivity`, physikalisch korrekt getrennt: nur
+Radius/Baryonen skalieren mit `D`, nur `Vobs`/Fehler mit `i`), und
+`scripts/run_real_galaxy_pilot.py` (Hash-geprüfte CLI, getrennte
+Modus-A/B-JSON+CSV-Ausgaben). Volle Ergebnisse und Einordnung in
+`docs/galaxy_pilot.md` Abschnitt 6 — u. a. UGC02487s `mu_h`-Sensitivität
+von 2,65× als plausibler Beitrag zum Modus-B-MOND-Ausreißer. Plot-Erzeugung
+bleibt offen (ehrlich vermerkt, nicht behauptet).
+
+**R7 — Skip zählt als "passed":** `run_verification_suite.py` wertete nur
+den Subprozess-Exitcode aus, sodass ein sauber übersprungenes
+`verify_sparc_real_local.py` (fehlende Rohdaten) als "passed" gezählt
+wurde. Jetzt liest der Runner das Skript-eigene `_results.json` und zählt
+`all_skipped:true`-Läufe getrennt (`skipped`, nicht `passed`) — CI bleibt
+bei fehlenden optionalen Daten weiterhin grün, aber ehrlich beschriftet.
+
+**Redaktionell:** `docs/sparc_data_provenance.md`s veraltete Behauptung,
+beide Tabellen nutzten explizite Byte-Schemata, korrigiert; Donato
+(empirisch) und Yoon (modellabhängige Rechnung) in `docs/galaxy_pilot.md`
+und hier als getrennte Belegarten dargestellt statt als eine gemeinsame
+Populationskonstante; Prüfzahlen aktualisiert (siehe Fähigkeitsbilanz
+oben: 52 synthetisch + 5 echt = 57 nach dem Review-Fix, vorher 42+5=47).
+
+Volle Regression nach allen R1–R7-Korrekturen: siehe Commit.
