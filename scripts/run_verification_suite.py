@@ -96,6 +96,7 @@ _EXPLICIT_CATEGORY = {
     # SPARC data (that arrives only with G4/G5).
     "verify_galaxy_profiles.py": "math",
     "verify_galaxy_homology.py": "math",
+    "verify_galaxy_observation_maps.py": "math",
 }
 
 

@@ -1,0 +1,77 @@
+{
+  "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G3 (control models and observation equivalence, synthetic/analytic only)",
+  "timestamp": "2026-09-26T12:15:01+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "effective_density_recovers_burkert_profile": {
+      "status": "pass",
+      "detail": {
+        "x=0.05": {
+          "recovered": 0.038000237957419164,
+          "actual": 0.03800023750148439
+        },
+        "x=0.3": {
+          "recovered": 0.028228652069935568,
+          "actual": 0.028228652081863086
+        },
+        "x=1.0": {
+          "recovered": 0.010000000001415715,
+          "actual": 0.01
+        },
+        "x=3.0": {
+          "recovered": 0.0010000000000342365,
+          "actual": 0.001
+        },
+        "x=20.0": {
+          "recovered": 4.750029687718277e-06,
+          "actual": 4.750029687685548e-06
+        }
+      }
+    },
+    "effective_density_no_silent_clipping_of_negative": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "identical_g_gives_identical_v_c": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "mond_reference_values": {
+      "status": "pass",
+      "detail": {
+        "g_large_ratio": 1.0000000000005,
+        "g_small_ratio": 1.0000002500000313
+      }
+    },
+    "simple_interpolation_differs_from_standard": {
+      "status": "pass",
+      "detail": {
+        "ok": true
+      }
+    },
+    "baselines_are_structurally_distinct": {
+      "status": "pass",
+      "detail": {
+        "gA": 0.32374386191840515,
+        "gB": 0.2526119263055253,
+        "gC": 0.06085485298271419
+      }
+    },
+    "observation_equivalence_cross_family_degeneracy": {
+      "status": "pass",
+      "detail": {
+        "nfw_rho_s": 0.0024492499973785163,
+        "nfw_r_s": 7702.260798354433,
+        "out_of_sample_rel_diffs": {
+          "r=500.0": 1.1311384884289017,
+          "r=12000.0": 0.312636461753786,
+          "r=30000.0": 0.8576817558007251
+        }
+      }
+    }
+  }
+}

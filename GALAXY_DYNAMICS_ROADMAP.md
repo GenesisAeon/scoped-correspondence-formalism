@@ -21,7 +21,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 | G0 | Quellen-, Einheiten- und Hypothesenregister | keine | ✅ erledigt |
 | G1 | Sphärische Profile und getrennte Flächendichtebegriffe | G0 | ✅ erledigt |
 | G2 | Exakter Homologievertrag mit Zeitabbildung | G1 | ✅ erledigt |
-| G3 | Kontrollmodelle und Beobachtungsäquivalenz | G1–G2 | offen |
+| G3 | Kontrollmodelle und Beobachtungsäquivalenz | G1–G2 | ✅ erledigt |
 | G4 | Reproduzierbarer SPARC-Adapter | G0 | offen |
 | G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | offen |
 | G6 | Quellengetreue Yoon-Reproduktion | vollständige Quelle plus G0–G3 | 🚫 blockiert (Quelle fehlt) |
@@ -169,3 +169,54 @@ Verletzung erzeugen (nicht nur eine andere Benennung, Plan §7.2):
 Volle Regression: 94/95 gruen (`verify_http_range_reader.py` isoliert
 erneut lauffaehig 4/4 -- Flake unter Last, nicht durch G2 verursacht,
 unveraendert seit vor G2).
+
+## G3 — Kontrollmodelle und Beobachtungsäquivalenz (erledigt)
+
+Neu: `src/scoped_correspondence/astrophysics/acceleration_relations.py`,
+`verification/verify_galaxy_observation_maps.py` (Kategorie `math`,
+registriert).
+
+- **`effective_density(g_fn, r)`**: `rho_eff(r) = 1/(4 pi G r^2) *
+  d/dr[r^2 g(r)]` (Plan §8.1), zentrale finite Differenz, modellunabhängig
+  (`g_fn` beliebig). Gewinnt Burkerts eigene `density(r)` aus Burkerts
+  eigener `g(r)` exakt zurück (relative Fehler 1e-8 bis 1e-12 je nach
+  Radius) — die geforderte "Kugelprofil durch den Operator
+  zurückgewinnen"-Kontrolle. Gibt NEGATIVE Werte unverändert zurück (Test
+  mit `g~1/r^3`, überall negativ) statt sie stillschweigend auf 0 zu
+  setzen.
+- **`mond_g_total(g_N, a0)`**: deklarierter MOND-Kontrollfall, Standard-
+  Interpolation `mu_M(x)=x/sqrt(1+x^2)`, geschlossene algebraische
+  Lösung. Regressionsanker aus G0 bestätigt: `g/a0=1,272019649514069` bei
+  `g_N=a0`, `g_N=0 -> g=0`, `g_N<0` wirft, `Sigma_M=137,0180243872182`
+  Msun/pc². Grenzfälle `g/g_N->1` (groß) und `g/sqrt(a0*g_N)->1` (klein)
+  bestätigt.
+- **`mond_g_total_simple_interpolation_NOT_INTERCHANGEABLE`**: die
+  alternative Funktion `x/(1+x)` implementiert und als messbar
+  verschieden von der Standardfunktion bestätigt — aber die im Plan
+  zitierte logarithmische Divergenz ihrer zentralen Phantom-Säulendichte
+  wird NICHT numerisch nachgewiesen. Ein Versuch dazu (zentrale finite
+  Differenzen über ~10 Größenordnungen im Radius, per `scipy.integrate.
+  quad`) ergab instabile, auslöschungsdominierte Resultate — bewusst
+  NICHT als Prüfung verschifft, weil eine konkrete Zahlenbehauptung aus
+  dieser Rechnung unehrlich gewesen wäre. Die Divergenz bleibt eine aus
+  Milgrom (2009) zitierte, nicht selbst nachgerechnete Aussage (Status
+  siehe `docs/galaxy_dynamics_scope.md`).
+- **Baselines A/B/C** (`baseline_total_g_halo`, `baseline_total_g_mond`):
+  als strukturell verschieden bestätigt (paarweise Abweichung > 0,1 % bei
+  gleicher Baryonenkomponente und vergleichbarer Halo-Skala).
+- **Exakte Beobachtungsäquivalenz-Demonstration**: ein NFW-Profil wird
+  über `scipy.optimize.fsolve` so gewählt, dass es ein festes
+  Burkert-Profil bei GENAU zwei Radien exakt trifft (Residuum ~1e-13) —
+  außerhalb dieser zwei Punkte weichen beide Profile um > 10 % ab. Zeigt
+  konkret, dass zwei strukturell verschiedene Halo-Familien an endlich
+  vielen Beobachtungspunkten ununterscheidbar sein können (Plan §8.1:
+  "verschiedene Parametrisierungen können dieselbe Observable erzeugen") —
+  motiviert direkt die Identifizierbarkeitsvorsicht aus G5.
+- `circular_velocity_from_g(g,r) = sqrt(r*g)`: modellunabhängige
+  Kreisgeschwindigkeit, bestätigt konsistent mit `BurkertProfile.
+  circular_velocity` und mit einer zweiten unabhängigen Berechnung
+  desselben MOND-`g`-Werts.
+
+**7/7 Prüfungen grün.** Volle Regression: 96/96 grün (der zuvor
+beobachtete `verify_http_range_reader.py`-Flake trat in diesem Lauf nicht
+auf, bestätigt als Flake, nicht als Regression).

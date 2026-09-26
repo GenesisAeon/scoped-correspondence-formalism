@@ -9,6 +9,14 @@ See `GALAXY_DYNAMICS_ROADMAP.md` for package status (G1 in progress).
 """
 from __future__ import annotations
 
+from .acceleration_relations import (
+    baseline_total_g_halo,
+    baseline_total_g_mond,
+    circular_velocity_from_g,
+    effective_density,
+    mond_g_total,
+    mond_g_total_simple_interpolation_NOT_INTERCHANGEABLE,
+)
 from .galaxy_homology import (
     HomologyScaling,
     circular_orbit_correspondence,
@@ -40,6 +48,12 @@ __all__ = [
     "circular_orbit_correspondence",
     "circular_orbit_flow",
     "radial_acceleration_identity_residual",
+    "baseline_total_g_halo",
+    "baseline_total_g_mond",
+    "circular_velocity_from_g",
+    "effective_density",
+    "mond_g_total",
+    "mond_g_total_simple_interpolation_NOT_INTERCHANGEABLE",
     "A0_SI",
     "G_ASTRO_KPC",
     "G_ASTRO_PC",
