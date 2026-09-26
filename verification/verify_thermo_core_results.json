@@ -1,7 +1,7 @@
 {
   "milestone": "M8_thermo_core",
   "kind": "Legacy equivalence e10/e13 + projection §9 cases",
-  "generated_at_utc": "2026-09-26T18:31:30.298998+00:00",
+  "generated_at_utc": "2026-09-26T18:49:20.214884+00:00",
   "python": "3.11.9",
   "numpy": "2.4.6",
   "count": 6,

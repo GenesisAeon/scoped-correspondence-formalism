@@ -1,0 +1,61 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "k4_fiber_and_boolean_nonidentification": {
+      "fiber": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "bool_values": [
+        false,
+        true
+      ]
+    },
+    "k4_disconnected_value_set_not_collapsed_to_interval": {
+      "values": [
+        0,
+        4
+      ],
+      "min": 0,
+      "max": 4
+    },
+    "k4_refinement_shrinks_identified_set": {
+      "coarse_q": [
+        0,
+        4
+      ],
+      "fine_q_m1": [
+        0
+      ],
+      "fine_q_m0": [
+        4
+      ]
+    },
+    "empty_fiber_is_flagged_not_perfect_identification": {
+      "empty": true,
+      "notes": [
+        "empty fiber: the observation is incompatible with the declared model space under these assumptions -- this is a mismatch, not a (vacuously good) identification result"
+      ]
+    },
+    "k8_exact_dynamics_but_event_not_observable": {
+      "dynamics_exact": true,
+      "event_1_observable": false,
+      "event_01_observable": true
+    },
+    "fiber_budget_abort_not_silently_complete": {
+      "fiber_search_complete": false,
+      "report_search_complete": false
+    }
+  }
+}

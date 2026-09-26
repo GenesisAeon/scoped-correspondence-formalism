@@ -11,6 +11,14 @@ See `EPISTEMIC_AUDIT_ROADMAP.md` for package status.
 from __future__ import annotations
 
 from .finite import audit_finite_claim
+from .observation_fibers import (
+    FiberReport,
+    IdentifiedSetReport,
+    MacroObservabilityReport,
+    identified_values,
+    macro_dynamics_and_observability,
+    observation_fiber,
+)
 from .records import AssumptionSpec, ClaimReport, ClaimSpec, FiniteDomainSpec
 from .supports import (
     DeletionStep,
@@ -25,10 +33,16 @@ __all__ = [
     "ClaimReport",
     "ClaimSpec",
     "DeletionStep",
+    "FiberReport",
     "FiniteDomainSpec",
+    "IdentifiedSetReport",
     "InconsistentCoreReport",
+    "MacroObservabilityReport",
     "SupportReport",
     "audit_finite_claim",
     "find_minimal_inconsistent_core",
     "find_minimal_support",
+    "identified_values",
+    "macro_dynamics_and_observability",
+    "observation_fiber",
 ]

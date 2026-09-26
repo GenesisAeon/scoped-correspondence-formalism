@@ -17,7 +17,7 @@ Verletzungen, volle Suiten-Regression nach jedem Paket.
 | H0 | Bestandsaufnahme und Quellenvertrag | keine | ✅ erledigt |
 | H1 | Endliche Aussagen und nichtleere Evidenz | H0 | ✅ erledigt |
 | H2 | Tragende Annahmen und Inkonsistenzkerne | H1 | ✅ erledigt |
-| H3 | Beobachtungsabhängige Identifikation | H1 | offen |
+| H3 | Beobachtungsabhängige Identifikation | H1 | ✅ erledigt |
 | H4 | Endliche Entscheidungen unter deklarierter Ungewissheit | H1 | offen |
 | H5 | Integrierter Pufferpilot (K5, kontinuierlich) | H1, H4 | offen |
 | H6a | Adapter an bestehende SCF-Berichte (Pflicht) | H1–H3 | offen |
@@ -187,3 +187,48 @@ gemeldet), unveränderte Hintergrundannahmen.
 7/7 `verify_epistemic_supports.py` grün, `verify_epistemic_finite.py`
 weiterhin 9/9 grün, volle lokale Regression grün, Linkprüfung 0 kaputte
 relative Links.
+
+## H3 — Beobachtungsabhängige Identifikation (erledigt)
+
+`src/scoped_correspondence/epistemic/observation_fibers.py` implementiert
+`observation_fiber(domain, assumptions, observation, observed, *,
+budget) -> FiberReport` (F_A(y)) und `identified_values(fiber, target) ->
+IdentifiedSetReport` (Q_A(y)). Eine leere Faser wird explizit als
+Unvereinbarkeit von Beobachtung und Modellraum markiert (`empty_fiber`,
+erklärende `notes`), nie als vakuos "perfekt identifiziert". Mehrere
+mögliche Werte werden als vollständige Menge (`values`) berichtet;
+`min_value`/`max_value` sind zusätzliche Bequemlichkeitsfelder, die die
+Menge nie ersetzen.
+
+K4 (X={0,1,2}², h=x1+x2, y=2 → F(2)={(0,2),(1,1),(2,0)}) vor der
+Implementierung von Hand nachvollzogen: die boolesche Aussage "beide
+Reserven ≥1" ist bei y=2 NICHT identifiziert (beide Wahrheitswerte in der
+Faser), und q=(x1−x2)² hat exakt die Wertemenge {0,4} — bestätigt, ohne
+dass das Intervall [0,4] fälschlich Zwischenwerte suggeriert. Die
+Verfeinerung h_f=(x1+x2, min(x1,x2)) zerlegt die Faser in {(1,1)}
+(m=1, punktidentifiziert: Aussage=wahr, q=0) und {(0,2),(2,0)} (m=0):
+dort identifiziert m bereits sowohl die Aussage (falsch, da min=0) als
+auch q (4) OHNE den rohen Zustand selbst zu identifizieren — genau der im
+Plan (§4.4) beschriebene Unterschied zwischen Aussage-/Zielgrößen-
+Identifikation und vollständiger Zustandsrekonstruktion. Beide
+verfeinerten Wertemengen sind echte Teilmengen der groben Menge {0,4},
+wie vom Plan für Informationsverfeinerung gefordert.
+
+`macro_dynamics_and_observability` bündelt die vorhandenen Funktionen
+`check_controlled_correspondence` und `is_union_of_classes`
+(`correspondence/controlled_markov.py`) für K8: P=I4, Partition
+{{0,1},{2,3}} ergibt exakte PC=CQ mit Q=I2 (`dynamics_exact=True`), aber
+das Ereignis {1} ist keine Vereinigung von Makroklassen
+(`event_is_union_of_classes=False`) — beide Ergebnisse werden als
+getrennte Felder nebeneinander ausgegeben, nie zu einem Bool verschmolzen.
+Zum Vergleich: das vollständige Klassenereignis {0,1} IST eine
+Vereinigung von Makroklassen.
+
+`verify_epistemic_identification.py`: 6/6 Checks grün (K4-Faser und
+Boolesche Nichtidentifikation, disjunkte Wertemenge nicht auf Intervall
+kollabiert, Verfeinerung schrumpft die Wertemenge, leere Faser wird
+markiert statt als perfekte Identifikation missverstanden, K8
+Dynamik-vs-Beobachtbarkeit, Budgetabbruch propagiert Unvollständigkeit
+statt sie stillschweigend zu verschweigen). `verify_epistemic_finite.py`
+weiterhin 9/9 und `verify_epistemic_supports.py` weiterhin 7/7 grün,
+volle lokale Regression grün, Linkprüfung 0 kaputte relative Links.
