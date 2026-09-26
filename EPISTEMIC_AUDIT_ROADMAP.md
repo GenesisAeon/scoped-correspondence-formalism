@@ -23,7 +23,7 @@ Verletzungen, volle Suiten-Regression nach jedem Paket.
 | H6a | Adapter an bestehende SCF-Berichte (Pflicht) | H1–H3 | ✅ erledigt |
 | H6b | Optional: synthetischer Galaxienfall | H6a | ✅ erledigt |
 | H6c | Zurückgestellt: echte SPARC-Berichte | H6a | 🚫 zurückgestellt |
-| H7 | Dokumentation, CLI, CI, Abschluss | H1–H6a | offen |
+| H7 | Dokumentation, CLI, CI, Abschluss | H1–H6a | ✅ erledigt |
 
 Reihenfolge (Plan Abschnitt 14.1): H0 → H1 → H2 → H3 → H4 → H5 → H6a → H7.
 K7 (Randomisierung) bleibt optionale Vertiefung, kein Pflichtteil.
@@ -372,3 +372,63 @@ empirical_status wird verworfen, K8 spaltet sich in zwei verschiedene
 evidence_kind-Felder auf, H6b-Galaxienentartung). Alle H1-H5-Suiten
 weiterhin grün, volle lokale Regression grün, Linkprüfung 0 kaputte
 relative Links.
+
+## H7 — Dokumentation, CLI, CI, Abschluss (erledigt)
+
+`scripts/run_epistemic_audit.py` ist eine kleine, direkt lauffähige CLI
+(analog zur Rolle von `scripts/run_real_galaxy_pilot.py` für die
+Galaxienarbeit), die die K1-K8-Kernergebnisse über H1-H6 hinweg durch
+DIREKTEN Aufruf der Produktionsfunktionen (nicht der `verify_*.py`-
+Testskripte) reproduziert und als JSON ausgibt (optional in eine Datei
+via `--out`). Rein endlich/analytisch/synthetisch, kein echter Datensatz,
+kein Netzwerkzugriff. Ein Testlauf bestätigte alle K1-K8-Werte exakt
+gegen die in H0 unabhängig hergeleiteten Referenzwerte.
+
+Alle sechs `verify_epistemic_*.py`-Skripte wurden zusätzlich EXPLIZIT in
+`scripts/run_verification_suite.py`s `_EXPLICIT_CATEGORY` als `"math"`
+registriert (dem bestehenden Repository-Vorbild aus der G-Serie folgend:
+explizite Registrierung, auch wo die Text-Heuristik bereits richtig
+läge) — sie waren zwar bereits automatisch per Glob-Discovery in jeder
+`--category all`-Regression enthalten (die Zählung stieg mit jedem
+Hx-Paket korrekt von 99 auf 105), aber ohne explizite Registrierung wäre
+`--category math` allein von der Text-Heuristik abhängig gewesen.
+
+### Abschlussbilanz H0–H7
+
+| Paket | Lieferobjekt | Abgedeckte Kontrollfälle |
+|---|---|---|
+| H0 | `docs/epistemic_scope.md`, `docs/epistemic_sources.md`, `EPISTEMIC_AUDIT_ROADMAP.md` | Alle K1–K8 unabhängig von Hand nachgerechnet, keine Implementierung |
+| H1 | `epistemic/{records,finite}.py` | K2, K3 |
+| H2 | `epistemic/supports.py` | K1 (beide Supports und beide Inkonsistenzkerne) |
+| H3 | `epistemic/observation_fibers.py` | K4, K8 (Beobachtbarkeitsteil) |
+| H4 | `epistemic/decisions.py` | K5 (endlich), K6 |
+| H5 | `docs/epistemic_buffer_pilot.md`, `validation/epistemic_buffer_pilot.py` | K5 (kontinuierlich, drei Informationsmodi) |
+| H6a | `epistemic/adapters.py` | K8 (Dynamikteil, als getrennte `numerical_sample`-Evidenz) |
+| H6b | (kein neuer Produktionscode, `verify_epistemic_adapters.py` erweitert) | Zwei-Radien-Kreuzfamilien-Entartung (Burkert/NFW) |
+| H7 | `scripts/run_epistemic_audit.py`, `_EXPLICIT_CATEGORY`-Eintrag | Alle K1–K8 als reproduzierbarer CLI-Durchlauf |
+
+K7 (Randomisierung reduziert Regret) blieb wie im Plan vorgesehen eine
+optionale, von Hand nachgerechnete Referenz (siehe H0-Tabelle) ohne
+eigenes Produktionsmodul — kein Pflichtteil. H6c (echte SPARC-Berichte
+durch die epistemische Schicht) bleibt ausdrücklich zurückgestellt: die
+Lizenzlage der SPARC-Rohdaten ist unverändert ungeklärt
+(`docs/sparc_data_provenance.md`), und dieses Paket sollte diesen
+Review-Zyklus nicht heimlich wieder öffnen.
+
+**Explizite Umfangsgrenzen, die über die gesamte Schicht hinweg gelten**
+(nicht nur einzelne Pakete): kein Freitext-Parser, kein `eval` von
+JSON-Inhalten; jedes Ergebnis trägt `evidence_kind` und
+`empirical_status` als GETRENNTE, nie zu einer einzigen Konfidenzzahl
+verschmolzene Felder; ein Budgetabbruch (`search_complete=False`)
+bestätigt niemals Minimalität, Vollständigkeit oder universelle
+Gültigkeit; ein `grid_of_continuous_space`- oder `numerical_sample`-
+Ergebnis wird nie stillschweigend zu `exhaustive_finite` hochgestuft;
+unterbestimmte und widersprüchliche Ergebnisse sind erwartete, im
+jeweiligen `verify_*.py` gezielt herbeigeführte wissenschaftliche
+Ergebnisse, keine Fehler.
+
+**Finale Zahlen:** 6 neue `verify_epistemic_*.py`-Skripte, 40 einzelne
+Checks (9+7+6+8+6+5) davon 40/40 grün; volle lokale Regression
+105/105 `verify_*.py`-Skripte grün; Linkprüfung 0 kaputte relative
+Links; 8 Pakete (H0–H6b, H7) committet und gepusht, alle mit vorheriger
+Hand-Nachrechnung und vollständiger Regression je Paket.

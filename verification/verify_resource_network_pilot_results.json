@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C5 (3-node resource network pilot, synthetic-only)",
-  "timestamp": "2026-09-26T21:40:30+02:00",
+  "timestamp": "2026-09-26T22:04:37+02:00",
   "python": "3.11.9",
   "checks": {
     "load_schedule_control_values": {

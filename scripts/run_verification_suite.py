@@ -105,6 +105,16 @@ _EXPLICIT_CATEGORY = {
     # needs them.
     "verify_sparc_real_local.py": "data",
     "verify_galaxy_pilot.py": "math",
+    # H0-H7 (EPISTEMIC_AUDIT_ROADMAP.md): purely finite/analytic/synthetic
+    # control cases (K1-K8) -- no real dataset of any kind, including H6b's
+    # galaxy example (synthetic Burkert/NFW profiles, the same ones G1
+    # already classifies as "math" above).
+    "verify_epistemic_finite.py": "math",
+    "verify_epistemic_supports.py": "math",
+    "verify_epistemic_identification.py": "math",
+    "verify_epistemic_decisions.py": "math",
+    "verify_epistemic_buffer_pilot.py": "math",
+    "verify_epistemic_adapters.py": "math",
 }
 
 
