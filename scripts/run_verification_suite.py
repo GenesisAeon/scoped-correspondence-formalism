@@ -95,6 +95,7 @@ _EXPLICIT_CATEGORY = {
     # checks against independent scipy.integrate.quad routes -- no real
     # SPARC data (that arrives only with G4/G5).
     "verify_galaxy_profiles.py": "math",
+    "verify_galaxy_homology.py": "math",
 }
 
 

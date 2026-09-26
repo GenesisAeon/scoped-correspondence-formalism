@@ -20,7 +20,7 @@ jedem Paket, negative/neutrale Ergebnisse zählen genauso wie positive.
 |---|---|---|---|
 | G0 | Quellen-, Einheiten- und Hypothesenregister | keine | ✅ erledigt |
 | G1 | Sphärische Profile und getrennte Flächendichtebegriffe | G0 | ✅ erledigt |
-| G2 | Exakter Homologievertrag mit Zeitabbildung | G1 | offen |
+| G2 | Exakter Homologievertrag mit Zeitabbildung | G1 | ✅ erledigt |
 | G3 | Kontrollmodelle und Beobachtungsäquivalenz | G1–G2 | offen |
 | G4 | Reproduzierbarer SPARC-Adapter | G0 | offen |
 | G5 | Kleiner Datenpilot und Identifizierbarkeit | G3–G4 | offen |
@@ -121,6 +121,51 @@ obere Integrationsgrenze (`5e6*r0` statt `np.inf`) ließ `scipy.integrate.
 quad` divergent erscheinen.
 
 Die für G1 vorgeschlagene Struktur (`src/scoped_correspondence/astrophysics/`,
-`verification/verify_galaxy_*.py`) existiert damit; `verify_galaxy_homology.py`,
-`verify_galaxy_observation_maps.py`, `verify_sparc_adapter.py`,
-`verify_galaxy_pilot.py` folgen erst mit G2/G3/G4/G5.
+`verification/verify_galaxy_*.py`) existiert damit; `verify_galaxy_observation_maps.py`,
+`verify_sparc_adapter.py`, `verify_galaxy_pilot.py` folgen erst mit G3/G4/G5.
+
+## G2 — Exakter Homologievertrag mit Zeitabbildung (erledigt)
+
+Neu: `src/scoped_correspondence/astrophysics/galaxy_homology.py`,
+`verification/verify_galaxy_homology.py` (Kategorie `math`, registriert).
+
+Skalierungsfamilie `rho_lambda(r) = lambda^-1*rho(r/lambda)` (`HomologyScaling`)
+für Burkert-Profile: `rho0 -> rho0/lambda`, `r0 -> lambda*r0`, `mu_h`
+invariant. Zeitabbildung `c = sqrt(lambda)` exakt wie im gelesenen
+Correspondence-Vertrag (`target_time = c*source_time`) — der Kehrwert
+wäre falsch, siehe negative Kontrolle unten. Zwei getrennte,
+komplementäre Prüfrouten statt einer einzigen "allgemeinen" Flow-Prüfung:
+
+- **Kreisbahnen** (`circular_orbit_correspondence`): nutzt den
+  bestehenden `Correspondence.verify_conjugacy`-Mechanismus aus
+  `correspondence/contract.py` direkt (keine Neuerfindung), mit
+  `T_lambda(r,theta)=(lambda*r, theta)` und analytischem Kreisbahn-Fluss
+  `Phi^t(r,theta)=(r, theta+omega(r)*t)`. Ausdrücklich NICHT als
+  allgemeiner Burkert-Fluss deklariert (Plan §7.2).
+- **Allgemeine radiale Zustände**: algebraische Vektorfeld-Identität
+  `g_source(r) = g_target(lambda*r)` (aus `DT_lambda F = sqrt(lambda)*
+  F_lambda∘T_lambda` mit Jacobi-Matrix `diag(lambda,sqrt(lambda))`
+  hergeleitet) — deckt "allgemeine Anfangszustände" ab, ohne einen
+  ODE-Fluss zu integrieren.
+
+**7/7 Prüfungen grün**, davon 4 negative Kontrollen, die tatsächlich eine
+Verletzung erzeugen (nicht nur eine andere Benennung, Plan §7.2):
+
+- Positivkontrolle: Plan-Referenzfall `lambda=4` exakt reproduziert
+  (`M`-Verhältnis 16, `g`-Verhältnis 1, `v`-Verhältnis 2,
+  Umlaufzeit-Verhältnis 2)
+- Vektorfeld-Identität bei 5 `lambda`-Werten × 5 Radien
+- Kreisbahn-Konjugation über `Correspondence.verify_conjugacy` bei 5
+  `lambda`-Werten × 12 Zuständen × 4 Zeiten
+- Negativ: falscher Zeitfaktor (`1/sqrt(lambda)` statt `sqrt(lambda)`) —
+  `verify_conjugacy` meldet `ok=False`, Residuum > 1e-3
+- Negativ: Vergleich bei festem statt korrespondierendem Radius — echte
+  Abweichung > 0,1 %
+- Negativ: geänderte Profilform (NFW statt skaliertem Burkert als "Ziel")
+  — echte Abweichung > 0,1 %
+- Negativ: unskalierte Punktmasse (Plan-Beispiel `G=1`) — exakt `1,25`
+  statt `2` reproduziert, ko-skalierte Punktmasse stellt `2` wieder her
+
+Volle Regression: 94/95 gruen (`verify_http_range_reader.py` isoliert
+erneut lauffaehig 4/4 -- Flake unter Last, nicht durch G2 verursacht,
+unveraendert seit vor G2).

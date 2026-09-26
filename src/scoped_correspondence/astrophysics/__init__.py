@@ -9,6 +9,12 @@ See `GALAXY_DYNAMICS_ROADMAP.md` for package status (G1 in progress).
 """
 from __future__ import annotations
 
+from .galaxy_homology import (
+    HomologyScaling,
+    circular_orbit_correspondence,
+    circular_orbit_flow,
+    radial_acceleration_identity_residual,
+)
 from .spherical_profiles import BurkertProfile, NFWProfile, PseudoIsothermalProfile
 from .units import (
     A0_SI,
@@ -30,6 +36,10 @@ __all__ = [
     "BurkertProfile",
     "NFWProfile",
     "PseudoIsothermalProfile",
+    "HomologyScaling",
+    "circular_orbit_correspondence",
+    "circular_orbit_flow",
+    "radial_acceleration_identity_residual",
     "A0_SI",
     "G_ASTRO_KPC",
     "G_ASTRO_PC",

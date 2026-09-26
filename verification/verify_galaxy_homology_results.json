@@ -1,0 +1,85 @@
+{
+  "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G2 (exact homology correspondence, synthetic/analytic only)",
+  "timestamp": "2026-09-26T11:55:15+02:00",
+  "python": "3.11.9",
+  "checks": {
+    "positive_control_reference_case_lambda4": {
+      "status": "pass",
+      "detail": {
+        "M_ratio": 16.0,
+        "g_ratio": 1.0,
+        "v_ratio": 2.0,
+        "period_ratio": 2.0
+      }
+    },
+    "vector_field_identity_general_states": {
+      "status": "pass",
+      "detail": {
+        "lambda=0.5,x=0.01": 0.0,
+        "lambda=0.5,x=0.3": 0.0,
+        "lambda=0.5,x=1.0": 0.0,
+        "lambda=0.5,x=3.0": 0.0,
+        "lambda=0.5,x=20.0": 0.0,
+        "lambda=1.0,x=0.01": 0.0,
+        "lambda=1.0,x=0.3": 0.0,
+        "lambda=1.0,x=1.0": 0.0,
+        "lambda=1.0,x=3.0": 0.0,
+        "lambda=1.0,x=20.0": 0.0,
+        "lambda=2.0,x=0.01": 0.0,
+        "lambda=2.0,x=0.3": 0.0,
+        "lambda=2.0,x=1.0": 0.0,
+        "lambda=2.0,x=3.0": 0.0,
+        "lambda=2.0,x=20.0": 0.0,
+        "lambda=4.0,x=0.01": 0.0,
+        "lambda=4.0,x=0.3": 0.0,
+        "lambda=4.0,x=1.0": 0.0,
+        "lambda=4.0,x=3.0": 0.0,
+        "lambda=4.0,x=20.0": 0.0,
+        "lambda=9.0,x=0.01": 0.0,
+        "lambda=9.0,x=0.3": 1.2230130566312394e-16,
+        "lambda=9.0,x=1.0": 1.4957100673228806e-16,
+        "lambda=9.0,x=3.0": 0.0,
+        "lambda=9.0,x=20.0": 2.103633346874707e-16
+      }
+    },
+    "circular_orbit_conjugacy": {
+      "status": "pass",
+      "detail": {
+        "lambda=0.25": 0.0,
+        "lambda=1.0": 0.0,
+        "lambda=3.0": 4.440892098500626e-16,
+        "lambda=4.0": 0.0,
+        "lambda=10.0": 4.440892098500626e-16
+      }
+    },
+    "negative_control_wrong_time_factor": {
+      "status": "pass",
+      "detail": {
+        "max_residual": 0.12435429445670085
+      }
+    },
+    "negative_control_fixed_radius_instead_of_corresponding": {
+      "status": "pass",
+      "detail": {
+        "g_source": 0.12559070662572147,
+        "g_target_same_r_wrong": 0.09789750729062847,
+        "g_target_corresponding_r_correct": 0.12559070662572147
+      }
+    },
+    "negative_control_changed_profile_shape": {
+      "status": "pass",
+      "detail": {
+        "g_source": 0.12559070662572147,
+        "g_mismatched_target": 0.15195606173302795
+      }
+    },
+    "negative_control_unscaled_point_mass": {
+      "status": "pass",
+      "detail": {
+        "g_source": 2.0,
+        "g_target_unscaled_point_mass": 1.25,
+        "g_target_scaled_point_mass": 2.0
+      }
+    }
+  }
+}

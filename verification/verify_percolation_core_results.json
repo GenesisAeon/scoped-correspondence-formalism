@@ -95,7 +95,7 @@
     "python": "3.11.9",
     "source": "Fisher & Essam 1961 DOI 10.1063/1.1703745; Kesten 1980 DOI 10.1007/BF01197577",
     "threshold_kinship_warning": "Percolation and cusp dynamics involve distinct objects and parameter meanings. No identity of their thresholds or transfer of numerical values is asserted. A comparison of local fixed-point or bifurcation structures requires a separately stated scope, construction, and derivation.",
-    "timestamp": "2026-09-26T11:41:21+02:00",
+    "timestamp": "2026-09-26T12:01:42+02:00",
     "untouched": [
       "src/scoped_correspondence/dynamics/",
       "src/scoped_correspondence/membership/",
