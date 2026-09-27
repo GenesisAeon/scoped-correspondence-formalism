@@ -1,6 +1,6 @@
 {
   "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G3 (control models and observation equivalence, synthetic/analytic only)",
-  "timestamp": "2026-09-27T11:00:48+02:00",
+  "timestamp": "2026-09-27T11:51:04+02:00",
   "python": "3.11.9",
   "checks": {
     "effective_density_recovers_burkert_profile": {

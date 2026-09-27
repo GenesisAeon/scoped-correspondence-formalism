@@ -18,19 +18,23 @@ repo's core idea — the `Correspondence` contract in
 `correspondence/contract.py` — forces the claim into an explicit shape:
 a state map, a time map, a declared scope, and a residual that is either
 small or isn't. From that core, `src/scoped_correspondence/` has grown
-into ~70 largely independent modules spanning dynamical systems,
-information theory, thermodynamics, viability theory, causal inference,
-and more — each one a small, formally checkable model plus a
-`verify_*.py` that tries to break it, not just confirm it.
+into a large, largely independent set of modules spanning dynamical
+systems, information theory (including directed information / temporal
+information flow — not general causal inference), thermodynamics,
+viability theory, and more — each one a small, formally checkable model
+plus a `verify_*.py` that tries to break it, not just confirm it. See the
+module table below for the current, exact set (a headline count here
+would just go stale).
 
 It is simultaneously:
 - a **usable Python library** (`pip install -e .`) for anyone who wants
   a correspondence-contract pattern for their own model-linking work,
   and
 - a **living record of how far AI-assisted formal/scientific work holds
-  up under adversarial review** — every module has an audit trail of
-  independent reproduction, external review, and fixes, kept in
-  [`HISTORY.md`](HISTORY.md) rather than lost to chat logs.
+  up under adversarial review** — most modules have an audit trail of
+  independent reproduction and fixes, several with a full external
+  review cycle, kept in [`HISTORY.md`](HISTORY.md) rather than lost to
+  chat logs.
 
 ## Quickstart
 

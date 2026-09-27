@@ -92,10 +92,16 @@ repliziert.
 Baseline A (Burkert) und B (NFW) auf Trainingsradien gefittet, alle drei
 Baselines (A, B, C=MOND) auf den gehaltenen Außenradien ausgewertet:
 
+**Neu berechnet 2026-09-27** (Reaktion auf Astras Befund: die vorherige
+NFW-Zeile für NGC3109 war veraltet und verschwieg einen Randtreffer beim
+Trainingsfit) — **weiterhin explorativ, kein neuer konfirmatorischer
+Durchlauf.** Reproduziert über `scripts/run_real_galaxy_pilot.py` gegen
+dieselben lokalen SPARC-Rohdaten.
+
 | Galaxie | n Test | Baseline | MAE [km/s] | RMSE [km/s] |
 |---|---:|---|---:|---:|
 | NGC3109 | 8 | A (Burkert) | **0,64** | **0,85** |
-| NGC3109 | 8 | B (NFW) | 11,24 | 11,27 |
+| NGC3109 | 8 | B (NFW) | 11,01 | 11,04 † |
 | NGC3109 | 8 | C (MOND) | 9,23 | 9,26 |
 | F568-V1 | 5 | A (Burkert) | **5,64** | **5,91** |
 | F568-V1 | 5 | B (NFW) | 19,48 | 20,25 |
@@ -113,9 +119,18 @@ Baselines (A, B, C=MOND) auf den gehaltenen Außenradien ausgewertet:
 | NGC6674 | 5 | B (NFW) | 26,12 | 27,50 |
 | NGC6674 | 5 | C (MOND) | **19,11** | **19,30** |
 
+† NGC3109s NFW-Trainingsfit trifft eine deklarierte Rechengrenze
+(`train_boundary_hit=True`) — die Testleistung wird trotzdem berichtet
+(Burkert gewinnt hier ohnehin klar), aber der NFW-Wert selbst ist mit
+Vorsicht zu lesen, da der Fit am Rand des zulässigen Bereichs liegt statt
+frei zu konvergieren.
+
 **Ehrliches Ergebnis: kein Baseline gewinnt einheitlich.** Burkert gewinnt
 bei 2 von 6 Galaxien (NGC3109 klar, F568-V1 klar), MOND bei 3 von 6
-(NGC1003, NGC3726, NGC6674), NFW bei 1 von 6 (UGC02487). Auffällig: bei
+(NGC1003, NGC3726, NGC6674 — siehe aber Abschnitt 6.4: diese MOND-Siege
+sind bei zwei von drei Galaxien bereits unter ±1σ Entfernungs-/
+Inklinationsunsicherheit nicht stabil), NFW bei 1 von 6 (UGC02487).
+Auffällig: bei
 UGC02487 versagt das MOND-Modell sehr deutlich (RMSE 62 km/s) — dieselbe
 Galaxie hatte in Modus A auch das mit Abstand höchste `mu_h` (997
 Msun/pc²), ein Hinweis, dass hier baryonische oder Entfernungsannahmen
@@ -132,11 +147,18 @@ Alle sieben in `verify_galaxy_pilot.py` (7/7 grün):
   Burkert-Kurve (`rho0`/`r0` bis auf `~1e-15` relative Abweichung).
 - Informationsverlust bei reiner Innenkurve: bei realistischem Rauschen
   (`sigma=2` km/s, 5 unabhängige Rauschzüge) bleibt der `r0`-Fehler bei
-  weitreichender Abdeckung bei 2–6 %, bei reiner Innenkurve dagegen bei
-  72–96 % — durchgängig >10-fach schlechter, wie vom Plan erwartet
-  (reine Rauschfreiheit allein hätte das NICHT gezeigt, da ein perfekter
-  Optimierer auch schwach konditionierte Probleme exakt löst — das
-  eigentliche Identifizierbarkeitsproblem zeigt sich erst unter Rauschen).
+  weitreichender Abdeckung bei 2–6 %. Bei reiner Innenkurve liegen 4 der
+  5 Rauschzüge bei 73–95 %, ein fünfter Zug (`seed=1`) jedoch bei
+  **~6724 %** — eine korrigierte Angabe zum 2026-09-27: "72–96 %" war eine
+  ungenaue Zusammenfassung, die diesen Ausreißer verschwieg (Astra-Befund).
+  Der Prüfvertrag selbst verlangt nur `>10-fach schlechter` pro Zug (nicht
+  eine enge Bandbreite) und ist von diesem Fund unberührt — der Ausreißer
+  zeigt aber, dass die Innenkurve-Instabilität in Einzelfällen weit über
+  eine bloße Verzehnfachung hinausgehen kann, nicht nur konsistent
+  zweistellig-prozentual schlechter ist (reine Rauschfreiheit allein hätte
+  das NICHT gezeigt, da ein perfekter Optimierer auch schwach konditionierte
+  Probleme exakt löst — das eigentliche Identifizierbarkeitsproblem zeigt
+  sich erst unter Rauschen).
 - Vorzeichenkonvention: `v_gas=-10, v_disk=40 → v_bar²=700`, nicht 900.
 - Entfernungsskalierung entspricht exakt der G2-Homologie-Vorhersage
   (`rho0/lambda`, `r0*lambda` bei `lambda=2,5`) — verbindet G2, G4 und G5.
@@ -152,8 +174,9 @@ Alle sieben in `verify_galaxy_pilot.py` (7/7 grün):
 |---|---|---|
 | Alle 12 Burkert-Fits konvergieren, keine Randtreffer | Der deskriptive Fit ist auf dieser Stichprobe numerisch gutartig | Universelle Anwendbarkeit auf beliebige SPARC-Galaxien |
 | `mu_h` streut über fast eine Größenordnung | Bedingter Befund unter Profil-, Auswahl- und Fehlerannahmen dieses Piloten | Widerlegung von Donatos empirischem Befund oder von Yoons berichteter Rechnung (zwei verschiedene Belegarten, siehe oben) |
-| Kein Baseline gewinnt einheitlich im Außenradientest | Bessere bedingte Testleistung variiert pro Galaxie auf dieser Stichprobe | Endgültige Entscheidung über Dunkle Materie vs. MOND |
-| UGC02487: MOND-Ausreißer | Auffälliger Einzelfall, wert näher untersucht zu werden | Systematisches MOND-Versagen |
+| Kein Baseline gewinnt einheitlich im Außenradientest | Bessere bedingte Testleistung variiert pro Galaxie auf dieser Stichprobe, bei der jeweils angenommenen Referenzentfernung/-inklination | Endgültige Entscheidung über Dunkle Materie vs. MOND |
+| UGC02487: MOND-Ausreißer | Auffälliger Einzelfall, wert näher untersucht zu werden; robust über alle 5 D/i-Sensitivitätsszenarien (Abschnitt 6.3) | Systematisches MOND-Versagen |
+| NGC1003/NGC6674: MOND gewinnt bei Referenzwerten (Nachtrag 6.4, 2026-09-27) | Punktschätzung bei der jeweils angenommenen Referenzentfernung/-inklination | Ein robuster Sieg — der Sieger wechselt bei beiden Galaxien bereits unter ±1σ D/i-Unsicherheit zu NFW (Abschnitt 6.4) |
 
 Dieser Pilot ist bewusst klein (12 Galaxien, Arbeitsbegrenzung laut Plan
 §10.1) und liefert **explorative, keine konfirmatorischen** Aussagen.
@@ -287,3 +310,56 @@ andere M/L-Annahmen oder eine andere MOND-Interpolationsfunktion wurden
 hier nicht geprüft. **Explizit explorativ**, keine neue konfirmatorische
 Bewertung — der bereits bekannte Modus-B-Test (Abschnitt 5) macht diese
 Zusatzanalyse zu einer Nachbetrachtung, nicht zu einem Ersatzbefund.
+
+### 6.4 Nachtrag 2026-09-27: dieselbe Sensitivität für NGC1003 und NGC6674 (Astra-Befund)
+
+Abschnitt 6.3 zeigte nur UGC02487, wo der Modus-B-Sieger (NFW) über alle
+fünf Szenarien stabil bleibt. Dieselben fünf Szenarien wurden jetzt auch
+für NGC1003 und NGC6674 ausgewertet — beides Galaxien, bei denen Abschnitt
+3/5 MOND als (bedingten) Sieger nennt. **Ergebnis: an beiden Galaxien
+wechselt der Sieger bereits unter ±1σ Entfernungs-/Inklinationsunsicherheit
+— anders als bei UGC02487 ist die "MOND gewinnt"-Aussage hier NICHT
+robust.**
+
+**NGC1003** (RMSE in km/s, Referenzskala; Sieger fett):
+
+| Szenario | Burkert | NFW | MOND |
+|---|---:|---:|---:|
+| Referenz | 15,4821 | 7,8426 | **4,7613** |
+| `D+σ_D` | 13,8461 | **5,5980** | 13,7049 |
+| `D−σ_D` | 16,7391 | **9,5221** | 20,3867 |
+| `i+σ_i` | 15,1514 | 7,3917 | **4,4549** |
+| `i−σ_i` | 15,8495 | 8,3396 | **7,8606** |
+
+Bei beiden `D`-Szenarien (unabhängig von der Richtung) übernimmt NFW die
+Führung von MOND — MONDs RMSE steigt von 4,76 auf 13,70 bzw. 20,39, NFWs
+sinkt oder bleibt stabil. Bei den `i`-Szenarien bleibt MOND knapp vorn.
+
+**NGC6674** (RMSE in km/s, Referenzskala; Sieger fett):
+
+| Szenario | Burkert | NFW | MOND |
+|---|---:|---:|---:|
+| Referenz | 31,0770 | 27,4990 | **19,2966** |
+| `D+σ_D` | 31,0661 | 27,2770 | **3,3618** |
+| `D−σ_D` | 30,8882 | **27,5027** | 42,5872 |
+| `i+σ_i` | 31,0940 | 27,3624 | **4,3477** |
+| `i−σ_i` | 30,9418 | **27,5169** | 37,3229 |
+
+Hier wechselt der Sieger unter `D−σ_D` und `i−σ_i` zu NFW (MONDs RMSE
+steigt auf 42,59 bzw. 37,32), während er unter `D+σ_D` und `i+σ_i` klar
+bei MOND bleibt (RMSE fällt sogar auf 3,36 bzw. 4,35).
+
+**Einordnung:** Die in Abschnitt 3/5 berichteten "MOND gewinnt bei
+NGC1003/NGC6674"-Ergebnisse sind Punktschätzungen bei der jeweils
+angenommenen Referenzentfernung/-inklination, keine über die deklarierte
+Messunsicherheit robuste Aussage — bei beiden Galaxien kippt das Ergebnis
+bereits bei einer von vier geprüften ±1σ-Richtungen (NGC1003: beide
+`D`-Richtungen; NGC6674: `D−σ_D` und `i−σ_i`) zugunsten von NFW. Das ist
+kein Fehler der ursprünglichen Modus-B-Tabelle (die Referenzwerte sind
+korrekt), sondern eine bisher fehlende Sensitivitätsangabe. **Explizit
+explorativ, keine neue konfirmatorische Bewertung** — dieselbe
+Einschränkung wie in 6.3: gemeinsame D/i-Variationen, andere
+M/L-Annahmen oder eine andere MOND-Interpolationsfunktion wurden nicht
+geprüft. Die einzige unter allen fünf Szenarien durchgängig stabile
+Aussage aus Abschnitt 5/6.3/6.4 bleibt **NFW schlägt MOND bei UGC02487**
+— die anderen beiden "Siege" in Abschnitt 3/5 sind es nicht.

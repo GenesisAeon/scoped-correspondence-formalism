@@ -1,6 +1,6 @@
 {
   "package": "EPISTEMIC_AUDIT_ROADMAP.md Paket H1 (finite claims, synthetic/analytic only)",
-  "timestamp": "2026-09-27T10:59:00+02:00",
+  "timestamp": "2026-09-27T11:49:12+02:00",
   "python": "3.11.9",
   "checks": {
     "four_complete_outcomes": {
