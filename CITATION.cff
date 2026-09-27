@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software or its documentation, please cite it as below."
+title: "Scoped Correspondence Formalism"
+type: software
+authors:
+  - family-names: "Römer"
+    given-names: "Johann"
+repository-code: "https://github.com/GenesisAeon/scoped-correspondence-formalism"
+version: "0.41.0a1"
+date-released: "2026-09-27"
+license:
+  - GPL-3.0-or-later
+  - CC-BY-4.0
+keywords:
+  - correspondence
+  - dynamical-systems
+  - formal-verification
+  - information-theory
+  - viability-theory
+  - scientific-computing
+abstract: >
+  A Python library and research methodology for stating formal
+  correspondences between mathematical models across domains
+  (dynamical systems, information theory, thermodynamics, viability
+  theory, causal inference), each backed by an independently
+  reproducible verification suite.

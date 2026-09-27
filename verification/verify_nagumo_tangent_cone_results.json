@@ -229,7 +229,7 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source_doi": "10.11429/ppmsj1919.24.0_551",
-    "timestamp": "2026-09-27T09:58:18+02:00",
+    "timestamp": "2026-09-27T11:06:56+02:00",
     "untouched": [
       "src/scoped_correspondence/viability/core.py",
       "src/scoped_correspondence/viability/control_barrier.py",

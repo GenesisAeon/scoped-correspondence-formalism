@@ -2,269 +2,134 @@
 
 [![License](https://img.shields.io/badge/code-GPLv3--or--later-blue)](LICENSE)
 [![Docs License](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
+[![Verify](https://github.com/GenesisAeon/scoped-correspondence-formalism/actions/workflows/verify.yml/badge.svg)](.github/workflows/verify.yml)
 
-## Aktueller Stand (2026-09-20)
+**A Python library and research methodology for stating formal
+correspondences between mathematical models — instead of claiming two
+things are "the same" across domains, it makes you state exactly how,
+under what transformation, and within what scope they correspond, then
+checks that claim against an independently reproduced control case.**
 
-Seit dem 16. September 2026 ist dieses Repository ein **installierbares
-Python-Paket** (`scoped-correspondence`, aktuell `0.41.0a1`) unter
-`src/scoped_correspondence/` — nicht mehr nur Dokumentation und
-eigenständige Skripte. Die Milestone-Zählung (`M1` beginnend am
-16. September) ist seither über `M54` hinausgewachsen; ein einzelner
-aktueller Endstand wird hier bewusst nicht mehr genannt, weil er mit jedem
-Paket sofort wieder veraltet — siehe stattdessen
-[docs/capability_overview.md](docs/capability_overview.md) für den
-tatsächlichen, laufend aktualisierten Modulstand. Der untenstehende
-"Revision 3.2"-Abschnitt beschreibt den Stand VOR dieser Umstellung und ist
-als historischer Kontext erhalten (siehe
-[REVISION_3_2026-09-16.md](REVISION_3_2026-09-16.md)); die aktuelle
-Modul-/Paketstruktur steht hier.
+## What is this?
 
-### Installation
+Most cross-domain modeling claims ("this ecological system behaves like
+that climate system") never get made precise enough to be wrong. This
+repo's core idea — the `Correspondence` contract in
+`correspondence/contract.py` — forces the claim into an explicit shape:
+a state map, a time map, a declared scope, and a residual that is either
+small or isn't. From that core, `src/scoped_correspondence/` has grown
+into ~70 largely independent modules spanning dynamical systems,
+information theory, thermodynamics, viability theory, causal inference,
+and more — each one a small, formally checkable model plus a
+`verify_*.py` that tries to break it, not just confirm it.
+
+It is simultaneously:
+- a **usable Python library** (`pip install -e .`) for anyone who wants
+  a correspondence-contract pattern for their own model-linking work,
+  and
+- a **living record of how far AI-assisted formal/scientific work holds
+  up under adversarial review** — every module has an audit trail of
+  independent reproduction, external review, and fixes, kept in
+  [`HISTORY.md`](HISTORY.md) rather than lost to chat logs.
+
+## Quickstart
 
 ```bash
 pip install -e .
 python -m pip install -r verification/requirements.txt
 ```
 
-### Kurzbeispiel
-
 ```python
 from scoped_correspondence.dynamics.core import fixed_points
 
-# Kubische Normalform tau*dx/dt = -x^3 + a*x + b bei b=0, a=3:
-# Fixpunkte sind 0 und +-sqrt(a).
+# Cubic normal form tau*dx/dt = -x^3 + a*x + b at b=0, a=3:
+# fixed points are 0 and +-sqrt(a).
 print(fixed_points(3.0, 0.0))
 # [-1.7320508075688774, ~0.0, 1.7320508075688774]
 ```
 
-Ein zweites, ausführlicheres Beispiel (`Correspondence`-Vertrag mit
-Residuum, Scope und optionaler zustandsabhängiger Zeitabbildung) steht in
+A fuller example (a `Correspondence` contract with residual, scope, and
+an optional state-dependent time map) is in
 [docs/correspondence_core.md](docs/correspondence_core.md).
 
-### Modulübersicht (`src/scoped_correspondence/`)
+## Using AI (or anyone new) on this repo
 
-| Paket | Enthält |
+The project's actual differentiator isn't any one module — it's the
+discipline that keeps ~70 of them independently trustworthy at once:
+hand-derive control cases before writing code, verify external claims
+against the real code before fixing anything, one reviewed "Paket" per
+commit with a full regression run first. **[`CLAUDE.md`](CLAUDE.md)**
+states this discipline as concrete, followable steps — read it before
+extending anything here, whether you're an AI agent or a new human
+contributor. It also doubles as the honest answer to "how was this
+built": that file describes the actual process, not an idealized one.
+
+## Module overview (`src/scoped_correspondence/`)
+
+| Package | Contains |
 |---|---|
-| `correspondence/` | Kernvertrag: `Correspondence`, Konjugationsresiduum, Approximationszertifikate |
-| `observation/` | Kanalkapazität, Informationsretention, Arimoto-Blahut, Directed Information |
-| `dynamics/` | Kubische Normalform, Kontraktion, Landau/Ising, GSPT, Floquet, Panarchy, Early-Warning |
-| `coupling/` | Kopplungslagen, Casimir/Dirac-Komposition, Dissipativität, GENERIC↔Navier-Stokes, generalisierte Synchronisation |
-| `closure/` | `PC=CQ`-Makroschließung, Generator-Lumpability, Fehlerschranken, Chapman-Enskog |
-| `viability/` | Viability Kernels, Nagumo-Tangentialkegel, Control Barrier Functions |
-| `membership/` | Zugehörigkeitsmatrizen, Formal Concept Analysis |
-| `identifiability/` | Profile Likelihood, Fisher-Informations-Sloppiness |
-| `validation/` | Cygnus-X1-Pilotstudie, Split Conformal Prediction |
-| `contextuality/` | Sheaf-Kontextualität, Čech-Kohomologie, CSW-Graph-Invarianten |
-| `information_decomposition/` | PID/Redundancy Bottleneck, BROJA |
-| `thermo/` | Schnakenberg-Netzwerkthermodynamik, Crooks/Jarzynski |
-| `chemical_organization/` | Chemical Organization Theory (Reaktionsabschluss, Selbsterhaltung) |
-| `percolation/` | Bethe-Baum-Perkolation / Kesten-Verzweigung |
-| `pattern_formation/` | Turing-Instabilität / Dispersionsrelation |
-| `free_boundary/` | Stefan-Neumann-Ähnlichkeitslösung |
-| `metarules/` | Repo-übergreifende Meta-Regeln |
-| `legacy/` | Adapter zu den ursprünglichen Revision-2/3-Prüfskripten |
-
-### Status, Prüfungen und offene Punkte
-
-- **69 unabhängige `verify_*.py`-Suiten** unter `verification/` laufen
-  aktuell alle grün, per eingecheckten, getrennten Prüfaufrufen (Astra,
-  2026-09-24, [CAPABILITY_EXPANSION_ROADMAP.md](CAPABILITY_EXPANSION_ROADMAP.md)
-  Paket 0 — vorher nur als nicht eingechecktes `audit_review/run_all_local.py`
-  lokal vorhanden):
-  `python scripts/run_verification_suite.py --category math` (55 Skripte,
-  reine analytische/synthetische Beispiele), `--category data` (14 Skripte,
-  laden echte Datensätze, siehe [docs/real_data_provenance.md](docs/real_data_provenance.md)),
-  `--category links` (interne Markdown-Linkprüfung). Läuft auch automatisch
-  in [GitHub Actions](.github/workflows/verify.yml). Siehe
-  [VERIFICATION.md](VERIFICATION.md) für die Einzelläufe und ihre
-  Aussagekraft, sowie [docs/capability_overview.md](docs/capability_overview.md)
-  für eine kompakte Fragestellung/Voraussetzungen/Evidenz/Grenzen-Übersicht
-  je Modul.
-- Ein externer Code-Audit ("Tiefenanalyse", 2026-09-20) fand 9 echte
-  Korrektheitslücken (P0/P1/P2) in bereits gemergtem Code; alle wurden
-  am selben Tag behoben, gegen das jeweilige Audit-Gegenbeispiel verifiziert
-  und gegen alle 51 Suiten regressionsgetestet. Details, Priorisierung und
-  verbleibende Punkte: [AUDIT_ROADMAP.md](AUDIT_ROADMAP.md).
-- [docs/structural_relations.md](docs/structural_relations.md) definiert
-  eine Prüfsprache für Strukturbeziehungen zwischen Modellen (Beziehungstyp,
-  Konstruktion, Geltungsbereich, geprüfte vs. angenommene Voraussetzungen,
-  Reichweite) — als Gegengewicht zu pauschalen "keine gemeinsame
-  Mathematik"-Formulierungen, ohne unbegründete Identitäten wieder zu öffnen.
-- Der Cygnus-X1-Pilot (`data/cygnus_x1_radio_epochs.yaml`,
-  [docs/cygnus_pilot.md](docs/cygnus_pilot.md)) ist als **unverifiziert**
-  gekennzeichnet (Entscheidung 2026-09-20, `AUDIT_ROADMAP.md` Punkt 1): die
-  Einzelepochen-Granularität stammt wahrscheinlich aus einer KI-Interpolation
-  zu vier echten Paper-Kennzahlen (Prabu et al. 2026), nicht aus realen
-  archivierten Einzelmessungen. Der Pilot bleibt als **illustrative
-  Methodendemonstration** im Repo (Rechnung korrekt und reproduzierbar),
-  gilt aber nicht als unabhängig verifizierte empirische Validierung.
-- Das Formal-Hooks-/Stable-Release-Milestone aus
-  [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) ist der einzige noch
-  offene ursprüngliche Meilenstein; eine SemVer-`1.0`-Stabilisierung steht
-  noch aus (aktuell `0.41.0a1`, Alpha).
-- Drei echte, direkt von der Primärquelle geladene Datensätze (USGS-Erdbeben
-  M≥6.0 seit 2000, NOAA-Globaltemperaturanomalie 1880–2025, OWID/JHU-Covid-
-  Weltzeitreihe) liegen seit 2026-09-20 mit vollständiger Provenienz vor
-  (URL, Abrufzeitpunkt, sha256) — siehe
-  [docs/real_data_provenance.md](docs/real_data_provenance.md) und
-  `data/real_data_manifest.json`. Alle drei haben inzwischen einen
-  vollständigen Validierungspilot: **Covid**
-  ([docs/covid_pilot.md](docs/covid_pilot.md), M6b, plus zwei
-  Folgeuntersuchungen B/C) — Exponentialwachstum überspannt einen echten
-  Regimewechsel, `model_beats_baseline=False`; **NOAA-Temperatur**
-  ([docs/noaa_temp_pilot.md](docs/noaa_temp_pilot.md), M6c) — derselbe
-  Fehlertyp auf einer völlig anderen Domäne, `model_beats_baseline=False`;
-  **USGS-Erdbeben** ([docs/earthquake_pilot.md](docs/earthquake_pilot.md),
-  M6d) — konstante Rate vs. Persistenz, `model_beats_baseline=False`
-  (gewöhnliche Stichprobenvarianz, kein Regimewechsel). Keines der
-  Ergebnisse wurde nachträglich angepasst.
-- Eine externe Review (Astra, 2026-09-21,
-  `prompts/Answers/nicht_stationäre_Treiber/`) reproduzierte alle drei
-  Piloten unabhängig, fand zwei Fehler in `docs/earthquake_pilot.md`
-  (korrigiert) und schlug ein Folgeprogramm vor — siehe
-  [NONSTATIONARY_ROADMAP.md](NONSTATIONARY_ROADMAP.md). Paket 1
-  (gemeinsame rollierende Auswertung, `validation/rolling_origin.py`) und
-  Paket 2 (COVID-Länderdekomposition China vs. Rest der Welt,
-  `validation/covid_country_decomposition.py` — bestätigt Astras
-  Mischungsidentität direkt an echten Daten) und Paket 3
-  (Treiber-abhängige Dynamik-Schnittstelle, `dynamics/rate_dependent.py`
-  — eingefrorene Stabilität getrennt von echter Trajektorienintegration,
-  reproduziert Astras rateninduziertes Kipp-Kontrollbeispiel Ziffer für
-  Ziffer) und Paket 4 (Raten-/Viabilitäts-Kontrollfälle: χ-Diagnose sagt
-  die RICHTUNG des Kippverhaltens aus Paket 3 über den gesamten getesteten
-  Bereich korrekt voraus — die anfangs genannte präzise Schwelle χ≥0,5 war
-  dagegen nur grob rastergebunden und wurde später auf den tatsächlichen
-  Übergang zwischen r=0,7 und r=0,8 korrigiert (siehe unten, Zweitprüfung);
-  ein neuer Puffer-Lastspitzenfall, `viability/rate_dependent_buffer.py`,
-  zeigt das Spiegelbild-Ergebnis — schnellere Störungen sind hier sicherer,
-  nicht gefährlicher) sind umgesetzt und gegen die Review-Zahlen
-  abgeglichen. Paket 5 (je Domäne ein mechanistisches Modell:
-  COVID-Renewal `validation/covid_renewal.py`, Energiebilanz-Klima
-  `dynamics/energy_balance.py` mit echten Mauna-Loa-CO2-Daten, ETAS-
-  Erdbeben `dynamics/etas.py` — erklärt die in Paket 4/`earthquake_pilot.md`
-  gefundene Überdispersion mechanistisch, AIC-Lücke ≈1304 gegen die
-  Poisson-Nullhypothese) ist ebenfalls umgesetzt, womit alle 5 Pakete aus
-  [NONSTATIONARY_ROADMAP.md](NONSTATIONARY_ROADMAP.md) abgeschlossen sind.
-- Eine Zweitprüfung dieses Ergebnisses (Astra, 2026-09-21,
-  `SCF_Review_f8e249f.md`) fand einen echten Optimierer-Fehler
-  (Energiebilanz-Fit konvergierte zu einem schlechten lokalen Optimum,
-  RMSE 0,154 statt erreichbarer 0,090) und mehrere Überdehnungen
-  (fehlender `-u̇`-Term, χ-Schwellenpräzision, Puffer-Richtungsabhängigkeit,
-  ETAS-Verzweigungsraten-Fragilität) — alle unabhängig nachvollzogen und
-  behoben (Commit `20efc63`). Die verbleibenden, größeren Vorschläge
-  (belastbare Schätzung, gemeinsame Prognoseprüfung, Strukturbrücken,
-  Beobachtungsmodelle) sind als eigene Roadmap aufgenommen:
-  [MECHANISTIC_VALIDATION_ROADMAP.md](MECHANISTIC_VALIDATION_ROADMAP.md).
-  Paket 1 (Profile-Likelihood-Anschluss: `energy_balance.py`s C_s/C_d/alpha
-  sind auf einem ±50%-Raster um den Fit weit offen — die früher
-  behauptete "praktisch nicht identifizierbar, rigoros bestätigt" war
-  selbst eine Überdehnung und wurde in
-  [Paket 9](MECHANISTIC_VALIDATION_ROADMAP.md) korrigiert: korrekt ist
-  "auf diesem Fenster schwach eingeschränkt, nicht in absolutem Sinn als
-  unidentifizierbar erwiesen" — siehe
-  [docs/energy_balance.md](docs/energy_balance.md)), Paket 2 (gemeinsame Rolling-Origin-Prognoseprüfung: das
-  Energiebilanzmodell schlägt jede statistische Baseline an jedem
-  Vorlaufjahr; die COVID-Renewal-Projektion schlägt beide Baselines; ETAS
-  schlägt die Persistenz-Baseline NICHT — ehrlich berichtet) und Paket 3
-  (echte Vorhersageintervalle + Scoring-Regeln: Punktgenauigkeit ≠
-  Intervallqualität — das Energiebilanzmodell gewinnt Paket 2s RMSE, hat
-  aber den SCHLECHTESTEN Intervall-Score aller vier Prädiktoren),
-  Paket 4 (zwei neue Strukturbrücken B7/B8 in
-  [docs/structural_relations.md](docs/structural_relations.md): Energiebilanz
-  und Puffer sind beide Faltungs-/Impulsantwort-Systeme; COVID-Renewals
-  Reproduktionszahl R und ETAS' Verzweigungsrate sind bei konstantem R
-  exakt dieselbe Größe nach Hawkes & Oakes 1974) und Paket 5
-  (Beobachtungsmodelle: rohe COVID-Tageszahlen sind deutlich
-  überdispers gegenüber Poisson, getestet statt angenommen, Faktor ~100
-  im Log-Score; Deutschland/USA scheitern ehrlich an Pilot As exaktem
-  2020-Fenster wegen echter Null-Tage, dasselbe Verfahren gewinnt aber
-  auf einem neuen 2021-Omikron-Fenster; reales Gesamtforcing aus den
-  "Indicators of Global Climate Change 2025" verbessert die Energiebilanz
-  spürbar gegenüber CO2-only) sind umgesetzt.
-
----
-
-## Revision 3.2 (historisch, 16. September 2026 — vor dem installierbaren Paket)
-
-**Methodischer Entwurf mit Literaturanschlüssen, prüfbaren Modellrechnungen und optionalen F08/F09-Ergänzungen. Umbenannt von "CREP–UTAC–AFET" am 16. September 2026 — siehe [GLOSSARY.md](GLOSSARY.md) für die vollständige Begriffszuordnung und Begründung.**
-
-Johanns Ausgangsabsicht bleibt die Grundlage: **Observation** (vormals CREP) beschreibt Information, **Dynamics** (vormals UTAC) Systeme und deren Dynamik, **Coupling** (vormals AFET) die Kopplung mit einer ausdrücklich ausgewiesenen thermodynamischen Spezialisierung (**Thermodynamics**). Die zentrale Beziehung zwischen Beschreibungsebenen heißt **Correspondence** (vormals „Selbstähnlichkeit" als Gesamtanspruch) — bewusst schwächer als „Äquivalenz" oder „Identität", weil eine Korrespondenz exakt, näherungsweise, projektiv, kontextabhängig oder empirisch widerlegt sein kann. Die Revision ersetzte bereits die unzutreffenden Größenidentitäten des Entwurfs vom 15. September durch definierte Schnittstellen und bedingte Modellbeziehungen; die neue Namensgebung macht diesen Verzicht auf Universalitätsanspruch jetzt auch im Namen sichtbar statt nur im Text.
-
-Der gemeinsame Rahmen beschreibt, **was an einem System gemessen wird, wie es sich entwickelt und wie andere Systeme darauf wirken**. Seine Leitidee ist die von Johann am 16. September nochmals klargestellte **Selbstähnlichkeit**: wiederkehrende Strukturen mit unterschiedlichen Größen, Parametern und Skalen. Die zuvor eingeschlichenen Gleichsetzungen waren Fehler der Ausarbeitung, nicht die beabsichtigte Ausgangsthese.
-
-Eine strukturelle Analogie ist ein Ausgangspunkt. Mathematische Selbstähnlichkeit benötigt eine angegebene Transformation und einen Geltungsbereich; empirisch geprüfte Selbstähnlichkeit zusätzlich Daten und einen quantifizierten Vergleich. Diese Ebenen werden im Formalismus ausdrücklich auseinandergehalten.
-
-## Einstieg
-
-| Datei | Inhalt |
-|---|---|
-| [GLOSSARY.md](GLOSSARY.md) | Neues Vokabular (Observation/Dynamics/Coupling/Correspondence), Legacy-Mapping, Begründung der Umbenennung |
-| [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) | Grobe, noch nicht beauftragte Roadmap für eine echte Softwarebibliothek (Teil 2) |
-| [FORMALISM.md](FORMALISM.md) | Zusammenhängende Übersicht und verbindliche Notation |
-| [LITERATURE_CONNECTIONS.md](LITERATURE_CONNECTIONS.md) | Geprüfte Literaturanschlüsse, Voraussetzungen und Übernahmeentscheidungen |
-| [emergence_and_closure.md](emergence_and_closure.md) | Rekonstruktion, Makro-Geschlossenheit, EI und konkreter Individuations-Prüfvertrag |
-| [information_layer_crep.md](information_layer_crep.md) | S/K/R/V als Rollen mit expliziten Messverfahren |
-| [system_layer_utac.md](system_layer_utac.md) | Zustand, Antwort, Erholung, Becken und korrigierte kubische Dynamik |
-| [coupling_layer_afet.md](coupling_layer_afet.md) | Datenfluss, dynamische Kopplung und thermodynamischer Sonderfall |
-| [worked_example_heat_exchange.md](worked_example_heat_exchange.md) | Vollständig gerechnetes positives Kopplungsbeispiel |
-| [worked_example_reconstruction.md](worked_example_reconstruction.md) | Verzögerungskoordinaten, Abtastungsgegenfall und Projektionsgedächtnis |
-| [worked_example_causal_emergence.md](worked_example_causal_emergence.md) | EI, Interventionsensembles, Lumpability und zwei SVD-/Reversibilitätsgegenfälle |
-| [worked_example_viability.md](worked_example_viability.md) | Dauerhafte Belastbarkeit trotz gleicher Erholungsrate |
-| [sheaf_contextuality.md](sheaf_contextuality.md) | Optionales Modul (F08): Prüfung globaler Darstellbarkeit deklarierter lokaler Wahrscheinlichkeitsmodelle (Contextual Fraction), neben VB1 |
-| [pid_redundancy_bottleneck.md](pid_redundancy_bottleneck.md) | Optionales Modul (F09): PID-Zerlegung (Williams–Beer/Kolchinsky-RB) einer deklarierten Quellen-Ziel-Verteilung, Mikro→Makro; `EI_q` wird separat berichtet |
-| [DESIGN.md](DESIGN.md) | Entscheidungen und zurückgezogene Schlussfolgerungen |
-| [ROADMAP.md](ROADMAP.md) | Erreichter Paketstand und nächste fachliche Prüfungen |
-| [FOLLOWUP_TICKETS.md](FOLLOWUP_TICKETS.md) | Offene Codefragen und bisherige Reparaturen |
-| [REVISION_2026-09-16.md](REVISION_2026-09-16.md) | Historischer Änderungsbericht der Revision 2 |
-| [REVISION_3_2026-09-16.md](REVISION_3_2026-09-16.md) | Aktuelle Änderungen, Herkunft und Anwendungshinweise |
-| [VERIFICATION.md](VERIFICATION.md) | Reproduktion und Aussagekraft der Prüfungen |
-| [TRANSFORMATION_VERIFICATION.md](TRANSFORMATION_VERIFICATION.md) | Reproduktion der 18 Revision-3.2-Prüfungen (Transformation, Viabilität) |
-| [context_transformations.md](context_transformations.md) | Kontext, Zugehörigkeiten, Verträglichkeitsbedingungen (Revision 3.2) |
-
-Die acht ursprünglichen Paketbeispiele bleiben auf dem Reparaturstand der Revision 2. Hinzu kommen das erweiterte Wärmebeispiel und drei neue Methodenbeispiele. Die unveränderten ursprünglichen Dokumente stehen unter `archive/2026-09-15/`; der hier vorliegende aktuelle Bestand der Revision 2 unter `archive/2026-09-16-revision-2/`.
-
-## Was die Revision festlegt
-
-- Antwortsteilheit `beta_response` und lokale Erholungsrate `S_rec` sind getrennte Größen.
-- Informationsnutzung `eta_info`, dynamischer Einfluss `A_ij` und thermodynamischer Koeffizient `L_ij` erhalten getrennte Definitionen und Einheiten.
-- Die korrigierte kubische Modellfamilie lautet `tau * dx/dt = -x^3 + a*x + b`, mit dimensionslosem Zustand x und `tau>0`.
-- `a = -tau*S_rec(0)` gilt nur am Gleichgewicht x=0 des symmetrischen Modells b=0. Es ist eine Modellbeziehung, keine allgemeine Parameterelimination.
-- Beckenwahrscheinlichkeit, Abstand zur Grenze und lokale Rate werden gesondert gemessen.
-- Positive Excess-Stabilität ist eine zu testende Eigenschaft einer gewählten Komposition, kein bereits bewiesenes allgemeines Kriterium für „System-Sein“.
-- Etablierte Sätze, eigene Modellableitungen, synthetische Prüfungen und reale Messungen werden getrennt gekennzeichnet.
-- Takens begründet eine generische Rekonstruktionsgarantie; eine notwendige universelle Dimensionsschwelle folgt daraus nicht.
-- Eine eigenständige Makrodynamik erhält eine konkrete Geschlossenheitsprüfung. EI, Synergie und SVD-Diagnose sind verschiedene Zielgrößen.
-- GENERIC ist eine optionale thermodynamische Spezialisierung mit nachzuweisenden Energie-/Entropiebedingungen.
-- Viabilität ergänzt die Resilienzbeschreibung um zulässige Bereiche, Eingriffe, Belastungen und Zeiträume.
-- Zwei optionale Module (F08/F09, extern geprüft von Aeon, Checksummen und Skriptläufe von Claude nachgerechnet) stehen neben dem Kern, ohne ihn zu verändern: Sheaf-Kontextualität für Verträglichkeitsbedingung 1 und PID/Redundancy Bottleneck für `EI_q`.
-
-Die Revision bearbeitet die bereitgestellten Dokumente und neue Verifikationsbeispiele. Die erreichten Korrekturen in den veröffentlichten Einzelpaketen bleiben als Fortschritt dokumentiert. Für die hier aufgeführten weiteren Codefragen liegt noch kein Patch oder neuer Release vor.
-
-## Ausführen
-
-```bash
-python -m pip install -r verification/requirements.txt
-python verification/verify_extensions.py
-python verification/verify_formalism.py
-python verification/verify_transformations.py
-python -m pip install -r verification/requirements_sheaf_pid.txt
-python verification/verify_sheaf_contextuality.py
-python verification/verify_pid_rb.py
-```
-
-Die Basissuite benötigt nur die Python-Standardbibliothek. Die Erweiterungen nutzen NumPy; die beiden optionalen F08/F09-Module zusätzlich SciPy (LP-Löser). Voraussetzungen, Laufberichte und Aussagekraft stehen in [VERIFICATION.md](VERIFICATION.md) und [TRANSFORMATION_VERIFICATION.md](TRANSFORMATION_VERIFICATION.md). Die Modellprüfungen ersetzen keine empirische Validierung und keine Produktionspaket-Testsuite.
-
-## Ergänzend einspielen
-
-Nicht im Paket enthaltene lokale Dateien bleiben bestehen. Der von Johann bereits archivierte ältere Verifikationsordner wird nicht rekonstruiert oder gelöscht. `apply_manifest.json` benennt aktuelle Änderungen mit Ausgangs- und Zielprüfsummen; das vollständige `manifest.json` umfasst auch die beigefügten Archive. Details: [Übergabe](REVISION_3_2026-09-16.md).
+| `correspondence/` | Core contract: `Correspondence`, conjugacy residual, approximation certificates |
+| `observation/` | Channel capacity, information retention, Arimoto–Blahut, directed information |
+| `dynamics/` | Cubic normal form, contraction, Landau/Ising, GSPT, Floquet, panarchy, early warning |
+| `coupling/` | Coupling layers, Casimir/Dirac composition, dissipativity, GENERIC↔Navier-Stokes, generalized synchronization |
+| `closure/` | `PC=CQ` macro closure, generator lumpability, error bounds, Chapman–Enskog |
+| `viability/` | Viability kernels, Nagumo tangent cone, control barrier functions |
+| `membership/` | Membership matrices, formal concept analysis |
+| `identifiability/` | Profile likelihood, Fisher-information sloppiness |
+| `validation/` | Real-data pilots (COVID, NOAA temperature, USGS earthquakes, SPARC galaxies), sequential-information and buffer pilots |
+| `contextuality/` | Sheaf contextuality, Čech cohomology, CSW graph invariants |
+| `information_decomposition/` | PID/redundancy bottleneck, BROJA |
+| `thermo/` | Schnakenberg network thermodynamics, Crooks/Jarzynski |
+| `chemical_organization/` | Chemical organization theory (reaction closure, self-maintenance) |
+| `percolation/` | Bethe-tree percolation / Kesten branching |
+| `pattern_formation/` | Turing instability / dispersion relation |
+| `free_boundary/` | Stefan–Neumann similarity solution |
+| `astrophysics/` | Galaxy rotation-curve profiles (Burkert/NFW), MOND acceleration relations |
+| `epistemic/` | Assumption/evidence auditing layer: finite claim status, minimal supports, observation-dependent identification, decisions under declared uncertainty (also wraps `correspondence/controlled_markov.py`'s controlled-Markov lumpability under declared actions) |
+| `metarules/` | Repo-wide meta-rules |
+| `legacy/` | Adapters to the original Revision-2/3 check scripts |
 
 ## Status
 
-Die Drei-Schichten-Architektur ist ein expliziter Forschungs- und Beschreibungsrahmen. Die aufgeführten Standardmodelle sind unter ihren Voraussetzungen mathematisch prüfbar. Die universelle Anwendbarkeit, ein universeller Individuationsschwellenwert und universelle Zahlenwerte wie 0,84 oder 1/16 sind dadurch nicht nachgewiesen.
+`0.41.0a1` (alpha) — the formal-hooks/stable-release milestone from
+[ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) is the one open
+original milestone before a SemVer `1.0`. All checked-in `verify_*.py`
+suites currently pass:
+
+```bash
+python scripts/run_verification_suite.py --category all    # math + data
+python scripts/run_verification_suite.py --category links  # doc link check
+```
+
+See [docs/capability_overview.md](docs/capability_overview.md) for a
+per-module question/assumptions/evidence/limits table, and
+[VERIFICATION.md](VERIFICATION.md) for what each check actually proves.
+**[`HISTORY.md`](HISTORY.md)** has the full dated narrative: every
+external audit, every review-fix cycle, every real-data pilot result
+(including the ones where the model lost to the baseline — reported
+either way).
+
+## Further reading
+
+| File | Content |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | How this repo is actually built and extended (AI or human) |
+| [HISTORY.md](HISTORY.md) | Full chronological audit trail and project history |
+| [docs/capability_overview.md](docs/capability_overview.md) | Per-module question/assumptions/evidence/limits |
+| [FORMALISM.md](FORMALISM.md) | Coherent overview and binding notation |
+| [GLOSSARY.md](GLOSSARY.md) | Vocabulary (Observation/Dynamics/Coupling/Correspondence) and legacy-name mapping |
+| [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) | Longer-term library architecture roadmap |
+| [GALAXY_DYNAMICS_ROADMAP.md](GALAXY_DYNAMICS_ROADMAP.md) | Galaxy rotation-curve module (G0–G7 + review fixes) |
+| [EPISTEMIC_AUDIT_ROADMAP.md](EPISTEMIC_AUDIT_ROADMAP.md) | Assumption/evidence auditing layer (H0–H7 + review fix) |
 
 ## License
 
 This repository is **dual-licensed**:
 
-- **Source code** (`verification/*.py`) — [GNU General Public License v3.0 or later (GPLv3+)](LICENSE).
-- **Documentation** (all Markdown/prose content) — [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-DOCS).
+- **Source code** (`src/`, `verification/*.py`, `scripts/`) —
+  [GNU General Public License v3.0 or later (GPLv3+)](LICENSE).
+- **Documentation** (all Markdown/prose content) —
+  [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-DOCS).
+
+If you use this work in academic writing, see
+[`CITATION.cff`](CITATION.cff).

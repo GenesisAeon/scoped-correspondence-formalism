@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C1 (linear-Gaussian state estimation core)",
-  "timestamp": "2026-09-27T09:54:57+02:00",
+  "timestamp": "2026-09-27T11:03:32+02:00",
   "python": "3.11.9",
   "checks": {
     "control_case_update": {

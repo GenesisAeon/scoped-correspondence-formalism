@@ -1,6 +1,6 @@
 {
   "package": "INTEGRATED_EXTENSION_ROADMAP.md Paket C5 (resource network control core)",
-  "timestamp": "2026-09-27T09:59:00+02:00",
+  "timestamp": "2026-09-27T11:07:39+02:00",
   "python": "3.11.9",
   "checks": {
     "decoupled_control_case": {

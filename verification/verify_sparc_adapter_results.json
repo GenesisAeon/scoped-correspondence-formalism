@@ -1,6 +1,6 @@
 {
   "package": "GALAXY_DYNAMICS_ROADMAP.md Paket G4 (SPARC adapter, synthetic fixtures only)",
-  "timestamp": "2026-09-27T09:59:13+02:00",
+  "timestamp": "2026-09-27T11:07:51+02:00",
   "python": "3.11.9",
   "checks": {
     "parse_component_line_synthetic": {

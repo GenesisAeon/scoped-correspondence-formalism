@@ -5,10 +5,35 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "scoped-correspondence"
 version = "0.41.0a1"
-description = "Correspondence + Observation/Dynamics/Coupling + Closure/Viability + Membership + Identifiability + Validation Cygnus pilot + Contextuality/InformationDecomposition + Thermo/GENERIC + Metarules + Approximation Certificates + Generator Lumpability + Dirac Structure Composition + Split Conformal Prediction + Contraction Analysis + Dissipativity/Supply Rates + Control Barrier Functions + BROJA Bivariate Unique Information + Schnakenberg Network Thermodynamics + CSW Graph Invariants + Profile Likelihood + Directed Information + Fisher-Information Sloppiness + Formal Reduction Error Bounds + Cech Cohomology Witness + Arimoto-Blahut Channel Capacity + Lie-Poisson/Casimir Invariants + Formal Concept Analysis + Nagumo Tangent Cone for Polyhedra + Landau Exponent Comparison / Self-Falsification + Pattern Formation / Turing Instability + Free Boundary / One-Phase Stefan–Neumann Similarity + Percolation / Kesten / Bethe-tree Branching + Fenichel / GSPT Critical Manifold + Floquet Multipliers for Given 2x2 Monodromy + Panarchy / Adaptive-Cycle as Cusp Extension + Early-Warning Signals / Critical Slowing Down + Crooks Fluctuation Theorem / Jarzynski Estimate + GENERIC ↔ Navier-Stokes Viscous Dissipation + Pecora–Carroll Generalized / Drive–Response Synchronisation + Chapman–Enskog / BGK Transport Closure + Chemical Organization Theory / COT (M1-M41 review package)"
-readme = "docs/correspondence_core.md"
+description = "Formal correspondence contracts between mathematical models, with an independently verified library spanning dynamical systems, information theory, thermodynamics, viability theory, and causal inference."
+readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Johann Römer" },
+]
+keywords = [
+    "correspondence",
+    "dynamical-systems",
+    "formal-verification",
+    "information-theory",
+    "viability-theory",
+    "scientific-computing",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
 dependencies = ["numpy", "scipy"]
+
+[project.urls]
+Repository = "https://github.com/GenesisAeon/scoped-correspondence-formalism"
+History = "https://github.com/GenesisAeon/scoped-correspondence-formalism/blob/master/HISTORY.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]
