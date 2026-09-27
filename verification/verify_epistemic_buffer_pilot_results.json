@@ -51,10 +51,11 @@
         ]
       }
     },
-    "three_information_modes_table": {
+    "four_information_modes_table": {
       "A": 2.0,
-      "B": 1.0,
-      "C": 1.0
+      "B": 2.0,
+      "C": 1.0,
+      "D": 1.0
     },
     "reused_functions_are_the_existing_unmodified_ones": {
       "same_function_objects": true

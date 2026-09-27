@@ -22,6 +22,7 @@ from .observation_fibers import (
     observation_fiber,
 )
 from .records import AssumptionSpec, ClaimReport, ClaimSpec, FiniteDomainSpec
+from .reporting import report_to_json, report_to_markdown
 from .supports import (
     DeletionStep,
     InconsistentCoreReport,
@@ -52,5 +53,7 @@ __all__ = [
     "identified_values",
     "macro_dynamics_and_observability",
     "observation_fiber",
+    "report_to_json",
+    "report_to_markdown",
     "uniform_safe_actions",
 ]

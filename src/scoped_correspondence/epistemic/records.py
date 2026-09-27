@@ -38,6 +38,41 @@ LOGICAL_STATUSES = (
 EVIDENCE_KINDS = ("exhaustive_finite", "numerical_sample", "analytic_argument", "empirical_evaluation", "not_evaluated")
 EMPIRICAL_STATUSES = ("not_tested", "synthetic_only", "evaluated_on_declared_data")
 
+#: Declared domain coverage relative to whatever the caller intended to cover
+#: (Plan §6.1) -- see `FiniteDomainSpec.coverage`. Every downstream report
+#: derived from a `FiniteDomainSpec` must carry this value through
+#: (`domain_coverage` field below) rather than silently dropping it
+#: (SCF_REVIEW_H0_H7_9dde420.md R5).
+DOMAIN_COVERAGE_VALUES = ("complete", "partial")
+
+
+class PredicateEvaluationError(Exception):
+    """Raised by `evaluate_bool` when a declared bool-valued predicate
+    raises, or returns anything other than the literal `True`/`False`.
+    Callers MUST catch this and record an evaluation error -- never
+    coerce the result into a truth value via `bool(...)` (Plan §6.3:
+    "Bool-Prädikate liefern wirklich boolesche Ergebnisse; None, Strings
+    oder fehlgeschlagene Berechnungen sind Fehler";
+    SCF_REVIEW_H0_H7_9dde420.md R3)."""
+
+
+def evaluate_bool(predicate: Callable[..., Any], *args: Any) -> bool:
+    """Evaluate a declared bool predicate (single-argument like an
+    assumption/claim/antecedent, or multi-argument like a safety
+    predicate `safety(w, u)`) and return the literal `True`/`False`.
+    Raises `PredicateEvaluationError` for a raised exception, or a
+    non-bool return value (including truthy/falsy non-bool values like
+    `None`, `float("nan")`, or a non-empty string) -- these must never be
+    silently coerced via `bool(...)`, since that would turn a missing
+    value or a computation error into a truth value."""
+    try:
+        result = predicate(*args)
+    except Exception as e:  # noqa: BLE001 -- any predicate failure is an evaluation error, not a crash
+        raise PredicateEvaluationError(f"{type(e).__name__}: {e}") from e
+    if isinstance(result, bool):
+        return result
+    raise PredicateEvaluationError(f"predicate returned non-bool {result!r} ({type(result).__name__})")
+
 
 @dataclass(frozen=True)
 class AssumptionSpec:
@@ -125,6 +160,27 @@ class ClaimReport:
     n_errors: int
     positive_witness: Optional[Any]
     negative_witness: Optional[Any]
+    #: Total individual predicate calls actually made (assumptions +
+    #: target + antecedent, across both the main scan and any
+    #: antecedent-reachability pass) -- lets a caller (e.g. `supports.py`)
+    #: decrement ONE shared `evaluation_budget` across nested calls
+    #: (Plan §6.3; SCF_REVIEW_H0_H7_9dde420.md R7).
+    n_predicate_evaluations: int = 0
+    #: Whether a witness was actually found, INDEPENDENT of the witness's
+    #: own value -- required because a candidate value can legitimately
+    #: BE `None` (or any other falsy value), which must never be confused
+    #: with "no witness found" (SCF_REVIEW_H0_H7_9dde420.md R2).
+    has_positive_witness: bool = False
+    has_negative_witness: bool = False
+    #: Whether EVERY candidate in the declared domain was scanned without
+    #: hitting any budget -- a SEPARATE question from `search_complete`
+    #: (whether THIS SPECIFIC conclusion is already certain, e.g. via an
+    #: early double-witness exit with candidates left unscanned;
+    #: SCF_REVIEW_H0_H7_9dde420.md R5).
+    all_candidates_scanned: bool = False
+    #: Carries `FiniteDomainSpec.coverage` through -- never silently
+    #: dropped (SCF_REVIEW_H0_H7_9dde420.md R5).
+    domain_coverage: str = "complete"
     antecedent_reachable_in_scope: Optional[bool] = None
     vacuity_kind: Optional[str] = None
     evidence_kind: str = "exhaustive_finite"
@@ -135,3 +191,5 @@ class ClaimReport:
     def __post_init__(self) -> None:
         if self.logical_status not in LOGICAL_STATUSES:
             raise ValueError(f"logical_status must be one of {LOGICAL_STATUSES}, got {self.logical_status!r}")
+        if self.domain_coverage not in DOMAIN_COVERAGE_VALUES:
+            raise ValueError(f"domain_coverage must be one of {DOMAIN_COVERAGE_VALUES}, got {self.domain_coverage!r}")

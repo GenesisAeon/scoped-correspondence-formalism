@@ -4,14 +4,53 @@
 `docs/epistemic_scope.md`. It never converts an unevaluated or erroring
 candidate into a silent `False`/exclusion, and never upgrades a
 budget-truncated search into a universal or non-existence claim.
+
+**Followup-Review-Fix (SCF_REVIEW_H0_H7_9dde420.md):**
+- R2: witness presence is tracked via explicit `have_positive`/
+  `have_negative` flags, never via `witness is None` -- a candidate
+  value of `None` is a legitimate witness and must not collide with
+  "no witness found".
+- R3: every predicate call (assumption, target, antecedent) goes through
+  `records.evaluate_bool`, which raises on anything but a literal
+  `True`/`False` -- `None`, `NaN`, and truthy strings become recorded
+  evaluation errors, never silently coerced truth values.
+- R5: `all_candidates_scanned` is now a SEPARATE field from
+  `search_complete` (a specific conclusion, e.g. `underdetermined` via
+  the two-witness early exit, can be certain long before every candidate
+  is scanned); `domain_coverage` carries `FiniteDomainSpec.coverage`
+  through instead of dropping it.
+- R7: a separate `evaluation_budget` caps the TOTAL number of individual
+  predicate calls (assumptions + target + antecedent, across BOTH the
+  main scan and the antecedent-reachability pass) -- distinct from
+  `budget`, which continues to cap the number of CANDIDATES scanned,
+  unchanged from before this fix (existing callers of `budget=` keep
+  their exact prior meaning).
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence
+from typing import Any, List, Optional, Sequence
 
-from .records import ClaimReport, ClaimSpec, FiniteDomainSpec
+from .records import ClaimReport, ClaimSpec, FiniteDomainSpec, PredicateEvaluationError, evaluate_bool
 
-DEFAULT_BUDGET = 1_000_000
+DEFAULT_BUDGET = 4096
+DEFAULT_EVALUATION_BUDGET = 1_000_000
+
+
+class _EvaluationBudgetExhausted(Exception):
+    """Internal signal: the shared predicate-evaluation budget ran out
+    mid-candidate. Caught at the outer scan loop; never escapes
+    `audit_finite_claim`."""
+
+
+def _make_spender(evaluation_budget: int):
+    spent = [0]
+
+    def spend() -> None:
+        if spent[0] >= evaluation_budget:
+            raise _EvaluationBudgetExhausted()
+        spent[0] += 1
+
+    return spend, spent
 
 
 def audit_finite_claim(
@@ -20,6 +59,7 @@ def audit_finite_claim(
     claim: ClaimSpec,
     *,
     budget: int = DEFAULT_BUDGET,
+    evaluation_budget: int = DEFAULT_EVALUATION_BUDGET,
     evidence_kind: str = "exhaustive_finite",
     empirical_status: str = "not_tested",
 ) -> ClaimReport:
@@ -29,21 +69,19 @@ def audit_finite_claim(
 
     Early-exits once BOTH a positive and a negative witness are found
     (`underdetermined` is then certain regardless of the rest of the
-    domain -- Plan §4.1: "zwei gegensätzliche Zeugen belegen
-    Unterbestimmtheit bereits ohne Vollständigkeit"). Otherwise scans up
-    to `budget` candidates; if the budget is exhausted before the domain
-    is exhausted, `search_complete=False` and `logical_status` is
-    `"incomplete"` UNLESS the double-witness case already fired -- an
-    incomplete search never yields `entailed_in_scope`,
-    `negation_entailed_in_scope`, or `no_admissible_model_in_scope`,
-    since any of those require certainty over candidates not yet seen.
+    domain -- Plan §4.1). Otherwise scans up to `budget` candidates; if
+    the budget is exhausted before the domain is exhausted,
+    `search_complete=False` and `logical_status` is `"incomplete"`
+    UNLESS the double-witness case already fired.
 
-    A predicate exception (assumption or claim) is counted in `n_errors`
-    and that candidate is skipped -- NOT treated as inadmissible, NOT
-    treated as `False`. If `n_errors > 0`, the search is also incomplete
-    in this same sense (an error means that specific candidate's status
-    was never actually determined), again unless the double-witness case
-    already fired first.
+    `evaluation_budget` separately caps the TOTAL number of individual
+    predicate calls (Plan §6.3) shared across the main scan AND the
+    antecedent-reachability pass -- a nested/second pass never gets a
+    fresh unbounded budget.
+
+    A predicate exception or non-bool return (assumption, target, or
+    antecedent) is counted in `n_errors` and that candidate is skipped --
+    NOT treated as inadmissible, NOT treated as `False`.
     """
     n_domain = len(domain.candidates)
     n_evaluated = 0
@@ -51,78 +89,127 @@ def audit_finite_claim(
     n_errors = 0
     positive_witness: Optional[Any] = None
     negative_witness: Optional[Any] = None
+    have_positive = False
+    have_negative = False
     had_error = False
     ran_out_of_budget = False
+    ran_out_of_evaluation_budget = False
+    notes: List[str] = []
+
+    spend, spent_counter = _make_spender(evaluation_budget)
 
     for w in domain.candidates:
         if n_evaluated >= budget:
             ran_out_of_budget = True
             break
-        n_evaluated += 1
         try:
-            admissible = all(bool(a.predicate(w)) for a in assumptions)
-        except Exception:
-            n_errors += 1
-            had_error = True
-            continue
-        if not admissible:
-            continue
-        n_admissible += 1
-        try:
-            c_val = claim.target(w)
-        except Exception:
-            n_errors += 1
-            had_error = True
-            continue
-        if not isinstance(c_val, bool):
-            n_errors += 1
-            had_error = True
-            continue
-        if c_val:
-            if positive_witness is None:
-                positive_witness = w
-        else:
-            if negative_witness is None:
-                negative_witness = w
-        if positive_witness is not None and negative_witness is not None:
-            break  # underdetermined is already certain -- no further scan needed
+            admissible = True
+            candidate_errored = False
+            for a in assumptions:
+                spend()
+                try:
+                    if not evaluate_bool(a.predicate, w):
+                        admissible = False
+                        break
+                except PredicateEvaluationError:
+                    n_errors += 1
+                    had_error = True
+                    candidate_errored = True
+                    break
+            n_evaluated += 1
+            if candidate_errored or not admissible:
+                continue
+            n_admissible += 1
+            spend()
+            try:
+                c_val = evaluate_bool(claim.target, w)
+            except PredicateEvaluationError:
+                n_errors += 1
+                had_error = True
+                continue
+            if c_val:
+                if not have_positive:
+                    positive_witness = w
+                    have_positive = True
+            else:
+                if not have_negative:
+                    negative_witness = w
+                    have_negative = True
+            if have_positive and have_negative:
+                break  # underdetermined is already certain -- no further scan needed
+        except _EvaluationBudgetExhausted:
+            ran_out_of_evaluation_budget = True
+            break
 
-    scanned_everything = (n_evaluated == n_domain) and not ran_out_of_budget
-    both_witnesses = positive_witness is not None and negative_witness is not None
+    all_candidates_scanned = (n_evaluated == n_domain) and not ran_out_of_budget and not ran_out_of_evaluation_budget
+    both_witnesses = have_positive and have_negative
 
     if both_witnesses:
         logical_status = "underdetermined"
         search_complete = True  # this specific conclusion is certain, regardless of what's unscanned
-    elif not scanned_everything or had_error:
+    elif not all_candidates_scanned or had_error:
         logical_status = "incomplete"
         search_complete = False
     elif n_admissible == 0:
         logical_status = "no_admissible_model_in_scope"
         search_complete = True
-    elif negative_witness is None:
+    elif not have_negative:
         logical_status = "entailed_in_scope"
         search_complete = True
     else:
         logical_status = "negation_entailed_in_scope"
         search_complete = True
 
+    if ran_out_of_evaluation_budget:
+        notes.append("evaluation_budget exhausted during the main scan")
+
     antecedent_reachable_in_scope = None
     vacuity_kind = None
-    if claim.antecedent is not None:
+    if claim.antecedent is not None and all_candidates_scanned and not had_error and n_admissible > 0:
         # S_{A,B} = {w in S_A : B(w)} -- Plan §4.2. Only meaningful to
         # assert emptiness/non-emptiness when the outer scan was complete
-        # over the admissible set AND that set is nonempty -- an empty
-        # S_A is a DIFFERENT case (no_admissible_model_in_scope, contra-
-        # dictory assumptions), not a vacuous antecedent, so the vacuity
-        # check is skipped (None) rather than guessed there too
-        # (`docs/epistemic_scope.md` §2: distinct from contradictory
-        # assumptions overall).
-        if scanned_everything and not had_error and n_admissible > 0:
-            reachable = False
+        # over a nonempty admissible set (a DIFFERENT case from
+        # no_admissible_model_in_scope -- docs/epistemic_scope.md §2).
+        reachable = False
+        antecedent_had_error = False
+        antecedent_budget_exhausted = False
+        try:
             for w in domain.candidates:
-                if all(bool(a.predicate(w)) for a in assumptions) and bool(claim.antecedent(w)):
-                    reachable = True
-                    break
+                skip = False
+                admissible = True
+                for a in assumptions:
+                    spend()
+                    try:
+                        if not evaluate_bool(a.predicate, w):
+                            admissible = False
+                            break
+                    except PredicateEvaluationError:
+                        antecedent_had_error = True
+                        skip = True
+                        break
+                if skip or not admissible:
+                    continue
+                spend()
+                try:
+                    if evaluate_bool(claim.antecedent, w):
+                        reachable = True
+                        break
+                except PredicateEvaluationError:
+                    antecedent_had_error = True
+                    continue
+        except _EvaluationBudgetExhausted:
+            antecedent_budget_exhausted = True
+
+        if antecedent_budget_exhausted:
+            antecedent_reachable_in_scope = None
+            notes.append("antecedent reachability check aborted: evaluation_budget exhausted")
+        elif antecedent_had_error and not reachable:
+            antecedent_reachable_in_scope = None
+            notes.append(
+                "antecedent reachability check hit a predicate evaluation error before finding a "
+                "witness -- result is unknown, NOT certified 'antecedent never holds'"
+            )
+        else:
             antecedent_reachable_in_scope = reachable
             if not reachable:
                 vacuity_kind = "antecedent_never_holds"
@@ -138,9 +225,15 @@ def audit_finite_claim(
         n_errors=n_errors,
         positive_witness=positive_witness,
         negative_witness=negative_witness,
+        n_predicate_evaluations=spent_counter[0],
+        has_positive_witness=have_positive,
+        has_negative_witness=have_negative,
+        all_candidates_scanned=all_candidates_scanned,
+        domain_coverage=domain.coverage,
         antecedent_reachable_in_scope=antecedent_reachable_in_scope,
         vacuity_kind=vacuity_kind,
         evidence_kind=evidence_kind,
         empirical_status=empirical_status,
         domain_relationship=domain.relationship_to_target_space,
+        notes=tuple(notes),
     )

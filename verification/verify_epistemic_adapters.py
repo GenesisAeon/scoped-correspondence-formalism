@@ -29,6 +29,7 @@ from scoped_correspondence.epistemic.adapters import (
     claim_reports_from_macro_observability,
 )
 from scoped_correspondence.epistemic.observation_fibers import macro_dynamics_and_observability
+from scoped_correspondence.errors import ScopeViolationError
 
 
 def require(condition, msg=""):
@@ -151,12 +152,68 @@ def check_h6b_galaxy_two_radius_degeneracy_as_identification_example():
     return {"y": y, "families_matching_y": sorted(families_matching_y), "out_of_sample_rel_diffs": out_of_sample}
 
 
+def check_r4a_nonfinite_residual_is_incomplete_not_confident_negation():
+    """Followup-Review-Fix R4a (SCF_REVIEW_H0_H7_9dde420.md): a
+    non-finite residual is a COMPUTATION ERROR, never evidence of a
+    negated correspondence -- it must produce `incomplete` with
+    `n_errors>0`, not a confident `negation_entailed_in_scope` with
+    `n_errors=0`."""
+    report = CorrespondenceReport(
+        ok=False, max_residual=float("nan"),
+        residuals=(Residual(value=float("nan"), kind="conjugacy", at_state=0.0, at_time=1.0),),
+        evidence={"n_pairs": 1, "all_finite": False}, kind="conjugacy",
+    )
+    claim = claim_report_from_correspondence(report, claim_id="r4a_nonfinite")
+    require(claim.logical_status == "incomplete", f"a non-finite residual must yield incomplete, got {claim.logical_status}")
+    require(claim.n_errors == 1, f"the non-finite residual must be counted as an error, got n_errors={claim.n_errors}")
+    require(not claim.search_complete, "a non-finite-residual result must not be search_complete")
+    return {"logical_status": claim.logical_status, "n_errors": claim.n_errors}
+
+
+def check_r4a_empty_action_set_is_rejected_not_vacuous_entailment():
+    """Followup-Review-Fix R4a: an empty `P_by_action` must be rejected
+    outright, never silently produce `dynamics_exact=True` via
+    `all([])`."""
+    C, _ = partition_indicator([0, 0, 1, 1])
+    try:
+        macro_dynamics_and_observability(P_by_action={}, C=C, omega={}, micro_event=[0, 1])
+        raise AssertionError("an empty P_by_action must raise, not silently succeed vacuously")
+    except ScopeViolationError:
+        pass
+    return {"rejected": True}
+
+
+def check_r4b_mixed_pass_fail_note_clarifies_aggregate_quantifier():
+    """Followup-Review-Fix R4b: when only SOME sampled pairs fail (all
+    finite), the resulting `negation_entailed_in_scope` must carry an
+    explicit note distinguishing '(not every pair passes' from 'every
+    pair fails' -- ¬∀w C(w) != ∀w ¬C(w)."""
+    mixed = CorrespondenceReport(
+        ok=False, max_residual=1.0,
+        residuals=(
+            Residual(value=0.0, kind="conjugacy", at_state=0.0, at_time=0.0),
+            Residual(value=1.0, kind="conjugacy", at_state=1.0, at_time=0.0),
+        ),
+        evidence={"n_pairs": 2, "all_finite": True}, kind="conjugacy",
+    )
+    claim = claim_report_from_correspondence(mixed, claim_id="r4b_mixed")
+    require(claim.logical_status == "negation_entailed_in_scope", f"expected negation_entailed_in_scope, got {claim.logical_status}")
+    require(
+        any("AGGREGATE" in n for n in claim.notes),
+        f"a genuine (non-error) negation must carry the aggregate-quantifier clarification note, got {claim.notes}",
+    )
+    return {"logical_status": claim.logical_status, "has_aggregate_note": True}
+
+
 CHECKS = [
     check_correspondence_report_ok_wraps_as_entailed_numerical_sample,
     check_correspondence_report_failure_carries_worst_witness,
     check_invalid_empirical_status_rejected,
     check_k8_macro_observability_splits_into_two_separate_evidence_kinds,
     check_h6b_galaxy_two_radius_degeneracy_as_identification_example,
+    check_r4a_nonfinite_residual_is_incomplete_not_confident_negation,
+    check_r4a_empty_action_set_is_rejected_not_vacuous_entailment,
+    check_r4b_mixed_pass_fail_note_clarifies_aggregate_quantifier,
 ]
 
 

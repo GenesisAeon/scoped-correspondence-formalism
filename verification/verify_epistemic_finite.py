@@ -249,6 +249,91 @@ def check_predicate_error_stays_error_not_silent_removal():
     return {"n_errors": r.n_errors, "status": r.logical_status}
 
 
+def check_r2_none_candidate_does_not_collide_with_no_witness_sentinel():
+    """Followup-Review-Fix R2 (SCF_REVIEW_H0_H7_9dde420.md): `None` is a
+    legitimate candidate value and must not be confused with "no witness
+    found" -- `has_positive_witness`/`has_negative_witness` track presence
+    independently of the witness's own value."""
+    d1 = FiniteDomainSpec(id="r2_d1", candidates=(None,), scope_text="(None,)")
+    c1 = ClaimSpec(id="r2_c1", text="False", target=lambda w: False)
+    r1 = audit_finite_claim(d1, [], c1)
+    require(r1.logical_status == "negation_entailed_in_scope", f"W=(None,), C=False must be negation_entailed_in_scope, got {r1.logical_status}")
+    require(r1.has_negative_witness and r1.negative_witness is None, "the witness value None must still be recognized as a FOUND witness")
+
+    d2 = FiniteDomainSpec(id="r2_d2", candidates=(None, 0), scope_text="(None,0)")
+    c2 = ClaimSpec(id="r2_c2", text="w is not None", target=lambda w: w is not None)
+    r2 = audit_finite_claim(d2, [], c2)
+    require(r2.logical_status == "underdetermined", f"W=(None,0) must be underdetermined, got {r2.logical_status}")
+    require(r2.has_positive_witness and r2.has_negative_witness, "both witnesses must be recognized as found")
+
+    d3 = FiniteDomainSpec(id="r2_d3", candidates=(0, None), scope_text="(0,None)")
+    r3 = audit_finite_claim(d3, [], c2)
+    require(r3.logical_status == "underdetermined", f"W=(0,None) must also be underdetermined, got {r3.logical_status}")
+    return {"r2_d1_status": r1.logical_status, "r2_d2_status": r2.logical_status, "r2_d3_status": r3.logical_status}
+
+
+def check_r3_invalid_predicate_returns_become_errors_not_truth():
+    """Followup-Review-Fix R3: an assumption/antecedent returning `None`,
+    `float("nan")`, or a truthy non-empty string must be an evaluation
+    error, never silently coerced into `True` via `bool(...)`."""
+    domain = FiniteDomainSpec(id="r3_d", candidates=(0, 1, 2), scope_text="{0,1,2}")
+    claim_true = ClaimSpec(id="r3_true", text="True", target=lambda w: True)
+
+    r_none = audit_finite_claim(domain, [_assump("a_none", lambda w: None)], claim_true)
+    require(r_none.n_errors == 3 and r_none.n_admissible == 0, f"assumption returning None must error on every candidate, got n_errors={r_none.n_errors}, n_admissible={r_none.n_admissible}")
+
+    r_nan = audit_finite_claim(domain, [_assump("a_nan", lambda w: float("nan"))], claim_true)
+    require(r_nan.n_errors == 3 and r_nan.n_admissible == 0, f"assumption returning NaN must error (NaN is truthy in Python), got n_errors={r_nan.n_errors}")
+
+    r_str = audit_finite_claim(domain, [_assump("a_str", lambda w: "false")], claim_true)
+    require(r_str.n_errors == 3 and r_str.n_admissible == 0, f"assumption returning the string 'false' must error (non-empty string is truthy), got n_errors={r_str.n_errors}")
+
+    claim_ant_none = ClaimSpec(id="r3_ant_none", text="True", target=lambda w: True, antecedent=lambda w: None)
+    r_ant = audit_finite_claim(domain, [], claim_ant_none)
+    require(r_ant.antecedent_reachable_in_scope is None, f"an erroring antecedent must yield antecedent_reachable_in_scope=None, not a false-certified 'never holds', got {r_ant.antecedent_reachable_in_scope}")
+    require(r_ant.vacuity_kind is None, "vacuity_kind must not be set from an antecedent evaluation error")
+    return {"none_errors": r_none.n_errors, "nan_errors": r_nan.n_errors, "str_errors": r_str.n_errors, "antecedent_reachable": r_ant.antecedent_reachable_in_scope}
+
+
+def check_r5_all_candidates_scanned_separate_from_search_complete():
+    """Followup-Review-Fix R5: `search_complete` (this conclusion is
+    certain) and `all_candidates_scanned` (every candidate was actually
+    scanned) are separate fields -- the two-witness early exit can make
+    the former True while the latter is False."""
+    domain = FiniteDomainSpec(id="r5_d10", candidates=tuple(range(10)), scope_text="0..9")
+    claim_even = ClaimSpec(id="r5_even", text="even", target=lambda w: w % 2 == 0)
+    r = audit_finite_claim(domain, [], claim_even, budget=2)
+    require(r.logical_status == "underdetermined" and r.search_complete, "budget=2 must still certify underdetermined")
+    require(not r.all_candidates_scanned, f"only 2 of 10 candidates were scanned, all_candidates_scanned must be False, got {r.all_candidates_scanned}")
+    require(r.n_evaluated == 2 and r.n_domain == 10, "n_evaluated/n_domain must show the actual partial scan size")
+
+    domain_partial = FiniteDomainSpec(id="r5_partial", candidates=(0, 1, 2), scope_text="partial sample", coverage="partial")
+    r_partial = audit_finite_claim(domain_partial, [], ClaimSpec(id="r5_true", text="True", target=lambda w: True))
+    require(r_partial.domain_coverage == "partial", f"domain_coverage must be carried through from FiniteDomainSpec, got {r_partial.domain_coverage}")
+    return {"all_candidates_scanned": r.all_candidates_scanned, "domain_coverage": r_partial.domain_coverage}
+
+
+def check_r7_evaluation_budget_caps_total_predicate_calls():
+    """Followup-Review-Fix R7: `evaluation_budget` caps the TOTAL number
+    of individual predicate calls (assumptions + target), separately
+    from `budget` (candidates scanned)."""
+    domain = FiniteDomainSpec(id="r7_d3", candidates=(0, 1, 2), scope_text="{0,1,2}")
+    a_true = _assump("r7_a", lambda w: True)
+    claim_true = ClaimSpec(id="r7_true", text="True", target=lambda w: True)
+    # Each candidate costs 2 predicate calls (1 assumption + 1 target); 3
+    # candidates would need 6 total -- capping evaluation_budget at 3
+    # must abort partway through, well before the candidate budget (4096
+    # default) would ever intervene.
+    r = audit_finite_claim(domain, [a_true], claim_true, evaluation_budget=3)
+    require(not r.search_complete, f"evaluation_budget=3 must abort before all 3 candidates are fully resolved, got search_complete={r.search_complete}")
+    require(r.n_predicate_evaluations <= 3, f"n_predicate_evaluations must respect the evaluation_budget cap, got {r.n_predicate_evaluations}")
+    require(r.n_evaluated < 3, f"fewer than all 3 candidates should have been fully resolved, got n_evaluated={r.n_evaluated}")
+
+    r_full = audit_finite_claim(domain, [a_true], claim_true, evaluation_budget=1_000_000)
+    require(r_full.search_complete and r_full.n_evaluated == 3, "a generous evaluation_budget must still complete normally")
+    return {"tiny_budget_n_evaluated": r.n_evaluated, "tiny_budget_n_predicate_evaluations": r.n_predicate_evaluations}
+
+
 CHECKS = [
     ("four_complete_outcomes", check_four_complete_outcomes),
     ("counterexample_does_not_auto_prove_negation", check_counterexample_does_not_auto_prove_negation),
@@ -259,6 +344,10 @@ CHECKS = [
     ("abort_before_after_witnesses", check_abort_before_after_witnesses),
     ("reproducible_witnesses_stable_ids", check_reproducible_witnesses_stable_ids),
     ("predicate_error_stays_error_not_silent_removal", check_predicate_error_stays_error_not_silent_removal),
+    ("r2_none_candidate_does_not_collide_with_no_witness_sentinel", check_r2_none_candidate_does_not_collide_with_no_witness_sentinel),
+    ("r3_invalid_predicate_returns_become_errors_not_truth", check_r3_invalid_predicate_returns_become_errors_not_truth),
+    ("r5_all_candidates_scanned_separate_from_search_complete", check_r5_all_candidates_scanned_separate_from_search_complete),
+    ("r7_evaluation_budget_caps_total_predicate_calls", check_r7_evaluation_budget_caps_total_predicate_calls),
 ]
 
 

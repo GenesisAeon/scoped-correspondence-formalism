@@ -197,6 +197,34 @@ def check_no_uniform_feasible_action_result_is_explicit():
     return {"fiber_size": report.fiber_size, "uniform_safe_actions": report.uniform_safe_actions}
 
 
+def check_r3_nan_safety_predicate_never_falsely_safe():
+    """Followup-Review-Fix R3 (SCF_REVIEW_H0_H7_9dde420.md): a safety
+    predicate returning `float("nan")` must never be treated as safe
+    (bool(nan) is truthy in Python) -- it is excluded and flagged as an
+    evaluation error instead."""
+    fiber = _k5_fiber()
+    report = uniform_safe_actions(fiber, [(1, 1)], lambda w, u: float("nan"))
+    require(not report.uniformly_feasible, "a NaN-returning safety predicate must never be treated as uniformly safe")
+    require(report.uniform_safe_actions == (), "no action should be reported safe from a NaN result")
+    require(any("evaluation error" in n for n in report.notes), f"the NaN results must be flagged as evaluation errors, got {report.notes}")
+    return {"uniformly_feasible": report.uniformly_feasible, "notes": report.notes}
+
+
+def check_r3_regret_overflow_raises_not_false_tie():
+    """Followup-Review-Fix R3 numeric addendum: extreme finite losses
+    whose regret computation overflows to float `inf` must raise a clear
+    error, never present a computed inf==inf tie as if the two actions
+    were genuinely equal (true regrets are ~1.9e308 for A, ~2e308 for B --
+    A actually wins)."""
+    lm = {"A": {"s1": -1e308, "s2": 1e308}, "B": {"s1": 1e308, "s2": -9e307}}
+    try:
+        compare_decisions(lm, criterion="minimax_regret")
+        raise AssertionError("an overflowing regret computation must raise, not silently report a tie")
+    except ScopeViolationError:
+        pass
+    return {"raised": True}
+
+
 CHECKS = [
     check_k5_statewise_feasible_but_not_uniform_at_budget1,
     check_k5_uniform_feasible_at_budget2,
@@ -206,6 +234,8 @@ CHECKS = [
     check_tie_handling_reports_all_tied_actions,
     check_loss_matrix_validation_rejects_bad_inputs,
     check_no_uniform_feasible_action_result_is_explicit,
+    check_r3_nan_safety_predicate_never_falsely_safe,
+    check_r3_regret_overflow_raises_not_false_tie,
 ]
 
 

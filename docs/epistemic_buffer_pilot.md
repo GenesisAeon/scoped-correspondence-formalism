@@ -23,23 +23,36 @@ exakt mit `sustained_safety_over_horizon`s bereits vorhandener,
 geschlossener Formel `min(x_i(0), x_i(0)+(u_i-drain)*horizon)>=0`
 zusammen — keine neue Formel, nur ein Spezialfall der bestehenden.
 
-## Drei Informationsmodi
+## Informationsmodi (korrigiert, Followup-Review-Fix R8a)
+
+Der Plan (§12) verlangt drei Modi: Summe allein, Summe+Minimum,
+Summe+Vorzeichen — NICHT Summe/Vorzeichen/Vollzustand, wie eine frühere
+Fassung dieses Piloten fälschlich implementierte (`SCF_REVIEW_H0_H7_9dde420.md`
+R8a). Modus D (voller Zustand) bleibt als ausdrücklich OPTIONALER
+zusätzlicher Vergleich erhalten, ersetzt aber nicht den geforderten
+Summe+Minimum-Fall.
 
 | Modus | Beobachtung vor dem Eingriff | Eingriff | Worst-Case-Kosten |
 |---|---|---|---:|
-| A — keine Beobachtung | keine | EIN gemeinsames `u` für die ganze Faser (`minimal_uniform_intervention`) | 2 |
-| B — Vorzeichen von x1−x2 | `sign(x1-x2)` | zustandsabhängig anhand des Vorzeichens (`sign_based_policy`) | 1 |
-| C — voller Zustand | `x` vollständig | zustandsweise CBF-QP-optimal (`solve_cbf_qp` pro Zustand) | 1 |
+| A — nur Summe | keine (die Faser selbst ist schon durch `x1+x2=2` definiert) | EIN gemeinsames `u` für die ganze Faser (`minimal_uniform_intervention`) | 2 |
+| B — Summe + Minimum | `min(x1,x2)` | pro Minimum-Gruppe EIN gemeinsames `u` (löst `(1,1)` bei `min=1`, aber NICHT `{(0,2),(2,0)}` bei `min=0`) | 2 |
+| C — Summe + Vorzeichen | `sign(x1-x2)` | zustandsabhängig anhand des Vorzeichens (`sign_based_policy`) | 1 |
+| D — voller Zustand (optional) | `x` vollständig | zustandsweise CBF-QP-optimal (`solve_cbf_qp` pro Zustand) | 1 |
 
 Modus A reproduziert exakt den Plan-Befund: eine gemeinsame Intervention
 braucht `u1>=1` (wegen `(0,2)`) UND `u2>=1` (wegen `(2,0)`), also
-`u1+u2>=2` — bei Budget 1 unmöglich, bei Budget 2 möglich. Modus B zeigt,
-dass eine GROBE Beobachtung (nur das Vorzeichen, nicht der volle Zustand)
-bereits ausreicht, um die Worst-Case-Kosten auf 1 zu senken — dieselbe
-Worst-Case-Kostenzahl wie bei vollständiger Zustandsbeobachtung (Modus
-C). Das ist eine Beobachtung für DIESES Beispiel, keine allgemeine
-Aussage, dass Vorzeichen-Information immer gleichwertig zu voller
-Zustandsbeobachtung ist.
+`u1+u2>=2` — bei Budget 1 unmöglich, bei Budget 2 möglich. Modus B zeigt
+den entscheidenden Zwischenfall aus K4/K5: die Beobachtung `min(x1,x2)`
+identifiziert bei `min=1` eindeutig `(1,1)` (Kosten 0), aber bei `min=0`
+bleiben `{(0,2),(2,0)}` weiterhin ununterscheidbar — eine für BEIDE
+gemeinsam sichere Intervention braucht dort weiterhin das volle
+Budget 2. Modus B verbessert die Worst-Case-Kosten also NICHT gegenüber
+Modus A. Erst Modus C (das Vorzeichen, eine echte Verfeinerung, die alle
+drei Zustände unterscheidet) senkt die Worst-Case-Kosten auf 1 — dieselbe
+Zahl wie bei vollständiger Zustandsbeobachtung (Modus D). Das ist eine
+Beobachtung für DIESES Beispiel, keine allgemeine Aussage, dass
+Vorzeichen-Information immer gleichwertig zu voller Zustandsbeobachtung
+ist.
 
 `minimal_uniform_intervention` berechnet die minimale gemeinsame
 Intervention in geschlossener Form (pro Pufferindex das Maximum der

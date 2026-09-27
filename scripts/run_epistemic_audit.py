@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Reproducible local CLI for the H0-H7 epistemic/assumption-evidence
-layer (`EPISTEMIC_AUDIT_ROADMAP.md`): reproduces the K1-K8 headline
-results by calling the actual `scoped_correspondence.epistemic` /
+layer (`EPISTEMIC_AUDIT_ROADMAP.md`): reproduces the K1-K6 and K8
+headline results (K7, randomized-regret reduction, is an optional
+deepening with no dedicated production module -- see H0's hand-trace)
+by calling the actual `scoped_correspondence.epistemic` /
 `validation.epistemic_buffer_pilot` production code directly (not the
 `verify_epistemic_*.py` test scripts) -- this is a demonstration/report
 CLI, not a substitute for the checked-in regression suite.
 
 Purely finite/analytic/synthetic examples throughout -- no real dataset,
-no network access, no file writes other than the optional `--out` JSON
-summary.
+no network access. Writes files only when explicitly asked: `--out` for
+the JSON summary, `--report-dir` for full JSON+Markdown exports of two
+adapter reports and one integrated buffer-pilot report (Followup-Review-
+Fix R8b, SCF_REVIEW_H0_H7_9dde420.md).
 
 Usage:
-    python scripts/run_epistemic_audit.py [--out epistemic_audit_summary.json]
+    python scripts/run_epistemic_audit.py [--out epistemic_audit_summary.json] [--report-dir out/]
 """
 from __future__ import annotations
 
@@ -29,7 +33,12 @@ if str(SRC) not in sys.path:
 
 import numpy as np  # noqa: E402
 
+from scoped_correspondence.correspondence.contract import CorrespondenceReport, Residual  # noqa: E402
 from scoped_correspondence.correspondence.controlled_markov import partition_indicator  # noqa: E402
+from scoped_correspondence.epistemic.adapters import (  # noqa: E402
+    claim_report_from_correspondence,
+    claim_reports_from_macro_observability,
+)
 from scoped_correspondence.epistemic.decisions import compare_decisions, uniform_safe_actions  # noqa: E402
 from scoped_correspondence.epistemic.finite import audit_finite_claim  # noqa: E402
 from scoped_correspondence.epistemic.observation_fibers import (  # noqa: E402
@@ -38,6 +47,7 @@ from scoped_correspondence.epistemic.observation_fibers import (  # noqa: E402
     observation_fiber,
 )
 from scoped_correspondence.epistemic.records import AssumptionSpec, ClaimSpec, FiniteDomainSpec  # noqa: E402
+from scoped_correspondence.epistemic.reporting import report_to_json, report_to_markdown  # noqa: E402
 from scoped_correspondence.epistemic.supports import find_minimal_inconsistent_core, find_minimal_support  # noqa: E402
 from scoped_correspondence.validation.epistemic_buffer_pilot import (  # noqa: E402
     K5_FIBER_STATES,
@@ -144,9 +154,41 @@ def run_k5_k6(results: dict) -> None:
     }
 
 
+def run_report_exports(report_dir: Path) -> None:
+    """Followup-Review-Fix R8b: export at least two complete adapter
+    reports and one integrated buffer-pilot report as BOTH JSON and
+    Markdown, via the shared `epistemic.reporting` module -- demonstrates
+    the export capability end to end rather than leaving it untested."""
+    report_dir.mkdir(parents=True, exist_ok=True)
+
+    corr_report = CorrespondenceReport(
+        ok=True, max_residual=1e-12, residuals=(Residual(value=1e-12, kind="conjugacy", at_state=0.0, at_time=1.0),),
+        evidence={"n_pairs": 1, "all_finite": True}, kind="conjugacy",
+    )
+    claim = claim_report_from_correspondence(corr_report, claim_id="cli_export_correspondence")
+
+    C, _classes = partition_indicator([0, 0, 1, 1])
+    macro_report = macro_dynamics_and_observability(P_by_action={"a": np.eye(4)}, C=C, omega={"a": "b"}, micro_event=[1])
+    dyn_claim, obs_claim = claim_reports_from_macro_observability(macro_report, dynamics_claim_id="cli_export_k8_dynamics", observability_claim_id="cli_export_k8_observability")
+
+    modes = evaluate_information_modes()
+    buffer_report = modes["B_sum_and_minimum"]
+
+    for name, report in [
+        ("adapter_correspondence", claim),
+        ("adapter_k8_dynamics", dyn_claim),
+        ("adapter_k8_observability", obs_claim),
+        ("buffer_pilot_sum_and_minimum", buffer_report),
+    ]:
+        (report_dir / f"{name}.json").write_text(report_to_json(report))
+        (report_dir / f"{name}.md").write_text(report_to_markdown(report, title=name))
+    print(f"Report exports written to {report_dir}", file=sys.stderr)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=None, help="Optional path to write the summary as JSON.")
+    parser.add_argument("--report-dir", type=Path, default=None, help="Optional directory to export full JSON+Markdown reports into.")
     args = parser.parse_args()
 
     results: dict = {}
@@ -158,6 +200,8 @@ def main() -> int:
     if args.out is not None:
         args.out.write_text(json.dumps(results, indent=2, default=str))
         print(f"\nWritten to {args.out}", file=sys.stderr)
+    if args.report_dir is not None:
+        run_report_exports(args.report_dir)
     return 0
 
 

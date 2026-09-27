@@ -21,7 +21,7 @@ special case of the existing formula, not a new one.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Sequence, Tuple
+from typing import Any, Callable, Dict, Sequence, Tuple
 
 from scoped_correspondence.errors import ScopeViolationError
 from scoped_correspondence.viability.coupled_buffer_cbf_qp import (
@@ -109,17 +109,54 @@ class InformationModeResult:
     worst_case_cost: float
 
 
+def _worst_case_uniform_cost_by_group(
+    states: Sequence[Tuple[float, float]], key_fn: Callable[[Tuple[float, float]], Any], horizon: float,
+) -> Tuple[Tuple[Tuple[Tuple[float, float], Tuple[float, ...]], ...], Tuple[bool, ...], float]:
+    """Partition `states` by `key_fn` (the additional observation beyond
+    the sum that already defines the fiber), then compute the minimal
+    UNIFORM intervention WITHIN each group (states sharing the same
+    observed key still need one shared action, since the key alone
+    doesn't distinguish them further) -- Plan §12's "sum+minimum" mode:
+    observing `min(x1,x2)` fully resolves the (1,1) group (cost 0) but
+    leaves {(0,2),(2,0)} indistinguishable at m=0, which STILL needs the
+    full uniform budget of 2 there."""
+    groups: Dict[Any, list] = {}
+    for s in states:
+        groups.setdefault(key_fn(s), []).append(s)
+    per_state = []
+    safe = []
+    worst = 0.0
+    for group_states in groups.values():
+        u_group = minimal_uniform_intervention(tuple(group_states))
+        worst = max(worst, sum(u_group))
+        for s in group_states:
+            buffers = buffer_pair_for_state(s)
+            ok, _ = sustained_safety_over_horizon(list(buffers), list(u_group), horizon)
+            per_state.append((s, u_group))
+            safe.append(ok)
+    return tuple(per_state), tuple(safe), worst
+
+
 def evaluate_information_modes(
     states: Sequence[Tuple[float, float]] = K5_FIBER_STATES, *, horizon: float = HORIZON,
 ) -> Dict[str, InformationModeResult]:
-    """The three information modes of `docs/epistemic_buffer_pilot.md`:
-    A) no observation, one shared intervention for the whole fiber;
-    B) observe sign(x1-x2) before intervening, choose accordingly;
-    C) observe the full state, statewise CBF-QP-optimal per state.
+    """Plan §12's three information modes (Followup-Review-Fix
+    SCF_REVIEW_H0_H7_9dde420.md R8a -- the plan asks for sum / sum+minimum
+    / sum+sign, not sum / sign / full-state):
 
-    A only needs `minimal_uniform_intervention`; B and C are cross-
-    checked against `sustained_safety_over_horizon` state by state, the
-    same existing function used throughout `viability.coupled_buffer_cbf_qp`.
+    A) sum only (already being on this fiber) -- one shared intervention
+       for the whole fiber, no further observation;
+    B) sum + minimum: observing `min(x1,x2)` before intervening fully
+       resolves the (1,1) state (cost 0), but at `min=0` the two states
+       {(0,2),(2,0)} remain indistinguishable -- a jointly safe
+       intervention there STILL needs the full uniform budget of 2, so
+       this mode's WORST CASE does not improve on mode A;
+    C) sum + sign(x1-x2): a strictly finer observation that resolves all
+       three states, dropping the worst case to 1.
+
+    D) is an OPTIONAL extra comparison (full state observed, statewise
+       CBF-QP-optimal per state) -- kept because it demonstrates the
+       reachable optimum, not because the plan requires it.
     """
     results: Dict[str, InformationModeResult] = {}
 
@@ -130,39 +167,49 @@ def evaluate_information_modes(
         ok, _ = sustained_safety_over_horizon(list(buffers), list(u_uniform), horizon)
         per_state_a.append((s, u_uniform))
         safe_a.append(ok)
-    results["A_no_observation_uniform"] = InformationModeResult(
-        mode="A_no_observation_uniform",
-        description="one shared u for the whole fiber, no observation before intervening",
+    results["A_sum_only"] = InformationModeResult(
+        mode="A_sum_only",
+        description="one shared u for the whole (sum-defined) fiber, no further observation before intervening",
         per_state_u=tuple(per_state_a), per_state_sustained_safe=tuple(safe_a),
         worst_case_cost=sum(u_uniform),
     )
 
-    per_state_b, safe_b, costs_b = [], [], []
-    for s in states:
-        u = sign_based_policy(s)
-        buffers = buffer_pair_for_state(s)
-        ok, _ = sustained_safety_over_horizon(list(buffers), list(u), horizon)
-        per_state_b.append((s, u))
-        safe_b.append(ok)
-        costs_b.append(sum(u))
-    results["B_sign_of_difference"] = InformationModeResult(
-        mode="B_sign_of_difference",
-        description="observe sign(x1-x2) before intervening, choose a state-dependent u accordingly",
-        per_state_u=tuple(per_state_b), per_state_sustained_safe=tuple(safe_b),
-        worst_case_cost=max(costs_b),
+    per_state_b, safe_b, worst_b = _worst_case_uniform_cost_by_group(states, lambda s: min(s[0], s[1]), horizon)
+    results["B_sum_and_minimum"] = InformationModeResult(
+        mode="B_sum_and_minimum",
+        description="observe min(x1,x2) before intervening; resolves (1,1) but NOT {(0,2),(2,0)} at min=0, "
+                     "which still needs a full budget-2 uniform intervention within that group",
+        per_state_u=per_state_b, per_state_sustained_safe=safe_b,
+        worst_case_cost=worst_b,
     )
 
     per_state_c, safe_c, costs_c = [], [], []
     for s in states:
-        outcome = statewise_minimal_intervention(s, budget=2.0, horizon=horizon)
-        per_state_c.append((s, outcome.u))
-        safe_c.append(bool(outcome.sustained_safe_until_horizon))
-        costs_c.append(sum(outcome.u))
-    results["C_full_state_statewise"] = InformationModeResult(
-        mode="C_full_state_statewise",
-        description="full state x observed, statewise CBF-QP-optimal u per state",
+        u = sign_based_policy(s)
+        buffers = buffer_pair_for_state(s)
+        ok, _ = sustained_safety_over_horizon(list(buffers), list(u), horizon)
+        per_state_c.append((s, u))
+        safe_c.append(ok)
+        costs_c.append(sum(u))
+    results["C_sum_and_sign"] = InformationModeResult(
+        mode="C_sum_and_sign",
+        description="observe sign(x1-x2) before intervening, choose a state-dependent u accordingly",
         per_state_u=tuple(per_state_c), per_state_sustained_safe=tuple(safe_c),
         worst_case_cost=max(costs_c),
+    )
+
+    per_state_d, safe_d, costs_d = [], [], []
+    for s in states:
+        outcome = statewise_minimal_intervention(s, budget=2.0, horizon=horizon)
+        per_state_d.append((s, outcome.u))
+        safe_d.append(bool(outcome.sustained_safe_until_horizon))
+        costs_d.append(sum(outcome.u))
+    results["D_full_state_statewise_optional_extra"] = InformationModeResult(
+        mode="D_full_state_statewise_optional_extra",
+        description="OPTIONAL extra comparison (not required by the plan): full state x observed, "
+                     "statewise CBF-QP-optimal u per state",
+        per_state_u=tuple(per_state_d), per_state_sustained_safe=tuple(safe_d),
+        worst_case_cost=max(costs_d),
     )
     return results
 

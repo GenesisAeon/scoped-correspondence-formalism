@@ -82,8 +82,10 @@ Optimierer) — exakte Übereinstimmung mit allen im Plan genannten Werten:
 | K8 | `PC=CQ` exakt bei `P=I4`, Partition `{{0,1},{2,3}}`; `E={1}` keine Vereinigung von Makroklassen | bestätigt |
 
 Alle 10 Prüfpunkte bestätigt. Das schafft Vertrauen in die Formeln, bevor
-sie in H1–H5 als Code implementiert werden — es ist noch keine
-Implementierung.
+sie in H1–H5 als Code implementiert werden — **historischer Stand zum
+Zeitpunkt dieses H0-Abschnitts:** zu diesem Zeitpunkt war noch keine
+Implementierung vorhanden; H1–H7 sind inzwischen abgeschlossen (siehe
+die jeweiligen Abschnitte unten und die Abschlussbilanz).
 
 ### Quellen (`docs/epistemic_sources.md`)
 
@@ -377,21 +379,23 @@ relative Links.
 
 `scripts/run_epistemic_audit.py` ist eine kleine, direkt lauffähige CLI
 (analog zur Rolle von `scripts/run_real_galaxy_pilot.py` für die
-Galaxienarbeit), die die K1-K8-Kernergebnisse über H1-H6 hinweg durch
-DIREKTEN Aufruf der Produktionsfunktionen (nicht der `verify_*.py`-
-Testskripte) reproduziert und als JSON ausgibt (optional in eine Datei
-via `--out`). Rein endlich/analytisch/synthetisch, kein echter Datensatz,
-kein Netzwerkzugriff. Ein Testlauf bestätigte alle K1-K8-Werte exakt
-gegen die in H0 unabhängig hergeleiteten Referenzwerte.
+Galaxienarbeit), die die K1-K6- und K8-Kernergebnisse über H1-H6 hinweg
+(K7 bleibt wie geplant eine optionale, von Hand nachgerechnete
+Vertiefung ohne eigenes Produktionsmodul) durch DIREKTEN Aufruf der
+Produktionsfunktionen (nicht der `verify_*.py`-Testskripte) reproduziert
+und als JSON ausgibt (optional in eine Datei via `--out`; volle
+JSON+Markdown-Berichtsexporte via `--report-dir`, siehe Followup-Review-
+Fix R8b unten). Rein endlich/analytisch/synthetisch, kein echter
+Datensatz, kein Netzwerkzugriff. Ein Testlauf bestätigte alle K1-K6-/
+K8-Werte exakt gegen die in H0 unabhängig hergeleiteten Referenzwerte.
 
-Alle sechs `verify_epistemic_*.py`-Skripte wurden zusätzlich EXPLIZIT in
+Alle sieben `verify_epistemic_*.py`-Skripte wurden zusätzlich EXPLIZIT in
 `scripts/run_verification_suite.py`s `_EXPLICIT_CATEGORY` als `"math"`
 registriert (dem bestehenden Repository-Vorbild aus der G-Serie folgend:
 explizite Registrierung, auch wo die Text-Heuristik bereits richtig
 läge) — sie waren zwar bereits automatisch per Glob-Discovery in jeder
-`--category all`-Regression enthalten (die Zählung stieg mit jedem
-Hx-Paket korrekt von 99 auf 105), aber ohne explizite Registrierung wäre
-`--category math` allein von der Text-Heuristik abhängig gewesen.
+`--category all`-Regression enthalten, aber ohne explizite Registrierung
+wäre `--category math` allein von der Text-Heuristik abhängig gewesen.
 
 ### Abschlussbilanz H0–H7
 
@@ -404,8 +408,8 @@ Hx-Paket korrekt von 99 auf 105), aber ohne explizite Registrierung wäre
 | H4 | `epistemic/decisions.py` | K5 (endlich), K6 |
 | H5 | `docs/epistemic_buffer_pilot.md`, `validation/epistemic_buffer_pilot.py` | K5 (kontinuierlich, drei Informationsmodi) |
 | H6a | `epistemic/adapters.py` | K8 (Dynamikteil, als getrennte `numerical_sample`-Evidenz) |
-| H6b | (kein neuer Produktionscode, `verify_epistemic_adapters.py` erweitert) | Zwei-Radien-Kreuzfamilien-Entartung (Burkert/NFW) |
-| H7 | `scripts/run_epistemic_audit.py`, `_EXPLICIT_CATEGORY`-Eintrag | Alle K1–K8 als reproduzierbarer CLI-Durchlauf |
+| H6b | (kein neuer Produktionscode, `verify_epistemic_adapters.py` erweitert) — **Reichweite:** ein synthetisches numerisches Entartungsbeispiel; setzt die Familienmenge nach dem Fit direkt im Test, ist noch kein durchgehender epistemischer Adapterbericht über eine eigene `identify_family`-artige API | Zwei-Radien-Kreuzfamilien-Entartung (Burkert/NFW) |
+| H7 | `scripts/run_epistemic_audit.py`, `epistemic/reporting.py`, `_EXPLICIT_CATEGORY`-Einträge | K1–K6 und K8 als reproduzierbarer CLI-Durchlauf plus JSON/Markdown-Berichtsexport |
 
 K7 (Randomisierung reduziert Regret) blieb wie im Plan vorgesehen eine
 optionale, von Hand nachgerechnete Referenz (siehe H0-Tabelle) ohne
@@ -427,8 +431,34 @@ unterbestimmte und widersprüchliche Ergebnisse sind erwartete, im
 jeweiligen `verify_*.py` gezielt herbeigeführte wissenschaftliche
 Ergebnisse, keine Fehler.
 
-**Finale Zahlen:** 6 neue `verify_epistemic_*.py`-Skripte, 40 einzelne
-Checks (9+7+6+8+6+5) davon 40/40 grün; volle lokale Regression
-105/105 `verify_*.py`-Skripte grün; Linkprüfung 0 kaputte relative
-Links; 8 Pakete (H0–H6b, H7) committet und gepusht, alle mit vorheriger
-Hand-Nachrechnung und vollständiger Regression je Paket.
+**Finale Zahlen (nach dem Followup-Review-Fix unten):** 7 neue
+`verify_epistemic_*.py`-Skripte, 57 einzelne Checks
+(13+10+7+10+6+8+3) davon 57/57 grün; volle lokale Regression grün;
+Linkprüfung 0 kaputte relative Links; 9 Pakete (H0–H6b, H7, Followup-
+Review-Fix) committet und gepusht, alle mit vorheriger Hand-Nachrechnung
+bzw. unabhängiger Reproduktion und vollständiger Regression je Paket.
+
+## Followup-Review-Fix (SCF_REVIEW_H0_H7_9dde420.md)
+
+Externer Review des geprüften Commits `9dde420`. Alle acht Befunde
+(R1–R8) wurden vor der Reparatur unabhängig gegen den tatsächlichen Code
+nachvollzogen (nicht nur aus dem Reviewtext übernommen) — jede der
+konkreten Gegenbeispiele des Reviews reproduzierte exakt das behauptete
+fehlerhafte Verhalten.
+
+| ID | Priorität | Befund | Fix |
+|---|---|---|---|
+| R1 | P1 | Unvollständige letzte Löschprüfung bestätigte trotzdem Minimalität | `DeletionStep.kept` ist jetzt tri-state (`True`/`False`/`None`=unbekannt); ein `None`-Schritt setzt `minimality_verified=False`, das Ergebnis bleibt aber als PROVISORISCH nutzbar |
+| R2 | P1 | `None` als Kandidat kollidierte mit dem "kein Zeuge"-Sentinel | `ClaimReport` trägt jetzt `has_positive_witness`/`has_negative_witness` als von der Zeugenwert-Identität unabhängige Felder |
+| R3 | P1 (+P2 numerisch) | Ungültige Prädikatwerte (`None`, `NaN`, Strings) wurden zu Wahrheit/Ausschluss/Sicherheit | `records.evaluate_bool` erzwingt striktes `isinstance(x, bool)` für Annahmen, Antezedens UND Sicherheitsprädikate; Regret-Overflow (Float-`inf`) wird jetzt als Fehler erkannt statt als falscher Gleichstand |
+| R4 | P1 (+P2 Quantor) | Adapter erklärten Rechenfehler zu Widerlegungen; leere Evidenz wurde bestätigt | nichtendliches Residuum → `incomplete` statt `negation_entailed_in_scope`; leere Aktionsmenge wird jetzt abgelehnt (`ScopeViolationError`); jede Negation einer Aggregatsaussage trägt eine explizite Quantor-Klarstellung (`¬∀w C(w) ≠ ∀w ¬C(w)`) |
+| R5 | P2 | Suchvollständigkeit und Zielraumabdeckung gingen verloren | `all_candidates_scanned` (getrennt von `search_complete`) und `domain_coverage` sind jetzt eigene Felder, durchgereicht von `ClaimReport` über `FiberReport`/`IdentifiedSetReport`/`ActionSetReport` bis zu `SupportReport`/`InconsistentCoreReport` |
+| R6 | P2 | Doppelte Annahmen-IDs verfälschten die Löschsuche | `find_minimal_support`/`find_minimal_inconsistent_core` validieren Eindeutigkeit über `assumptions`+`background` vor der Suche, werfen sonst `ScopeViolationError` |
+| R7 | P2 | Budgetvertrag vermischte Kandidaten- und Prädikatbudget; Nullbudget wurde teilweise übergangen | `audit_finite_claim` erhält ein separates `evaluation_budget` (Gesamtzahl Prädikataufrufe, geteilt über Haupt- und Antezedensdurchlauf via neuem `ClaimReport.n_predicate_evaluations`); `subset_budget=0` blockiert jetzt auch die Ausgangsprüfung |
+| R8 | P2 | Fehlender Zwischenmodus im Pufferpilot; unvollständiger Berichtsexport; Redaktion | `evaluate_information_modes` hat jetzt den geforderten Summe+Minimum-Zwischenfall (Worst-Case bleibt bei 2, verbessert sich NICHT — echtes Ergebnis, keine Falschmeldung); neues `epistemic/reporting.py` (`report_to_json`/`report_to_markdown`) exportiert jeden Berichtstyp inkl. exakter `Fraction`-Werte; Roadmap-Redaktion (Zahlen, CLI-Reichweite, H6b-Reichweite, H0 als historischer Abschnitt markiert) |
+
+Jeder Fix wurde mit einem gezielten Regressionstest abgesichert (in den
+jeweiligen `verify_epistemic_*.py`), der das Reviews-Gegenbeispiel direkt
+nachstellt — nicht nur der allgemeine Suitenlauf. Alle vorher grünen
+Tests blieben grün; kein bereits bestätigtes K1–K8-Ergebnis hat sich
+geändert.

@@ -1,6 +1,6 @@
 {
-  "n_passed": 6,
-  "n_total": 6,
+  "n_passed": 7,
+  "n_total": 7,
   "results": {
     "k4_fiber_and_boolean_nonidentification": {
       "fiber": [
@@ -56,6 +56,10 @@
     "fiber_budget_abort_not_silently_complete": {
       "fiber_search_complete": false,
       "report_search_complete": false
+    },
+    "r5_domain_coverage_propagates_through_fiber_and_identification": {
+      "fiber_partial_coverage": "partial",
+      "identified_partial_coverage": "partial"
     }
   }
 }

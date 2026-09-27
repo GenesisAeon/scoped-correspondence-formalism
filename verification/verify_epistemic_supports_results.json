@@ -1,6 +1,6 @@
 {
-  "n_passed": 7,
-  "n_total": 7,
+  "n_passed": 10,
+  "n_total": 10,
   "results": {
     "k1_two_minimal_supports": {
       "order_a_support": [
@@ -66,6 +66,20 @@
       "support_ids": [
         "A4_p_implies_r"
       ]
+    },
+    "r1_incomplete_removal_never_falsely_certifies_minimality": {
+      "support_minimality_verified": false,
+      "core_minimality_verified": false
+    },
+    "r6_duplicate_assumption_ids_rejected": {
+      "rejections_raised": true,
+      "unique_case_support_ids": [
+        "unique_a"
+      ]
+    },
+    "r7_subset_budget_zero_blocks_base_check": {
+      "n_subsets_tried": 0,
+      "search_complete": false
     }
   }
 }

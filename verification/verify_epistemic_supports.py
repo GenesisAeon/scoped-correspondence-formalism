@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from scoped_correspondence.epistemic.records import AssumptionSpec, ClaimSpec, FiniteDomainSpec
 from scoped_correspondence.epistemic.supports import find_minimal_inconsistent_core, find_minimal_support
+from scoped_correspondence.errors import ScopeViolationError
 
 
 def require(condition, msg=""):
@@ -221,6 +222,74 @@ def check_background_assumptions_never_removed_or_hidden():
     return {"background_ids": r.background_ids, "support_ids": r.support_ids}
 
 
+def check_r1_incomplete_removal_never_falsely_certifies_minimality():
+    """Followup-Review-Fix R1 (SCF_REVIEW_H0_H7_9dde420.md): if a
+    removal's re-check comes back `incomplete` (not a definite entailed/
+    unsatisfiable verdict), that step's `kept` is `None` (unknown), NOT
+    `True` (falsely 'confirmed necessary') -- and the whole result is
+    flagged `minimality_verified=False`, never silently presented as a
+    fully certified minimal support/core.
+
+    Review's exact counterexamples: support W={0,1}, one everywhere-true
+    assumption A, everywhere-true target C, candidate_budget=3 (the base
+    check consumes 2, leaving only 1 for the removal re-check of A,
+    which is then `incomplete`); core W={0,1}, A1 everywhere-false, A2
+    everywhere-true, candidate_budget=5."""
+    domain = FiniteDomainSpec(id="r1_w2", candidates=(0, 1), scope_text="{0,1}")
+    A = _assump("A", lambda w: True)
+    C = ClaimSpec(id="C_true", text="True", target=lambda w: True)
+    r = find_minimal_support(domain, [A], C, candidate_budget=3)
+    require(not r.minimality_verified, "an incomplete removal re-check must NOT be reported as verified-minimal")
+    require(len(r.steps) == 1 and r.steps[0].kept is None, f"the inconclusive step's kept must be None, got {r.steps[0].kept if r.steps else 'no steps'}")
+    require(r.steps[0].trial_report.logical_status == "incomplete", "the re-check itself must genuinely be incomplete")
+
+    A1 = _assump("A1_false", lambda w: False)
+    A2 = _assump("A2_true", lambda w: True)
+    r_core = find_minimal_inconsistent_core(domain, [A1, A2], candidate_budget=5)
+    require(not r_core.minimality_verified, "an incomplete core removal re-check must NOT be reported as verified-minimal")
+    require(any(s.kept is None for s in r_core.steps), "at least one core-search step must be the unknown outcome")
+    return {"support_minimality_verified": r.minimality_verified, "core_minimality_verified": r_core.minimality_verified}
+
+
+def check_r6_duplicate_assumption_ids_rejected():
+    """Followup-Review-Fix R6: two DIFFERENT predicates sharing the same
+    id must be rejected up front, both within `assumptions` and across
+    `assumptions`/`background` -- deletion-by-id would otherwise silently
+    remove/keep several distinct predicates at once."""
+    domain = FiniteDomainSpec(id="r6_w2", candidates=(0, 1), scope_text="{0,1}")
+    dup1 = _assump("same", lambda w: w == 0)
+    dup2 = _assump("same", lambda w: True)
+    claim = ClaimSpec(id="c_r6", text="w==0", target=lambda w: w == 0)
+    try:
+        find_minimal_support(domain, [dup1, dup2], claim)
+        raise AssertionError("duplicate ids within `assumptions` must raise")
+    except ScopeViolationError:
+        pass
+    try:
+        find_minimal_support(domain, [dup1], claim, background=[dup2])
+        raise AssertionError("a duplicate id shared between `assumptions` and `background` must also raise")
+    except ScopeViolationError:
+        pass
+    # A genuinely unique-id case must remain unaffected.
+    unique_a = _assump("unique_a", lambda w: w == 0)
+    r = find_minimal_support(domain, [unique_a], claim)
+    require(r.support_ids == ("unique_a",), "a valid unique-id case must be unaffected by the new validation")
+    return {"rejections_raised": True, "unique_case_support_ids": r.support_ids}
+
+
+def check_r7_subset_budget_zero_blocks_base_check():
+    """Followup-Review-Fix R7: `subset_budget=0` must block even the
+    INITIAL base satisfiability/entailment check, not just the deletion
+    loop -- previously an empty assumption list still got a 'complete'
+    empty support back despite subset_budget=0."""
+    domain = FiniteDomainSpec(id="r7_w2", candidates=(0, 1), scope_text="{0,1}")
+    claim_true = ClaimSpec(id="c_r7", text="True", target=lambda w: True)
+    r = find_minimal_support(domain, [], claim_true, subset_budget=0)
+    require(r.n_subsets_tried == 0, f"subset_budget=0 must prevent even the base check from running, got n_subsets_tried={r.n_subsets_tried}")
+    require(not r.search_complete and r.support_ids is None, "subset_budget=0 must abort, not return a 'complete' empty support")
+    return {"n_subsets_tried": r.n_subsets_tried, "search_complete": r.search_complete}
+
+
 CHECKS = [
     check_k1_two_minimal_supports,
     check_k1_two_minimal_cores,
@@ -229,6 +298,9 @@ CHECKS = [
     check_contradictory_starting_set_refused,
     check_budget_abort_no_false_minimality,
     check_background_assumptions_never_removed_or_hidden,
+    check_r1_incomplete_removal_never_falsely_certifies_minimality,
+    check_r6_duplicate_assumption_ids_rejected,
+    check_r7_subset_budget_zero_blocks_base_check,
 ]
 
 

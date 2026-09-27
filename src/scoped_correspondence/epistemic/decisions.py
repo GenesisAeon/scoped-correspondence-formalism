@@ -32,6 +32,7 @@ from typing import Any, Callable, Dict, Hashable, Mapping, Optional, Sequence, T
 from scoped_correspondence.errors import ScopeViolationError
 
 from .observation_fibers import FiberReport
+from .records import PredicateEvaluationError, evaluate_bool
 
 Number = Union[int, float, Fraction]
 
@@ -56,6 +57,7 @@ class ActionSetReport:
     statewise_feasible: bool
     uniformly_feasible: bool
     uniform_safe_actions: Tuple[Any, ...]
+    domain_coverage: str = "complete"
     notes: Tuple[str, ...] = field(default_factory=tuple)
 
 
@@ -69,20 +71,34 @@ def uniform_safe_actions(
         return ActionSetReport(
             fiber_size=fiber.n_fiber, actions_considered=tuple(actions), per_state_safe_actions=(),
             statewise_feasible=False, uniformly_feasible=False, uniform_safe_actions=(),
+            domain_coverage=fiber.domain_coverage,
             notes=("the fiber was built from an incomplete scan -- no feasibility claim can be made",),
         )
     if fiber.empty_fiber:
         return ActionSetReport(
             fiber_size=0, actions_considered=tuple(actions), per_state_safe_actions=(),
             statewise_feasible=False, uniformly_feasible=False, uniform_safe_actions=(),
+            domain_coverage=fiber.domain_coverage,
             notes=("empty fiber -- observation/model mismatch, feasibility is undefined, not vacuously true",),
         )
 
     per_state = []
     intersection = set(actions)
     statewise_ok = True
+    n_safety_errors = 0
     for w in fiber.fiber:
-        safe_here = tuple(u for u in actions if safety(w, u))
+        safe_here_list = []
+        for u in actions:
+            try:
+                if evaluate_bool(safety, w, u):
+                    safe_here_list.append(u)
+            except PredicateEvaluationError:
+                n_safety_errors += 1
+                # An error is NEVER treated as "safe" -- it is excluded,
+                # same as False, but counted separately so it is visible
+                # rather than silently indistinguishable from a genuine
+                # negative (SCF_REVIEW_H0_H7_9dde420.md R3).
+        safe_here = tuple(safe_here_list)
         per_state.append((w, safe_here))
         if len(safe_here) == 0:
             statewise_ok = False
@@ -99,11 +115,17 @@ def uniform_safe_actions(
         )
     elif not statewise_ok:
         notes = ("at least one state in the fiber has NO safe action at all -- statewise infeasible",)
+    if n_safety_errors > 0:
+        notes = notes + (
+            f"safety predicate returned a non-bool value or raised for {n_safety_errors} (state, action) "
+            "pair(s) -- treated as NOT safe, never as safe, but this is an evaluation error, not a "
+            "confirmed negative",
+        )
 
     return ActionSetReport(
         fiber_size=fiber.n_fiber, actions_considered=tuple(actions), per_state_safe_actions=tuple(per_state),
         statewise_feasible=statewise_ok, uniformly_feasible=uniformly_ok, uniform_safe_actions=uniform_actions,
-        notes=notes,
+        domain_coverage=fiber.domain_coverage, notes=notes,
     )
 
 
@@ -162,6 +184,21 @@ def compare_decisions(
             raise ScopeViolationError(f"probabilities must sum to 1, got {total!r}")
         for a in actions:
             scores[a] = sum(probabilities[w] * loss_matrix[a][w] for w in states)
+
+    for a in actions:
+        # Every INPUT loss was already checked finite above, but the
+        # DERIVED score (a max/regret/expected-value combination) can
+        # still overflow to +-inf in float arithmetic even from finite
+        # inputs (e.g. subtracting two ~1e308 losses of opposite sign) --
+        # that overflow must be a clear error, never a computed "tie"
+        # between actions that were never actually equal
+        # (SCF_REVIEW_H0_H7_9dde420.md R3 numeric addendum).
+        if isinstance(scores[a], float) and not math.isfinite(scores[a]):
+            raise ScopeViolationError(
+                f"computed {criterion} score for action {a!r} is non-finite ({scores[a]!r}) -- likely float "
+                "overflow from the loss magnitudes involved, not a genuine result; use smaller/scaled losses "
+                "or exact (int/Fraction) arithmetic"
+            )
 
     best_score = min(scores.values())
     chosen = tuple(a for a in actions if scores[a] == best_score)

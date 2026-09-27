@@ -1,0 +1,22 @@
+{
+  "n_passed": 3,
+  "n_total": 3,
+  "results": {
+    "correspondence_adapter_report_exports_json_and_markdown": {
+      "json_len": 849,
+      "markdown_has_all_axes": true
+    },
+    "macro_observability_adapter_reports_export_two_separate_evidence_kinds": {
+      "dynamics_evidence_kind": "numerical_sample",
+      "observability_evidence_kind": "exhaustive_finite"
+    },
+    "buffer_pilot_report_exports_and_exact_fraction_preserved": {
+      "mode_b_worst_case_cost": 2.0,
+      "fraction_serialization": {
+        "__fraction__": true,
+        "numerator": 3,
+        "denominator": 7
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "n_passed": 5,
-  "n_total": 5,
+  "n_passed": 8,
+  "n_total": 8,
   "results": {
     "correspondence_report_ok_wraps_as_entailed_numerical_sample": {
       "logical_status": "entailed_in_scope",
@@ -40,6 +40,17 @@
         "r=12000.0": 0.312636461753786,
         "r=30000.0": 0.8576817558007251
       }
+    },
+    "r4a_nonfinite_residual_is_incomplete_not_confident_negation": {
+      "logical_status": "incomplete",
+      "n_errors": 1
+    },
+    "r4a_empty_action_set_is_rejected_not_vacuous_entailment": {
+      "rejected": true
+    },
+    "r4b_mixed_pass_fail_note_clarifies_aggregate_quantifier": {
+      "logical_status": "negation_entailed_in_scope",
+      "has_aggregate_note": true
     }
   }
 }

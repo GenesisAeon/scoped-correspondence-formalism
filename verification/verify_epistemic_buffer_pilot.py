@@ -119,29 +119,44 @@ def check_sign_based_policy_matches_statewise_and_uniform_costs():
     return {"per_state_u": {str(k): v for k, v in expected_u.items()}}
 
 
-def check_three_information_modes_table():
-    """A (no observation) needs worst-case cost 2; B (sign only) and C
-    (full state) both need worst-case cost 1 -- coarse sign information
-    already matches full-state observation's worst case in this example,
-    while genuinely beating no observation at all."""
+def check_four_information_modes_table():
+    """Followup-Review-Fix R8a (SCF_REVIEW_H0_H7_9dde420.md): the plan's
+    THREE required modes are sum-only, sum+minimum, sum+sign -- not
+    sum-only/sign/full-state. Sum-only (A) needs worst-case cost 2;
+    sum+minimum (B) does NOT improve on that worst case (the {(0,2),(2,0)}
+    group at min=0 still needs a uniform budget of 2); sum+sign (C) drops
+    the worst case to 1. D (full state) is kept only as an optional extra
+    comparison, per the review's explicit allowance."""
     modes = evaluate_information_modes()
-    require(set(modes.keys()) == {"A_no_observation_uniform", "B_sign_of_difference", "C_full_state_statewise"})
+    require(
+        set(modes.keys()) == {"A_sum_only", "B_sum_and_minimum", "C_sum_and_sign", "D_full_state_statewise_optional_extra"},
+        f"unexpected mode keys: {sorted(modes.keys())}",
+    )
 
-    mode_a = modes["A_no_observation_uniform"]
+    mode_a = modes["A_sum_only"]
     require(abs(mode_a.worst_case_cost - 2.0) < 1e-9, f"mode A worst-case cost must be 2, got {mode_a.worst_case_cost}")
     require(all(mode_a.per_state_sustained_safe), "mode A must be sustained-safe at every fiber state")
 
-    mode_b = modes["B_sign_of_difference"]
-    require(abs(mode_b.worst_case_cost - 1.0) < 1e-9, f"mode B worst-case cost must be 1, got {mode_b.worst_case_cost}")
+    mode_b = modes["B_sum_and_minimum"]
+    require(abs(mode_b.worst_case_cost - 2.0) < 1e-9, f"mode B (sum+minimum) must NOT improve the worst case -- still 2, got {mode_b.worst_case_cost}")
     require(all(mode_b.per_state_sustained_safe), "mode B must be sustained-safe at every fiber state")
+    per_state_b = dict(mode_b.per_state_u)
+    require(tuple(per_state_b[(1.0, 1.0)]) == (0.0, 0.0), f"the min=1 group (1,1) must resolve to the zero-cost action, got {per_state_b[(1.0, 1.0)]}")
+    require(sum(per_state_b[(0.0, 2.0)]) == 2.0 and per_state_b[(0.0, 2.0)] == per_state_b[(2.0, 0.0)],
+            "the min=0 group {(0,2),(2,0)} must share ONE uniform budget-2 action, not be resolved individually")
 
-    mode_c = modes["C_full_state_statewise"]
-    require(abs(mode_c.worst_case_cost - 1.0) < 1e-9, f"mode C worst-case cost must be 1, got {mode_c.worst_case_cost}")
+    mode_c = modes["C_sum_and_sign"]
+    require(abs(mode_c.worst_case_cost - 1.0) < 1e-9, f"mode C (sum+sign) worst-case cost must be 1, got {mode_c.worst_case_cost}")
     require(all(mode_c.per_state_sustained_safe), "mode C must be sustained-safe at every fiber state")
 
-    require(mode_a.worst_case_cost > mode_b.worst_case_cost, "no-observation uniform must be strictly worse than sign-based")
-    require(abs(mode_b.worst_case_cost - mode_c.worst_case_cost) < 1e-9, "sign-based and full-state must tie in THIS example")
-    return {"A": mode_a.worst_case_cost, "B": mode_b.worst_case_cost, "C": mode_c.worst_case_cost}
+    mode_d = modes["D_full_state_statewise_optional_extra"]
+    require(abs(mode_d.worst_case_cost - 1.0) < 1e-9, f"mode D (optional, full state) worst-case cost must be 1, got {mode_d.worst_case_cost}")
+    require(all(mode_d.per_state_sustained_safe), "mode D must be sustained-safe at every fiber state")
+
+    require(mode_a.worst_case_cost > mode_c.worst_case_cost, "sum-only must be strictly worse than sum+sign")
+    require(abs(mode_a.worst_case_cost - mode_b.worst_case_cost) < 1e-9, "sum+minimum must tie with sum-only's worst case in THIS example (it does not help)")
+    require(abs(mode_c.worst_case_cost - mode_d.worst_case_cost) < 1e-9, "sum+sign and full-state must tie in THIS example")
+    return {"A": mode_a.worst_case_cost, "B": mode_b.worst_case_cost, "C": mode_c.worst_case_cost, "D": mode_d.worst_case_cost}
 
 
 def check_reused_functions_are_the_existing_unmodified_ones():
@@ -167,7 +182,7 @@ CHECKS = [
     check_uniform_budget1_impossible_budget2_possible,
     check_minimal_uniform_intervention_infeasible_beyond_box,
     check_sign_based_policy_matches_statewise_and_uniform_costs,
-    check_three_information_modes_table,
+    check_four_information_modes_table,
     check_reused_functions_are_the_existing_unmodified_ones,
 ]
 

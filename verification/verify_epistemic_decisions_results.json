@@ -1,6 +1,6 @@
 {
-  "n_passed": 8,
-  "n_total": 8,
+  "n_passed": 10,
+  "n_total": 10,
   "results": {
     "k5_statewise_feasible_but_not_uniform_at_budget1": {
       "statewise_feasible": true,
@@ -52,6 +52,16 @@
     "no_uniform_feasible_action_result_is_explicit": {
       "fiber_size": 3,
       "uniform_safe_actions": []
+    },
+    "r3_nan_safety_predicate_never_falsely_safe": {
+      "uniformly_feasible": false,
+      "notes": [
+        "at least one state in the fiber has NO safe action at all -- statewise infeasible",
+        "safety predicate returned a non-bool value or raised for 3 (state, action) pair(s) -- treated as NOT safe, never as safe, but this is an evaluation error, not a confirmed negative"
+      ]
+    },
+    "r3_regret_overflow_raises_not_false_tie": {
+      "raised": true
     }
   }
 }

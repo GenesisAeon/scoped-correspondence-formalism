@@ -186,6 +186,23 @@ def check_fiber_budget_abort_not_silently_complete():
     return {"fiber_search_complete": fiber.search_complete, "report_search_complete": report.search_complete}
 
 
+def check_r5_domain_coverage_propagates_through_fiber_and_identification():
+    """Followup-Review-Fix R5 (SCF_REVIEW_H0_H7_9dde420.md): a domain
+    declared `coverage="partial"` must have that value carried all the
+    way through FiberReport and IdentifiedSetReport -- not silently
+    dropped/identical to a `"complete"` domain."""
+    d_partial = FiniteDomainSpec(id="partial_sample", candidates=(0, 1, 2), scope_text="a partial sample", coverage="partial")
+    d_complete = FiniteDomainSpec(id="complete_sample", candidates=(0, 1, 2), scope_text="the whole space", coverage="complete")
+    fiber_p = observation_fiber(d_partial, [], lambda w: w, 1)
+    fiber_c = observation_fiber(d_complete, [], lambda w: w, 1)
+    require(fiber_p.domain_coverage == "partial", f"FiberReport must carry coverage='partial' through, got {fiber_p.domain_coverage}")
+    require(fiber_c.domain_coverage == "complete", f"FiberReport must carry coverage='complete' through, got {fiber_c.domain_coverage}")
+
+    id_p = identified_values(fiber_p, lambda w: w * 2)
+    require(id_p.domain_coverage == "partial", f"IdentifiedSetReport must carry coverage through from its fiber, got {id_p.domain_coverage}")
+    return {"fiber_partial_coverage": fiber_p.domain_coverage, "identified_partial_coverage": id_p.domain_coverage}
+
+
 CHECKS = [
     check_k4_fiber_and_boolean_nonidentification,
     check_k4_disconnected_value_set_not_collapsed_to_interval,
@@ -193,6 +210,7 @@ CHECKS = [
     check_empty_fiber_is_flagged_not_perfect_identification,
     check_k8_exact_dynamics_but_event_not_observable,
     check_fiber_budget_abort_not_silently_complete,
+    check_r5_domain_coverage_propagates_through_fiber_and_identification,
 ]
 
 

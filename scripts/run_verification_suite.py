@@ -115,6 +115,7 @@ _EXPLICIT_CATEGORY = {
     "verify_epistemic_decisions.py": "math",
     "verify_epistemic_buffer_pilot.py": "math",
     "verify_epistemic_adapters.py": "math",
+    "verify_epistemic_reporting.py": "math",
 }
 
 
