@@ -1,0 +1,128 @@
+# SCF — Adaptive modulare Netzwerke und beobachtbare Information — Roadmap (2026-10-01)
+
+Antwort auf [`SCF_ORGANOID_NETWORK_IMPLEMENTATION_PLAN.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_ORGANOID_NETWORK_IMPLEMENTATION_PLAN.md)
+(01.10.2026) samt Begleitpaket `SCF_ORGANOID_NETWORK_CLAUDE_PAKET.zip`.
+Quellenaudit: [`docs/organoid_network_source_audit.md`](docs/organoid_network_source_audit.md).
+
+Johanns Auftrag (2026-10-01): weiteres Followup, wie die übrigen
+„ruhig direkt mit einbauen“. Disziplin nach `CLAUDE.md`: Herleitung vor
+Code, ein Paket pro Commit, volle Regression und Linkprüfung vor jedem
+Commit, Branch `j-series`.
+
+**Leitfrage:** Wann verbessern Kopplung und Anpassung eines modularen
+Netzwerks die Unterscheidbarkeit seiner Eingänge, und welchen Anteil hat
+der Beobachtungszugang daran? System, Beobachtung, Auslesen und Schluss
+bleiben getrennt. **Keine** Drei-Modul-Schwelle, kein Intelligenzscore,
+keine Pflicht, dass Trios gewinnen; ein negatives oder gemischtes Ergebnis
+ist zulässig.
+
+## Pakete
+
+| Paket | Inhalt | Status |
+|---|---|---|
+| ON0 | Quellen, Umfang, API-Audit, Handkontrollen | ✅ erledigt (dieser Commit) |
+| ON1 | Exakte Beobachtungs- und Strukturkontrollen ($W(\delta)$, Voll-/Summenbeobachter) | ⬜ offen |
+| ON2 | Messrauschen und endliche Kanäle | ⬜ offen |
+| ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ⬜ offen |
+| ON4 | Decoder und hierarchischer Vergleich | ⬜ offen |
+| ON5 | Information, PID und Gerichtetheit | ⬜ offen |
+| ON6a | Synthetischer Benchmark und Evidenzbericht | ⬜ offen |
+| ON6b | Optionaler Realdatenadapter | ⬜ Option (Daten-Gates) |
+| ON7 | CLI, Dokumentation, Abschluss | ⬜ offen |
+
+## ON0 — Quellen, Umfang, Handkontrollen (erledigt)
+
+### Arbeitsstand
+
+Branch `j-series`, aufbauend auf J0–J12, MU0–MU7 und den
+Kandidatenpiloten. Der Plan wurde gegen `4a7ed38` geschrieben; seine
+Anschlüsse wurden am aktuellen Stand neu geprüft. Die J-Bausteine
+existieren inzwischen (z. B. `epistemic`-Fasern, J1-Paarvergleiche,
+J6-Identifizierbarkeit, `assurance`-Berichte); der Plan setzt sie nicht
+voraus, ON nutzt sie nur, wo ihr Scope passt.
+
+### Beilage geprüft
+
+`SCF_ORGANOID_NETWORK_CLAUDE_PAKET.zip`: alle vier SHA-256-Summen aus
+`SHA256SUMS` stimmen; der Plan in der Beilage ist bytegleich mit dem
+eingecheckten. Frischer Lauf von `independent_organoid_controls.py`:
+**23/23**, Ergebnis-JSON identisch mit dem mitgelieferten.
+
+### Bestehende APIs bestätigt (Pfade unter `src/scoped_correspondence/`)
+
+| API | Datei:Zeile | Befund |
+|---|---|---|
+| `mutual_information_dmc(r, Q, *, log_base=2)` | `observation/arimoto_blahut.py:196` | ✅ I(X;Y) eines festen DMC unter Prior r |
+| `blahut_arimoto_capacity(Q, *, r0, tol, max_iter, log_base)` → `ArimotoBlahutResult` | `observation/arimoto_blahut.py:243` (Ergebnis `:77`) | ✅ lehnt negative / nicht zeilenstochastische Kanäle ab |
+| `directed_information(joint_sequences)` → `DirectedInformationReport` | `observation/directed_information.py:277` | ✅ exakte endliche Sequenzverteilung — **normalisiert nicht normierte Eingaben still** („renormalised if needed“) |
+| `broja_pid_bivariate(joint_r1r2y, *, n_starts, tol, rng)` → `BivariatePIDReport` | `information_decomposition/broja.py:420` (Ergebnis `:379`) | ✅ Achsen (r1, r2, y); **normalisiert intern still** |
+| `evaluate_xor_task`, `evaluate_redundancy_task`, `evaluate_noisy_xor_task` | `validation/cooperative_agents_pilot.py:100,110,120` | ✅ vorhandene Informationskontrollen |
+| `observation_fiber`, `identified_values` | `epistemic/observation_fibers.py:75,152` | ✅ endliche Kandidaten |
+| `AssumptionSpec`, `FiniteDomainSpec` | `epistemic/records.py:78,104` | ✅ |
+| `_EXPLICIT_CATEGORY` | `scripts/run_verification_suite.py` | ✅ |
+| `docs/real_data_provenance.md` | — | ✅ |
+
+**Befund ON0-B1:** Zwei vorhandene Informations-APIs renormalisieren
+nicht normierte Eingaben still. ON-C21 verlangt dagegen, negative, nicht
+normierte und nicht endliche Kanäle **zurückzuweisen**. Die ON-Adapter
+(ON2/ON5) prüfen deshalb vor jedem Aufruf selbst; die bestehenden Module
+bleiben unverändert (additiv). Ob sie selbst strikter werden sollen, ist
+eine Entscheidung für Johann (Backlog).
+
+### ON-C01–ON-C23 unabhängig hergeleitet
+
+Zuerst von Hand aus dem Plantext, dann mit eigenem SCF-freiem Skript
+[`verification/plan_controls/on_series_independent_controls.py`](verification/plan_controls/on_series_independent_controls.py)
+(vor dem Lesen des Beilagencodes geschrieben): **23/23**
+([Ergebnisse](verification/plan_controls/on_series_independent_controls_results.json)).
+Zusätzlich die Beilage: 23/23.
+
+| ID | Bestätigter Befund | Eigener Weg |
+|---|---|---|
+| ON-C01 | $W(1/2)$: $(3/2,1/2)$, $(1/2,3/2)$; Summe je 2; $\det W=4\delta$ | exakt, drei δ |
+| ON-C02 | Vollbeobachtung 1 Bit, Summe 0 Bit; grobe Faser $\{0,1\}$; δ=0: 0 Bit | eigene MI-Funktion |
+| ON-C03 | Sensorpermutation erhält 1 Bit | — |
+| ON-C04 | $A^*=\tfrac12(1+\operatorname{erf}1)=0{,}9213503964748575$ | zwei äquivalente Formeln |
+| ON-C05 | BSC ε=1: 1 Bit, naive Accuracy 0, optimale 1 | — |
+| ON-C06 | Accuracy je 3/4: BSC $I=0{,}188722$, Z-Kanal $I=0{,}311278$, $C=\log_2(5/4)$ | Kapazität zusätzlich per Priorscan unterschritten |
+| ON-C07 | $Y=(S,N)$: 1 Bit; $Z=N$: 0 Bit | — |
+| ON-C08 | $Y=S\oplus H$: 0 Bit, gegeben $H$: 1 Bit | — |
+| ON-C09 | Codeinvertierung: eingefroren 0, angepasst 1, Information 1 Bit | — |
+| ON-C10 | Konstanter Decoder, Prior 0,9: Accuracy 0,9, balanced 0,5, Information 0 | — |
+| ON-C11 | Hebb-Zeile roh $(5/8,0,1/8)$ → normiert $(5/12,0,1/12)$; Zeilensummen 1/2 | exakt |
+| ON-C12 | η=0 erhält A; Schranke $1-\ell+\ell\gamma=3/4$ | — |
+| ON-C13 | XOR: beste einzelne affine Schwelle 3/4, XOR-Decoder 1 | ganzzahliger Scan **plus** Widerspruchsbeweis (Summe der Ungleichungen) |
+| ON-C14 | XOR-Signatur (0,0,1), Kopie (1,1,1) | eigene Randverteilungen |
+| ON-C15 | $A=(U,0)$, $B=(0,U)$: gerichtete Information 1 Bit, gegeben $U$ 0, do(A₁) ändert B₂ nicht | Zerlegung $I(A_1;B_1)+I(A^2;B_2\mid B_1)$ |
+| ON-C16 | Blockzeit = Label: 1 Bit; randomisiert 0 | — |
+| ON-C17 | Präparatwerte 0…4: Gruppen-SEM² 1/2; gepoolt mit 100 Kopien fälschlich 2/499 | exakt |
+| ON-C18 | fünf positive Differenzen: $p=2/32=1/16$ | volle Enumeration |
+| ON-C19 | $1/4-3/20=1/10$ | — |
+| ON-C20 | Training (0,2): Mittel 1; mit Testwert 100 fälschlich 34 | — |
+| ON-C21 | negativ, nicht normiert, nicht endlich → abgelehnt | — |
+| ON-C22 | N=12, γ=4/5: Zeilensumme 4/5; c=1/4, M>1: Intergewicht 1/5 | exakt für M=1,2,3 |
+| ON-C23 | M=1, M=2 (c=6/11), M=3 (c=8/11): identische Matrix, Nebendiagonalen 4/55 | exakt |
+
+**Anmerkung zu ON-C17:** Der Plan nennt die Präparatwerte nicht; die
+Werte 0…4 sind die einfachste Belegung, die beide Sollwerte exakt ergibt
+(festgehalten als Annahme).
+
+### Umfang, Grenzen, Daten-Gate
+
+- Pflicht: ON0–ON7 mit synthetischem Kern; ON6b (reale Reanalyse) ist
+  **optional** und an Daten-Gates gebunden — fehlende Rohdaten blockieren
+  den Kern nicht.
+- Keine neue PID-, Entropie- oder Kapazitätsbibliothek; kleine Adapter
+  über die bestehenden APIs.
+- Benennung der Grenzen: Beobachtung (Summenbeobachter verliert alles),
+  Decoder (Scoreabfall ≠ Informationsverlust), Gerichtetheit ≠ Kausalität,
+  Replikationseinheit = Präparat bzw. Simulationslauf, nicht Versuch.
+
+### Abnahme ON0 (Plan §10)
+
+- [x] Drei-Modul-Schwelle nicht vorausgesetzt
+- [x] Grenzen von Beobachtung und Decoder benannt
+- [x] Daten-Gate sichtbar (ON6b optional)
+- [x] keine J-Abhängigkeit erfunden (nur tatsächlich vorhandene Bausteine)
+- [x] unabhängige Werte stimmen (23/23 eigen, 23/23 Beilage)
+- [x] keine Produktions-API in diesem Paket

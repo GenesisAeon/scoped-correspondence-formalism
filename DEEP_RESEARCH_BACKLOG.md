@@ -66,7 +66,22 @@ sollten mindestens diese Stellen im Volltext abgeglichen werden:
 - [ ] **Yadav & Bloxham 2020, Fletcher et al. 2018 (Saturn)**: Größen-
   und Bezugssystemregister (Gas, Muster, Rotation, Höhe). *Wartet:* SA0.
 
+## D2. Organoid-Netzwerke (ON-Serie)
+
+- [ ] **ON-S1 Volltext** (Chow et al., Communications Biology 2026):
+  Präparatzahlen je Konfiguration, Auswahlregel der Eingangspaare,
+  Trainings-/Testaufteilung, Konnektivitätsschätzer — bisher nur laut Plan,
+  hier nur Titel/Datum geprüft. *Wartet:* ON6a-Dokumentation (Kontext).
+- [ ] **ON-S1 Daten:** Verfügbarkeit, Format, Lizenz der verlinkten
+  Diagrammquelldaten und etwaiger Rohsignale (MEA-Spikezüge, Versuchslabels,
+  Präparat-IDs). *Wartet:* ON6b (sonst `deferred`).
+
 ## E. Entscheidungen für Johann (keine Recherche)
+
+- [ ] `observation/directed_information.directed_information` und
+  `information_decomposition/broja.broja_pid_bivariate` normalisieren nicht
+  normierte Eingaben still (ON0-Befund B1). Die ON-Adapter prüfen selbst;
+  sollen die bestehenden Funktionen strikter werden?
 
 - [ ] `closure/error_bounds.transient_reduction_bound` rechnet TV als halbe
   L1-Schranke ohne Prüfung, dass Lifting und $p_0$ Wahrscheinlichkeiten
