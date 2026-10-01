@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 116,
+  "n_mutants": 117,
   "counts": {
-    "killed": 115,
+    "killed": 116,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 115,
+  "killed_by_assertion": 116,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "115/115",
+  "kill_ratio_excluding_equivalent": "116/116",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -79,7 +79,7 @@
       "detail": [
         "verify_conformal_prediction_core.py: fail ['FAIL  review_e4_exact_alpha: 3.0 != 4.0']"
       ],
-      "seconds": 2.2
+      "seconds": 1.88
     },
     {
       "id": "tv_l1_factor_two",
@@ -1704,7 +1704,7 @@
       "detail": [
         "verify_organoid_decoders.py: fail ['FAIL  review_r3_sign_flip_nonfinite: must refuse [nan, 1.0, 1.0]']"
       ],
-      "seconds": 2.03
+      "seconds": 1.89
     },
     {
       "id": "rv_r4_di_nan_dropped",
@@ -1779,7 +1779,7 @@
       "detail": [
         "verify_conformal_prediction_core.py: fail ['FAIL  review_e4_exact_alpha: 4.0 != 3.0']"
       ],
-      "seconds": 2.11
+      "seconds": 1.86
     },
     {
       "id": "rv_53_mask_diagonal_unchecked",
@@ -1795,7 +1795,22 @@
         "verify_organoid_adaptive_model.py: fail ['FAIL  review_hebb_input_domain: diagonal 1 in the mask refused']"
       ],
       "seconds": 2.08
+    },
+    {
+      "id": "rv_f1_numpy_int_not_converted",
+      "package": "RV",
+      "file": "src/scoped_correspondence/validation/modular_networks/decoders.py",
+      "expected": "fixed-width NumPy integers overflow",
+      "targets": [
+        "verify_organoid_decoders.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_decoders.py: fail ['PASS  on_c20_leakage']"
+      ],
+      "seconds": 1.99
     }
   ],
-  "composition": "full registry run (116) after Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331; conformal_test_point_mass_dropped retargeted to the exact-rank line and re-run alone"
+  "composition": "full registry run (116) after Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331; conformal_test_point_mass_dropped retargeted to the exact-rank line and re-run alone; follow-up review 637bc1c: rv_f1_numpy_int_not_converted added and 4 affected mutants re-run (conformal_test_point_mass_dropped, rv_r3, rv_f1, rv_e4)"
 }

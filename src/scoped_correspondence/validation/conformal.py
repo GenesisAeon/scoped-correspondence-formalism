@@ -53,7 +53,23 @@ def _exact_alpha(alpha) -> Fraction:
       ``"0.7"`` to mean the decimal level.
 
     No rounding or epsilon shift before ``ceil`` (that could move true values
-    above a rank boundary down)."""
+    above a rank boundary down).
+
+    Migration (Followup-Review F2, SCF_FOLLOWUP_REVIEW_637bc1c): before
+    2026-10-01 the rank was computed as ``ceil((n+1)*(1.0-alpha))`` in float
+    arithmetic. For FLOAT alpha the exact binary semantics changes the rank
+    for some inputs. A scan of alpha in {0.01, ..., 0.99} and n <= 1000
+    (99,000 pairs) found 825 changes at 32 alpha values:
+
+    - 764 larger ranks (binary value below the decimal; e.g. 0.3, n = 9:
+      7 -> 8; 0.15, n = 19: 17 -> 18);
+    - 61 smaller ranks where the old float product rounded above an exact
+      integer boundary (0.19, 0.44-0.46; e.g. 0.44, n = 24: 15 -> 14).
+
+    In every case the new rank is the minimal k with k >= (n+1)(1-alpha) for
+    the given binary value, so the marginal guarantee holds. The repository's
+    own callers (verification only) give identical results before and after.
+    Give decimal levels as ``Fraction`` or string in new configurations."""
     if isinstance(alpha, bool):
         raise ScopeViolationError("alpha must be a number, not bool")
     if isinstance(alpha, (Fraction, int)):

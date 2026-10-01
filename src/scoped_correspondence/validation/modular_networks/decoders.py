@@ -181,12 +181,16 @@ def _finite_real(d, what: str):
     non-finite values are refused; exact inputs are NOT converted to float."""
     if isinstance(d, (bool, np.bool_)):
         raise ScopeViolationError(f"{what}: bool is not a numeric difference")
-    if isinstance(d, (int, Fraction, np.integer)):
+    if isinstance(d, np.integer):
+        # Followup-Review F1 (SCF_FOLLOWUP_REVIEW_637bc1c): fixed-width NumPy
+        # integers overflow in sums/sign products -> convert to unbounded int.
+        return int(d)
+    if isinstance(d, (int, Fraction)):
         return d
     if isinstance(d, (float, np.floating)):
         if not math.isfinite(float(d)):
             raise ScopeViolationError(f"{what}: non-finite value {d!r} (no silent exclusion of preparations)")
-        return d
+        return float(d)
     raise ScopeViolationError(f"{what}: unsupported type {type(d).__name__}")
 
 

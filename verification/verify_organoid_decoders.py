@@ -127,6 +127,16 @@ def check_review_r3_sign_flip_nonfinite():
     require(sign_flip_test([F(1, 3), F(1, 3)]) == F(1, 2), "exact Fractions stay exact")
     for d in ([0.3, -0.1, 0.7], [1, 2, 3, 4], [F(1, 7), -F(2, 7), F(3, 7)]):
         require(sign_flip_test(d) > 0, "with finite data p = 0 is impossible (observed pattern counted)")
+    # Followup-Review F1: fixed-width NumPy integers must give the Python-int result
+    # (three equal positives: only +++ and --- reach the maximum -> 2/8 = 1/4, any scale)
+    v = 2 ** 62
+    require(sign_flip_test([v, v, v]) == F(1, 4), "Python-int reference")
+    for arr in (np.array([v, v, v], np.int64), np.array([2 ** 63 - 1] * 3, np.int64), np.array([-2 ** 63] * 3, np.int64),
+                np.array([2 ** 64 - 1] * 3, np.uint64)):
+        require(sign_flip_test(arr) == F(1, 4), f"NumPy integer boundary {arr.dtype} {arr[0]}: must be 1/4")
+    mixed = np.array([2 ** 62, -2 ** 62, 2 ** 62], np.int64)
+    require(sign_flip_test(mixed) == sign_flip_test([2 ** 62, -2 ** 62, 2 ** 62]), "mixed signs match the Python-int reference")
+    require(raises(lambda: sign_flip_test(np.array([True, False, True]))), "NumPy bool still refused")
     return {"refused": 7}
 
 

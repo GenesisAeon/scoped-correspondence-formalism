@@ -335,3 +335,30 @@ verschwunden; R5 `[0]`/`[0]`; E3 nacktes `NaN`; E4 q = 4).
 Gezielte Mutanten zu R1–R5, E3, E4, §5.3: 11/11 per Inhaltsassertion
 getötet. ON6b bleibt ohne geeignete reale Daten blockiert. Ein Volltextaudit
 der übrigen Backlog-Quellen ist damit nicht ersetzt.
+
+## Folgereview `SCF_FOLLOWUP_REVIEW_637bc1c` (2026-10-01)
+
+Review: [`SCF_FOLLOWUP_REVIEW_637bc1c_CLAUDE.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_FOLLOWUP_REVIEW_637bc1c_CLAUDE.md).
+Das Urteil lautet bedingtes GO nach zwei Korrekturen. Beide Befunde habe ich
+unverändert am Commit `637bc1c` reproduziert.
+
+- **F1** (`decoders.py`, `sign_flip_test`):
+  - *Fehler:* NumPy-Ganzzahlen wurden unverändert durchgereicht, die
+    Summen liefen über. `int64(2**62)` ×3 ergab p = 1 statt 1/4.
+  - *Fix:* `np.integer` wird jetzt in ein unbegrenztes `int` umgewandelt.
+  - *Regression:* die Typgrenzen `int64` max/min und `uint64` max, gemischte
+    Vorzeichen und NumPy-bool.
+- **F2** (`conformal.py`, Rangsemantik):
+  - *Fehler:* Meine Kompatibilitätsaussage „Float unverändert für n ≤ 59“
+    war falsch, weil der Scan nur acht α-Werte enthielt.
+  - *Vollständiger Scan:* 825 von 99.000 Paaren ändern sich, in beide
+    Richtungen. Die Garantie bleibt in allen Fällen erhalten.
+  - *Aufrufer:* nur Prüfskripte. Mit alter und neuer Funktion sind ihre
+    Ergebnisse identisch, kein veröffentlichtes Resultat ändert sich.
+  - *Korrigiert:* Backlog und Migrationshinweis.
+  - *Regression:* 0,3 → 8 / `"0.3"` → 7, 0,15 → 18 / `"0.15"` → 17 und
+    der Abwärtsfall 0,44 → 14.
+
+Das Review sieht danach keinen verbleibenden Einwand gegen den Merge mehr.
+Der empfohlene strikte PMF-Modus ist eine optionale nächste Aufgabe und
+keine Merge-Bedingung.

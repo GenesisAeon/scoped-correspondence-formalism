@@ -105,4 +105,24 @@ Gegenbeispielen bestätigt und Empfehlungen gegeben; diese sind umgesetzt
 - [x] **`calibrate_split_conformal`** (E4): α als `Fraction`, `int` oder
   Dezimalstring exakt; Float-α bedeutet seinen exakten Binärwert (Rang exakt
   per `Fraction`, kein Epsilon). `0.7` → q = 4 (unverändert), `Fraction(7,10)`
-  bzw. `"0.7"` → q = 3. Für Float-Eingaben im Scan n ≤ 59 keine Rangänderung.
+  bzw. `"0.7"` → q = 3.
+
+  **Korrektur (Folgereview `SCF_FOLLOWUP_REVIEW_637bc1c`, F2):** Die frühere
+  Aussage „für Float-Eingaben im Scan n ≤ 59 keine Rangänderung“ war
+  **falsch**. Der damalige Scan enthielt nur acht α-Werte, darunter weder
+  0,3 noch 0,15.
+
+  Ein vollständiger Scan über α ∈ {0,01 … 0,99} und n ≤ 1000 (99.000 Paare)
+  ergibt 825 Rangänderungen bei 32 α-Werten:
+  - 764 Fälle mit größerem Rang, z. B. 0,3 bei n = 9: 7 → 8;
+  - 61 Fälle mit kleinerem Rang, bei α = 0,19 und 0,44–0,46, z. B. 0,44 bei
+    n = 24: 15 → 14. Dort war die alte Float-Rechnung überkonservativ.
+
+  Der neue Rang ist immer der minimale gültige Rang für den übergebenen
+  Binärwert, die Garantie bleibt also erhalten.
+
+  Die einzigen Aufrufer im Repo sind die drei Prüfskripte
+  `verify_conformal_prediction_core.py`, `verify_metamorphic_relations.py`
+  und `verify_weighted_conformal.py`. Sie liefern mit alter und neuer
+  Funktion identische Ergebnisse, inklusive der berichteten J8-Abdeckungen.
+  Kein veröffentlichtes Resultat ändert sich.

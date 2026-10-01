@@ -236,6 +236,20 @@ def check_review_e4_exact_alpha():
         except ScopeViolationError:
             continue
         raise AssertionError(f"alpha {bad!r} must be refused")
+    # Followup-Review F2 (SCF_FOLLOWUP_REVIEW_637bc1c): float results are NOT
+    # generally unchanged vs the old float pipeline. Fraction(0.3) < 3/10 ->
+    # 10 (1 - alpha) > 7 -> rank 8 (old float rounding gave 7); decimal "0.3" -> 7.
+    near(calibrate_split_conformal(range(1, 10), 0.3), 8.0)
+    near(calibrate_split_conformal(range(1, 10), "0.3"), 7.0)
+    near(calibrate_split_conformal(range(1, 20), 0.15), 18.0)
+    near(calibrate_split_conformal(range(1, 20), "0.15"), 17.0)
+    # opposite direction: Fraction(0.44) > 44/100, exact 25 * (1 - alpha) < 14, so
+    # rank 14 (old float product rounded above 14 -> 15, over-conservative);
+    # 14 still satisfies k >= (n + 1)(1 - alpha) for the given binary value.
+    require(Fraction(0.44) > Fraction(44, 100), "binary 0.44 lies above 44/100")
+    near(calibrate_split_conformal(range(1, 25), 0.44), 14.0)
+    near(calibrate_split_conformal(range(1, 25), "0.44"), 14.0)
+    require(14 >= 25 * (1 - Fraction(0.44)) > 13, "rank 14 is the minimal valid rank for the binary value")
     # whole-real-line case stays legitimate: n = 1, alpha = 1/4 -> k = ceil(2 * 3/4) = 2 = n + 1
     require(math.isinf(calibrate_split_conformal([5.0], Fraction(1, 4))), "k = n + 1 gives +inf (whole line)")
     return {"float_0_7_q": 4.0, "decimal_7_10_q": 3.0}
