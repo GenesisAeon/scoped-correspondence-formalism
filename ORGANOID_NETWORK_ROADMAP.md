@@ -25,7 +25,7 @@ ist zulässig.
 | ON2 | Messrauschen und endliche Kanäle | ✅ erledigt |
 | ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ✅ erledigt |
 | ON4 | Decoder und hierarchischer Vergleich | ✅ erledigt |
-| ON5 | Information, PID und Gerichtetheit | ⬜ offen |
+| ON5 | Information, PID und Gerichtetheit | ✅ erledigt |
 | ON6a | Synthetischer Benchmark und Evidenzbericht | ⬜ offen |
 | ON6b | Optionaler Realdatenadapter | ⬜ Option (Daten-Gates) |
 | ON7 | CLI, Dokumentation, Abschluss | ⬜ offen |
@@ -205,6 +205,21 @@ den Produktionssplitter). ON-C16 liegt im Plan bei ON4, ist hier in ON5
 (1,0) positiv, (0,0) und (1,1) nicht positiv klassifizieren: $b+c>0$,
 $a+c>0$, $c\le0$, $a+b+c\le0$. Summe der ersten beiden: $a+b+2c>0$; Summe
 der letzten beiden: $a+b+2c\le0$ — Widerspruch für alle reellen Gewichte.
+
+## ON5 — Information, PID und Gerichtetheit (erledigt)
+
+`validation/modular_networks/information.py`: strikte PMF-Prüfung, dann
+die vorhandenen APIs: `information_signature` (maßfrei),
+`pid_report` (BROJA tatsächlich ausgeführt; Konvergenz, Startzahl und
+Streuung der Optima getrennt berichtet), `directed_report` (immer
+`causal_claim=False`), `intervention_effect` (do() an einem deklarierten
+endlichen Generator, getrennt von DI), `label_confounding`.
+
+[`verify_organoid_information.py`](verification/verify_organoid_information.py)
+4/4: ON-C14 (XOR-Synergie 1 Bit, Kopie-Redundanz 1 Bit, Abgleich mit dem
+vorhandenen `evaluate_xor_task`), ON-C15 (DI 1 Bit, do(A₁) ändert B₂ nicht;
+Positivkontrolle mit echtem Effekt), ON-C16, strikte Ablehnung nicht
+normierter Joints (die bestehenden Funktionen würden still normieren).
 
 ## Regression
 

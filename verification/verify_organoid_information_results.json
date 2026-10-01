@@ -1,0 +1,26 @@
+{
+  "n_passed": 4,
+  "n_total": 4,
+  "results": {
+    "on_c14_signature_and_pid": {
+      "xor_signature": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "xor_synergy": 1.0,
+      "copy_redundancy": 1.0
+    },
+    "on_c15_directed_not_causal": {
+      "I_directed": 1.0,
+      "intervention_effect": false
+    },
+    "on_c16_label_confounding": {
+      "confounded": 1.0,
+      "randomised": 0.0
+    },
+    "strict_joints": {
+      "strict": true
+    }
+  }
+}

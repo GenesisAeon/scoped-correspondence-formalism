@@ -355,6 +355,10 @@ MUTANTS: Tuple[Mutant, ...] = (
            "    hits = sum(1 for signs in itertools.product((1, -1), repeat=n) if abs(sum(s * d for s, d in zip(signs, differences))) >= obs)",
            "    hits = sum(1 for signs in itertools.product((1, -1), repeat=n) if sum(s * d for s, d in zip(signs, differences)) >= obs)",
            ("verify_organoid_decoders.py",), "two-sided p = 1/16"),
+    Mutant("on5_pmf_unchecked", "ON5", ONM + "information.py", "    if abs(sum(vals) - 1.0) > TOL:", "    if False:",
+           ("verify_organoid_information.py",), "existing APIs renormalise silently"),
+    Mutant("on5_intervention_ignored", "ON5", ONM + "information.py", "            t = generator(u, {variable: v})[target]",
+           "            t = generator(u, {})[target]", ("verify_organoid_information.py",), "positive intervention control"),
 )
 
 
