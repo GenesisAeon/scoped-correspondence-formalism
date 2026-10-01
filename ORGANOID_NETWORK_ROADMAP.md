@@ -362,3 +362,31 @@ unverändert am Commit `637bc1c` reproduziert.
 Das Review sieht danach keinen verbleibenden Einwand gegen den Merge mehr.
 Der empfohlene strikte PMF-Modus ist eine optionale nächste Aufgabe und
 keine Merge-Bedingung.
+
+## PMF-Review `SCF_PMF_REVIEW_51b1a38` (2026-10-01)
+
+Review: [`SCF_PMF_REVIEW_51b1a38_CLAUDE.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_PMF_REVIEW_51b1a38_CLAUDE.md).
+Das Review bestätigt F1 und F2 als abgeschlossen. Im neuen PMF-Paket fand es
+zwei Befunde, die ich beide unverändert am Commit `51b1a38` reproduziert habe.
+
+- **PMF1** (DI, BROJA):
+  - *Fehler:* Eine exakt normierte Masse mit Vorzeichen, z. B.
+    `−F(1, 10**15)`, passierte den strikten Modus. Die toleranten
+    Gewichtsvalidatoren entfernen kleine negative Werte bzw. setzen sie auf
+    null.
+  - *Fix:* Im PMF-Modus wird jede Originalmasse streng geprüft, `Fraction`
+    exakt. Grund: `float(−F(1, 10**400))` ergibt `−0.0`.
+  - Der Gewichtsmodus behält seine dokumentierte Toleranz. Die Doku nennt
+    sie jetzt präzise.
+- **PMF2** (Test):
+  - *Fehler:* Der Test nahm an, dass `sum([0.1]*10) != 1.0` gilt. Seit
+    Python 3.12 rechnet `sum` genauer, die Annahme ist dort falsch. Lokal
+    unter Python 3.13 nachgestellt: 1/2 Prüfgruppen.
+  - *Ersatz:* die exakte Binäraussage über `Fraction` und die Toleranzgrenzen
+    2⁻⁴² (angenommen) und 2⁻³⁸ (abgelehnt).
+  - *Ergebnis:* 3/3 unter Python 3.11 und 3.13.
+  - *CI:* neuer kleiner Job, der versionsempfindliche Skripte unter
+    Python 3.12 ausführt.
+
+Mutanten: zwei neue zur Vorzeichenprüfung, beide erkannt. Ein älterer
+PMF-Mutant wurde nach dem Fix auf die Float-Summenprüfung umgezielt.

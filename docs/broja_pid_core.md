@@ -89,9 +89,14 @@ follow the follow-up review `SCF_FOLLOWUP_REVIEW_637bc1c` §5.
   - Nested `int`/`Fraction` input must sum to exactly 1.
   - Float input must sum to 1 within `PMF_TOL = 1e-12`, computed with
     `math.fsum`.
+- **Sign of the masses** (made precise after PMF review `SCF_PMF_REVIEW_51b1a38` PMF1):
+  - `"pmf"` refuses any negative **original** mass, and `Fraction` masses are
+    compared exactly.
+  - `"weights"` keeps its documented tolerance. Values `>= -1e-12` are
+    clipped to 0, and more negative values are refused.
 - **Both modes:**
-  - Non-finite masses, negative masses and overflowing totals are refused
-    first (review fix R4).
+  - Non-finite masses and overflowing totals are refused first (review
+    fix R4).
   - The report carries `input_mode` and `input_total_mass`.
 
 Checks: `verification/verify_information_input_modes.py`.

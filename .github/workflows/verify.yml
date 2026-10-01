@@ -17,6 +17,24 @@ jobs:
       - run: python -m pip install -r verification/requirements.txt
       - run: python scripts/run_verification_suite.py --category math
 
+  py312-version-sensitive:
+    # PMF review SCF_PMF_REVIEW_51b1a38 (PMF2): Python 3.12 changed the float
+    # algorithm of built-in sum(); pyproject allows >=3.10. Small cross-version
+    # check of the scripts that touch float summation / exact-vs-float semantics.
+    name: Version-sensitive checks on Python 3.12
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - run: python -m pip install -r verification/requirements.txt
+      - run: python verification/verify_information_input_modes.py
+      - run: python verification/verify_conformal_prediction_core.py
+      - run: python verification/verify_organoid_decoders.py
+      - run: python verification/verify_error_bounds_core.py
+
   data:
     name: Real-data checks (verify_*.py using data/ provenance)
     runs-on: ubuntu-latest

@@ -88,9 +88,15 @@ follow the follow-up review `SCF_FOLLOWUP_REVIEW_637bc1c` §5.
   - For float masses the total must satisfy `|total − 1| ≤ PMF_TOL = 1e-12`,
     computed with `math.fsum`.
   - Anything else raises `ScopeViolationError`.
+- **Sign of the masses** (made precise after PMF review `SCF_PMF_REVIEW_51b1a38` PMF1):
+  - `"pmf"` checks the **original** masses strictly. Any negative mass is
+    refused, and `Fraction` masses are compared exactly. This matters because
+    `float(-F(1, 10**400))` underflows to `-0.0`.
+  - `"weights"` keeps its documented tolerance. A mass in `[-1e-15, 1e-15]`
+    is dropped, and more negative masses are refused.
 - **Both modes:**
-  - Non-finite, negative and zero-total inputs are refused (since the
-    review fix R4, non-finite masses no longer vanish silently).
+  - Non-finite and zero-total inputs are refused. Since the review fix R4,
+    non-finite masses no longer vanish silently.
   - The report carries `input_mode` and `input_total_mass`, the total as
     passed.
 

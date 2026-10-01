@@ -72,9 +72,15 @@ def check_di_modes():
     exact_off = {((0,), (0,)): F(1, 3), ((1,), (1,)): F(1, 3), ((0,), (1,)): F(1, 3) + F(1, 10 ** 15)}
     require(raises(lambda: directed_information(exact_off, input_mode="pmf")), "exact input: no float tolerance (1e-15 off is refused)")
     tenths = {(tuple((i >> b) & 1 for b in range(4)), (0, 0, 0, 0)): 0.1 for i in range(10)}  # ten distinct atoms
-    require(len(tenths) == 10 and sum(tenths.values()) != 1.0, "float tenths do not sum to exactly 1.0 in binary")
-    rt = directed_information(tenths, input_mode="pmf")  # must be accepted within PMF_TOL
+    # PMF-Review PMF2: no claim about the value of the built-in float `sum` (its
+    # algorithm changed in Python 3.12); the binary fact is stated exactly instead.
+    require(len(tenths) == 10 and sum(F(v) for v in tenths.values()) == F(18014398509481985, 18014398509481984),
+            "ten stored binary 0.1 values sum exactly to 1 + 2**-54 (version independent)")
+    rt = directed_information(tenths, input_mode="pmf")  # within PMF_TOL
     require(abs(rt.input_total_mass - 1) <= 1e-12, "float tenths accepted within the documented tolerance")
+    two = lambda d: {((0,), (0,)): 0.5, ((1,), (1,)): 0.5 + d}
+    directed_information(two(2 ** -42), input_mode="pmf")  # 2**-42 ~ 2.3e-13 <= 1e-12: accepted
+    require(raises(lambda: directed_information(two(2 ** -38), input_mode="pmf")), "2**-38 ~ 3.6e-12 > 1e-12: refused")
     require(raises(lambda: directed_information({k: 0.1 + 1e-10 for k in tenths}, input_mode="pmf")), "1e-9 total excess refused")
     require(raises(lambda: directed_information(j, input_mode="probabilities")), "unknown mode refused")
     return {"I_directed": w.I_directed}
@@ -102,7 +108,38 @@ def check_broja_modes():
     return {"xor_synergy": p.synergy, "copy_redundancy": rc.redundancy}
 
 
-CHECKS = [check_di_modes, check_broja_modes]
+def check_pmf_review_signed_mass():
+    """PMF-Review PMF1: an exactly normalised SIGNED mass passed the strict pmf
+    mode because the tolerant weights validators drop/clip tiny negatives."""
+    eps = F(1, 10 ** 15)
+    j = {((0,), (0,)): F(1, 2), ((1,), (1,)): F(1, 2) + eps, ((0,), (1,)): -eps}
+    require(sum(j.values()) == 1 and min(j.values()) < 0, "counterexample is exactly normalised and signed")
+    require(raises(lambda: directed_information(j, input_mode="pmf")), "DI pmf: signed exact mass refused")
+    joint = [[[F(1, 2), -eps], [0, 0]], [[0, 0], [0, F(1, 2) + eps]]]
+    require(raises(lambda: broja_pid_bivariate(joint, input_mode="pmf")), "BROJA pmf: signed exact mass refused")
+    # float -1e-15 (inside the weights tolerances) and an exact negative that underflows to -0.0 as float
+    tiny = {((0,), (0,)): 0.5, ((1,), (1,)): 0.5 + 1e-15, ((0,), (1,)): -1e-15}
+    require(raises(lambda: directed_information(tiny, input_mode="pmf")), "DI pmf: float -1e-15 refused")
+    under = -F(1, 10 ** 400)
+    require(float(under) == 0.0, "the float conversion underflows (that is why the sign is checked exactly)")
+    ju = {((0,), (0,)): F(1, 2), ((1,), (1,)): F(1, 2) - under, ((0,), (1,)): under}
+    require(raises(lambda: directed_information(ju, input_mode="pmf")), "DI pmf: -1/10**400 refused exactly")
+    jb = [[[F(1, 2), under], [0, 0]], [[0, 0], [0, F(1, 2) - under]]]
+    require(raises(lambda: broja_pid_bivariate(jb, input_mode="pmf")), "BROJA pmf: -1/10**400 refused exactly")
+    Jf = np.zeros((2, 2, 2))
+    Jf[0, 0, 0], Jf[1, 1, 1], Jf[0, 1, 0] = 0.5, 0.5 + 1e-15, -1e-15
+    require(raises(lambda: broja_pid_bivariate(Jf, input_mode="pmf")), "BROJA pmf: float -1e-15 refused")
+    # documented weights-mode tolerance stays (DI drops masses in [-1e-15, 1e-15]; BROJA clips >= -1e-12)
+    w = directed_information(tiny)
+    require(w.input_mode == "weights", "weights mode keeps its documented tolerance for tiny negatives")
+    # valid inputs still pass
+    directed_information({((0,), (0,)): F(1, 3), ((1,), (1,)): F(1, 3), ((0,), (1,)): F(1, 3)}, input_mode="pmf")
+    directed_information({((0,), (0,)): 0.25, ((1,), (1,)): 0.75}, input_mode="pmf")
+    require(raises(lambda: directed_information({((0,), (0,)): 0.5, ((1,), (1,)): 1.5}, input_mode="pmf")), "doubled-type total refused")
+    return {"signed_exact": "refused", "underflowing_fraction": "refused"}
+
+
+CHECKS = [check_di_modes, check_broja_modes, check_pmf_review_signed_mass]
 
 
 def main():

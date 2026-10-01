@@ -145,11 +145,17 @@ def _input_total(joint_r1r2y, input_mode: str) -> float:
     flat = np.asarray(joint_r1r2y, dtype=object).ravel().tolist()
     exact = all(isinstance(m, (int, Fraction)) and not isinstance(m, (bool, np.bool_)) for m in flat)
     if not exact:
-        # called AFTER _validate_joint: finiteness, sign and overflow are already checked there
+        # called AFTER _validate_joint: finiteness and overflow are checked there; its
+        # sign check is TOLERANT (clips values >= -1e-12), hence the strict check below
         total = math.fsum(float(m) for m in flat)
     else:
         total = sum(Fraction(m) for m in flat)
     if input_mode == "pmf":
+        # PMF-Review PMF1: original masses must be non-negative; Fractions compared exactly
+        for m in flat:
+            neg = (m < 0) if isinstance(m, (int, Fraction)) and not isinstance(m, (bool, np.bool_)) else (float(m) < 0)
+            if neg:
+                raise ScopeViolationError(f"broja_pid_bivariate: input_mode='pmf' refuses negative mass {m!r}")
         if exact and total != 1:
             raise ScopeViolationError(f"broja_pid_bivariate: input_mode='pmf' needs exact total mass 1; got {total}")
         if not exact and abs(total - 1.0) > PMF_TOL:

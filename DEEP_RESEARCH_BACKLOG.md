@@ -94,6 +94,9 @@ Gegenbeispielen bestätigt und Empfehlungen gegeben; diese sind umgesetzt
     `SCF_FOLLOWUP_REVIEW_637bc1c` §5 als zusätzlich wählbarer Modus
     `input_mode="pmf"`.
     - Exakte Eingaben müssen genau 1 ergeben, Floats 1 ± 1e‑12.
+    - Seit dem PMF-Review `SCF_PMF_REVIEW_51b1a38` (PMF1) werden alle
+      Originalmassen streng auf Nichtnegativität geprüft, Brüche exakt.
+      Vorher kam eine exakt normierte Masse mit Vorzeichen durch.
     - Standard bleibt `"weights"`, keine Aufrufer-Migration nötig.
     - Der Bericht nennt `input_mode` und `input_total_mass`.
 - [x] **`transient_reduction_bound`** (R1/R2 + TV-Vertrag): falsche

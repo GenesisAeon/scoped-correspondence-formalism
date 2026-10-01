@@ -301,6 +301,14 @@ def _input_total(joint: JointSequences, input_mode: str):
     exact = all(isinstance(m, (int, Fraction)) and not isinstance(m, bool) for m in masses)
     total = sum(Fraction(m) for m in masses) if exact else math.fsum(float(m) for m in masses)
     if input_mode == "pmf":
+        # PMF-Review PMF1: the ORIGINAL masses must be non-negative -- the
+        # tolerant weights validator drops tiny negatives, so a signed but
+        # exactly normalised input would otherwise pass. Fractions are compared
+        # exactly (float(-F(1, 10**400)) underflows to -0.0).
+        for key, m in joint.items():
+            neg = (m < 0) if isinstance(m, (int, Fraction)) and not isinstance(m, bool) else (float(m) < 0)
+            if neg:
+                raise ScopeViolationError(f"directed_information: input_mode='pmf' refuses negative mass {m!r} at {key!r}")
         if exact and total != 1:
             raise ScopeViolationError(f"directed_information: input_mode='pmf' needs exact total mass 1; got {total}")
         if not exact and abs(total - 1.0) > PMF_TOL:

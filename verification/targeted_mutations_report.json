@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 119,
+  "n_mutants": 121,
   "counts": {
-    "killed": 118,
+    "killed": 120,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 118,
+  "killed_by_assertion": 120,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "118/118",
+  "kill_ratio_excluding_equivalent": "120/120",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -1824,7 +1824,7 @@
       "detail": [
         "verify_information_input_modes.py: fail ['FAIL  di_modes: doubled mass refused in pmf mode']"
       ],
-      "seconds": 2.05
+      "seconds": 2.64
     },
     {
       "id": "pmf_broja_exact_uses_tolerance",
@@ -1839,8 +1839,38 @@
       "detail": [
         "verify_information_input_modes.py: fail ['FAIL  broja_modes: exact input: no tolerance']"
       ],
-      "seconds": 2.19
+      "seconds": 2.41
+    },
+    {
+      "id": "pmf_di_sign_check_removed",
+      "package": "PMF",
+      "file": "src/scoped_correspondence/observation/directed_information.py",
+      "expected": "signed exact mass refused (PMF1)",
+      "targets": [
+        "verify_information_input_modes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_information_input_modes.py: fail ['FAIL  pmf_review_signed_mass: DI pmf: signed exact mass refused']"
+      ],
+      "seconds": 2.25
+    },
+    {
+      "id": "pmf_broja_sign_via_float",
+      "package": "PMF",
+      "file": "src/scoped_correspondence/information_decomposition/broja.py",
+      "expected": "-1/10**400 underflows as float (PMF1)",
+      "targets": [
+        "verify_information_input_modes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_information_input_modes.py: fail ['FAIL  pmf_review_signed_mass: BROJA pmf: -1/10**400 refused exactly']"
+      ],
+      "seconds": 2.31
     }
   ],
-  "composition": "full registry run (116) after Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331; conformal_test_point_mass_dropped retargeted to the exact-rank line and re-run alone; follow-up review 637bc1c: rv_f1_numpy_int_not_converted added and 4 affected mutants re-run (conformal_test_point_mass_dropped, rv_r3, rv_f1, rv_e4); PMF input mode: pmf_di_check_skipped, pmf_broja_exact_uses_tolerance added (run alone)"
+  "composition": "full registry run (116) after Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331; conformal_test_point_mass_dropped retargeted to the exact-rank line and re-run alone; follow-up review 637bc1c: rv_f1_numpy_int_not_converted added and 4 affected mutants re-run (conformal_test_point_mass_dropped, rv_r3, rv_f1, rv_e4); PMF input mode: pmf_di_check_skipped, pmf_broja_exact_uses_tolerance added (run alone); PMF review 51b1a38: pmf_di_sign_check_removed, pmf_broja_sign_via_float added, pmf_di_check_skipped retargeted (run alone)"
 }
