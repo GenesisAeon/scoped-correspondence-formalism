@@ -22,7 +22,7 @@ eine präzise Schätzung.
 | MU0 | Quellenregister, Anschlussinventar, unabhängige Herleitungen | ✅ erledigt |
 | MU1 | Kinematik, Einheiten, Geltungsbereich | ✅ erledigt |
 | MU2 | Endliche Geschwindigkeitsmischung und Messoperator | ✅ erledigt |
-| MU3 | Count-Likelihood und Schätzdiagnostik | ⬜ offen |
+| MU3 | Count-Likelihood und Schätzdiagnostik | ✅ erledigt |
 | MU4 | Identifizierbarkeit und Interventionen | ⬜ offen |
 | MU5 | Design und bedingte Abdeckung | ⬜ offen |
 | MU6 | Evidenzadapter, optionales Realdatenfenster | ⬜ offen (Realdaten voraussichtlich `deferred`) |
@@ -138,6 +138,12 @@ Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv; jede MU-Pr�
 Code: `muonium/forward.py`. Prüfung: `verify_muonium_forward.py` (math) **7/7** — MU-C06, MU-C07, MU-C16; Nullsignal, $F=0$ ohne `arg(0)`, $C=0$/$C=1$, Messzeit je Bin (Gesamtzeit nicht je Bin wiederverwendet), unzulässige Gewichte, Einzelgeschwindigkeits-Grenzfall, Phase bei mittlerer Geschwindigkeit ≠ Mischung.
 
 **Korrektur vor dem Commit:** `VelocityClass` hatte die Voreinstellungen $A=1$, $C=1$ — per Konstruktion eine Verletzung von $A(1+C)\le1$, die das Modell zu Recht ablehnte. Transmission und Kontrast sind jetzt Pflichtangaben ohne Voreinstellung.
+
+Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
+
+## MU3 — Count-Likelihood und Schätzdiagnostik (erledigt)
+
+Code: `muonium/likelihood.py`. Prüfung: `verify_muonium_likelihood.py` (math) **5/5** — MU-C08 (Nullfälle, Deviance = 2·(NLL − gesättigt)), MU-C14 (alle Alias-Moden im Abstand $d/T^2$ berichtet), MU-C15; Randtreffer und Fehlläufe sichtbar, keine globale Aussage aus Mehrfachstart; nur rohe ganzzahlige Zählungen.
 
 Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
 

@@ -237,6 +237,15 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_muonium_forward.py",), "A (1 + C) <= 1"),
     Mutant("mu2_bin_time_not_applied", "MU2", MF, "            out.append(b.t * self.background + b.t * self.rate * W * (1 + mod))",
            "            out.append(self.background + self.rate * W * (1 + mod))", ("verify_muonium_forward.py",), "per-bin measurement times"),
+    Mutant("mu3_artificial_floor", "MU3", ML, "            if nj > 0:\n                return math.inf", "            if nj > 0:\n                lj = 1e-300",
+           ("verify_muonium_likelihood.py",), "no artificial positive floor"),
+    Mutant("mu3_zero_count_deviance_term", "MU3", ML, "            total += 2 * lj\n", "            total += lj\n",
+           ("verify_muonium_likelihood.py",), "zero-count deviance term 2 lambda"),
+    Mutant("mu3_modes_collapsed", "MU3", ML, "            modes.append([r])", "            modes.append([r]) if not modes else modes[0].append(r)",
+           ("verify_muonium_likelihood.py",), "all modes reported"),
+    Mutant("mu3_noninteger_counts_accepted", "MU3", ML,
+           "        if isinstance(n, bool) or not isinstance(n, (int, np.integer)) or n < 0:",
+           "        if isinstance(n, bool) or n < 0:", ("verify_muonium_likelihood.py",), "raw integer counts only"),
 )
 
 

@@ -145,6 +145,7 @@ _EXPLICIT_CATEGORY = {
     # (MU-S5, license InC-NC) is deferred and never read here.
     "verify_muonium_kinematics.py": "math",
     "verify_muonium_forward.py": "math",
+    "verify_muonium_likelihood.py": "math",
 }
 
 
