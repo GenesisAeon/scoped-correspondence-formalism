@@ -24,7 +24,7 @@ eine präzise Schätzung.
 | MU2 | Endliche Geschwindigkeitsmischung und Messoperator | ✅ erledigt |
 | MU3 | Count-Likelihood und Schätzdiagnostik | ✅ erledigt |
 | MU4 | Identifizierbarkeit und Interventionen | ✅ erledigt |
-| MU5 | Design und bedingte Abdeckung | ⬜ offen |
+| MU5 | Design und bedingte Abdeckung | ✅ erledigt |
 | MU6 | Evidenzadapter, optionales Realdatenfenster | ⬜ offen (Realdaten voraussichtlich `deferred`) |
 | MU7 | CLI, Fähigkeitsbilanz, Abschluss | ⬜ offen |
 
@@ -150,6 +150,12 @@ Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--cate
 ## MU4 — Identifizierbarkeit und Interventionen (erledigt)
 
 Code: `muonium/identifiability.py` (auf J6 aufbauend). Prüfung: `verify_muonium_identifiability.py` (math) **9/9** — alle acht Gegenbeispiele aus Plan §7, MU-C09–C11, MU-C14, MU-C17; ausdrücklich: mehr Flugzeiten und Umkehrungen entfernen nicht jede Störung; endliche Faser nur für die gelisteten Kandidaten.
+
+Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
+
+## MU5 — Design und bedingte Abdeckung (erledigt)
+
+Code: `muonium/design.py`. Prüfung: `verify_muonium_design.py` (math) **6/6** — MU-C04 (benanntes Budget, $T_{\rm opt}=2\tau$), MU-C12 (8 vs. 16), MU-C13, MU-C16; singuläre Fisher-Matrix ohne Pseudoinverse; vorab festgelegte Abdeckungsstudie (Seed 11): korrekt ≈ 95 % im Binomialrahmen, weggelassener Offset bricht ein, nicht identifizierbarer Fit erreicht immer die Suchgrenzen.
 
 Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
 

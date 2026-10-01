@@ -250,6 +250,14 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_muonium_identifiability.py",), "odd bias stays with gravity"),
     Mutant("mu4_calibration_linear", "MU4", MI, "    return (1 + e) ** 2", "    return 1 + 2 * e",
            ("verify_muonium_identifiability.py",), "(1+e)^2 exactly"),
+    Mutant("mu5_scan_information_wrong_trig", "MU5", MD, "        I += n * C * C * math.sin(a + phi) ** 2 / lam_rel",
+           "        I += n * C * C * math.cos(a + phi) ** 2 / lam_rel", ("verify_muonium_design.py",), "Fisher information of the scan"),
+    Mutant("mu5_pseudo_inverse", "MU5", MD, "    cov = None if singular else tuple(tuple(float(x) for x in row) for row in np.linalg.inv(M))",
+           "    cov = tuple(tuple(float(x) for x in row) for row in np.linalg.pinv(M))", ("verify_muonium_design.py",), "no pseudo-inverse"),
+    Mutant("mu5_budget_decay_ignored", "MU5", MD, '    N = N0 * math.exp(-2 * T / tau) if budget == "incoming_atoms" else N0', "    N = N0",
+           ("verify_muonium_design.py",), "named budget: T_opt = 2 tau"),
+    Mutant("mu5_bound_touch_hidden", "MU5", MD, "    touches = inside[0] == 0 or inside[-1] == len(grid) - 1", "    touches = False",
+           ("verify_muonium_design.py",), "intervals ending at search bounds are flagged"),
 )
 
 
