@@ -1,0 +1,28 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "on_c09_on_c10_scores_are_not_information": {
+      "frozen": 0.0,
+      "refitted": 1.0,
+      "accuracy": 0.9,
+      "balanced": 0.5
+    },
+    "on_c13_xor_linear_limit": {
+      "linear": "3/4",
+      "xor_feature": 1
+    },
+    "on_c17_replication_unit": {
+      "sem2_preparation": "1/2",
+      "sem2_pooled_wrong": "2/499"
+    },
+    "on_c18_on_c19_group_comparison": {
+      "p_sign_flip": "1/16",
+      "difference": "1/10"
+    },
+    "on_c20_leakage": {
+      "train_mean": 1.0,
+      "leaked_mean": 34.0
+    }
+  }
+}

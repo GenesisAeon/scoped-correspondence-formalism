@@ -347,6 +347,14 @@ MUTANTS: Tuple[Mutant, ...] = (
            "diagonal / forbidden edges stay zero"),
     Mutant("on3_inter_weight_wrong", "ON3", ONM + "adaptive_model.py", "                A[i][j] = gamma * c / (N - n)",
            "                A[i][j] = gamma * c / (N - n - 1)", ("verify_organoid_adaptive_model.py",), "inter weight 1/5"),
+    Mutant("on4_balanced_is_plain", "ON4", ONM + "decoders.py", "    return sum(recalls) / len(recalls)",
+           "    return accuracy(y_true, y_pred)", ("verify_organoid_decoders.py",), "constant decoder balanced 1/2"),
+    Mutant("on4_split_unchecked", "ON4", ONM + "decoders.py", "    overlap = set(train_ids) & set(test_ids)", "    overlap = set()",
+           ("verify_organoid_decoders.py",), "leakage refused by the production splitter"),
+    Mutant("on4_sign_flip_one_sided", "ON4", ONM + "decoders.py",
+           "    hits = sum(1 for signs in itertools.product((1, -1), repeat=n) if abs(sum(s * d for s, d in zip(signs, differences))) >= obs)",
+           "    hits = sum(1 for signs in itertools.product((1, -1), repeat=n) if sum(s * d for s, d in zip(signs, differences)) >= obs)",
+           ("verify_organoid_decoders.py",), "two-sided p = 1/16"),
 )
 
 

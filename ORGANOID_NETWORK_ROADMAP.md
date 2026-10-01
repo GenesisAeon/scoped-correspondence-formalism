@@ -24,7 +24,7 @@ ist zulässig.
 | ON1 | Exakte Beobachtungs- und Strukturkontrollen ($W(\delta)$, Voll-/Summenbeobachter) | ✅ erledigt |
 | ON2 | Messrauschen und endliche Kanäle | ✅ erledigt |
 | ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ✅ erledigt |
-| ON4 | Decoder und hierarchischer Vergleich | ⬜ offen |
+| ON4 | Decoder und hierarchischer Vergleich | ✅ erledigt |
 | ON5 | Information, PID und Gerichtetheit | ⬜ offen |
 | ON6a | Synthetischer Benchmark und Evidenzbericht | ⬜ offen |
 | ON6b | Optionaler Realdatenadapter | ⬜ Option (Daten-Gates) |
@@ -185,6 +185,26 @@ Interkanten und Diagonale, Budget, Probe ändert A nicht.
   weil keine Prüfung Diagonale bzw. aktive gesperrte Kanten abdeckte.
   Redundanz entfernt, exakte Ein-Schritt-Kontrolle mit Aktivität auf allen
   Zuständen ergänzt — jetzt getötet.
+
+## ON4 — Decoder und hierarchischer Vergleich (erledigt)
+
+`validation/modular_networks/decoders.py`: Accuracy/balanced Accuracy,
+Standardisierung nur am Training, Nächster-Klassenmittelwert, konstanter
+Decoder, `evaluate_split` (Produktionssplitter: überlappende Versuchs-IDs
+→ Fehler; neu trainiert oder eingefroren), Präparat-Zusammenfassungen,
+SEM auf Präparatebene, exakter zweiseitiger Sign-Flip-Test (n ≤ 20),
+Gruppenvergleich mit Überlappungsverbot.
+
+[`verify_organoid_decoders.py`](verification/verify_organoid_decoders.py)
+5/5: ON-C09, C10, C13 (Scan auf zwei Gittern + Beweis unten), C17
+(doppelte Versuche erhöhen die Präparatzahl nicht), C18, C19, C20 (gegen
+den Produktionssplitter). ON-C16 liegt im Plan bei ON4, ist hier in ON5
+über `label_confounding` umgesetzt.
+
+**Beweis ON-C13:** Eine einzige Schwelle $ax+by+c>0$ müsste (0,1) und
+(1,0) positiv, (0,0) und (1,1) nicht positiv klassifizieren: $b+c>0$,
+$a+c>0$, $c\le0$, $a+b+c\le0$. Summe der ersten beiden: $a+b+2c>0$; Summe
+der letzten beiden: $a+b+2c\le0$ — Widerspruch für alle reellen Gewichte.
 
 ## Regression
 

@@ -173,6 +173,7 @@ _EXPLICIT_CATEGORY = {
     "verify_organoid_observation_controls.py": "math",
     "verify_organoid_channels.py": "math",
     "verify_organoid_adaptive_model.py": "math",
+    "verify_organoid_decoders.py": "math",
 }
 
 
