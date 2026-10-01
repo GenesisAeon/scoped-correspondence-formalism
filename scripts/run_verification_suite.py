@@ -148,6 +148,7 @@ _EXPLICIT_CATEGORY = {
     "verify_muonium_likelihood.py": "math",
     "verify_muonium_identifiability.py": "math",
     "verify_muonium_design.py": "math",
+    "verify_muonium_evidence.py": "math",
 }
 
 

@@ -258,6 +258,12 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_muonium_design.py",), "named budget: T_opt = 2 tau"),
     Mutant("mu5_bound_touch_hidden", "MU5", MD, "    touches = inside[0] == 0 or inside[-1] == len(grid) - 1", "    touches = False",
            ("verify_muonium_design.py",), "intervals ending at search bounds are flagged"),
+    Mutant("mu6_synthetic_labelled_empirical", "MU6", ME, '    "synthetic_measurement": ("numerical_sample", "synthetic_only"),',
+           '    "synthetic_measurement": ("empirical_evaluation", "evaluated_on_declared_data"),', ("verify_muonium_evidence.py",),
+           "synthetic results are not empirical"),
+    Mutant("mu6_real_data_marked_passed", "MU6", ME, '    return {"check": "muonium_real_beam_data", "result": "skipped",',
+           '    return {"check": "muonium_real_beam_data", "result": "passed",', ("verify_muonium_evidence.py", "verify_muonium_pilot_cli.py"),
+           "a skipped data check is never passed"),
 )
 
 
