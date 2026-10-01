@@ -157,6 +157,9 @@ _EXPLICIT_CATEGORY = {
     "verify_galaxy_joint_sensitivity.py": "data",
     # J8: weighted split conformal (exact controls + synthetic comparison).
     "verify_weighted_conformal.py": "math",
+    # J9: finite SCMs and interventional abstraction -- finite exact models only.
+    "verify_finite_causal_models.py": "math",
+    "verify_causal_abstraction.py": "math",
 }
 
 

@@ -33,7 +33,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ✅ erledigt |
 | C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ✅ erledigt |
 | C | J8 | Gewichtetes Split Conformal | J1/J2 | ✅ erledigt |
-| D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ⬜ offen |
+| D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ✅ erledigt |
 | D | J10 | Geprüfte Standardisierung/Transport | J9 | ⬜ offen |
 | E | J11 | Vorhandene Reduktionsschranken als Verträge | J4/J5 | ✅ erledigt |
 | E | J12 | CLI, Fähigkeitsbilanz, Abschlussregression | alle | ⬜ offen |
@@ -639,6 +639,34 @@ bei ganzzahligem exaktem Produkt um +1 — nur konservativ; Entscheidung in
 Quelle S13: arXiv-Eintrag erreichbar (HTTP 200); Gleichstandskonvention oben festgelegt, Volltextabgleich im Backlog.
 
 Regression: gemeinsamer Lauf J7–J10/J12 (additiv) — `--category all` **129/129**, `--category links` 0 kaputt. Gezielte Mutanten J8: 3/3 erkannt.
+
+## J9 — Endliche SCMs und interventionelle Abstraktion (erledigt)
+
+Dokumentation: [`docs/finite_causal_abstraction.md`](docs/finite_causal_abstraction.md).
+Code: `causal/finite_scm.py` (explizite, auch korrelierte exogene
+Verteilung; Mechanismen lesen nachweislich nur deklarierte Eltern; keine
+stille Normalisierung; Budget), `causal/abstraction.py`
+(Verteilungsgleichheit, Surjektivität, Ordnungserhaltung als getrennte
+Felder; exakt oder ausdrücklich numerisch; Interventionsscope in jedem
+Ergebnis).
+
+Prüfungen: `verify_finite_causal_models.py` (math) **5/5** — J-C18 inkl.
+epistemischer Faser über genau zwei Kandidaten, korrelierte Exogene,
+Validierungsfehler, Budgetabbruch, MR8. `verify_causal_abstraction.py`
+(math) **7/7** — J-C19 (fünf exakte Eingriffe; Erweiterung TV $1/2$ **und**
+Ordnungsverletzung = J0-Befund B3; Alternative „Nichtstun“ besteht
+beides), falsche Variable, nicht surjektiv, ein verletzender Eingriff,
+korrelierte Exogene, Budget, exakt vs. numerisch.
+
+**Korrekturen vor dem Commit:** (a) `FiniteDomainSpec` braucht hashbare
+Kandidaten — Testaufbau auf Etiketten umgestellt; (b) eine tautologische
+Assertion zum Koordinatentausch ersetzt: Der Tausch ist in diesem
+symmetrischen Beispiel prinzipiell unsichtbar und wird so dokumentiert,
+nicht als Erkennung gezählt.
+
+Quelle S14: arXiv-Eintrag erreichbar (HTTP 200); Ordnungsdefinition zum Volltextabgleich im Backlog.
+
+Regression: gemeinsamer Lauf J7–J10/J12 (additiv) — `--category all` **129/129**, `--category links` 0 kaputt. Gezielte Mutanten J9: 4/4 erkannt.
 
 ## Einbindung der Followups vom 2026-10-01
 

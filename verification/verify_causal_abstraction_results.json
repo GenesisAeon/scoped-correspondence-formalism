@@ -1,0 +1,81 @@
+{
+  "n_passed": 7,
+  "n_total": 7,
+  "results": {
+    "jc19_exact_abstraction": {
+      "n_checked": 5,
+      "scope": [
+        [],
+        [
+          [
+            "X1",
+            0
+          ],
+          [
+            "X2",
+            0
+          ]
+        ],
+        [
+          [
+            "X1",
+            0
+          ],
+          [
+            "X2",
+            1
+          ]
+        ],
+        [
+          [
+            "X1",
+            1
+          ],
+          [
+            "X2",
+            0
+          ]
+        ],
+        [
+          [
+            "X1",
+            1
+          ],
+          [
+            "X2",
+            1
+          ]
+        ]
+      ]
+    },
+    "jc19_failing_extension_and_b3": {
+      "extension_tv": "1/2",
+      "order_violation": true,
+      "alternative_noop_exact": true
+    },
+    "swapped_variable_names": {
+      "swapped_coordinates_mismatches": 0,
+      "wrong_variable_mismatches": 3
+    },
+    "non_surjective_and_missing": {
+      "unreached": [
+        [
+          [
+            "Z",
+            1
+          ]
+        ]
+      ]
+    },
+    "single_violating_intervention": {
+      "violations": 1
+    },
+    "correlated_exogenous_micro": {
+      "noop_tv": "1/2"
+    },
+    "budget_and_numeric_comparison": {
+      "budget": "budget_exhausted",
+      "numeric": "numeric_tolerance"
+    }
+  }
+}

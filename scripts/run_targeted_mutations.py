@@ -292,6 +292,14 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_weighted_conformal.py",), "clipping is a procedure change"),
     Mutant("j8_overlap_allowed", "J8", WC, "    if set(train_ids) & set(calibration_ids):", "    if False:", ("verify_weighted_conformal.py",),
            "training/calibration separation"),
+    Mutant("j9_parent_guard_removed", "J9", FS, "        if k not in self._allowed:", "        if False:",
+           ("verify_finite_causal_models.py",), "mechanisms read declared parents only"),
+    Mutant("j9_silent_normalisation", "J9", FS, "        if total != 1:\n            raise", "        if False:\n            raise",
+           ("verify_finite_causal_models.py",), "no silent normalisation"),
+    Mutant("j9_order_check_removed", "J9", AB, "                       if a != b and extends(a, b) and not extends(dict(omega)[a], dict(omega)[b]))",
+           "                       if False)", ("verify_causal_abstraction.py",), "order preservation (J0 finding B3)"),
+    Mutant("j9_surjectivity_ignored", "J9", AB, "    surj_missing = tuple(M for M in macro_interventions if M not in {M2 for _, M2 in omega})",
+           "    surj_missing = ()", ("verify_causal_abstraction.py",), "surjectivity"),
 )
 
 
