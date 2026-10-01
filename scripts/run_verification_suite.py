@@ -171,6 +171,7 @@ _EXPLICIT_CATEGORY = {
     # Organoid networks (ORGANOID_NETWORK_ROADMAP.md, ON1-ON7): synthetic
     # controls and benchmark; real data (ON6b) behind data gates.
     "verify_organoid_observation_controls.py": "math",
+    "verify_organoid_channels.py": "math",
 }
 
 

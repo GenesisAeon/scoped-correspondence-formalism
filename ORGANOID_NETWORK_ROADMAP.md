@@ -22,7 +22,7 @@ ist zulässig.
 |---|---|---|
 | ON0 | Quellen, Umfang, API-Audit, Handkontrollen | ✅ erledigt (dieser Commit) |
 | ON1 | Exakte Beobachtungs- und Strukturkontrollen ($W(\delta)$, Voll-/Summenbeobachter) | ✅ erledigt |
-| ON2 | Messrauschen und endliche Kanäle | ⬜ offen |
+| ON2 | Messrauschen und endliche Kanäle | ✅ erledigt |
 | ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ⬜ offen |
 | ON4 | Decoder und hierarchischer Vergleich | ⬜ offen |
 | ON5 | Information, PID und Gerichtetheit | ⬜ offen |
@@ -140,6 +140,23 @@ abgewiesen (Rauschen gehört nach ON2).
 4/4: ON-C01–C03; δ ∉ [0,1], falsche Dimension, nicht endliche Eingabe,
 Float-δ abgewiesen; δ = 10⁻⁹ liefert rauschfrei 1 Bit — ausdrücklich
 **keine** biologische Kippschwelle.
+
+## ON2 — Messrauschen und endliche Kanäle (erledigt)
+
+`validation/modular_networks/channels.py`: Bayes-Accuracy der
+Gaußkontrolle mit expliziten σ=0-Grenzfällen; strikte Kanal- und
+Priorprüfung **vor** jedem Aufruf der vorhandenen APIs (ON0-Befund B1);
+`exact_channel_report` (MI am Prior über `mutual_information_dmc`,
+Kapazität über `blahut_arimoto_capacity` samt `converged`) und
+`estimated_channel_report` aus Zählungen: fehlende Klasse → unbekannte
+Zeile, **keine** MI/Kapazität, kein Gleichverteilungs-Default;
+Pseudocounts sichtbar als Annahme.
+
+[`verify_organoid_channels.py`](verification/verify_organoid_channels.py)
+5/5: ON-C04 (analytisch + Monte-Carlo-Nächster-Mittelwert, 4σ-Band;
+Summenbeobachter klassengleich), ON-C05, ON-C06 (C = log₂(5/4) über BA),
+ON-C07/C08, Datenverarbeitung (20 zufällige Vergröberungen fügen keine
+Information hinzu), ON-C21.
 
 ## Regression
 

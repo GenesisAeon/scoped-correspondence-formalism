@@ -332,6 +332,14 @@ MUTANTS: Tuple[Mutant, ...] = (
            "    if isinstance(x, bool) or isinstance(x, float) or not isinstance(x, (int, Fraction)):",
            "    if isinstance(x, bool) or not isinstance(x, (int, float, Fraction)):", ("verify_organoid_observation_controls.py",),
            "noisy floats are not exact"),
+    Mutant("on2_silent_renormalisation", "ON2", ONM + "channels.py",
+           "    if not np.allclose(M.sum(axis=1), 1.0, atol=tol, rtol=0):", "    if False:", ("verify_organoid_channels.py",),
+           "non-normalised channel refused"),
+    Mutant("on2_missing_class_uniform", "ON2", ONM + "channels.py", "        if r.sum() == 0:\n            rows.append(None)",
+           "        if r.sum() == 0:\n            rows.append(tuple([1.0 / C.shape[1]] * C.shape[1]))", ("verify_organoid_channels.py",),
+           "unknown row, never a uniform default"),
+    Mutant("on2_bayes_sqrt2", "ON2", ONM + "channels.py", "    return 0.5 * (1.0 + math.erf(abs(delta) / sigma))",
+           "    return 0.5 * (1.0 + math.erf(abs(delta) / (math.sqrt(2) * sigma)))", ("verify_organoid_channels.py",), "A* = 0.92135"),
 )
 
 

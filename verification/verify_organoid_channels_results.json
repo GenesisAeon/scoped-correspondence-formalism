@@ -1,0 +1,27 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "on_c04_gaussian_bayes": {
+      "A_star": 0.9213503964748575,
+      "monte_carlo": 0.9206725
+    },
+    "on_c05_bsc_flip": {
+      "I": 1.0
+    },
+    "on_c06_equal_accuracy_different_information": {
+      "I_bsc": 0.18872187554086717,
+      "I_z": 0.31127812445913283,
+      "C_z": 0.32192809488736207
+    },
+    "on_c07_on_c08_and_data_processing": {
+      "I_SY": 1.0,
+      "I_SZ": 0.0,
+      "I_xor": 0.0,
+      "I_xor_given_H": 1.0
+    },
+    "on_c21_rejections_and_unknown_rows": {
+      "unknown_row_status": "unknown_row"
+    }
+  }
+}
