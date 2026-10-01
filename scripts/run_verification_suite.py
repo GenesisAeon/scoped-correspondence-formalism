@@ -122,6 +122,9 @@ _EXPLICIT_CATEGORY = {
     # J1 real-data adapter: reads data/noaa_global_temp_anomaly_1880_2025.csv
     # (hash-checked against data/real_data_manifest.json).
     "verify_forecast_comparison_noaa.py": "data",
+    # J2: exact dimension checks / Buckingham-Pi; reservoir and galaxy
+    # connections are symbolic or synthetic -- no real dataset.
+    "verify_dimensional_analysis.py": "math",
 }
 
 

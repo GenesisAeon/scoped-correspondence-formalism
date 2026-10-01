@@ -26,7 +26,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 |---|---|---|---|---|
 | A | J0 | Bestandsaufnahme, Roadmap, Kontrollfallregister | keine | ✅ erledigt |
 | A | J1 | Gepaarte Prognosevergleiche (DM/HAC) | J0 | ✅ erledigt |
-| A | J2 | Dimensionen, Einheiten, Buckingham-Π | J0 | ⬜ offen |
+| A | J2 | Dimensionen, Einheiten, Buckingham-Π | J0 | ✅ erledigt |
 | A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ⬜ offen |
 | B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ⬜ offen |
 | B | J5 | Exakte Intervallnachweise | J4 | ⬜ offen |
@@ -326,3 +326,67 @@ Regression mit J1: `--category all` **108/108** bestanden (106 bisherige
 Aufgefrischte Ergebnis-JSONs bestehender Prüfungen enthielten nur
 Zeitstempel/Pfade sowie einen Link-Zähler (201→207), der lediglich die
 neu hinzugekommenen Docs widerspiegelt — nicht mitcommittet.
+
+## J2 — Dimensionen, Einheiten und Buckingham-Π (erledigt)
+
+Dokumentation: [`docs/dimensional_correspondence.md`](docs/dimensional_correspondence.md).
+Code: neues Teilpaket `dimensions/` (`core.py`, `pi_groups.py`).
+
+- `Dimension` (rationale Exponenten über SI-Basis), `Unit` (Skala,
+  Offset für affine Skalen), `QuantitySpec` mit optionaler semantischer
+  Größenart; `check_dimension` über validierte Ausdrucksbäume (kein
+  Parser, kein `eval`); `convert`, `multiplicative_scale` (lehnt affine
+  Einheiten ab), `rescale_for_base_unit_change`.
+- `buckingham_pi_basis`: exakter Rang und rationaler Nullraum, primitive
+  ganzzahlige Basis; Vergleiche nur über `same_pi_span`.
+
+Prüfungen: `verify_dimensional_analysis.py` (math) **11/11** — J-C03
+(Pendel: Rang 2, Spann $(2,-1,1)$; $g/G$: $ML^{-2}$), J-C04 Reservoir
+(Jahr→Tag exakt, Anschluss `reservoir_step` relativ $10^{-14}$) und Halo
+($\rho r=12$ erhalten, $\rho r^3$ nicht), Addition verschiedener
+Dimensionen, exp/log-Argumente, rationale Exponenten,
+singuläre/leere/vollrangige Matrizen, Basiswechsel über den Spann,
+Galaxiengrößen ($V,r,G,M,a_0$: Nullität 2, Spann
+$\{V^2r/GM,\ a_0r/V^2\}$), Einheiten inkl. °C absolut vs. Differenz,
+Energie vs. Drehmoment als semantische Warnung, abstrakte dimensionslose
+SCF-Größe. **Gezielte Mutanten:** 9/9 durch inhaltliche Assertions
+erkannt. Eine anfangs enthaltene inhaltsleere Assertion
+(`not hasattr(eta, "unit")`, prüft nur das Klassendesign) wurde vor dem
+Commit entfernt, um keinen Prüfumfang vorzutäuschen.
+
+Quelle S05: DOI löst auf (link.aps.org, geprüft 2026-10-01).
+
+Regression mit J2: `--category all` **109/109** bestanden, 0
+übersprungen, 11 min 50 s; `--category links` 0 kaputt. Aufgefrischte
+Ergebnis-JSONs bestehender Prüfungen: nur Zeitstempel/Pfade/Link-Zähler,
+nicht mitcommittet. Remote-CI für J1-Commit `e2e6c49`: `verify`
+**success**.
+
+## Einbindung der Followups vom 2026-10-01
+
+Zwei neue Eingänge unter `prompts/Answers/nicht_stationäre_Treiber/`
+(Johann: „bau das ruhig direkt mit ein … fühl dich frei“):
+
+- [`SCF_MUONIUM_GRAVITY_IMPLEMENTATION_PLAN.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_MUONIUM_GRAVITY_IMPLEMENTATION_PLAN.md)
+  (MU0–MU7) — eigenständige Domäne mit eigener Roadmap
+  (`MUONIUM_GRAVITY_ROADMAP.md`, Pakete `MU<n>`). **Überschneidung mit J
+  ist fachlich, nicht konfliktär:** MU1 kann die J2-Dimensionsprüfung
+  nutzen (der MU-Plan verlangt, J-Bausteine erst nach Prüfung ihrer
+  tatsächlichen Existenz anzuschließen), MU-C09/C10 (entfaltete Phase,
+  Rang) sind exakte affine Identifizierbarkeit (J6), MU5 nutzt
+  Fisher-/Sensitivitätsbausteine (J6/J7). Daher wird MU **nach J6**
+  begonnen, damit keine Doppelentwicklung entsteht.
+- [`SCF_POLYEDER_SAKURAI_SATURN_ANSCHLUSSBEWERTUNG.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_POLYEDER_SAKURAI_SATURN_ANSCHLUSSBEWERTUNG.md)
+  — Bewertung mit optionalen Paketen. Übernommen wird der dort
+  empfohlene **begrenzte** Auftrag: TP0–TP1 (Polyeder-Beobachtungsfasern)
+  und SK0–SK3 (Sakurai: Speicherpuls vs. Messoperator); Saturn zunächst
+  nur SA0 (Quellen-/Größenregister). TP2–TP3, SK4, SA1–SA4 bleiben offene
+  Optionen. Keine Promotion des Turing-Review-Pakets zum Kern.
+- **Fehlendes Oracle:** Beide Dokumente verweisen auf ein Begleitskript
+  `independent_controls.py` (17 MU- + 12 Kandidaten-Kontrollgruppen,
+  „29/29“). Es liegt **nicht** im Eingangsordner (nur die beiden `.md`).
+  Alle Kontrollfälle werden daher ausschließlich selbst hergeleitet; die
+  Angabe „29/29“ ist hier nicht reproduziert.
+
+Gesamtreihenfolge: J2 → J3 → J4 → J5 → J11 → J6 → MU0–MU7 → J7 → J8 →
+J9 → J10 → J12 → TP0–TP1 → SK0–SK3 (+ SA0). Alle auf Branch `j-series`.
