@@ -3,9 +3,9 @@ metamorphic relations -- compare results under transformations whose effect
 is known mathematically, where individual target values are hard to state.
 
 Each relation states its mathematical justification next to the check.
-Relations whose production module does not exist yet are REGISTERED with
-the package that activates them (J7, J8, J9) and reported as pending --
-never counted as passed. J12 requires the full agreed set.
+Relations whose production module did not exist yet were first REGISTERED
+with the package that activates them (J7, J8, J9) and reported as pending;
+since J12 the full agreed set MR1-MR8 is implemented here.
 
 Implemented now:
   MR1 unit change (J-C04): reservoir solution invariant under year->day
@@ -19,9 +19,9 @@ Implemented now:
       difference and DM, leaves |DM| and p unchanged (random designs).
   MR5 split-conformal quantile: invariant under permutation of the
       calibration residuals and positively homogeneous under scaling.
-Pending: MR6 common positive scaling of conformal weights (J8),
-  MR7 swapping independent Sobol inputs with their labels (J7),
-  MR8 renaming SCM variables together with the interventions (J9).
+  MR6 weighted conformal: common positive scaling of all weights (J8).
+  MR7 Sobol: swapping independent inputs together with their labels (J7).
+  MR8 finite SCM: renaming variables together with the interventions (J9).
 """
 from __future__ import annotations
 
@@ -46,11 +46,11 @@ from scoped_correspondence.validation.forecast_comparison import (
     compare_paired_forecasts,
 )
 
-PENDING = {
-    "MR6_weighted_conformal_common_weight_scaling": "J8",
-    "MR7_sobol_input_swap_with_labels": "J7",
-    "MR8_scm_variable_renaming_with_interventions": "J9",
-}
+from scoped_correspondence.causal.finite_scm import FiniteSCM, Mechanism, independent_exogenous, interventional_distribution
+from scoped_correspondence.validation.global_sensitivity import InputSpec, sobol_indices
+from scoped_correspondence.validation.weighted_conformal import weighted_split_quantile
+
+PENDING: dict = {}  # empty since J12: the full agreed set is implemented
 
 
 def require(condition, msg=""):
@@ -207,10 +207,50 @@ def check_mr5_conformal_permutation_and_scaling():
     return {"trials": 30}
 
 
-def check_pending_relations_are_explicit():
-    # Not a pass of those relations: documents which package activates them.
-    require(set(PENDING.values()) == {"J7", "J8", "J9"}, "pending relations must name their activating package")
-    return {"pending": PENDING, "status": "not_evaluated_yet"}
+def check_mr6_weighted_conformal_weight_scaling():
+    # Justification: the quantile depends on weights only through w_i / (sum w + w_test).
+    rng = np.random.default_rng(41)
+    for _ in range(40):
+        n = int(rng.integers(1, 12))
+        scores = [F(int(x)) for x in rng.integers(0, 20, n)]
+        ws = [F(int(x)) for x in rng.integers(0, 6, n)]
+        tw = F(int(rng.integers(1, 6)))
+        a = F(int(rng.integers(1, 9)), 10)
+        c = F(int(rng.integers(1, 50)), int(rng.integers(1, 7)))
+        require(weighted_split_quantile(scores, ws, tw, a) == weighted_split_quantile(scores, [c * w for w in ws], c * tw, a),
+                "common positive weight scaling must not change the quantile")
+    return {"trials": 40}
+
+
+def check_mr7_sobol_input_swap_with_labels():
+    # Justification: Sobol indices are attached to inputs, not to column positions.
+    U = lambda name: InputSpec(name, lambda r, n: r.uniform(0.0, 1.0, n), "declared U[0,1]", "scenario_only")
+    f = lambda A: A[:, 0] * A[:, 1] + 3 * A[:, 0]
+    g = lambda A: A[:, 1] * A[:, 0] + 3 * A[:, 1]
+    r1 = sobol_indices(f, [U("X"), U("Y")], n=4000, seed=5)
+    r2 = sobol_indices(g, [U("Y"), U("X")], n=4000, seed=5)
+    require(np.allclose(r1.first_order, r2.first_order[::-1], atol=0.05) and np.allclose(r1.total, r2.total[::-1], atol=0.05),
+            "swapping inputs together with labels permutes the indices")
+    return {"S_XY": r1.first_order, "S_YX": r2.first_order}
+
+
+def check_mr8_scm_renaming():
+    # Justification: variable names carry no causal content.
+    fair = {0: F(1, 2), 1: F(1, 2)}
+
+    def m(a, b):
+        return FiniteSCM("m", (a, b), {a: (0, 1), b: (0, 1)},
+                         {a: Mechanism((), ("U",), lambda pa, u: u["U"]), b: Mechanism((a,), ("V",), lambda pa, u: pa[a] ^ u["V"])},
+                         *independent_exogenous(U=fair, V={0: F(3, 4), 1: F(1, 4)}))
+    m1, m2 = m("X", "Y"), m("P", "Q")
+    for d1, d2 in (({}, {}), ({"X": 1}, {"P": 1}), ({"Y": 0}, {"Q": 0}), ({"X": 0, "Y": 1}, {"P": 0, "Q": 1})):
+        require(interventional_distribution(m1, d1) == interventional_distribution(m2, d2), "renaming with interventions changes nothing")
+    return {"cases": 4}
+
+
+def check_no_pending_relations_left():
+    require(PENDING == {}, "J12: the full agreed metamorphic set must be implemented")
+    return {"pending": PENDING}
 
 
 CHECKS = [
@@ -219,7 +259,10 @@ CHECKS = [
     check_mr3_identity_and_associativity,
     check_mr4_forecast_ab_swap,
     check_mr5_conformal_permutation_and_scaling,
-    check_pending_relations_are_explicit,
+    check_mr6_weighted_conformal_weight_scaling,
+    check_mr7_sobol_input_swap_with_labels,
+    check_mr8_scm_renaming,
+    check_no_pending_relations_left,
 ]
 
 

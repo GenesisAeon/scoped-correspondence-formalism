@@ -92,6 +92,26 @@ built": that file describes the actual process, not an idealized one.
 | `epistemic/` | Assumption/evidence auditing layer: finite claim status, minimal supports, observation-dependent identification, decisions under declared uncertainty (also wraps `correspondence/controlled_markov.py`'s controlled-Markov lumpability under declared actions) |
 | `metarules/` | Repo-wide meta-rules |
 | `legacy/` | Adapters to the original Revision-2/3 check scripts |
+| `assurance/` | `ProofReport` result axes; exact rational interval certificates over whole boxes |
+| `dimensions/` | Exact dimension checks, units (incl. affine scales), Buckingham-Π basis |
+| `causal/` | Finite SCMs, exact interventional abstraction, d-separation, one checked transport rule |
+| `muonium/` | Muonium-gravity measurement model, identifiability counterexamples, design (synthetic only) |
+
+## Scope, composition and evidence
+
+Since the J-series ([SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md](SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md)),
+SCF can state *under which assumptions, on which domain and with which
+error* a relation between models may be used, chained or transferred:
+typed composition with exact scopes, clocks and separate flow/field error
+bounds; universal bounds over whole rational boxes with re-checkable
+certificates; exact affine identifiability; paired forecast comparisons
+whose inference is gated by declared applicability; joint sensitivity;
+weighted conformal calibration with an explicit guarantee status; exact
+finite causal abstraction and one checked transport rule; existing Markov
+reduction bounds as contracts. Each result separates what is proved,
+numerically sampled or empirically evaluated, and states what is **not**
+claimed (closing matrix in the roadmap). `python scripts/run_scope_evidence_demo.py`
+prints the six reference demonstrations as JSON.
 
 ## Status
 
@@ -125,6 +145,9 @@ either way).
 | [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) | Longer-term library architecture roadmap |
 | [GALAXY_DYNAMICS_ROADMAP.md](GALAXY_DYNAMICS_ROADMAP.md) | Galaxy rotation-curve module (G0–G7 + review fixes) |
 | [EPISTEMIC_AUDIT_ROADMAP.md](EPISTEMIC_AUDIT_ROADMAP.md) | Assumption/evidence auditing layer (H0–H7 + review fix) |
+| [SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md](SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md) | Scopes, composition and evidence (J0–J12) |
+| [MUONIUM_GRAVITY_ROADMAP.md](MUONIUM_GRAVITY_ROADMAP.md) | Muonium gravity measurement model (MU0–MU7) |
+| [DEEP_RESEARCH_BACKLOG.md](DEEP_RESEARCH_BACKLOG.md) | Open full-text / source questions and pending decisions |
 
 ## License
 

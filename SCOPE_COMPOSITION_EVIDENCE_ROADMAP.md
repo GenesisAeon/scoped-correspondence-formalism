@@ -36,7 +36,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ✅ erledigt |
 | D | J10 | Geprüfte Standardisierung/Transport | J9 | ✅ erledigt |
 | E | J11 | Vorhandene Reduktionsschranken als Verträge | J4/J5 | ✅ erledigt |
-| E | J12 | CLI, Fähigkeitsbilanz, Abschlussregression | alle | ⬜ offen |
+| E | J12 | CLI, Fähigkeitsbilanz, Abschlussregression | alle | ✅ erledigt |
 
 Geplante Reihenfolge: J0 → J1 → J2 → J3 (Basissatz) → J4 → J5 → J11 → J6
 → J7 → J8 → J9 → J10 → J12. J11 wird nach J5 vorgezogen, wie Plan §4
@@ -687,6 +687,51 @@ interventioneller Quellgrößen, unvollständige Tabellen, Budget.
 Quelle S15: arXiv-Eintrag erreichbar (HTTP 200); Definition 8 / Korollar 1 zum Volltextabgleich im Backlog.
 
 Regression: gemeinsamer Lauf J7–J10/J12 (additiv) — `--category all` **129/129**, `--category links` 0 kaputt. Gezielte Mutanten J10: 4/4 erkannt.
+
+## J12 — CLI, Fähigkeitsbilanz, Abschlussregression (erledigt)
+
+- `scripts/run_scope_evidence_demo.py`: die sechs Pflichtdemonstrationen
+  (inkompatible Verkettung und eingeschränkter Scope; Bereichsnachweis und
+  Gegenbeispiel; beobachtungsäquivalent, aber interventionell verschieden;
+  transportierbare und nicht zertifizierte Anfrage; Prognosevergleich mit
+  inferenzieller Grenze; gewichtete Kalibrierung mit sichtbarer
+  Unbeschränktheit) als Standard-JSON. `verify_scope_evidence_demo.py`
+  (math) **6/6**.
+- Metamorphe Relationen vollständig: MR6–MR8 ergänzt,
+  `verify_metamorphic_relations.py` **9/9**, keine ausstehenden Relationen.
+- README: knapper Fähigkeitsabsatz; Details in den Fachdokumenten.
+
+### Abschlussmatrix (Plan §18.2)
+
+| Bereich | Erreichter Abschluss | Was dadurch **nicht** behauptet wird |
+|---|---|---|
+| Dimensionen (J2) | exakte Π-Basis, Dimensions- und Einheitenfehler, semantische Warnung | gleiche physikalische Bedeutung gleicher Einheiten |
+| Komposition (J4) | kompatible Modell-/Scope-/Zeitverträge, Fluss- und Feldschranken getrennt | beliebige Verkettbarkeit |
+| Bereichsnachweise (J5) | unterstützte rationale Ausdrücke auf deklarierten Boxen, erneut prüfbare Zertifikate | Blackbox- oder ODE-Zertifizierung |
+| Identifizierbarkeit (J6) | exakte affine Analyse, analytische Kontrollfamilien, `unsupported` außerhalb | vollständiger ODE-Solver |
+| Prognosevergleich (J1) | gepaarte Effekte, anwendbarkeitsabhängige DM/HAC-Inferenz, Holm nur vorab deklariert | universeller Überlegenheitstest |
+| Sensitivität (J7) | gemeinsame Szenarien, unabhängiger Sobol-Kern, Galaxienpilot vorzeichenstabil | unbekannte reale Parameterverteilung als bekannt |
+| Conformal (J8) | korrekte gewichtete Quantile, begrenzte Garantie mit Status | Abdeckung unter beliebigem Drift |
+| Kausalabstraktion (J9) | exakte Prüfung deklarierter endlicher Eingriffe | kontrafaktische oder ontologische Identität |
+| Transport (J10) | eine geprüfte Regel, konkrete Gegenmodellzeugen | vollständiger Transportabilitätsalgorithmus |
+| Reduktion (J11) | vorhandene Schranken als Verträge, exakt bei exakten Eingaben | neue allgemeine Reduktionstheorie |
+
+### Zählung nach Evidenzart (Plan §18.3)
+
+- **Realdatenprüfungen:** `verify_forecast_comparison_noaa.py` (NOAA,
+  eingecheckt, hashgeprüft) und `verify_galaxy_joint_sensitivity.py`
+  (lokale SPARC-Dateien, nicht eingecheckt, Lizenz ungeklärt; ohne Dateien
+  `skipped`).
+- **Synthetische/exakte Prüfungen:** alle übrigen J-, MU-Prüfskripte.
+- **Ausgelassen/blockiert:** MU6-Realdaten (`deferred`, Lizenz InC-NC);
+  keine neue Rohdatenveröffentlichung.
+- **Optional, nicht Pflicht (Plan §22):** unverändert offen, siehe J0.
+
+### Gezielte Mutationen (Vollsatz)
+
+`verification/targeted_mutations_report.json`: **83 Mutanten** über J0–J11 und MU1–MU7, **82 durch Assertions erkannt, 1 vorab begründet äquivalent** (J6-Zeugenprüfung), 0 überlebt, 0 ungültig. Alle sechs planpflichtigen Fehlerklassen (Plan §9) sind aktiv. Zwei Testlücken wurden durch Mutanten gefunden und geschlossen (J1: Degenerationsfall nur über Absturz erkannt; J7: untransformierte Testradien). Ein hoher Anteil ist keine Vollständigkeitsgarantie.
+
+Regression: gemeinsamer Lauf über den Stand mit J7–J10 und J12 — `--category all` **129/129** bestanden, 0 übersprungen, 13 min 38 s; `--category links` 0 kaputt. Remote-CI der gepushten Pakete: siehe Branch `j-series`.
 
 ## Einbindung der Followups vom 2026-10-01
 

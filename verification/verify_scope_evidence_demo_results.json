@@ -1,0 +1,12 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "1_incompatible_then_restricted": true,
+    "2_certificate_and_counterexample": true,
+    "3_observation_vs_intervention": true,
+    "4_transport": true,
+    "5_forecast_limit": true,
+    "6_weighted_unbounded_visible": true
+  }
+}

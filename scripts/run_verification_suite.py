@@ -162,6 +162,8 @@ _EXPLICIT_CATEGORY = {
     "verify_causal_abstraction.py": "math",
     # J10: selection diagrams and one checked standardisation rule.
     "verify_scoped_transportability.py": "math",
+    # J12: demo CLI for the six mandatory demonstrations.
+    "verify_scope_evidence_demo.py": "math",
 }
 
 

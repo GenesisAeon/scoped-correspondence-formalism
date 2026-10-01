@@ -1,11 +1,7 @@
 {
-  "n_passed": 6,
-  "n_total": 6,
-  "pending_relations": {
-    "MR6_weighted_conformal_common_weight_scaling": "J8",
-    "MR7_sobol_input_swap_with_labels": "J7",
-    "MR8_scm_variable_renaming_with_interventions": "J9"
-  },
+  "n_passed": 9,
+  "n_total": 9,
+  "pending_relations": {},
   "results": {
     "mr1_unit_change_reservoir": {
       "cases": 50,
@@ -27,13 +23,24 @@
     "mr5_conformal_permutation_and_scaling": {
       "trials": 30
     },
-    "pending_relations_are_explicit": {
-      "pending": {
-        "MR6_weighted_conformal_common_weight_scaling": "J8",
-        "MR7_sobol_input_swap_with_labels": "J7",
-        "MR8_scm_variable_renaming_with_interventions": "J9"
-      },
-      "status": "not_evaluated_yet"
+    "mr6_weighted_conformal_weight_scaling": {
+      "trials": 40
+    },
+    "mr7_sobol_input_swap_with_labels": {
+      "S_XY": [
+        0.9844779324693801,
+        0.019206879471865255
+      ],
+      "S_YX": [
+        0.014206387025695323,
+        0.9429087966937117
+      ]
+    },
+    "mr8_scm_renaming": {
+      "cases": 4
+    },
+    "no_pending_relations_left": {
+      "pending": {}
     }
   }
 }

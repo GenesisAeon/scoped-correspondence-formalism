@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 68,
+  "n_mutants": 83,
   "counts": {
-    "killed": 67,
+    "killed": 82,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 67,
+  "killed_by_assertion": 82,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "67/67",
+  "kill_ratio_excluding_equivalent": "82/82",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -28,7 +28,13 @@
     "verify_muonium_identifiability.py": "pass",
     "verify_muonium_kinematics.py": "pass",
     "verify_muonium_likelihood.py": "pass",
-    "verify_muonium_pilot_cli.py": "pass"
+    "verify_muonium_pilot_cli.py": "pass",
+    "verify_galaxy_joint_sensitivity.py": "pass",
+    "verify_global_sensitivity.py": "pass",
+    "verify_weighted_conformal.py": "pass",
+    "verify_causal_abstraction.py": "pass",
+    "verify_finite_causal_models.py": "pass",
+    "verify_scoped_transportability.py": "pass"
   },
   "mutants": [
     {
@@ -1057,7 +1063,232 @@
         "verify_muonium_pilot_cli.py: fail ['FAIL  ideal: neutral headline: Einstein widerlegt? synthetic ideal']"
       ],
       "seconds": 16.44
+    },
+    {
+      "id": "j7_total_index_not_halved",
+      "package": "J7",
+      "file": "src/scoped_correspondence/validation/global_sensitivity.py",
+      "expected": "total-index estimator normalisation",
+      "targets": [
+        "verify_global_sensitivity.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_global_sensitivity.py: fail ['FAIL  estimator_converges_within_its_errors: X+2Y: estimate 0.39557912523224653 vs exact 0.2 (se 0.0023378046831556095)']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "j7_zero_variance_reported_as_zero",
+      "package": "J7",
+      "file": "src/scoped_correspondence/validation/global_sensitivity.py",
+      "expected": "zero variance is undefined, not 0",
+      "targets": [
+        "verify_global_sensitivity.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_global_sensitivity.py: fail ['FAIL  undefined_and_unsupported: constant output: undefined, not 0']"
+      ],
+      "seconds": 2.05
+    },
+    {
+      "id": "j7_dependent_inputs_accepted",
+      "package": "J7",
+      "file": "src/scoped_correspondence/validation/global_sensitivity.py",
+      "expected": "dependent inputs refused",
+      "targets": [
+        "verify_global_sensitivity.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_global_sensitivity.py: fail ['FAIL  undefined_and_unsupported: dependent inputs refused']"
+      ],
+      "seconds": 2.05
+    },
+    {
+      "id": "j7_joint_transform_skips_test_rows",
+      "package": "J7",
+      "file": "src/scoped_correspondence/validation/galaxy_joint_sensitivity.py",
+      "expected": "same transformation on train AND test rows (reference scenario reproduces the existing evaluation)",
+      "targets": [
+        "verify_galaxy_joint_sensitivity.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_galaxy_joint_sensitivity.py: fail ['FAIL  joint_scenarios_on_local_sparc: D+sigma_D: joint grid point must equal the existing one-at-a-time scenario']"
+      ],
+      "seconds": 13.89
+    },
+    {
+      "id": "j8_test_mass_dropped",
+      "package": "J8",
+      "file": "src/scoped_correspondence/validation/weighted_conformal.py",
+      "expected": "plan \u00a79: Testpunktmasse weglassen (weighted variant)",
+      "targets": [
+        "verify_weighted_conformal.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_weighted_conformal.py: fail ['FAIL  jc15_quantiles_and_test_mass: J-C15: (3, +inf, 2), got [Fraction(3, 1), Fraction(3, 1), Fraction(2, 1)]']"
+      ],
+      "seconds": 4.27
+    },
+    {
+      "id": "j8_clipping_inherits_guarantee",
+      "package": "J8",
+      "file": "src/scoped_correspondence/validation/weighted_conformal.py",
+      "expected": "clipping is a procedure change",
+      "targets": [
+        "verify_weighted_conformal.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_weighted_conformal.py: fail ['FAIL  guarantee_inheritance_and_json: estimated or clipped weights do not inherit the guarantee']"
+      ],
+      "seconds": 5.83
+    },
+    {
+      "id": "j8_overlap_allowed",
+      "package": "J8",
+      "file": "src/scoped_correspondence/validation/weighted_conformal.py",
+      "expected": "training/calibration separation",
+      "targets": [
+        "verify_weighted_conformal.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_weighted_conformal.py: fail ['FAIL  input_validation_and_separation: overlapping training and calibration sets are refused']"
+      ],
+      "seconds": 4.22
+    },
+    {
+      "id": "j9_parent_guard_removed",
+      "package": "J9",
+      "file": "src/scoped_correspondence/causal/finite_scm.py",
+      "expected": "mechanisms read declared parents only",
+      "targets": [
+        "verify_finite_causal_models.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_finite_causal_models.py: fail ['']"
+      ],
+      "seconds": 2.11
+    },
+    {
+      "id": "j9_silent_normalisation",
+      "package": "J9",
+      "file": "src/scoped_correspondence/causal/finite_scm.py",
+      "expected": "no silent normalisation",
+      "targets": [
+        "verify_finite_causal_models.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_finite_causal_models.py: fail ['FAIL  validation_errors: probabilities summing to 5/6 are an error, never normalised']"
+      ],
+      "seconds": 2.24
+    },
+    {
+      "id": "j9_order_check_removed",
+      "package": "J9",
+      "file": "src/scoped_correspondence/causal/abstraction.py",
+      "expected": "order preservation (J0 finding B3)",
+      "targets": [
+        "verify_causal_abstraction.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_causal_abstraction.py: fail ['FAIL  jc19_failing_extension_and_b3: J0 B3: do(X1=1) <= do(X1=1,X2=1) -> do(Z=0), but do(Z=1) is not <= do(Z=0)']"
+      ],
+      "seconds": 2.61
+    },
+    {
+      "id": "j9_surjectivity_ignored",
+      "package": "J9",
+      "file": "src/scoped_correspondence/causal/abstraction.py",
+      "expected": "surjectivity",
+      "targets": [
+        "verify_causal_abstraction.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_causal_abstraction.py: fail ['FAIL  non_surjective_and_missing: do(Z=1) never reached: not surjective']"
+      ],
+      "seconds": 2.39
+    },
+    {
+      "id": "j10_do_graph_removes_outgoing",
+      "package": "J10",
+      "file": "src/scoped_correspondence/causal/selection_diagrams.py",
+      "expected": "G_bar_X removes edges INTO X",
+      "targets": [
+        "verify_scoped_transportability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_scoped_transportability.py: fail ['FAIL  wrong_edge_removal_direction: correct G_bar_X (edges INTO X removed): S admissible with Z = {}']"
+      ],
+      "seconds": 2.14
+    },
+    {
+      "id": "j10_no_moralisation",
+      "package": "J10",
+      "file": "src/scoped_correspondence/causal/selection_diagrams.py",
+      "expected": "collider handling via moralisation",
+      "targets": [
+        "verify_scoped_transportability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_scoped_transportability.py: fail ['FAIL  jc23_graph: collider closed; conditioning on C or its descendant D opens it']"
+      ],
+      "seconds": 2.05
+    },
+    {
+      "id": "j10_observational_accepted",
+      "package": "J10",
+      "file": "src/scoped_correspondence/causal/transport.py",
+      "expected": "observational quantities are not interventional",
+      "targets": [
+        "verify_scoped_transportability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_scoped_transportability.py: fail ['FAIL  premise_failures: observational P(Y|X,Z) is not accepted in place of P(Y|do(X),Z)']"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "j10_support_unchecked",
+      "package": "J10",
+      "file": "src/scoped_correspondence/causal/transport.py",
+      "expected": "missing support",
+      "targets": [
+        "verify_scoped_transportability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_scoped_transportability.py: fail ['']"
+      ],
+      "seconds": 2.09
     }
   ],
-  "composition": "merged from runs of the same runner: 47 mutants, 21 mutants"
+  "composition": "merged from runs of the same runner: 68 mutants, 4 mutants, 3 mutants, 4 mutants, 4 mutants"
 }
