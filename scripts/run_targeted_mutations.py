@@ -69,6 +69,8 @@ DP = "src/scoped_correspondence/dimensions/pi_groups.py"
 CONTRACT = "src/scoped_correspondence/correspondence/contract.py"
 CONFORMAL = "src/scoped_correspondence/validation/conformal.py"
 EB = "src/scoped_correspondence/closure/error_bounds.py"
+COMP = "src/scoped_correspondence/correspondence/composition.py"
+DOM = "src/scoped_correspondence/correspondence/domains.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -130,6 +132,33 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_dimensional_analysis.py",), "J-C03 null space"),
     Mutant("j2_span_check_ignores_joint_rank", "J2", DP, "    return ra == rb == rab", "    return ra == rb",
            ("verify_dimensional_analysis.py",), "basis change compares spans"),
+    # --- J4 (activates the remaining plan-mandated classes) -------------------
+    Mutant("j4_lipschitz_factor_removed", "J4", COMP,
+           "        flow = l2.lipschitz.constant * l1.flow_error_bound + l2.flow_error_bound",
+           "        flow = l1.flow_error_bound + l2.flow_error_bound",
+           ("verify_correspondence_contracts.py",), "plan §9: Lipschitzfaktor entfernen"),
+    Mutant("j4_scope_compatibility_bypassed", "J4", COMP, "    mism = compatibility(l1, l2)\n    if mism:",
+           "    mism = compatibility(l1, l2)\n    if False:",
+           ("verify_correspondence_contracts.py",), "plan §9: Scope-Verträglichkeit umgehen"),
+    Mutant("j4_time_factor_added_not_multiplied", "J4", COMP, "time_factor=c1 * c2,", "time_factor=c1 + c2,",
+           ("verify_correspondence_contracts.py",), "J-C06 composite clock factor"),
+    Mutant("j4_horizon_scaled_wrong_way", "J4", COMP, "    horizon = min(l1.horizon, l2.horizon / c1)",
+           "    horizon = min(l1.horizon, l2.horizon * c1)", ("verify_correspondence_contracts.py",), "J-C06 horizon"),
+    Mutant("j4_delta2_multiplied_by_c1", "J4", COMP,
+           "        flow = l2.lipschitz.constant * l1.flow_error_bound + l2.flow_error_bound",
+           "        flow = l2.lipschitz.constant * l1.flow_error_bound + c1 * l2.flow_error_bound",
+           ("verify_correspondence_contracts.py",), "plan §10.3: delta2 evaluated at c1 t, not multiplied by c1"),
+    Mutant("j4_negative_scale_not_swapped", "J4", DOM, "            if a < 0:\n                l, h = h, l", "            if False:\n                l, h = h, l",
+           ("verify_correspondence_contracts.py",), "negative scales"),
+    Mutant("j4_preimage_ignores_first_domain", "J4", DOM, "            bounds[j][0] = max(bounds[j][0], l)", "            bounds[j][0] = l",
+           ("verify_correspondence_contracts.py",), "D12 = D1 ∩ T1^-1(D2)"),
+    Mutant("j4_sampled_bound_not_downgraded", "J4", COMP,
+           '    ranks = [(_EVIDENCE_ORDER.index(k) if k in _EVIDENCE_ORDER else 0) for k in kinds]\n    return _EVIDENCE_ORDER[min(ranks)]',
+           '    ranks = [(_EVIDENCE_ORDER.index(k) if k in _EVIDENCE_ORDER else 0) for k in kinds]\n    return _EVIDENCE_ORDER[max(ranks)]',
+           ("verify_correspondence_contracts.py",), "weakest component evidence wins"),
+    Mutant("j4_lipschitz_segment_coverage_ignored", "J4", COMP,
+           "    elif l2.lipschitz is None or not l2.lipschitz.covers_connecting_segments:",
+           "    elif l2.lipschitz is None:", ("verify_correspondence_contracts.py",), "certificate must cover connecting segments"),
 )
 
 

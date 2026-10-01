@@ -28,7 +28,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | A | J1 | Gepaarte Prognosevergleiche (DM/HAC) | J0 | ✅ erledigt |
 | A | J2 | Dimensionen, Einheiten, Buckingham-Π | J0 | ✅ erledigt |
 | A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ✅ erledigt (Basissatz; Vollsatz in J12) |
-| B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ⬜ offen |
+| B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ✅ erledigt |
 | B | J5 | Exakte Intervallnachweise | J4 | ⬜ offen |
 | C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ⬜ offen |
 | C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ⬜ offen |
@@ -411,6 +411,55 @@ Regression (gemeinsamer Lauf über den Stand mit J3 und J4, beide rein additiv; 
 J3-Prüfskripte importieren kein J4-Modul, per `grep` geprüft): `--category all`
 **112/112** bestanden, 0 übersprungen, 12 min 7 s; `--category links` 0 kaputt.
 Aufgefrischte Ergebnis-JSONs bestehender Prüfungen: nur Zeitstempel/Pfade.
+
+## J4 — Bereichsverträge, Verfeinerung und Komposition (erledigt)
+
+Dokumentation: [`docs/correspondence_contracts.md`](docs/correspondence_contracts.md).
+Code: `assurance/records.py` (`ProofReport`, `ClaimBundle`, Adapter zu
+`ClaimReport`), `correspondence/domains.py`,
+`correspondence/contracts.py`, `correspondence/composition.py`;
+`correspondence/contract.py` unverändert.
+
+- Exakte Domänen (`FiniteSet`, `RationalBox`, `HalfspaceSet`,
+  `OpaquePredicate` nur punktweise), `certify_subset`, exaktes Urbild
+  unter affinen Abbildungen — nicht als Box darstellbare Urbilder bleiben
+  symbolisch.
+- `check_refinement` (funktionaler Spezialfall); Schnittstellen-
+  abweichungen sind `incompatible`, nicht „widerlegt“.
+- `compose_correspondences`: Modell-ID/Koordinaten/Einheiten/Uhr müssen
+  passen; $D_{12}$ exakt, leer markiert; $c_{12}=c_1c_2$;
+  $H_{12}=\min(H_1,H_2/c_1)$; Flussfehler nur mit Lipschitzzertifikat
+  inkl. Verbindungsstrecken; Feldresiduum $M\varepsilon_1+A\varepsilon_2$
+  getrennt; schwächste Komponentenevidenz bestimmt die Komposition.
+
+Prüfung: `verify_correspondence_contracts.py` (math) **11/11** — J-C05,
+J-C06, J-C07, J-C08, inkompatible Zwischenmodelle/Koordinaten/Einheiten/
+Uhren/Metriken (auch gleicher Name bei anderer Schnittstelle), leere
+Schnittmenge, fehlendes bzw. unvollständiges Lipschitzzertifikat,
+Herabstufung bei geschätzten Komponenten, positive/negative Skalen,
+Identität, Assoziativität (Abbildungen, Uhren, Horizonte, Scopes exakt
+gleich; konstante Schranken hier gleich $11/28$), Domänenklassen,
+Berichtsinvarianten und Adapter. **Gezielte Mutanten:** 9/9 durch
+Assertions erkannt, darunter die planpflichtigen „Lipschitzfaktor
+entfernen“ und „Scope-Verträglichkeit umgehen“ sowie „$\delta_2$
+fälschlich mit $c_1$ multipliziert“. Der Gesamtbericht
+`verification/targeted_mutations_report.json` steht damit bei **28/28**
+(J0–J4), alle durch Assertions; damit sind alle sechs planpflichtigen
+Fehlerklassen aus Plan §9 aktiv.
+
+**Korrekturen innerhalb von J4, vor dem Commit:** (a) Zeugenpunkt bei
+„Box ⊄ Box“ wählte die Achse über einen Wertvergleich und konnte bei
+gleichen Achsengrenzen die falsche Achse treffen — auf Achsenindex
+umgestellt. (b) Flussfehlerschranken trugen anfangs keine Evidenzart, ein
+numerisch geschätzter Komponentenfehler wäre als „bewiesen“ komponiert
+worden — `flow_error_evidence` (Standard `not_evaluated`) ergänzt. (c)
+Eine eigene Testerwartung zur Assoziativität setzte $L_3=3/2$ statt
+$1/2$ ein; der Code war korrekt ($11/28$), die Assertion wurde
+berichtigt.
+
+Quelle S07: DOI und ISTA-Nachweis lösen auf (geprüft 2026-10-01).
+
+Regression: gemeinsamer Lauf mit J3 (siehe dort) — **112/112**, 0 kaputte Links.
 
 ## Einbindung der Followups vom 2026-10-01
 

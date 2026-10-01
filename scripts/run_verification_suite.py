@@ -131,6 +131,8 @@ _EXPLICIT_CATEGORY = {
     # the suite -- every mutant re-runs whole verify scripts.
     "verify_metamorphic_relations.py": "math",
     "verify_targeted_mutation_runner.py": "math",
+    # J4: exact domains, functional contracts, typed composition.
+    "verify_correspondence_contracts.py": "math",
 }
 
 
