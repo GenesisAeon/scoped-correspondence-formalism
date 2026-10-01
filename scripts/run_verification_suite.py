@@ -140,6 +140,10 @@ _EXPLICIT_CATEGORY = {
     "verify_reduction_contracts.py": "math",
     # J6: exact affine / analytic structural identifiability reports.
     "verify_structural_identifiability.py": "math",
+    # MU1-MU7 (MUONIUM_GRAVITY_ROADMAP.md): idealised model, synthetic
+    # counts and analytic counterexamples only -- the real beam data
+    # (MU-S5, license InC-NC) is deferred and never read here.
+    "verify_muonium_kinematics.py": "math",
 }
 
 

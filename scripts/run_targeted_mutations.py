@@ -48,7 +48,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 REPO = Path(__file__).resolve().parents[1]
-COPY_DIRS = ("src", "verification", "data")
+COPY_DIRS = ("src", "verification", "data", "scripts")  # scripts: CLI mutants (MU7) and verify scripts that call a CLI
 
 
 @dataclass(frozen=True)
@@ -76,6 +76,13 @@ SC = "src/scoped_correspondence/assurance/scope_certification.py"
 CA = "src/scoped_correspondence/closure/contract_adapter.py"
 EL = "src/scoped_correspondence/identifiability/exact_linear.py"
 SR = "src/scoped_correspondence/identifiability/structural_reports.py"
+MK = "src/scoped_correspondence/muonium/kinematics.py"
+MF = "src/scoped_correspondence/muonium/forward.py"
+ML = "src/scoped_correspondence/muonium/likelihood.py"
+MI = "src/scoped_correspondence/muonium/identifiability.py"
+MD = "src/scoped_correspondence/muonium/design.py"
+ME = "src/scoped_correspondence/muonium/evidence.py"
+MP = "scripts/run_muonium_pilot.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -213,6 +220,14 @@ MUTANTS: Tuple[Mutant, ...] = (
            equivalent_reason=("(c/lam)*(lam*x0) == c*x0 holds algebraically for EVERY lam > 0, and positivity is "
                               "enforced before; inside the J-C12 family the exact check cannot evaluate to False, "
                               "so 'always True' is behaviourally equivalent (the check documents, it cannot fail)")),
+    # --- MU1-MU7 ----------------------------------------------------------------
+    Mutant("mu1_single_path_factor_used_as_relative", "MU1", MK, "    return a * T * T\n", "    return a * T * T / 2\n",
+           ("verify_muonium_kinematics.py",), "relative displacement aT^2 vs single path aT^2/2"),
+    Mutant("mu1_survival_one_transit", "MU1", MK, "    return math.exp(-2 * float(geom.L) / (float(geom.v) * float(t_eff)))",
+           "    return math.exp(-float(geom.L) / (float(geom.v) * float(t_eff)))", ("verify_muonium_kinematics.py",), "survival over 2T"),
+    Mutant("mu1_unequal_times_accepted", "MU1", MK, "    if t1 != t2:", "    if False:", ("verify_muonium_kinematics.py",), "equal flight times scope"),
+    Mutant("mu1_eta_zero_denominator_invented", "MU1", MK, "    if den == 0:\n        return None", "    if den == 0:\n        return 0",
+           ("verify_muonium_kinematics.py",), "eta undefined, not invented"),
 )
 
 

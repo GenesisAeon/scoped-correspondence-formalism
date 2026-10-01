@@ -1,0 +1,34 @@
+{
+  "n_passed": 7,
+  "n_total": 7,
+  "results": {
+    "mu_c01_delta_eta": {
+      "delta": "1/10",
+      "eta": "2/21"
+    },
+    "mu_c02_second_difference_exact": {
+      "identity": "aT^2"
+    },
+    "mu_c03_reference_table": {
+      "L": 0.009592,
+      "drop_tau": 2.3740200000000003e-11,
+      "rel": 1.8992160000000002e-10,
+      "phase": 0.011933126066360386,
+      "survival": 0.01831563888873418,
+      "dphi_1pct": 0.00011933126066360386,
+      "shift_1pct": 1.8992160000000006e-12
+    },
+    "mu_c04_survival_and_optimum": {
+      "survival": 0.01831563888873418
+    },
+    "mu_c05_units_and_velocity_calibration": {
+      "a_fit_over_a_true": 1.0200999999999998
+    },
+    "mu_c14_periodic_alias": {
+      "alias_step_m_per_s2": 5165.289256198346
+    },
+    "scope_rejections": {
+      "rejections": "ok"
+    }
+  }
+}

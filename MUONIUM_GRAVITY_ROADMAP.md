@@ -19,8 +19,8 @@ eine präzise Schätzung.
 
 | Paket | Inhalt | Status |
 |---|---|---|
-| MU0 | Quellenregister, Anschlussinventar, unabhängige Herleitungen | ✅ erledigt (dieser Commit) |
-| MU1 | Kinematik, Einheiten, Geltungsbereich | ⬜ offen |
+| MU0 | Quellenregister, Anschlussinventar, unabhängige Herleitungen | ✅ erledigt |
+| MU1 | Kinematik, Einheiten, Geltungsbereich | ✅ erledigt |
 | MU2 | Endliche Geschwindigkeitsmischung und Messoperator | ⬜ offen |
 | MU3 | Count-Likelihood und Schätzdiagnostik | ⬜ offen |
 | MU4 | Identifizierbarkeit und Interventionen | ⬜ offen |
@@ -126,3 +126,10 @@ Kalibrierung (nicht zur Gravitation) nutzen dürfte.
 - [x] reale API-Signaturen bestätigt
 - [x] keine Produktions-API in diesem Paket
 - [x] bisherige Tests und Links unverändert grün (siehe Commit)
+
+## MU1 — Kinematik, Einheiten, Geltungsbereich (erledigt)
+
+Code: `muonium/kinematics.py`. Prüfung: `verify_muonium_kinematics.py` (math) **7/7** — MU-C01–C05, MU-C14; ungleiche Flugzeiten abgelehnt, η-Nenner null → undefiniert (nicht erfunden), ungültige Geometrie, nicht endliche Eingaben; negative $a$ zulässig; Phase per J2-Dimensionsprüfung dimensionslos.
+
+Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv; jede MU-Prüfung importiert nur MU-Module bis zu ihrem eigenen Paket) — `--category all` **122/122** bestanden, 0 übersprungen, 13 min 12 s; `--category links` 0 kaputt.
+
