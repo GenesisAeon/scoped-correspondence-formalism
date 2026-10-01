@@ -23,7 +23,7 @@ eine präzise Schätzung.
 | MU1 | Kinematik, Einheiten, Geltungsbereich | ✅ erledigt |
 | MU2 | Endliche Geschwindigkeitsmischung und Messoperator | ✅ erledigt |
 | MU3 | Count-Likelihood und Schätzdiagnostik | ✅ erledigt |
-| MU4 | Identifizierbarkeit und Interventionen | ⬜ offen |
+| MU4 | Identifizierbarkeit und Interventionen | ✅ erledigt |
 | MU5 | Design und bedingte Abdeckung | ⬜ offen |
 | MU6 | Evidenzadapter, optionales Realdatenfenster | ⬜ offen (Realdaten voraussichtlich `deferred`) |
 | MU7 | CLI, Fähigkeitsbilanz, Abschluss | ⬜ offen |
@@ -144,6 +144,12 @@ Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--cate
 ## MU3 — Count-Likelihood und Schätzdiagnostik (erledigt)
 
 Code: `muonium/likelihood.py`. Prüfung: `verify_muonium_likelihood.py` (math) **5/5** — MU-C08 (Nullfälle, Deviance = 2·(NLL − gesättigt)), MU-C14 (alle Alias-Moden im Abstand $d/T^2$ berichtet), MU-C15; Randtreffer und Fehlläufe sichtbar, keine globale Aussage aus Mehrfachstart; nur rohe ganzzahlige Zählungen.
+
+Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
+
+## MU4 — Identifizierbarkeit und Interventionen (erledigt)
+
+Code: `muonium/identifiability.py` (auf J6 aufbauend). Prüfung: `verify_muonium_identifiability.py` (math) **9/9** — alle acht Gegenbeispiele aus Plan §7, MU-C09–C11, MU-C14, MU-C17; ausdrücklich: mehr Flugzeiten und Umkehrungen entfernen nicht jede Störung; endliche Faser nur für die gelisteten Kandidaten.
 
 Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
 

@@ -246,6 +246,10 @@ MUTANTS: Tuple[Mutant, ...] = (
     Mutant("mu3_noninteger_counts_accepted", "MU3", ML,
            "        if isinstance(n, bool) or not isinstance(n, (int, np.integer)) or n < 0:",
            "        if isinstance(n, bool) or n < 0:", ("verify_muonium_likelihood.py",), "raw integer counts only"),
+    Mutant("mu4_parity_odd_dropped", "MU4", MI, '    odd = sorted(k for k, v in parities.items() if v == "odd")', "    odd = []",
+           ("verify_muonium_identifiability.py",), "odd bias stays with gravity"),
+    Mutant("mu4_calibration_linear", "MU4", MI, "    return (1 + e) ** 2", "    return 1 + 2 * e",
+           ("verify_muonium_identifiability.py",), "(1+e)^2 exactly"),
 )
 
 
