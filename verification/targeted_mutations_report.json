@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 89,
+  "n_mutants": 105,
   "counts": {
-    "killed": 88,
+    "killed": 104,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 88,
+  "killed_by_assertion": 104,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "88/88",
+  "kill_ratio_excluding_equivalent": "104/104",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -36,7 +36,14 @@
     "verify_finite_causal_models.py": "pass",
     "verify_scoped_transportability.py": "pass",
     "verify_polyhedral_observation_pilot.py": "pass",
-    "verify_stellar_pulse_observation.py": "pass"
+    "verify_stellar_pulse_observation.py": "pass",
+    "verify_organoid_adaptive_model.py": "pass",
+    "verify_organoid_benchmark.py": "pass",
+    "verify_organoid_channels.py": "pass",
+    "verify_organoid_decoders.py": "pass",
+    "verify_organoid_information.py": "pass",
+    "verify_organoid_observation_controls.py": "pass",
+    "verify_organoid_pilot_cli.py": "pass"
   },
   "mutants": [
     {
@@ -1380,7 +1387,247 @@
         "verify_stellar_pulse_observation.py: fail ['FAIL  sk_c04_two_known_extinctions: unknown per-band shape terms: not identifiable again']"
       ],
       "seconds": 2.09
+    },
+    {
+      "id": "on1_sum_observer_full",
+      "package": "ON1",
+      "file": "src/scoped_correspondence/validation/modular_networks/observation_controls.py",
+      "expected": "sum observer carries 0 bit",
+      "targets": [
+        "verify_organoid_observation_controls.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_observation_controls.py: fail ['FAIL  on_c01_operator: column sums 2: identical total activity']"
+      ],
+      "seconds": 2.2
+    },
+    {
+      "id": "on1_float_delta_accepted",
+      "package": "ON1",
+      "file": "src/scoped_correspondence/validation/modular_networks/observation_controls.py",
+      "expected": "noisy floats are not exact",
+      "targets": [
+        "verify_organoid_observation_controls.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_observation_controls.py: fail ['FAIL  rejections: float delta refused in the exact model (noise belongs to ON2)']"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "on2_silent_renormalisation",
+      "package": "ON2",
+      "file": "src/scoped_correspondence/validation/modular_networks/channels.py",
+      "expected": "non-normalised channel refused",
+      "targets": [
+        "verify_organoid_channels.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_channels.py: fail ['FAIL  on_c21_rejections_and_unknown_rows: row not normalised (no silent renormalisation)']"
+      ],
+      "seconds": 2.12
+    },
+    {
+      "id": "on2_missing_class_uniform",
+      "package": "ON2",
+      "file": "src/scoped_correspondence/validation/modular_networks/channels.py",
+      "expected": "unknown row, never a uniform default",
+      "targets": [
+        "verify_organoid_channels.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_channels.py: fail ['FAIL  on_c21_rejections_and_unknown_rows: a missing class gives an unknown row, no MI, no capacity']"
+      ],
+      "seconds": 2.16
+    },
+    {
+      "id": "on2_bayes_sqrt2",
+      "package": "ON2",
+      "file": "src/scoped_correspondence/validation/modular_networks/channels.py",
+      "expected": "A* = 0.92135",
+      "targets": [
+        "verify_organoid_channels.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_channels.py: fail ['FAIL  on_c04_gaussian_bayes: A* = 0.8413447460685428']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "on3_no_renormalisation",
+      "package": "ON3",
+      "file": "src/scoped_correspondence/validation/modular_networks/adaptive_model.py",
+      "expected": "row sums kept at gamma",
+      "targets": [
+        "verify_organoid_adaptive_model.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_adaptive_model.py: fail ['FAIL  on_c11_hebb_row: row 2 must be (5/12, 0, 1/12), got [Fraction(5, 8), Fraction(0, 1), Fraction(1, 8)]']"
+      ],
+      "seconds": 2.11
+    },
+    {
+      "id": "on3_mask_ignored",
+      "package": "ON3",
+      "file": "src/scoped_correspondence/validation/modular_networks/adaptive_model.py",
+      "expected": "diagonal / forbidden edges stay zero",
+      "targets": [
+        "verify_organoid_adaptive_model.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_adaptive_model.py: fail ['FAIL  masks_budget_and_frozen_weights: no self-loops after adaptation']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "on3_inter_weight_wrong",
+      "package": "ON3",
+      "file": "src/scoped_correspondence/validation/modular_networks/adaptive_model.py",
+      "expected": "inter weight 1/5",
+      "targets": [
+        "verify_organoid_adaptive_model.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_adaptive_model.py: fail ['FAIL  on_c12_eta_zero_and_contraction: eta = 0 preserves A exactly']"
+      ],
+      "seconds": 2.84
+    },
+    {
+      "id": "on4_balanced_is_plain",
+      "package": "ON4",
+      "file": "src/scoped_correspondence/validation/modular_networks/decoders.py",
+      "expected": "constant decoder balanced 1/2",
+      "targets": [
+        "verify_organoid_decoders.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_decoders.py: fail ['FAIL  on_c09_on_c10_scores_are_not_information: constant decoder: 9/10 vs balanced 1/2']"
+      ],
+      "seconds": 2.59
+    },
+    {
+      "id": "on4_split_unchecked",
+      "package": "ON4",
+      "file": "src/scoped_correspondence/validation/modular_networks/decoders.py",
+      "expected": "leakage refused by the production splitter",
+      "targets": [
+        "verify_organoid_decoders.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_decoders.py: fail ['FAIL  on_c20_leakage: overlapping trial ids refused']"
+      ],
+      "seconds": 2.19
+    },
+    {
+      "id": "on4_sign_flip_one_sided",
+      "package": "ON4",
+      "file": "src/scoped_correspondence/validation/modular_networks/decoders.py",
+      "expected": "two-sided p = 1/16",
+      "targets": [
+        "verify_organoid_decoders.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_decoders.py: fail ['FAIL  on_c18_on_c19_group_comparison: exact sign-flip p = 2/32']"
+      ],
+      "seconds": 2.19
+    },
+    {
+      "id": "on5_pmf_unchecked",
+      "package": "ON5",
+      "file": "src/scoped_correspondence/validation/modular_networks/information.py",
+      "expected": "existing APIs renormalise silently",
+      "targets": [
+        "verify_organoid_information.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_information.py: fail ['FAIL  strict_joints: non-normalised joint refused']"
+      ],
+      "seconds": 2.34
+    },
+    {
+      "id": "on5_intervention_ignored",
+      "package": "ON5",
+      "file": "src/scoped_correspondence/validation/modular_networks/information.py",
+      "expected": "positive intervention control",
+      "targets": [
+        "verify_organoid_information.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_information.py: fail ['FAIL  on_c15_directed_not_causal: positive control: real effect detected']"
+      ],
+      "seconds": 2.25
+    },
+    {
+      "id": "on6_config_not_compared",
+      "package": "ON6a",
+      "file": "src/scoped_correspondence/validation/modular_networks/evaluation.py",
+      "expected": "pre-declared configuration enforced",
+      "targets": [
+        "verify_organoid_benchmark.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_benchmark.py: fail ['FAIL  predeclared_config: a config differing from the saved one is refused']"
+      ],
+      "seconds": 8.05
+    },
+    {
+      "id": "on6_frozen_is_refitted",
+      "package": "ON6a",
+      "file": "src/scoped_correspondence/validation/modular_networks/evaluation.py",
+      "expected": "drift counterexample",
+      "targets": [
+        "verify_organoid_benchmark.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_benchmark.py: fail ['FAIL  drift_counterexample: frozen decoder is lower in every run']"
+      ],
+      "seconds": 5.22
+    },
+    {
+      "id": "on7_real_mode_success",
+      "package": "ON7",
+      "file": "scripts/run_organoid_network_pilot.py",
+      "expected": "no empty success without data",
+      "targets": [
+        "verify_organoid_pilot_cli.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_organoid_pilot_cli.py: fail ['FAIL  refusals: real mode blocked, no empty success']"
+      ],
+      "seconds": 7.33
     }
   ],
-  "composition": "merged from runs of the same runner: 83 mutants, 6 mutants"
+  "composition": "merged from runs of the same runner: 89 mutants, 16 mutants"
 }

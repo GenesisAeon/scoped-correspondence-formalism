@@ -363,6 +363,8 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_organoid_benchmark.py",), "pre-declared configuration enforced"),
     Mutant("on6_frozen_is_refitted", "ON6a", ONM + "evaluation.py", "    after_frozen, _ = evaluate(A1, cond.drift, frozen=dec_before)",
            "    after_frozen, _ = evaluate(A1, cond.drift)", ("verify_organoid_benchmark.py",), "drift counterexample"),
+    Mutant("on7_real_mode_success", "ON7", "scripts/run_organoid_network_pilot.py", "        return 2\n    if a.scenario == \"exact\":",
+           "        return 0\n    if a.scenario == \"exact\":", ("verify_organoid_pilot_cli.py",), "no empty success without data"),
 )
 
 

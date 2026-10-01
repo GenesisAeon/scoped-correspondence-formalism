@@ -1,0 +1,14 @@
+{
+  "n_passed": 2,
+  "n_total": 2,
+  "results": {
+    "exact_and_confounds": {
+      "exact": "ok",
+      "confounds": "ok"
+    },
+    "refusals": {
+      "real": "blocked",
+      "adaptive_without_config": "refused"
+    }
+  }
+}

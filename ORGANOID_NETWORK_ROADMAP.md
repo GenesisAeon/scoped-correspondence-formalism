@@ -28,7 +28,7 @@ ist zulässig.
 | ON5 | Information, PID und Gerichtetheit | ✅ erledigt |
 | ON6a | Synthetischer Benchmark und Evidenzbericht | ✅ erledigt |
 | ON6b | Optionaler Realdatenadapter | ⛔ blockiert (Daten-Gates) |
-| ON7 | CLI, Dokumentation, Abschluss | ⬜ offen |
+| ON7 | CLI, Dokumentation, Abschluss | ✅ erledigt |
 
 ## ON0 — Quellen, Umfang, Handkontrollen (erledigt)
 
@@ -268,6 +268,37 @@ und Lizenz der Diagrammquelldaten von ON-S1 sind ungeprüft
 ([Backlog D2](DEEP_RESEARCH_BACKLOG.md)). Kein Parser mit synthetischen
 Platzhaltern; die CLI verweigert `--scenario real` mit Exit-Code 2. Keine
 Autorenanfrage ohne Johanns Auftrag.
+
+## ON7 — CLI, Dokumentation, Abschluss (erledigt)
+
+[`scripts/run_organoid_network_pilot.py`](scripts/run_organoid_network_pilot.py)
+mit `--scenario exact | adaptive | confounds | real`; Doku
+[`docs/organoid_network_pilot.md`](docs/organoid_network_pilot.md).
+[`verify_organoid_pilot_cli.py`](verification/verify_organoid_pilot_cli.py)
+2/2 (Kontrollwerte über die CLI; `real` blockiert ohne leere
+Erfolgsausgabe; `adaptive` ohne Konfiguration abgewiesen).
+
+**Dateizuordnung zum Plan §10.1:** `decoding.py` → `decoders.py`;
+`information_adapters.py` → `information.py`; `records.py` → in
+`evaluation.py` (`OrganoidEvidenceRecord`); zusätzlich `channels.py` (ON2);
+`provenance.py` entfällt (ON6b blockiert, bestehendes
+`docs/real_data_provenance.md` gilt). Prüfskripte: `…_decoding_evaluation`
+→ `verify_organoid_decoders.py` + `verify_organoid_benchmark.py`;
+`…_information_adapters` → `verify_organoid_information.py`; zusätzlich
+`verify_organoid_channels.py`, `verify_organoid_pilot_cli.py`.
+
+### Abschlussbilanz (Plan §10/ON7, §11)
+
+| Frage | Antwort |
+|---|---|
+| Analytisch bewiesen | ON-C13 (affine Unmöglichkeit), Kontraktionsschranke für eingefrorene Gewichte, Bayes-Formel |
+| Endlich vollständig geprüft | alle 23 ON-C an der Produktion; Oracle (eigenes + Beilage) bleibt separat erhalten |
+| Simulationen ausgeführt | ein vollständiger synthetischer Pilot (7 Bedingungen × 6 Läufe) mit Konfiguration, Seeds, Ergebnissen |
+| Reale Daten ausgewertet | **keine** |
+| Offen | ON6b (Daten-Gates), größere stochastische Effektstudie außerhalb der CI, alternative Redundanzmaße |
+
+**Abschluss: synthetischer Kern abgeschlossen; Realdatenzweig offen.**
+Keine Drei-Modul-, Kritikalitäts-, Lern- oder Kausalitätsbehauptung.
 
 ## Regression
 
