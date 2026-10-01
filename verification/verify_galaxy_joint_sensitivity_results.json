@@ -1,0 +1,32 @@
+{
+  "n_passed": 1,
+  "n_total": 1,
+  "all_skipped": false,
+  "results": {
+    "galaxy": "NGC3109",
+    "baselines": [
+      "C_mond",
+      "A_burkert"
+    ],
+    "target": "difference of held-out primary RMSE [km/s]",
+    "n_points": 27,
+    "n_comparable": 27,
+    "n_not_comparable": 0,
+    "difference_range": [
+      4.757094520605264,
+      12.694252788360368
+    ],
+    "n_mond_better": 0,
+    "n_burkert_better": 27,
+    "reference_scores": {
+      "A_burkert": 0.8535347917911917,
+      "B_nfw": 11.040719250851124,
+      "C_mond": 9.256927755895413
+    },
+    "notes": [
+      "scenario grid without probabilities: counts of better/worse are NOT empirical probabilities",
+      "a0 not fitted (fixed MOND variant)",
+      "at least one training fit hit a parameter bound in some scenario (see results)"
+    ]
+  }
+}

@@ -83,6 +83,13 @@ MI = "src/scoped_correspondence/muonium/identifiability.py"
 MD = "src/scoped_correspondence/muonium/design.py"
 ME = "src/scoped_correspondence/muonium/evidence.py"
 MP = "scripts/run_muonium_pilot.py"
+GS = "src/scoped_correspondence/validation/global_sensitivity.py"
+GJ = "src/scoped_correspondence/validation/galaxy_joint_sensitivity.py"
+WC = "src/scoped_correspondence/validation/weighted_conformal.py"
+FS = "src/scoped_correspondence/causal/finite_scm.py"
+AB = "src/scoped_correspondence/causal/abstraction.py"
+SDG = "src/scoped_correspondence/causal/selection_diagrams.py"
+TR = "src/scoped_correspondence/causal/transport.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -266,6 +273,17 @@ MUTANTS: Tuple[Mutant, ...] = (
            "a skipped data check is never passed"),
     Mutant("mu7_headline_overclaims", "MU7", MP, '    out["headline"] = f"synthetic {scenario} scenario of an idealised model -- no statement about measured muonium gravity"',
            '    out["headline"] = f"Einstein widerlegt? synthetic {scenario}"', ("verify_muonium_pilot_cli.py",), "no overclaiming headline"),
+    # --- J7-J10 -----------------------------------------------------------------
+    Mutant("j7_total_index_not_halved", "J7", GS, "        y2 = (fA - fABi) ** 2 / 2", "        y2 = (fA - fABi) ** 2",
+           ("verify_global_sensitivity.py",), "total-index estimator normalisation"),
+    Mutant("j7_zero_variance_reported_as_zero", "J7", GS, '        return SobolReport(names, "undefined_zero_variance", None, None, V, n, seed,',
+           '        return SobolReport(names, "estimated", (0.0,) * len(inputs), (0.0,) * len(inputs), V, n, seed,',
+           ("verify_global_sensitivity.py",), "zero variance is undefined, not 0"),
+    Mutant("j7_dependent_inputs_accepted", "J7", GS, "    if not independent:", "    if False:", ("verify_global_sensitivity.py",),
+           "dependent inputs refused"),
+    Mutant("j7_joint_transform_skips_test_rows", "J7", GJ, "                         test_rows=_transform(split.test_rows, alpha_D, i_ref, i_new))",
+           "                         test_rows=split.test_rows)", ("verify_galaxy_joint_sensitivity.py",),
+           "same transformation on train AND test rows (reference scenario reproduces the existing evaluation)"),
 )
 
 

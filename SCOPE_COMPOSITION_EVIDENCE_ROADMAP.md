@@ -31,7 +31,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ✅ erledigt |
 | B | J5 | Exakte Intervallnachweise | J4 | ✅ erledigt |
 | C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ✅ erledigt |
-| C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ⬜ offen |
+| C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ✅ erledigt |
 | C | J8 | Gewichtetes Split Conformal | J1/J2 | ⬜ offen |
 | D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ⬜ offen |
 | D | J10 | Geprüfte Standardisierung/Transport | J9 | ⬜ offen |
@@ -575,6 +575,46 @@ Abhängigkeit im Pflichtkern.
 
 Regression mit J5, J11 und J6 (gemeinsamer Lauf, alle additiv):
 `--category all` **115/115** bestanden, 0 übersprungen, 12 min 17 s; `--category links` 0 kaputt. Aufgefrischte Ergebnis-JSONs bestehender Prüfungen: nur Zeitstempel/Pfade. Konsolidierter Mutationsbericht über J0–J6: **47 Mutanten, 46 durch Assertions erkannt, 1 vorab begründet äquivalent (46/46 ohne Äquivalente)** — `verification/targeted_mutations_report.json`.
+
+## J7 — Gemeinsame Sensitivität (erledigt)
+
+Dokumentation: [`docs/joint_sensitivity.md`](docs/joint_sensitivity.md).
+Code: `validation/global_sensitivity.py` (Unsicherheitsmodell getrennt:
+Szenarienraum ohne Wahrscheinlichkeiten, unabhängige deklarierte
+Marginale mit Pflicht-Herkunft, Sobol erste/totale Indizes per
+Pick-Freeze ohne Beschneiden, exakte Polynomreferenz),
+`validation/galaxy_joint_sensitivity.py` (gemeinsames Raster über $D$,
+$i$, $\Upsilon_{\rm disk}$, $\Upsilon_{\rm bul}$ auf dem bestehenden
+Held-out-Pfad; `galaxy_pilot.py` unverändert — additiv nach `CLAUDE.md`,
+obwohl der Plan eine Erweiterung dort bevorzugt).
+
+Prüfungen: `verify_global_sensitivity.py` (math) **6/6** — J-C14 exakt,
+Schätzer innerhalb weniger eigener Standardfehler, konstante Ausgabe
+undefiniert, abhängige Eingänge abgelehnt, Negativkontrolle $Y=X$
+(falsche Unabhängigkeit teilt $1/2:1/2$ und unterschätzt die Varianz),
+MR7, Raster ohne Wahrscheinlichkeiten. `verify_galaxy_joint_sensitivity.py`
+(data, lokale SPARC-Dateien, sonst `skipped`) **1/1**: Referenzszenario
+reproduziert die bestehende Mode-B-Auswertung exakt; NGC3109, 27
+Szenarien, alle vergleichbar; RMSE(MOND) − RMSE(Burkert) zwischen
+$+4{,}8$ und $+12{,}7$ km/s, Burkert in allen 27 besser — vorzeichenstabil
+über den deklarierten Szenarienraum, keine Wahrscheinlichkeits- oder
+Populationsaussage.
+
+**Korrekturen vor dem Commit:** (a) eine inhaltsleere Assertion
+(`not hasattr(grid, "weights")`) entfernt. (b) **Testlücke, gefunden durch
+den Mutationslauf:** Der Mutant „Testradien nicht transformiert“ überlebte,
+weil nur das Referenzszenario (Identitätstransformation) geprüft wurde.
+Ergänzt um einen unabhängigen Gegenweg: Die gemeinsamen Punkte
+$(\pm1\sigma_D, 0)$ und $(0, \pm1\sigma_i)$ bei $\Upsilon=0{,}5/0{,}7$ müssen
+die bestehende Einzelparameter-Sensitivität
+(`distance_inclination_sensitivity_mode_b`) exakt reproduzieren — tun sie;
+der Mutant wird jetzt erkannt (J7: 4/4). Die Ergänzung wurde nach dem Start
+der gemeinsamen Regression vorgenommen und einzeln grün ausgeführt; sie
+fügt nur Prüfungen hinzu.
+
+Quellen S11/S12: DOIs lösen auf (geprüft 2026-10-01); Volltextabgleich der Normierung im Backlog.
+
+Regression: gemeinsamer Lauf über den Stand mit J7–J10 und J12 (additiv; die J7-Prüfungen importieren nur J7-Module und Bestand) — `--category all` **129/129** bestanden, 0 übersprungen, 13 min 38 s; `--category links` 0 kaputt. Gezielte Mutanten J7: 4/4 erkannt.
 
 ## Einbindung der Followups vom 2026-10-01
 

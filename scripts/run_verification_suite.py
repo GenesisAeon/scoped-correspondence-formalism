@@ -150,6 +150,11 @@ _EXPLICIT_CATEGORY = {
     "verify_muonium_design.py": "math",
     "verify_muonium_evidence.py": "math",
     "verify_muonium_pilot_cli.py": "math",
+    # J7: Sobol kernel and joint scenarios (synthetic); the galaxy joint
+    # scenario check reads the LOCAL, uncommitted SPARC files and skips
+    # cleanly (all_skipped) when they are absent.
+    "verify_global_sensitivity.py": "math",
+    "verify_galaxy_joint_sensitivity.py": "data",
 }
 
 
