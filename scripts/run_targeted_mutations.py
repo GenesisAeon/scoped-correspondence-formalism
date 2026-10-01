@@ -48,7 +48,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 REPO = Path(__file__).resolve().parents[1]
-COPY_DIRS = ("src", "verification", "data", "scripts")  # scripts: CLI mutants (MU7) and verify scripts that call a CLI
+COPY_DIRS = ("src", "verification", "data", "scripts", "configs")  # scripts: CLI mutants (MU7) and verify scripts that call a CLI
 
 
 @dataclass(frozen=True)
@@ -359,6 +359,10 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_organoid_information.py",), "existing APIs renormalise silently"),
     Mutant("on5_intervention_ignored", "ON5", ONM + "information.py", "            t = generator(u, {variable: v})[target]",
            "            t = generator(u, {})[target]", ("verify_organoid_information.py",), "positive intervention control"),
+    Mutant("on6_config_not_compared", "ON6a", ONM + "evaluation.py", "    if saved.configuration_id() != cfg.configuration_id():", "    if False:",
+           ("verify_organoid_benchmark.py",), "pre-declared configuration enforced"),
+    Mutant("on6_frozen_is_refitted", "ON6a", ONM + "evaluation.py", "    after_frozen, _ = evaluate(A1, cond.drift, frozen=dec_before)",
+           "    after_frozen, _ = evaluate(A1, cond.drift)", ("verify_organoid_benchmark.py",), "drift counterexample"),
 )
 
 

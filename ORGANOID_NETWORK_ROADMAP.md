@@ -26,8 +26,8 @@ ist zulässig.
 | ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ✅ erledigt |
 | ON4 | Decoder und hierarchischer Vergleich | ✅ erledigt |
 | ON5 | Information, PID und Gerichtetheit | ✅ erledigt |
-| ON6a | Synthetischer Benchmark und Evidenzbericht | ⬜ offen |
-| ON6b | Optionaler Realdatenadapter | ⬜ Option (Daten-Gates) |
+| ON6a | Synthetischer Benchmark und Evidenzbericht | ✅ erledigt |
+| ON6b | Optionaler Realdatenadapter | ⛔ blockiert (Daten-Gates) |
 | ON7 | CLI, Dokumentation, Abschluss | ⬜ offen |
 
 ## ON0 — Quellen, Umfang, Handkontrollen (erledigt)
@@ -220,6 +220,54 @@ endlichen Generator, getrennt von DI), `label_confounding`.
 vorhandenen `evaluate_xor_task`), ON-C15 (DI 1 Bit, do(A₁) ändert B₂ nicht;
 Positivkontrolle mit echtem Effekt), ON-C16, strikte Ablehnung nicht
 normierter Joints (die bestehenden Funktionen würden still normieren).
+
+## ON6a — Synthetischer Benchmark und Evidenzbericht (erledigt)
+
+`validation/modular_networks/evaluation.py` +
+[`configs/organoid_minimal.json`](configs/organoid_minimal.json)
+(Konfigurations-ID `e5c9921b5aa974ad`, vor der Auswertung gespeichert;
+abweichende oder fehlende Konfiguration → Abbruch). Sieben vorab
+deklarierte Bedingungen × 6 Läufe (Lauf = Einheit, getrennte Seeds für
+Topologie/Adaptation/Decoder/Test), Kontrast Δ = balanced Accuracy nach −
+vor (neu trainierter Decoder), eingefrorener Decoder getrennt berichtet.
+`OrganoidEvidenceRecord` mit allen Pflichtfeldern aus Plan §9 und nur
+erlaubten Vokabular-Kombinationen. Laufzeit ≈ 2 s.
+
+[`verify_organoid_benchmark.py`](verification/verify_organoid_benchmark.py)
+5/5 — nur **Invarianten**: Vorab-Konfiguration, Determinismus,
+identischer Operator unter Modulnamen (M=1 vs. M=3, c=8/11: identische
+Läufe und A-Hashes), Beobachtung ändert das System nicht (gleicher A-Hash
+voll vs. Summe), η=0 ohne Anpassung, Drift-Gegenbeispiel, Vokabular.
+
+**Deskriptive Ergebnisse (kein Gate, keine Siegerbehauptung):**
+
+| Bedingung | Δ (Mittel ± SEM, 6 Läufe) | eingefroren nach | neu trainiert nach |
+|---|---|---|---|
+| M3, getrennte Eingänge, voll, η=0 | 0 ± 0 | 1,00 | 1,00 |
+| M3, getrennt, voll, angepasst | −0,092 ± 0,055 | 0,55 | 0,91 |
+| M3, geteilte Eingänge (ein Modul), angepasst | +0,354 ± 0,086 | 0,50 | 0,88 |
+| M3, getrennt, Summenbeobachtung, angepasst | +0,329 ± 0,076 | 0,50 | 0,88 |
+| M1 uniform, angepasst | +0,356 ± 0,086 | 0,50 | 0,88 |
+| M3, c = 8/11 (= M1-Matrix), angepasst | +0,356 ± 0,086 | 0,50 | 0,88 |
+| M3, getrennt, η=0, Sensor-Umordnung | 0 ± 0 | 0,63 | 1,00 |
+
+Lesart: Die Δ-Unterschiede folgen hier vor allem dem **Ausgangsniveau**
+(getrennte Eingänge starten bei 1,0 = Decke, geteilte nahe Zufall) — genau
+die Auswahlfalle aus Plan §8.4, kein Moduleffekt. Anpassung verändert den
+Code (eingefrorene Decoder fallen auf ≈ Zufall), ohne dass daraus ein
+Informationsverlust folgt. Das Drift-Gegenbeispiel (invertierbare
+Umordnung, Information unverändert) trennt Decoderstabilität von
+Information. Ein erster Versuch mit konstantem Messversatz brach den
+eingefrorenen Decoder **nicht** — verworfen und als Befund festgehalten.
+
+## ON6b — Optionaler Realdatenadapter (blockiert)
+
+Status **`blocked`**: Es liegt kein Organoid-Datensatz mit Präparat-IDs,
+Versuchslabels, Provenienz und Wiederverwendungslizenz vor; Verfügbarkeit
+und Lizenz der Diagrammquelldaten von ON-S1 sind ungeprüft
+([Backlog D2](DEEP_RESEARCH_BACKLOG.md)). Kein Parser mit synthetischen
+Platzhaltern; die CLI verweigert `--scenario real` mit Exit-Code 2. Keine
+Autorenanfrage ohne Johanns Auftrag.
 
 ## Regression
 

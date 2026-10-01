@@ -175,6 +175,7 @@ _EXPLICIT_CATEGORY = {
     "verify_organoid_adaptive_model.py": "math",
     "verify_organoid_decoders.py": "math",
     "verify_organoid_information.py": "math",
+    "verify_organoid_benchmark.py": "math",
 }
 
 

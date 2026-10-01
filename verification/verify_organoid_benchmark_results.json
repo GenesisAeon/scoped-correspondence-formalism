@@ -1,0 +1,72 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "predeclared_config": {
+      "configuration_id": "e5c9921b5aa974ad"
+    },
+    "determinism_and_identical_operator": {
+      "identical_runs": 6
+    },
+    "observation_and_eta_zero": {
+      "frozen_delta_mean": 0.0
+    },
+    "drift_counterexample": {
+      "after_frozen": [
+        0.55,
+        0.6666666666666666,
+        0.5909090909090909,
+        0.8125,
+        0.625,
+        0.5454545454545454
+      ]
+    },
+    "records": {
+      "n_records": 7
+    }
+  },
+  "descriptive_summary": {
+    "M3_separate_full_frozen": {
+      "delta_mean": 0.0,
+      "delta_sem": 0.0,
+      "after_frozen_mean": 1.0,
+      "after_refitted_mean": 1.0
+    },
+    "M3_separate_full_adapted": {
+      "delta_mean": -0.0919080919080919,
+      "delta_sem": 0.05462946328771255,
+      "after_frozen_mean": 0.5515993265993266,
+      "after_refitted_mean": 0.9080919080919081
+    },
+    "M3_shared_full_adapted": {
+      "delta_mean": 0.3539007289007288,
+      "delta_sem": 0.08589249937422444,
+      "after_frozen_mean": 0.49652777777777785,
+      "after_refitted_mean": 0.881997631997632
+    },
+    "M3_separate_sum_adapted": {
+      "delta_mean": 0.3291800791800792,
+      "delta_sem": 0.07561429303502684,
+      "after_frozen_mean": 0.5,
+      "after_refitted_mean": 0.8782328782328782
+    },
+    "M1_uniform_adapted": {
+      "delta_mean": 0.35558423058423055,
+      "delta_sem": 0.08557039413908299,
+      "after_frozen_mean": 0.49652777777777785,
+      "after_refitted_mean": 0.8836811336811338
+    },
+    "M3_c8_11_adapted": {
+      "delta_mean": 0.35558423058423055,
+      "delta_sem": 0.08557039413908299,
+      "after_frozen_mean": 0.49652777777777785,
+      "after_refitted_mean": 0.8836811336811338
+    },
+    "M3_separate_full_drift_frozen_weights": {
+      "delta_mean": 0.0,
+      "delta_sem": 0.0,
+      "after_frozen_mean": 0.6317550505050505,
+      "after_refitted_mean": 1.0
+    }
+  }
+}
