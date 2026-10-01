@@ -160,6 +160,8 @@ _EXPLICIT_CATEGORY = {
     # J9: finite SCMs and interventional abstraction -- finite exact models only.
     "verify_finite_causal_models.py": "math",
     "verify_causal_abstraction.py": "math",
+    # J10: selection diagrams and one checked standardisation rule.
+    "verify_scoped_transportability.py": "math",
 }
 
 

@@ -300,6 +300,15 @@ MUTANTS: Tuple[Mutant, ...] = (
            "                       if False)", ("verify_causal_abstraction.py",), "order preservation (J0 finding B3)"),
     Mutant("j9_surjectivity_ignored", "J9", AB, "    surj_missing = tuple(M for M in macro_interventions if M not in {M2 for _, M2 in omega})",
            "    surj_missing = ()", ("verify_causal_abstraction.py",), "surjectivity"),
+    Mutant("j10_do_graph_removes_outgoing", "J10", SDG, "        return DAG(self.nodes, frozenset((a, b) for a, b in self.edges if b not in xs), self.latent)",
+           "        return DAG(self.nodes, frozenset((a, b) for a, b in self.edges if a not in xs), self.latent)",
+           ("verify_scoped_transportability.py",), "G_bar_X removes edges INTO X"),
+    Mutant("j10_no_moralisation", "J10", SDG, "                adj[ps[i]].add(ps[j])\n                adj[ps[j]].add(ps[i])", "                pass",
+           ("verify_scoped_transportability.py",), "collider handling via moralisation"),
+    Mutant("j10_observational_accepted", "J10", TR, '    premises["source_quantities_interventional"] = source_provenance == "source_experiment"',
+           '    premises["source_quantities_interventional"] = True', ("verify_scoped_transportability.py",), "observational quantities are not interventional"),
+    Mutant("j10_support_unchecked", "J10", TR, "    premises[\"support\"] = not missing", "    premises[\"support\"] = True",
+           ("verify_scoped_transportability.py",), "missing support"),
 )
 
 

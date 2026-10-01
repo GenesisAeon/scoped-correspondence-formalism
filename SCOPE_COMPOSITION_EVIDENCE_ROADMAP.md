@@ -34,7 +34,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ✅ erledigt |
 | C | J8 | Gewichtetes Split Conformal | J1/J2 | ✅ erledigt |
 | D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ✅ erledigt |
-| D | J10 | Geprüfte Standardisierung/Transport | J9 | ⬜ offen |
+| D | J10 | Geprüfte Standardisierung/Transport | J9 | ✅ erledigt |
 | E | J11 | Vorhandene Reduktionsschranken als Verträge | J4/J5 | ✅ erledigt |
 | E | J12 | CLI, Fähigkeitsbilanz, Abschlussregression | alle | ⬜ offen |
 
@@ -667,6 +667,26 @@ nicht als Erkennung gezählt.
 Quelle S14: arXiv-Eintrag erreichbar (HTTP 200); Ordnungsdefinition zum Volltextabgleich im Backlog.
 
 Regression: gemeinsamer Lauf J7–J10/J12 (additiv) — `--category all` **129/129**, `--category links` 0 kaputt. Gezielte Mutanten J9: 4/4 erkannt.
+
+## J10 — Geprüfte Standardisierung zwischen Umgebungen (erledigt)
+
+Dokumentation: [`docs/scoped_transportability.md`](docs/scoped_transportability.md).
+Code: `causal/selection_diagrams.py` (DAG mit latenten Knoten,
+d-Separation über moralisierten Vorfahrengraphen, $G_{\bar X}$,
+S-Admissibilität), `causal/transport.py` (Standardisierungsregel mit
+geprüften Voraussetzungen; drei getrennte Ergebnisse; Gegenmodellzeugen).
+
+Prüfung: `verify_scoped_transportability.py` (math) **6/6** — J-C20
+(Quelltabellen aus Interventionsverteilungen endlicher SCMs; $3/4$,
+$1/4$, Effekt $-1/2$; direkte Gegenrechnung; Quelleffekt 0 wäre falsch;
+fehlender Support → nicht zertifiziert), J-C21 (Gegenmodellpaar; eine
+abweichende verfügbare Größe → kein Zeuge), J-C23, falsche Richtung beim
+Kantenentfernen, Nachfahre, S-Admissibilität, beobachtete statt
+interventioneller Quellgrößen, unvollständige Tabellen, Budget.
+
+Quelle S15: arXiv-Eintrag erreichbar (HTTP 200); Definition 8 / Korollar 1 zum Volltextabgleich im Backlog.
+
+Regression: gemeinsamer Lauf J7–J10/J12 (additiv) — `--category all` **129/129**, `--category links` 0 kaputt. Gezielte Mutanten J10: 4/4 erkannt.
 
 ## Einbindung der Followups vom 2026-10-01
 
