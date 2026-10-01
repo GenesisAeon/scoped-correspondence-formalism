@@ -1,0 +1,217 @@
+{
+  "passed": 23,
+  "total": 23,
+  "failed": [],
+  "results": {
+    "J-C01": {
+      "mean": "1/2",
+      "gamma0": "5/4",
+      "gamma1": "5/16",
+      "V": "25/16",
+      "se": "5/8",
+      "dm": "4/5",
+      "note": "arithmetic only; n=4 does not justify the asymptotic reference"
+    },
+    "J-C02": {
+      "holm_adjusted_in_original_order": [
+        "3/100",
+        "3/50",
+        "3/50"
+      ]
+    },
+    "J-C03": {
+      "rank": 2,
+      "nullity": 1,
+      "pi_exponents_T_l_g": [
+        2,
+        -1,
+        1
+      ],
+      "g_over_G_MLT": [
+        1,
+        -2,
+        0
+      ]
+    },
+    "J-C04": {
+      "equilibrium": "5/2",
+      "exponent_argument": "4/5",
+      "M0": "3",
+      "rho_times_r": "12",
+      "arithmetic": "exact Fraction on q/k and k*t (stronger than a float identity check)",
+      "plan_gap": "rho, r, lambda are not stated in plan section 8; taken from bundle"
+    },
+    "J-C05": {
+      "composite_domain": [
+        "0",
+        "1/2"
+      ],
+      "witness_x": "3/4",
+      "T1_of_witness": "3/2"
+    },
+    "J-C06": {
+      "c1": "1/2",
+      "c2": "1/2",
+      "composite_time_factor": "1/4",
+      "horizon": "2"
+    },
+    "J-C07": {
+      "flow_bound": "1/2",
+      "field_bound": "9",
+      "residual_at_quarter": "15/2",
+      "bound_attained_at": "1/2"
+    },
+    "J-C08": {
+      "impl_refines_spec": true,
+      "spec_refines_impl": false
+    },
+    "J-C09": {
+      "max_natural_upper_64": "33/128",
+      "proves_le": "13/50",
+      "refutes_le": "6/25",
+      "counterexample_x": "1/2",
+      "true_max": "1/4"
+    },
+    "J-C10": {
+      "natural_x_minus_x": [
+        "-1",
+        "1"
+      ],
+      "reciprocal_on_minus1_1": "undefined: 0 in denominator box"
+    },
+    "J-C11": {
+      "rank": 1,
+      "nullvector": [
+        1,
+        -1
+      ],
+      "identifiable": [
+        "theta1+theta2"
+      ],
+      "not_identifiable": [
+        "theta1"
+      ]
+    },
+    "J-C12": {
+      "y0": "15",
+      "dy0": "-30",
+      "k": "2",
+      "product": "15",
+      "transformed": [
+        "3/7",
+        "35"
+      ]
+    },
+    "J-C13": {
+      "fiber": [
+        "-2",
+        "2"
+      ],
+      "derivative_at_2": 4,
+      "positive_restriction": [
+        "2"
+      ]
+    },
+    "J-C14": {
+      "additive": {
+        "V": "5/12",
+        "S": [
+          "1/5",
+          "4/5"
+        ],
+        "ST": [
+          "1/5",
+          "4/5"
+        ]
+      },
+      "product": {
+        "V": "7/144",
+        "S": [
+          "3/7",
+          "3/7"
+        ],
+        "ST": [
+          "4/7",
+          "4/7"
+        ],
+        "interaction": "1/7"
+      },
+      "constant_output_variance": 0
+    },
+    "J-C15": {
+      "quantiles": [
+        "3",
+        "+inf",
+        "2"
+      ]
+    },
+    "J-C16": {
+      "unweighted_coverage": "40951/100000",
+      "weighted_coverage": "1",
+      "prob_unbounded": "89991/100000",
+      "cases_enumerated": 32
+    },
+    "J-C17": {
+      "quantile": "0",
+      "coverage": 0,
+      "reason": "concept shift violates P(Y|X)=Q(Y|X)"
+    },
+    "J-C18": {
+      "observational_equal": true,
+      "p_y1_do_x1": [
+        "1",
+        "1/2"
+      ],
+      "tv": "1/2"
+    },
+    "J-C19": {
+      "exact_interventions": 5,
+      "surjective": true,
+      "order_preserving": true,
+      "extension_tv": "1/2",
+      "extension_order_preserving": false,
+      "alternative_image_noop_passes": true
+    },
+    "J-C20": {
+      "source": [
+        "1/2",
+        "1/2"
+      ],
+      "target": [
+        "3/4",
+        "1/4"
+      ],
+      "target_effect": "-1/2"
+    },
+    "J-C21": {
+      "target_value": [
+        "1",
+        "1/2"
+      ],
+      "all_available_info_equal": true
+    },
+    "J-C22": {
+      "inf_norm": "1/5",
+      "p0P2": [
+        "33/50",
+        "17/50"
+      ],
+      "p0Q2": [
+        "11/20",
+        "9/20"
+      ],
+      "l1": "11/50",
+      "l1_bound": "2/5",
+      "tv": "11/100",
+      "tv_bound": "1/5"
+    },
+    "J-C23": {
+      "collider_marginal_separated": true,
+      "conditioning_on_C_opens": true,
+      "conditioning_on_D_opens": true,
+      "S_sep_Y_given_XZ": true,
+      "S_sep_Y_given_X": false
+    }
+  },
+  "imports_scf": false
+}
