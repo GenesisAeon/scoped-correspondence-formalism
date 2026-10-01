@@ -1,13 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 28,
+  "n_mutants": 47,
   "counts": {
-    "killed": 28
+    "killed": 46,
+    "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 28,
+  "killed_by_assertion": 46,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "28/28",
+  "kill_ratio_excluding_equivalent": "46/46",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -17,7 +18,10 @@
     "verify_dimensional_analysis.py": "pass",
     "verify_error_bounds_core.py": "pass",
     "verify_forecast_comparison.py": "pass",
-    "verify_metamorphic_relations.py": "pass"
+    "verify_metamorphic_relations.py": "pass",
+    "verify_reduction_contracts.py": "pass",
+    "verify_structural_identifiability.py": "pass",
+    "verify_validated_scopes.py": "pass"
   },
   "mutants": [
     {
@@ -32,10 +36,10 @@
       "status": "killed",
       "kill_kind": "assertion",
       "detail": [
-        "verify_correspondence_core.py: fail ['{\"count\": 5, \"passed\": 4, \"failed\": [\"MIG-COR-T04_composed_transformations\"], \"report\": \"D:\\\\\\\\temp\\\\\\\\scf_mut_2hg4tw4x\\\\\\\\verification\\\\\\\\verify_correspondence_core_results.json\"}']",
+        "verify_correspondence_core.py: fail ['{\"count\": 5, \"passed\": 4, \"failed\": [\"MIG-COR-T04_composed_transformations\"], \"report\": \"D:\\\\\\\\temp\\\\\\\\scf_mut_w9zevy86\\\\\\\\verification\\\\\\\\verify_correspondence_core_results.json\"}']",
         "verify_metamorphic_relations.py: fail ['FAIL  mr3_identity_and_associativity: both bracketings must give the same direct residual, worst 3.262499999579778']"
       ],
-      "seconds": 3.92
+      "seconds": 4.28
     },
     {
       "id": "conformal_test_point_mass_dropped",
@@ -50,7 +54,7 @@
       "detail": [
         "verify_conformal_prediction_core.py: fail ['FAIL  example_b_q4_interval_6_14: 2.0 != 4.0']"
       ],
-      "seconds": 1.91
+      "seconds": 2.55
     },
     {
       "id": "tv_l1_factor_two",
@@ -65,7 +69,7 @@
       "detail": [
         "verify_error_bounds_core.py: fail ['FAIL paper_dtmc_thm4: AssertionError: 1.0 != 0.5 (atol=1e-12)']"
       ],
-      "seconds": 1.91
+      "seconds": 2.14
     },
     {
       "id": "tv_comparison_inequality_inverted",
@@ -80,7 +84,7 @@
       "detail": [
         "verify_error_bounds_core.py: fail [\"FAIL compatibility_core_call: AssertionError: {'michel_l1': 1.0, 'michel_tv': 0.5, 'propagated_error_bound_tv': 1.0, 'michel_tv_leq_propagated': False, 'note': 'Michel\u00e2\u20ac\u201cSiegle: L1 on full-state error, residual ||\u00ce\\xa0A\u00e2\u02c6\u2019AP||_\u00e2\u02c6\u017e (Thm 4). propagated_error_bound: TV on projected distributions, defect delta_cl = max_i TV((PC)_i,(CQ)_i). Different residuals/spaces; equality-to-zero when both residuals vanish (exact/dynamic-exact aggregation). Inequality michel_tv \u00e2\u2030\u00a4 propagated is NOT guaranteed in general.'}\"]"
       ],
-      "seconds": 2.11
+      "seconds": 2.06
     },
     {
       "id": "j1_bartlett_weight_removed",
@@ -95,7 +99,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail ['FAIL  jc01_bartlett_hac_exact: V must be 25/16 exactly, got 15/8']"
       ],
-      "seconds": 2.16
+      "seconds": 2.41
     },
     {
       "id": "j1_degenerate_guard_removed",
@@ -110,7 +114,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail ['FAIL  constant_differences_are_degenerate: float constant d must be degenerate, got asymptotic_normal_reference DM=1411718510347255.2']"
       ],
-      "seconds": 1.94
+      "seconds": 2.12
     },
     {
       "id": "j1_applicability_bypassed",
@@ -125,7 +129,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail ['FAIL  applicability_gates: not_declared: must be not_applicable, got asymptotic_normal_reference']"
       ],
-      "seconds": 1.95
+      "seconds": 2.12
     },
     {
       "id": "j1_loss_difference_sign_swapped",
@@ -140,7 +144,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail ['FAIL  jc01_bartlett_hac_exact: mean must be 1/2, got -1/2']"
       ],
-      "seconds": 1.97
+      "seconds": 2.0
     },
     {
       "id": "j1_missing_partner_dropped",
@@ -155,7 +159,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail [\"FAIL  missing_partners_are_counted: reasons wrong: ['missing_partner_in_model_a', 'missing_partner_in_model_a']\"]"
       ],
-      "seconds": 1.95
+      "seconds": 2.16
     },
     {
       "id": "j1_observed_mismatch_ignored",
@@ -170,7 +174,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail ['FAIL  wrong_pairing_is_input_error: different observed values under the same key must be an input error']"
       ],
-      "seconds": 1.97
+      "seconds": 2.02
     },
     {
       "id": "j1_series_too_short_inverted",
@@ -185,7 +189,7 @@
       "detail": [
         "verify_forecast_comparison.py: fail ['FAIL  jc01_bartlett_hac_exact: result must carry the exact long-run variance']"
       ],
-      "seconds": 1.95
+      "seconds": 2.16
     },
     {
       "id": "j2_add_dimension_check_removed",
@@ -200,7 +204,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail [\"FAIL  addition_of_different_dimensions_rejected: must reject: {'status': 'consistent', 'dimension': {'L': '1'}, 'violations': [], 'semantic_warnings': []}\"]"
       ],
-      "seconds": 1.94
+      "seconds": 2.08
     },
     {
       "id": "j2_func_arg_check_removed",
@@ -215,7 +219,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail ['FAIL  function_arguments_dimensionless: exp(T) must be rejected']"
       ],
-      "seconds": 1.98
+      "seconds": 2.14
     },
     {
       "id": "j2_pow_ignores_exponent",
@@ -230,7 +234,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail ['FAIL  jc03_pendulum_null_space: g T^2 / l must be dimensionless']"
       ],
-      "seconds": 1.94
+      "seconds": 2.01
     },
     {
       "id": "j2_kind_warning_removed",
@@ -245,7 +249,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail ['FAIL  energy_vs_torque_semantic_warning: energy + torque: dimensionally consistent but a semantic warning']"
       ],
-      "seconds": 1.94
+      "seconds": 2.12
     },
     {
       "id": "j2_affine_guard_removed",
@@ -260,7 +264,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail ['FAIL  unit_transformations_and_affine_scales: affine unit has no multiplicative scale']"
       ],
-      "seconds": 1.95
+      "seconds": 2.2
     },
     {
       "id": "j2_rescale_sign_flipped",
@@ -292,7 +296,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail ['FAIL  jc03_pendulum_null_space: span must equal (2,-1,1), got ((2, -1, -1),)']"
       ],
-      "seconds": 1.95
+      "seconds": 2.01
     },
     {
       "id": "j2_span_check_ignores_joint_rank",
@@ -307,7 +311,7 @@
       "detail": [
         "verify_dimensional_analysis.py: fail ['FAIL  basis_change_compares_spans: a dimensional vector is not in the span']"
       ],
-      "seconds": 1.95
+      "seconds": 2.02
     },
     {
       "id": "j4_lipschitz_factor_removed",
@@ -322,7 +326,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  jc07_flow_versus_field_error: flow bound 1/2, got 3/10']"
       ],
-      "seconds": 2.01
+      "seconds": 2.09
     },
     {
       "id": "j4_scope_compatibility_bypassed",
@@ -337,7 +341,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  incompatible_interfaces: model: must be incompatible, got ()']"
       ],
-      "seconds": 2.11
+      "seconds": 2.05
     },
     {
       "id": "j4_time_factor_added_not_multiplied",
@@ -352,7 +356,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  jc06_time_factor_and_horizon: composite time factor 1/4, got 1']"
       ],
-      "seconds": 2.03
+      "seconds": 2.16
     },
     {
       "id": "j4_horizon_scaled_wrong_way",
@@ -367,7 +371,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  jc06_time_factor_and_horizon: H12 = min(4, 1/(1/2)) = 2, got 1/2']"
       ],
-      "seconds": 2.05
+      "seconds": 2.08
     },
     {
       "id": "j4_delta2_multiplied_by_c1",
@@ -382,7 +386,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  jc07_flow_versus_field_error: flow bound 1/2, got 7/10']"
       ],
-      "seconds": 2.0
+      "seconds": 2.09
     },
     {
       "id": "j4_negative_scale_not_swapped",
@@ -397,7 +401,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  positive_and_negative_scales: -2x+1 in [0,1] <=> x in [0,1/2], got ((Fraction(1, 2), Fraction(0, 1)),)']"
       ],
-      "seconds": 2.05
+      "seconds": 2.51
     },
     {
       "id": "j4_preimage_ignores_first_domain",
@@ -412,7 +416,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  identity_and_associativity: identity keeps the scope']"
       ],
-      "seconds": 2.05
+      "seconds": 2.08
     },
     {
       "id": "j4_sampled_bound_not_downgraded",
@@ -427,7 +431,7 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  missing_lipschitz_gives_no_flow_bound: a sampled component bound downgrades the composite']"
       ],
-      "seconds": 2.02
+      "seconds": 2.16
     },
     {
       "id": "j4_lipschitz_segment_coverage_ignored",
@@ -442,7 +446,293 @@
       "detail": [
         "verify_correspondence_contracts.py: fail ['FAIL  missing_lipschitz_gives_no_flow_bound: certificate must cover connecting segments']"
       ],
-      "seconds": 2.16
+      "seconds": 2.12
+    },
+    {
+      "id": "j5_interval_mul_misses_products",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/rational_intervals.py",
+      "expected": "enclosure must contain the image (all four endpoint products)",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail ['FAIL  negative_coefficients_and_repeated_variables: x*x natural extension overestimates (dependency)']"
+      ],
+      "seconds": 2.38
+    },
+    {
+      "id": "j5_split_drops_right_half",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/scope_certification.py",
+      "expected": "partition must cover the domain",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail [\"FAIL  jc09_natural_bound_and_counterexample: certificate must re-check: ['partition volume 1/4 != domain volume 1']\"]"
+      ],
+      "seconds": 2.33
+    },
+    {
+      "id": "j5_point_check_skipped",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/scope_certification.py",
+      "expected": "counterexamples must be reported",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail ['FAIL  jc09_natural_bound_and_counterexample: internal: enclosure excludes the bound but no violating point was found']"
+      ],
+      "seconds": 2.17
+    },
+    {
+      "id": "j5_singularity_ignored",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/scope_certification.py",
+      "expected": "undefined input is a separate result",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail ['FAIL  jc10_dependency_and_singularity: 1/x on [-1,1]: undefined at 0, got refuted']"
+      ],
+      "seconds": 2.23
+    },
+    {
+      "id": "j5_recheck_volume_ignored",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/scope_certification.py",
+      "expected": "re-check must detect a missing partition box",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail ['FAIL  certificate_tampering_is_detected: a missing partition box must be detected']"
+      ],
+      "seconds": 2.27
+    },
+    {
+      "id": "j5_even_power_not_tight",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/rational_intervals.py",
+      "expected": "x^2 on [-1,2] is [0,4]",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail ['FAIL  negative_coefficients_and_repeated_variables: even power is tight, not x*x = [-2,4]']"
+      ],
+      "seconds": 2.14
+    },
+    {
+      "id": "j5_lower_side_uses_upper_test",
+      "package": "J5",
+      "file": "src/scoped_correspondence/assurance/scope_certification.py",
+      "expected": "side of the claim",
+      "targets": [
+        "verify_validated_scopes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_validated_scopes.py: fail ['FAIL  multidimensional_box_and_coverage: lower bound -2 holds (min is -2 at (0,2))']"
+      ],
+      "seconds": 2.81
+    },
+    {
+      "id": "j11_inf_norm_uses_columns",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "matrix inf-norm is the max absolute ROW sum",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail ['FAIL  existing_reduction_case_full_contract: ||Pi A - A P||inf = 1/4, bound k/4 = 1, got 3/4']"
+      ],
+      "seconds": 2.33
+    },
+    {
+      "id": "j11_tv_not_halved",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "plan \u00a79/\u00a717: TV/L1 factor two",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail ['FAIL  jc22_l1_and_tv: TV bound 1/5, TV error 11/100, got 2/5, 11/100']"
+      ],
+      "seconds": 2.34
+    },
+    {
+      "id": "j11_initial_error_dropped",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "initial error enters the bound",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail ['FAIL  initial_error_enters_exactly: internal: exact error exceeds the theorem bound -- hypotheses or orientation wrong']"
+      ],
+      "seconds": 2.2
+    },
+    {
+      "id": "j11_orientation_check_removed",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "orientation of all matrices",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail ['FAIL  orientation_errors_detected: a transposed full matrix must be flagged as an orientation problem: ()']"
+      ],
+      "seconds": 2.34
+    },
+    {
+      "id": "j11_tv_lifting_guard_removed",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "stochastic lifting condition for TV",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail ['FAIL  lifting_conditions_and_tv_factor: TV is refused without probability-vector differences']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "j11_float_inputs_promoted",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "numerical bound vs rigorous proof",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail [\"FAIL  numerical_bound_is_not_a_proof: float inputs: estimate only, never 'proved'\"]"
+      ],
+      "seconds": 2.08
+    },
+    {
+      "id": "j11_hoelder_constant_wrong",
+      "package": "J11",
+      "file": "src/scoped_correspondence/closure/contract_adapter.py",
+      "expected": "observation Lipschitz certificate",
+      "targets": [
+        "verify_reduction_contracts.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_reduction_contracts.py: fail ['FAIL  composed_observation_link: |f.e| <= max|f| * bound = 2 * 1 = 2, got 1']"
+      ],
+      "seconds": 2.08
+    },
+    {
+      "id": "j6_rowspace_test_inverted",
+      "package": "J6",
+      "file": "src/scoped_correspondence/identifiability/exact_linear.py",
+      "expected": "c identifiable iff c in the row space",
+      "targets": [
+        "verify_structural_identifiability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_structural_identifiability.py: fail ['FAIL  jc11_exact_affine_fibre: sum identifiable, split not']"
+      ],
+      "seconds": 2.08
+    },
+    {
+      "id": "j6_inconsistent_observation_accepted",
+      "package": "J6",
+      "file": "src/scoped_correspondence/identifiability/exact_linear.py",
+      "expected": "observation outside the image = empty fibre",
+      "targets": [
+        "verify_structural_identifiability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_structural_identifiability.py: fail ['FAIL  jc11_exact_affine_fibre: z=(3,7) not in the image: empty fibre, not identification']"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "j6_domain_restriction_assumed",
+      "package": "J6",
+      "file": "src/scoped_correspondence/identifiability/exact_linear.py",
+      "expected": "restriction for >1-dim null space is not assumed",
+      "targets": [
+        "verify_structural_identifiability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_structural_identifiability.py: fail ['FAIL  parameter_domain_restriction: 2-D null space: restriction not evaluated, never assumed']"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "j6_negative_direction_not_swapped",
+      "package": "J6",
+      "file": "src/scoped_correspondence/identifiability/exact_linear.py",
+      "expected": "line-box intersection with negative direction",
+      "targets": [
+        "verify_structural_identifiability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_structural_identifiability.py: fail ['FAIL  parameter_domain_restriction: segment t in [1,2], got None']"
+      ],
+      "seconds": 2.08
+    },
+    {
+      "id": "j6_witness_not_checked",
+      "package": "J6",
+      "file": "src/scoped_correspondence/identifiability/structural_reports.py",
+      "expected": "witness pair must be verified exactly",
+      "targets": [
+        "verify_structural_identifiability.py"
+      ],
+      "status": "equivalent_or_unresolved",
+      "kill_kind": null,
+      "detail": [
+        "verify_structural_identifiability.py: pass []",
+        "registered reason: (c/lam)*(lam*x0) == c*x0 holds algebraically for EVERY lam > 0, and positivity is enforced before; inside the J-C12 family the exact check cannot evaluate to False, so 'always True' is behaviourally equivalent (the check documents, it cannot fail)"
+      ],
+      "seconds": 2.09
     }
   ]
 }

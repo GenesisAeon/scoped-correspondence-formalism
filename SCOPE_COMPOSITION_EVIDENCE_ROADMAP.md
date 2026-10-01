@@ -30,7 +30,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ✅ erledigt (Basissatz; Vollsatz in J12) |
 | B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ✅ erledigt |
 | B | J5 | Exakte Intervallnachweise | J4 | ✅ erledigt |
-| C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ⬜ offen |
+| C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ✅ erledigt |
 | C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ⬜ offen |
 | C | J8 | Gewichtetes Split Conformal | J1/J2 | ⬜ offen |
 | D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ⬜ offen |
@@ -540,6 +540,41 @@ Verletzung kein Aufruf.
 Quelle S16: arXiv-Eintrag (HTTP 200) und DOI (Weiterleitung) erreichbar.
 
 Regression: gemeinsamer Lauf über den Stand mit J5, J11 und J6 (additiv; die J11-Prüfung importiert kein J6-Modul) — `--category all` **115/115**, `--category links` 0 kaputt.
+
+## J6 — Strukturelle Identifizierbarkeit mit präzisem Umfang (erledigt)
+
+Dokumentation: [`docs/structural_identifiability.md`](docs/structural_identifiability.md).
+Code: `identifiability/exact_linear.py` (exakte affine Analyse, Faser,
+Zeilenraumtest, deklarierte Bereichseinschränkung; lineare Algebra aus
+J2 wiederverwendet), `identifiability/structural_reports.py`
+(`StructuralReport` mit getrennten Feldern `method`/`scope`; analytische
+Familien J-C12/J-C13; endliche Kandidatenfaser über die bestehende
+H3-Beobachtungsfaser; `unsupported`). Bestehende Identifizierbarkeits-,
+Fisher- und Profilmodule unverändert.
+
+Prüfung: `verify_structural_identifiability.py` (math) **7/7** — J-C11
+(Rang 1, Nullraum $(1,-1)$, Summe ja/Aufteilung nein, konsistente und
+inkonsistente Beobachtung, Offset $b$), Bereichseinschränkung (Strecke,
+Einzelpunkt „nur auf diesem Bereich“, leer, `not_evaluated` bei
+2-D-Nullraum), J-C12 ($k$ und $cx_0$; Zeuge $(3/7,35)$; $c$ bekannt bzw.
+**Anfangsbedingung** $x_0$ bekannt; Log-affine Gegenprobe), J-C13
+($\{-2,2\}$, lokal vs. global, $\theta>0$), voller numerischer
+Jacobi-Rang ≠ globale Eindeutigkeit (inkl. Anschluss an das bestehende
+`parameter_scaling_invariance`), endliche Kandidatenfaser nur für die
+gelisteten Kandidaten, ausdrückliches `unsupported`.
+
+**Gezielte Mutanten:** 4 erkannt, 1 **äquivalent** (vorab mit Begründung
+registriert, außerhalb des Nenners): Die Zeugenprüfung
+$(c/\lambda)(\lambda x_0)=cx_0$ ist für jedes $\lambda>0$ algebraisch
+wahr und kann innerhalb der J-C12-Familie nicht scheitern; „immer wahr“
+ändert das Verhalten nicht. Die Prüfung dokumentiert, sie kann nicht
+fehlschlagen — so ausgewiesen statt als Testlücke verdeckt.
+
+Quellen S09/S10: SIAN-DOI/arXiv und die SciML-Doku erreichbar; keine
+Abhängigkeit im Pflichtkern.
+
+Regression mit J5, J11 und J6 (gemeinsamer Lauf, alle additiv):
+`--category all` **115/115** bestanden, 0 übersprungen, 12 min 17 s; `--category links` 0 kaputt. Aufgefrischte Ergebnis-JSONs bestehender Prüfungen: nur Zeitstempel/Pfade. Konsolidierter Mutationsbericht über J0–J6: **47 Mutanten, 46 durch Assertions erkannt, 1 vorab begründet äquivalent (46/46 ohne Äquivalente)** — `verification/targeted_mutations_report.json`.
 
 ## Einbindung der Followups vom 2026-10-01
 

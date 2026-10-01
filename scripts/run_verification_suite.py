@@ -138,6 +138,8 @@ _EXPLICIT_CATEGORY = {
     # J11: existing Michel-Siegle reduction bounds as contracts (exact
     # rational examples incl. closure.error_bounds.paper_example_matrices).
     "verify_reduction_contracts.py": "math",
+    # J6: exact affine / analytic structural identifiability reports.
+    "verify_structural_identifiability.py": "math",
 }
 
 

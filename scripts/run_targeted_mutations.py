@@ -74,6 +74,8 @@ DOM = "src/scoped_correspondence/correspondence/domains.py"
 RI = "src/scoped_correspondence/assurance/rational_intervals.py"
 SC = "src/scoped_correspondence/assurance/scope_certification.py"
 CA = "src/scoped_correspondence/closure/contract_adapter.py"
+EL = "src/scoped_correspondence/identifiability/exact_linear.py"
+SR = "src/scoped_correspondence/identifiability/structural_reports.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -196,6 +198,21 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_reduction_contracts.py",), "numerical bound vs rigorous proof"),
     Mutant("j11_hoelder_constant_wrong", "J11", CA, "    L = max(abs(w) for w in f) * (2 if contract.norm == \"TV\" else 1)",
            "    L = sum(abs(w) for w in f) / len(f)", ("verify_reduction_contracts.py",), "observation Lipschitz certificate"),
+    # --- J6 -------------------------------------------------------------------
+    Mutant("j6_rowspace_test_inverted", "J6", EL, "    return exact_rank(Aq + [cq]) == exact_rank(Aq)",
+           "    return exact_rank(Aq + [cq]) > exact_rank(Aq)", ("verify_structural_identifiability.py",),
+           "c identifiable iff c in the row space"),
+    Mutant("j6_inconsistent_observation_accepted", "J6", EL, "        if M[i][p] != 0:\n            return None", "        if False:\n            return None",
+           ("verify_structural_identifiability.py",), "observation outside the image = empty fibre"),
+    Mutant("j6_domain_restriction_assumed", "J6", EL, '            restriction = "not_evaluated"', '            restriction = "exact"',
+           ("verify_structural_identifiability.py",), "restriction for >1-dim null space is not assumed"),
+    Mutant("j6_negative_direction_not_swapped", "J6", EL, "                a, c = min(a, c), max(a, c)", "                pass",
+           ("verify_structural_identifiability.py",), "line-box intersection with negative direction"),
+    Mutant("j6_witness_not_checked", "J6", SR, "    same = (c2 * x02 == y0) and (-k * c2 * x02 == dy0)", "    same = True",
+           ("verify_structural_identifiability.py",), "witness pair must be verified exactly",
+           equivalent_reason=("(c/lam)*(lam*x0) == c*x0 holds algebraically for EVERY lam > 0, and positivity is "
+                              "enforced before; inside the J-C12 family the exact check cannot evaluate to False, "
+                              "so 'always True' is behaviourally equivalent (the check documents, it cannot fail)")),
 )
 
 

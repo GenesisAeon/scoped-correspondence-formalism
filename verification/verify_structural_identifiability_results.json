@@ -1,0 +1,50 @@
+{
+  "n_passed": 7,
+  "n_total": 7,
+  "results": {
+    "jc11_exact_affine_fibre": {
+      "rank": 1,
+      "null": [
+        [
+          "-1",
+          "1"
+        ]
+      ]
+    },
+    "parameter_domain_restriction": {
+      "segment": [
+        "1",
+        "2"
+      ],
+      "point": [
+        "1",
+        "1"
+      ]
+    },
+    "jc12_reservoir_known_and_unknown_initial_condition": {
+      "identifiable": [
+        "k",
+        "c*x0"
+      ]
+    },
+    "jc13_local_versus_global": {
+      "fibre": [
+        "-2",
+        "2"
+      ]
+    },
+    "numerical_full_rank_is_not_global_uniqueness": {
+      "jacobian_rank": 1,
+      "global": "not identifiable"
+    },
+    "finite_candidate_fibre_is_not_a_real_line_statement": {
+      "fibre": [
+        -2,
+        2
+      ]
+    },
+    "unsupported_outside_scope": {
+      "status": "unsupported"
+    }
+  }
+}
