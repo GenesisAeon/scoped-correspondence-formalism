@@ -24,8 +24,8 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 
 | Phase | Paket | Inhalt | Abhängigkeit | Status |
 |---|---|---|---|---|
-| A | J0 | Bestandsaufnahme, Roadmap, Kontrollfallregister | keine | ✅ erledigt (dieser Commit) |
-| A | J1 | Gepaarte Prognosevergleiche (DM/HAC) | J0 | ⬜ offen |
+| A | J0 | Bestandsaufnahme, Roadmap, Kontrollfallregister | keine | ✅ erledigt |
+| A | J1 | Gepaarte Prognosevergleiche (DM/HAC) | J0 | ✅ erledigt |
 | A | J2 | Dimensionen, Einheiten, Buckingham-Π | J0 | ⬜ offen |
 | A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ⬜ offen |
 | B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ⬜ offen |
@@ -260,6 +260,69 @@ offen festgehalten, nicht stillschweigend fallen gelassen.
 - [x] Explizite Liste optionaler Arbeiten
 - [x] Teststand und Laufzeiten am Start-Commit erhoben
 - [x] Keine Produktionsmodule in diesem Commit
-- CI-Status: Start-Commit grün (siehe oben). Der Remote-CI-Lauf für
-  **diesen** J0-Commit ist **unbekannt**, bis er tatsächlich überprüft
-  wurde (Plan §6, Abnahme); Ergebnis wird beim nächsten Paket nachgetragen.
+- CI-Status: Start-Commit grün (siehe oben). J0-Commit `22854bd` auf
+  `j-series`: Remote-CI `verify` **success** (nachgetragen in J1).
+
+## J1 — Gepaarte Prognosevergleiche (erledigt)
+
+Dokumentation: [`docs/forecast_comparison.md`](docs/forecast_comparison.md).
+Code: `validation/forecast_comparison.py` (Kern),
+`validation/forecast_comparison_pilot.py` (NOAA-Realdatenpilot).
+
+- **Paarung:** `pair_raw_predictions` verbindet `RawHorizonPrediction`
+  über `(origin, step)`; fehlende Partner und nicht endliche Werte werden
+  mit Grund gezählt, abweichende Beobachtungen unter demselben Schlüssel
+  sind Eingabefehler.
+- **Inferenz nur bei deklarierter Anwendbarkeit:**
+  `InferenceApplicability` (Begründungstext, deklarierte Mindestlänge
+  ohne Standardwert, verschachtelt/Strukturbruch/Ordnung) — sonst
+  bleiben alle Inferenzfelder leer, der deskriptive Vergleich bleibt.
+  `degenerate_variance` statt `p=0`. Ergebnisse je
+  `(series_id, horizon)`, nie gepoolt oder verkettet.
+- **Holm** nur auf vorab deklarierten Familien
+  (`incomplete_family`/`not_predeclared` statt stiller Verkleinerung).
+- **Siegerformulierung** ausschließlich über `describe_comparison`
+  (Serie/Zeitraum, $n$, Horizont, Verlust, Effektgröße, Inferenzstatus).
+
+Prüfungen:
+
+- `verify_forecast_comparison.py` (math): **14/14** — J-C01 exakt
+  ($\hat V=25/16$, SE $5/8$, DM $4/5$), J-C02, Modelltausch,
+  Verlustskalierung (exakt $\hat V\cdot c^2$), konstante Differenzen,
+  falsche Paarung, fehlende Partner, ungültige Zahlen, Horizonte,
+  Serien, Anwendbarkeitsschranken, Lagvalidierung, deklarierte Familie,
+  Ergebnissatz + standardkonformes JSON.
+- `verify_forecast_comparison_noaa.py` (data): **6/6** — Manifest-Hash,
+  vollständige Paarung, Primärergebnis rein deskriptiv, bedingtes
+  Ergebnis trägt seine Annahme, mittlere Verluste = bestehendes
+  `error_by_horizon_step` (RMSE²), bedingter DM = unabhängige
+  NumPy-HAC-Rechnung im Prüfskript (beides relativ $10^{-10}$).
+- **Gezielte Mutanten** (temporäre Kopie, nicht im Arbeitsbaum): 6/6
+  erkannt — Bartlett-Gewicht entfernt, Degenerationswächter entfernt,
+  Anwendbarkeit umgangen, Vorzeichen der Verlustdifferenz vertauscht,
+  fehlender Partner still verworfen, Beobachtungsabweichung ignoriert.
+  **Korrektur während J1:** Der erste Test für konstante Differenzen
+  erzeugte bitgleiche Gleitkommadifferenzen ($\hat V=0$ exakt) und hätte
+  den Wächter nur über einen `ZeroDivisionError` „geprüft“. Ersetzt durch
+  mathematisch konstante, numerisch in den letzten Bits schwankende
+  Differenzen; ohne Wächter entstünde dort DM $\approx1{,}4\cdot10^{15}$
+  — jetzt durch eine inhaltliche Assertion erkannt.
+
+**Realdatenpilot (Design vorab im Code fixiert):** NOAA-Jahresanomalie,
+30-Jahre-Trend (A) vs. Persistenz (B), jährliche Ursprünge ab 1960,
+$h=1$ ($n=65$) und $h=5$ ($n=61$), quadratischer Fehler. **Primär
+deskriptiv** (Stationarität der Verlustdifferenzen nicht belegt): A hat
+bei beiden Horizonten den geringeren mittleren Verlust (Differenz
+$-0{,}00185$ bzw. $-0{,}0130$ °C²). **Bedingt** unter *angenommener*
+Stationarität: $h=1$ DM $-1{,}04$, $p=0{,}30$ (nicht unterscheidbar —
+keine Gleichwertigkeit); $h=5$ DM $-3{,}64$, $p=0{,}00027$. Keine
+vorab deklarierte Familie, daher keine Mehrfachtestkorrektur.
+
+Quellen S01–S04: DOIs/Links lösen auf (geprüft 2026-10-01); kein
+Volltextaudit behauptet.
+
+Regression mit J1: `--category all` **108/108** bestanden (106 bisherige
++ 2 neue), 0 übersprungen, 11 min 33 s; `--category links` 0 kaputt.
+Aufgefrischte Ergebnis-JSONs bestehender Prüfungen enthielten nur
+Zeitstempel/Pfade sowie einen Link-Zähler (201→207), der lediglich die
+neu hinzugekommenen Docs widerspiegelt — nicht mitcommittet.

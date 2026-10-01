@@ -116,6 +116,12 @@ _EXPLICIT_CATEGORY = {
     "verify_epistemic_buffer_pilot.py": "math",
     "verify_epistemic_adapters.py": "math",
     "verify_epistemic_reporting.py": "math",
+    # J1 (SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md): exact/synthetic paired
+    # forecast comparison checks (J-C01, J-C02, gates, pairing) -- no real data.
+    "verify_forecast_comparison.py": "math",
+    # J1 real-data adapter: reads data/noaa_global_temp_anomaly_1880_2025.csv
+    # (hash-checked against data/real_data_manifest.json).
+    "verify_forecast_comparison_noaa.py": "data",
 }
 
 

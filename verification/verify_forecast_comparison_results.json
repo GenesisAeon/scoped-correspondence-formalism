@@ -1,0 +1,118 @@
+{
+  "n_passed": 14,
+  "n_total": 14,
+  "results": {
+    "jc01_bartlett_hac_exact": {
+      "V": "25/16",
+      "se": 0.625,
+      "dm": 0.8,
+      "note": "arithmetic only; n=4 does not justify asymptotics"
+    },
+    "jc02_holm_original_order": {
+      "adjusted": [
+        "3/100",
+        "3/50",
+        "3/50"
+      ]
+    },
+    "model_swap_flips_sign": {
+      "dm_ab": -3.4046604548719577,
+      "dm_ba": 3.4046604548719577
+    },
+    "positive_loss_scaling_leaves_dm_unchanged": {
+      "dm": 1.414213562373095
+    },
+    "constant_differences_are_degenerate": {
+      "status": "degenerate_variance",
+      "float_status": "degenerate_variance"
+    },
+    "wrong_pairing_is_input_error": {
+      "wrong_pairing": "rejected"
+    },
+    "missing_partners_are_counted": {
+      "series_id": "s",
+      "n_requested_a": 5,
+      "n_requested_b": 5,
+      "n_paired": 3,
+      "excluded": [
+        {
+          "origin": 0.0,
+          "horizon": 1,
+          "reason": "missing_partner_in_model_b"
+        },
+        {
+          "origin": 1.0,
+          "horizon": 1,
+          "reason": "missing_partner_in_model_b"
+        },
+        {
+          "origin": 5.0,
+          "horizon": 1,
+          "reason": "missing_partner_in_model_a"
+        },
+        {
+          "origin": 6.0,
+          "horizon": 1,
+          "reason": "missing_partner_in_model_a"
+        }
+      ],
+      "invalid": []
+    },
+    "invalid_numbers_are_reported": {
+      "invalid": 2
+    },
+    "horizons_are_never_pooled": {
+      "horizons": [
+        1,
+        2,
+        3
+      ],
+      "dm": [
+        -3.5098768203808337,
+        -3.0063670727448013,
+        -2.308729353211174
+      ]
+    },
+    "series_are_not_concatenated": {
+      "series": [
+        "catchment_1",
+        "catchment_2"
+      ]
+    },
+    "applicability_gates": {
+      "not_declared": [
+        "applicability_not_declared"
+      ],
+      "nested": [
+        "nested_models"
+      ],
+      "break": [
+        "structural_break_suspected"
+      ],
+      "order": [
+        "temporal_order_unclear"
+      ],
+      "short": [
+        "series_too_short(n=8<50)"
+      ]
+    },
+    "lag_validation": {
+      "lag_checks": "ok"
+    },
+    "predeclared_family": {
+      "raw": [
+        0.007731496490184739,
+        0.005742204298884431,
+        0.05013271223529067
+      ],
+      "adjusted": [
+        0.017226612896653292,
+        0.017226612896653292,
+        0.05013271223529067
+      ]
+    },
+    "winner_sentence_and_json": {
+      "sentence": "Series 's' (origins 0..7, n=8), horizon 1, loss absolute_error: mean loss difference A - B = 0.5 (B_lower_mean_loss). Inference: asymptotic normal reference under DECLARED applicability; DM=1.249, two-sided p=0.2115, 95% CI [-0.284368, 1.28437], Bartlett HAC lag 1. Not an equivalence test."
+    }
+  }
+}
