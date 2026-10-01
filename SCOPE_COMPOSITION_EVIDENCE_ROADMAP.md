@@ -29,7 +29,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | A | J2 | Dimensionen, Einheiten, Buckingham-Π | J0 | ✅ erledigt |
 | A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ✅ erledigt (Basissatz; Vollsatz in J12) |
 | B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ✅ erledigt |
-| B | J5 | Exakte Intervallnachweise | J4 | ⬜ offen |
+| B | J5 | Exakte Intervallnachweise | J4 | ✅ erledigt |
 | C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ⬜ offen |
 | C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ⬜ offen |
 | C | J8 | Gewichtetes Split Conformal | J1/J2 | ⬜ offen |
@@ -460,6 +460,41 @@ berichtigt.
 Quelle S07: DOI und ISTA-Nachweis lösen auf (geprüft 2026-10-01).
 
 Regression: gemeinsamer Lauf mit J3 (siehe dort) — **112/112**, 0 kaputte Links.
+
+## J5 — Nachweise über ganze unterstützte Bereiche (erledigt)
+
+Dokumentation: [`docs/validated_scopes.md`](docs/validated_scopes.md).
+Code: `assurance/rational_intervals.py` (exakte rationale
+Intervallarithmetik, scharfe gerade Potenzen, Nenner mit 0 → Ausnahme),
+`assurance/expressions.py` (validierte Ausdrucksbäume, keine Callbacks,
+Dezimalstring vs. exakter Binärwert eines Floats),
+`assurance/scope_certification.py` (`certify_bound`,
+`certify_abs_bound`, `recheck_certificate`).
+
+Prüfung: `verify_validated_scopes.py` (math) **9/9** — J-C09 (64-Zellen-
+Obergrenze genau $33/128$; $p\le13/50$ bewiesen und zertifikatsgeprüft;
+$x=1/2$ widerlegt $6/25$; scharfe $1/4$ bleibt unentschieden, nie
+widerlegt), J-C10 ($x-x$: $[-1,1]$, keine scharfe Nullschranke; $1/x$ auf
+$[-1,1]$: `undefined_on_domain` bei 0), Nenner nahe null in drei Fällen
+(echter Gegenpunkt / nur Überschätzung → bewiesen / nie getroffener
+Singulärpunkt → unentschieden mit Definitionswarnung), negative
+Koeffizienten, wiederholte Variablen, 2-D-Box mit Ober- und Untergrenze,
+Manipulation eines Zertifikats (fehlende Box, geschönter Einschluss,
+strengere Schranke) wird erkannt, Restboxen bei Budgetende, leere Box,
+Eingabevalidierung, und das **J4-Residuum** $r_{12}=6x+6$ aus J-C07 als
+Ausdrucksbaum: $|r_{12}|\le9$ auf $[0,1/2]$ bewiesen, Grenze bei $1/2$
+erreicht. **Gezielte Mutanten:** 7/7 durch Assertions erkannt.
+
+**Korrektur innerhalb von J5, vor dem Commit:** Eine eigene
+Testerwartung („$1/x\le1000$ auf $[-1,1/2]$ bleibt unentschieden“) war
+falsch — die Aussage ist für $0<x<1/1000$ tatsächlich verletzt, der Code
+fand korrekt einen Gegenpunkt (Wert 2048). Die Prüfung trennt jetzt die
+drei Fälle oben ausdrücklich.
+
+Quelle S08: offizielle IntervalArithmetic.jl-Doku erreichbar (HTTP 200);
+kein Pflichtimport.
+
+Regression: gemeinsamer Lauf über den Stand mit J5, J11 und J6 (alle additiv; J5-Prüfungen importieren weder J11- noch J6-Module) — `--category all` **115/115** bestanden, 0 übersprungen, 12 min 17 s; `--category links` 0 kaputt.
 
 ## Einbindung der Followups vom 2026-10-01
 

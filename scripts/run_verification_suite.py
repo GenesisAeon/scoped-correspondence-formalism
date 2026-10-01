@@ -133,6 +133,8 @@ _EXPLICIT_CATEGORY = {
     "verify_targeted_mutation_runner.py": "math",
     # J4: exact domains, functional contracts, typed composition.
     "verify_correspondence_contracts.py": "math",
+    # J5: exact rational interval certification over boxes.
+    "verify_validated_scopes.py": "math",
 }
 
 

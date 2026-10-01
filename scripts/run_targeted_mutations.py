@@ -71,6 +71,8 @@ CONFORMAL = "src/scoped_correspondence/validation/conformal.py"
 EB = "src/scoped_correspondence/closure/error_bounds.py"
 COMP = "src/scoped_correspondence/correspondence/composition.py"
 DOM = "src/scoped_correspondence/correspondence/domains.py"
+RI = "src/scoped_correspondence/assurance/rational_intervals.py"
+SC = "src/scoped_correspondence/assurance/scope_certification.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -159,6 +161,23 @@ MUTANTS: Tuple[Mutant, ...] = (
     Mutant("j4_lipschitz_segment_coverage_ignored", "J4", COMP,
            "    elif l2.lipschitz is None or not l2.lipschitz.covers_connecting_segments:",
            "    elif l2.lipschitz is None:", ("verify_correspondence_contracts.py",), "certificate must cover connecting segments"),
+    # --- J5 -------------------------------------------------------------------
+    Mutant("j5_interval_mul_misses_products", "J5", RI, "        return Interval(min(p), max(p))",
+           "        return Interval(min(p[0], p[3]), max(p[0], p[3]))", ("verify_validated_scopes.py",),
+           "enclosure must contain the image (all four endpoint products)"),
+    Mutant("j5_split_drops_right_half", "J5", SC, "            queue.extend(_split(b))\n    cert", "            queue.append(_split(b)[0])\n    cert",
+           ("verify_validated_scopes.py",), "partition must cover the domain"),
+    Mutant("j5_point_check_skipped", "J5", SC, "            if not _ok(v, eps, side):", "            if False:",
+           ("verify_validated_scopes.py",), "counterexamples must be reported"),
+    Mutant("j5_singularity_ignored", "J5", SC, "            except UndefinedAtPoint:\n                return",
+           "            except UndefinedAtPoint:\n                continue\n                return", ("verify_validated_scopes.py",),
+           "undefined input is a separate result"),
+    Mutant("j5_recheck_volume_ignored", "J5", SC, "    if axes and total != _volume(cert.domain, axes):", "    if False:",
+           ("verify_validated_scopes.py",), "re-check must detect a missing partition box"),
+    Mutant("j5_even_power_not_tight", "J5", RI, "        return Interval(0, max(a, b))", "        return Interval(-max(a, b), max(a, b))",
+           ("verify_validated_scopes.py",), "x^2 on [-1,2] is [0,4]"),
+    Mutant("j5_lower_side_uses_upper_test", "J5", SC, "        if (enc.hi <= eps) if side == \"upper\" else (enc.lo >= eps):",
+           "        if (enc.hi <= eps):", ("verify_validated_scopes.py",), "side of the claim"),
 )
 
 

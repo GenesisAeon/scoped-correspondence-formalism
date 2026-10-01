@@ -1,0 +1,41 @@
+{
+  "n_passed": 9,
+  "n_total": 9,
+  "results": {
+    "jc09_natural_bound_and_counterexample": {
+      "proved_boxes": 18,
+      "max_enclosure": "133/512",
+      "counterexample": {
+        "x": "1/2"
+      }
+    },
+    "exact_boundary_touch_stays_undecided_or_proved_never_refuted": {
+      "sharp_quarter": "undecided",
+      "residual_boxes": 99
+    },
+    "jc10_dependency_and_singularity": {
+      "x_minus_x": "[-1,1]",
+      "reciprocal": "undefined_on_domain"
+    },
+    "denominator_near_zero": {
+      "near_zero": "refuted",
+      "away": "proved"
+    },
+    "negative_coefficients_and_repeated_variables": {
+      "neg_coeff": "proved"
+    },
+    "multidimensional_box_and_coverage": {
+      "proved_boxes": 63
+    },
+    "certificate_tampering_is_detected": {
+      "tamper_checks": 3
+    },
+    "budget_residual_boxes_and_empty_domain": {
+      "residual_boxes": 3
+    },
+    "j4_residual_certified_over_box": {
+      "abs_bound": 9,
+      "attained_at": "1/2"
+    }
+  }
+}
