@@ -1,0 +1,15 @@
+{
+  "n_passed": 1,
+  "n_total": 1,
+  "outcomes": {
+    "assert_kill": "killed",
+    "error_kill": "killed",
+    "survivor": "survived",
+    "equivalent": "equivalent_or_unresolved",
+    "missing_snippet": "invalid",
+    "syntax_error": "invalid",
+    "bad_baseline": "invalid",
+    "slow": "timeout"
+  },
+  "kill_ratio": "2/3"
+}

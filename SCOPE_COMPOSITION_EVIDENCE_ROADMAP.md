@@ -27,7 +27,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | A | J0 | Bestandsaufnahme, Roadmap, Kontrollfallregister | keine | ✅ erledigt |
 | A | J1 | Gepaarte Prognosevergleiche (DM/HAC) | J0 | ✅ erledigt |
 | A | J2 | Dimensionen, Einheiten, Buckingham-Π | J0 | ✅ erledigt |
-| A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ⬜ offen |
+| A | J3 | Metamorphe Prüfungen, Fehlermutationen | J1/J2 | ✅ erledigt (Basissatz; Vollsatz in J12) |
 | B | J4 | Bereichsverträge, Verfeinerung, Komposition | J2 | ⬜ offen |
 | B | J5 | Exakte Intervallnachweise | J4 | ⬜ offen |
 | C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ⬜ offen |
@@ -361,6 +361,56 @@ Regression mit J2: `--category all` **109/109** bestanden, 0
 Ergebnis-JSONs bestehender Prüfungen: nur Zeitstempel/Pfade/Link-Zähler,
 nicht mitcommittet. Remote-CI für J1-Commit `e2e6c49`: `verify`
 **success**.
+
+## J3 — Metamorphe Prüfungen und gezielte Fehlermutationen (erledigt, Basissatz)
+
+Dokumentation: [`docs/metamorphic_validation.md`](docs/metamorphic_validation.md).
+
+- `verify_metamorphic_relations.py` (math) **6/6**: MR1 Einheitenwechsel
+  (50 exakte Zufallsfälle, Anschluss `reservoir_step`), MR2 gleichzeitige
+  Permutation von Zuständen/Klassen/Aktionen in
+  `check_controlled_correspondence` (exakte und nicht exakte Fälle), MR3
+  Identität und Assoziativität über `t4_composition_residual` inkl. der
+  T4-Identität selbst, MR4 A/B-Tausch, MR5 Conformal-Permutation und
+  -Skalierung. **Ausstehend und ausdrücklich ausgewiesen:** MR6 (J8),
+  MR7 (J7), MR8 (J9).
+- `scripts/run_targeted_mutations.py`: explizites Mutantenregister, Läufe
+  nur auf temporärer Kopie, Hash-Nachweis des unveränderten Arbeitsbaums,
+  Ausgänge `killed` (`assertion`/`error`) / `survived` / `invalid` /
+  `timeout` / `equivalent_or_unresolved`.
+- `verify_targeted_mutation_runner.py` (math) **1/1**: Selbsttest aller
+  Ausgangsklassen an einem Wegwerf-Spielrepository.
+- **Mutationsbericht** [`verification/targeted_mutations_report.json`](verification/targeted_mutations_report.json):
+  **19/19** erkannt, alle durch Assertions — davon 4 planpflichtige
+  Klassen am Bestandscode (T4-Zeitfaktor, Conformal-Testpunktmasse
+  $n+1\to n$, TV/L1-Faktor ½, umgedrehte Ungleichung), 7 J1, 8 J2.
+  Lipschitzfaktor und Scope-Verträglichkeit werden mit J4 aktiviert.
+
+**Drei Korrekturen innerhalb von J3, vor dem Commit:**
+
+1. MR3 prüfte zunächst nicht die T4-Identität (`direct = composed`)
+   selbst; der als Ziel eingetragene T4-Mutant wäre von MR3 nicht erfasst
+   worden. Ergänzt.
+2. **Runner-Fehler „veralteter Bytecode“** (durch den Selbsttest
+   gefunden): Gleich lange Mutationen innerhalb derselben Sekunde
+   bestanden Pythons mtime+Größe-Prüfung, ausgeführt wurde der
+   unmutierte Bytecode — ein falsches „überlebt“. Behoben mit
+   `PYTHONDONTWRITEBYTECODE=1`. Der Fehler kann nur falsche Überlebende
+   erzeugen; frühere „erkannt“-Ergebnisse (J1/J2) bleiben gültig, und der
+   Lauf vor dem Fix ergab ebenfalls 19/19.
+3. **Runner-Fehler „Einstufung“:** Ältere Prüfskripte melden
+   Fehlschläge als JSON statt mit `FAIL`-Zeilen und wurden als Absturz
+   gezählt (`verify_correspondence_core.py` meldet den T4-Mutanten als
+   fehlgeschlagenes `MIG-COR-T04`). Jetzt: `error` nur bei ungefangener
+   Exception.
+
+Quelle S06: DOI löst auf; die HKU-Autorenfassung antwortete mit HTTP 403
+(vermutlich Bot-Sperre) — nicht inhaltlich geprüft.
+
+Regression (gemeinsamer Lauf über den Stand mit J3 und J4, beide rein additiv; die
+J3-Prüfskripte importieren kein J4-Modul, per `grep` geprüft): `--category all`
+**112/112** bestanden, 0 übersprungen, 12 min 7 s; `--category links` 0 kaputt.
+Aufgefrischte Ergebnis-JSONs bestehender Prüfungen: nur Zeitstempel/Pfade.
 
 ## Einbindung der Followups vom 2026-10-01
 

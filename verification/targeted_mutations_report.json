@@ -1,0 +1,312 @@
+{
+  "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
+  "python": "3.11.9",
+  "n_mutants": 19,
+  "counts": {
+    "killed": 19
+  },
+  "killed_by_assertion": 19,
+  "killed_by_error_only": 0,
+  "kill_ratio_excluding_equivalent": "19/19",
+  "working_tree_unchanged": true,
+  "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
+  "baseline_targets": {
+    "verify_conformal_prediction_core.py": "pass",
+    "verify_correspondence_core.py": "pass",
+    "verify_dimensional_analysis.py": "pass",
+    "verify_error_bounds_core.py": "pass",
+    "verify_forecast_comparison.py": "pass",
+    "verify_metamorphic_relations.py": "pass"
+  },
+  "mutants": [
+    {
+      "id": "t4_time_factor_removed",
+      "package": "J3",
+      "file": "src/scoped_correspondence/correspondence/contract.py",
+      "expected": "plan \u00a79: Zeitfaktor in T4 entfernen",
+      "targets": [
+        "verify_correspondence_core.py",
+        "verify_metamorphic_relations.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_correspondence_core.py: fail ['{\"count\": 5, \"passed\": 4, \"failed\": [\"MIG-COR-T04_composed_transformations\"], \"report\": \"D:\\\\\\\\temp\\\\\\\\scf_mut_ktusplej\\\\\\\\verification\\\\\\\\verify_correspondence_core_results.json\"}']",
+        "verify_metamorphic_relations.py: fail ['FAIL  mr3_identity_and_associativity: both bracketings must give the same direct residual, worst 3.262499999579778']"
+      ],
+      "seconds": 4.92
+    },
+    {
+      "id": "conformal_test_point_mass_dropped",
+      "package": "J3",
+      "file": "src/scoped_correspondence/validation/conformal.py",
+      "expected": "plan \u00a79: Testpunktmasse bei Conformal weglassen (n+1 -> n)",
+      "targets": [
+        "verify_conformal_prediction_core.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_conformal_prediction_core.py: fail ['FAIL  example_b_q4_interval_6_14: 2.0 != 4.0']"
+      ],
+      "seconds": 2.16
+    },
+    {
+      "id": "tv_l1_factor_two",
+      "package": "J3",
+      "file": "src/scoped_correspondence/closure/error_bounds.py",
+      "expected": "plan \u00a79: Faktor zwei bei TV/L1 verwechseln",
+      "targets": [
+        "verify_error_bounds_core.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_error_bounds_core.py: fail ['FAIL paper_dtmc_thm4: AssertionError: 1.0 != 0.5 (atol=1e-12)']"
+      ],
+      "seconds": 2.45
+    },
+    {
+      "id": "tv_comparison_inequality_inverted",
+      "package": "J3",
+      "file": "src/scoped_correspondence/closure/error_bounds.py",
+      "expected": "plan \u00a79: Ungleichung umdrehen",
+      "targets": [
+        "verify_error_bounds_core.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_error_bounds_core.py: fail [\"FAIL compatibility_core_call: AssertionError: {'michel_l1': 1.0, 'michel_tv': 0.5, 'propagated_error_bound_tv': 1.0, 'michel_tv_leq_propagated': False, 'note': 'Michel\u00e2\u20ac\u201cSiegle: L1 on full-state error, residual ||\u00ce\\xa0A\u00e2\u02c6\u2019AP||_\u00e2\u02c6\u017e (Thm 4). propagated_error_bound: TV on projected distributions, defect delta_cl = max_i TV((PC)_i,(CQ)_i). Different residuals/spaces; equality-to-zero when both residuals vanish (exact/dynamic-exact aggregation). Inequality michel_tv \u00e2\u2030\u00a4 propagated is NOT guaranteed in general.'}\"]"
+      ],
+      "seconds": 2.11
+    },
+    {
+      "id": "j1_bartlett_weight_removed",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "J-C01 exact HAC value",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail ['FAIL  jc01_bartlett_hac_exact: V must be 25/16 exactly, got 15/8']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "j1_degenerate_guard_removed",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "no p-value / DM for degenerate variance",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail ['FAIL  constant_differences_are_degenerate: float constant d must be degenerate, got asymptotic_normal_reference DM=1411718510347255.2']"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "j1_applicability_bypassed",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "inference gates",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail ['FAIL  applicability_gates: not_declared: must be not_applicable, got asymptotic_normal_reference']"
+      ],
+      "seconds": 2.53
+    },
+    {
+      "id": "j1_loss_difference_sign_swapped",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "sign convention A-B",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail ['FAIL  jc01_bartlett_hac_exact: mean must be 1/2, got -1/2']"
+      ],
+      "seconds": 2.64
+    },
+    {
+      "id": "j1_missing_partner_dropped",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "no silent drop of unpaired points",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail [\"FAIL  missing_partners_are_counted: reasons wrong: ['missing_partner_in_model_a', 'missing_partner_in_model_a']\"]"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "j1_observed_mismatch_ignored",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "wrong pairing is an input error",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail ['FAIL  wrong_pairing_is_input_error: different observed values under the same key must be an input error']"
+      ],
+      "seconds": 2.08
+    },
+    {
+      "id": "j1_series_too_short_inverted",
+      "package": "J1",
+      "file": "src/scoped_correspondence/validation/forecast_comparison.py",
+      "expected": "plan \u00a79: Ungleichung umdrehen (Mindestl\u00e4nge)",
+      "targets": [
+        "verify_forecast_comparison.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_forecast_comparison.py: fail ['FAIL  jc01_bartlett_hac_exact: result must carry the exact long-run variance']"
+      ],
+      "seconds": 2.08
+    },
+    {
+      "id": "j2_add_dimension_check_removed",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/core.py",
+      "expected": "adding different dimensions",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail [\"FAIL  addition_of_different_dimensions_rejected: must reject: {'status': 'consistent', 'dimension': {'L': '1'}, 'violations': [], 'semantic_warnings': []}\"]"
+      ],
+      "seconds": 2.12
+    },
+    {
+      "id": "j2_func_arg_check_removed",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/core.py",
+      "expected": "exp/log arguments dimensionless",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  function_arguments_dimensionless: exp(T) must be rejected']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "j2_pow_ignores_exponent",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/core.py",
+      "expected": "rational exponents",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  jc03_pendulum_null_space: g T^2 / l must be dimensionless']"
+      ],
+      "seconds": 2.06
+    },
+    {
+      "id": "j2_kind_warning_removed",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/core.py",
+      "expected": "energy vs torque warning",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  energy_vs_torque_semantic_warning: energy + torque: dimensionally consistent but a semantic warning']"
+      ],
+      "seconds": 2.47
+    },
+    {
+      "id": "j2_affine_guard_removed",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/core.py",
+      "expected": "affine scales are not multiplicative",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  unit_transformations_and_affine_scales: affine unit has no multiplicative scale']"
+      ],
+      "seconds": 2.66
+    },
+    {
+      "id": "j2_rescale_sign_flipped",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/core.py",
+      "expected": "J-C04 unit change",
+      "targets": [
+        "verify_dimensional_analysis.py",
+        "verify_metamorphic_relations.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  jc04_reservoir_unit_change_exact_and_module: rescaled values wrong: 1825, 730, 2/1825']",
+        "verify_metamorphic_relations.py: pass []"
+      ],
+      "seconds": 4.26
+    },
+    {
+      "id": "j2_nullspace_sign_dropped",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/pi_groups.py",
+      "expected": "J-C03 null space",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  jc03_pendulum_null_space: span must equal (2,-1,1), got ((2, -1, -1),)']"
+      ],
+      "seconds": 2.16
+    },
+    {
+      "id": "j2_span_check_ignores_joint_rank",
+      "package": "J2",
+      "file": "src/scoped_correspondence/dimensions/pi_groups.py",
+      "expected": "basis change compares spans",
+      "targets": [
+        "verify_dimensional_analysis.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_dimensional_analysis.py: fail ['FAIL  basis_change_compares_spans: a dimensional vector is not in the span']"
+      ],
+      "seconds": 2.14
+    }
+  ]
+}

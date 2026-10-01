@@ -125,6 +125,12 @@ _EXPLICIT_CATEGORY = {
     # J2: exact dimension checks / Buckingham-Pi; reservoir and galaxy
     # connections are symbolic or synthetic -- no real dataset.
     "verify_dimensional_analysis.py": "math",
+    # J3: metamorphic relations (synthetic/exact) and the mutation-runner
+    # self-test on a throw-away toy repository. The targeted mutation run
+    # itself (scripts/run_targeted_mutations.py) is deliberately NOT part of
+    # the suite -- every mutant re-runs whole verify scripts.
+    "verify_metamorphic_relations.py": "math",
+    "verify_targeted_mutation_runner.py": "math",
 }
 
 
