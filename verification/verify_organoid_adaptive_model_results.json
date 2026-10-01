@@ -1,0 +1,34 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "on_c11_hebb_row": {
+      "row2": [
+        "5/12",
+        "0",
+        "1/12"
+      ]
+    },
+    "on_c12_eta_zero_and_contraction": {
+      "bound": "3/4",
+      "empirical_max_ratio": 0.6031324715694638,
+      "scope": "frozen weights, identical inputs only"
+    },
+    "on_c22_budget": {
+      "row_sum": "4/5",
+      "inter": "1/5"
+    },
+    "on_c23_identical_operator_under_module_names": {
+      "off_diagonal": "4/55"
+    },
+    "masks_budget_and_frozen_weights": {
+      "final_inter_fraction_rows_0_2": [
+        0.743,
+        0.6799,
+        0.6799
+      ],
+      "max_drift_from_c": 0.517313726011563,
+      "note": "Hebb keeps row sums, not c; the drift is reported, not asserted in a direction"
+    }
+  }
+}

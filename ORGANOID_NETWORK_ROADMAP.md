@@ -23,7 +23,7 @@ ist zulässig.
 | ON0 | Quellen, Umfang, API-Audit, Handkontrollen | ✅ erledigt (dieser Commit) |
 | ON1 | Exakte Beobachtungs- und Strukturkontrollen ($W(\delta)$, Voll-/Summenbeobachter) | ✅ erledigt |
 | ON2 | Messrauschen und endliche Kanäle | ✅ erledigt |
-| ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ⬜ offen |
+| ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ✅ erledigt |
 | ON4 | Decoder und hierarchischer Vergleich | ⬜ offen |
 | ON5 | Information, PID und Gerichtetheit | ⬜ offen |
 | ON6a | Synthetischer Benchmark und Evidenzbericht | ⬜ offen |
@@ -157,6 +157,34 @@ Pseudocounts sichtbar als Annahme.
 Summenbeobachter klassengleich), ON-C05, ON-C06 (C = log₂(5/4) über BA),
 ON-C07/C08, Datenverarbeitung (20 zufällige Vergröberungen fügen keine
 Information hinzu), ON-C21.
+
+## ON3 — Begrenzte adaptive Dynamik (erledigt)
+
+`validation/modular_networks/adaptive_model.py`: Zwei-Zeitskalen-Modell,
+Modulpartition, Budgetmatrix (Zeilensumme γ, c für M=1 nicht anwendbar),
+dauerhafte Kantenmaske, verzögerte Hebb-Regel ohne Labels, Kontraktions-
+schranke (nur eingefrorene Gewichte), getrennte RNG-Ströme in
+`NetworkConfig`.
+
+[`verify_organoid_adaptive_model.py`](verification/verify_organoid_adaptive_model.py)
+5/5: ON-C11 exakt, ON-C12 (η=0 exakt; empirisches Lipschitz-Verhältnis
+≤ 3/4), ON-C22, ON-C23 inkl. identischer Trajektorien, gesperrte
+Interkanten und Diagonale, Budget, Probe ändert A nicht.
+
+**Befunde:**
+- **Exaktheitsfehler gefunden:** `g / m` mit Integer-Null machte die
+  exakte Hebb-Rechnung still zu Float (ON-C11 schlug fehl) — behoben
+  (`Fraction(g, m)`).
+- **Leere Assertion entfernt:** eine eigene Prüfung enthielt `… or True`;
+  ersetzt durch echte Berichtsprüfungen.
+- **Drift von c wird berichtet, nicht behauptet:** Hebb erhält die
+  Zeilensummen, nicht den Inter-Anteil — im Lauf mit erlaubten
+  Interkanten wandert er von 0,25 bis ≈ 0,74.
+- **Testlücke per Mutant gefunden:** die Maske stand doppelt (in G und in
+  Ã); der erste Mutant war äquivalent, der umgezielte überlebte ebenfalls,
+  weil keine Prüfung Diagonale bzw. aktive gesperrte Kanten abdeckte.
+  Redundanz entfernt, exakte Ein-Schritt-Kontrolle mit Aktivität auf allen
+  Zuständen ergänzt — jetzt getötet.
 
 ## Regression
 

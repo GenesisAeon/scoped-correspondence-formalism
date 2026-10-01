@@ -340,6 +340,13 @@ MUTANTS: Tuple[Mutant, ...] = (
            "unknown row, never a uniform default"),
     Mutant("on2_bayes_sqrt2", "ON2", ONM + "channels.py", "    return 0.5 * (1.0 + math.erf(abs(delta) / sigma))",
            "    return 0.5 * (1.0 + math.erf(abs(delta) / (math.sqrt(2) * sigma)))", ("verify_organoid_channels.py",), "A* = 0.92135"),
+    Mutant("on3_no_renormalisation", "ON3", ONM + "adaptive_model.py", "        out.append([gamma * a / s for a in At])",
+           "        out.append(list(At))", ("verify_organoid_adaptive_model.py",), "row sums kept at gamma"),
+    Mutant("on3_mask_ignored", "ON3", ONM + "adaptive_model.py", "        At = [((1 - eta) * A[i][j] + eta * G[i][j]) * mask[i][j] for j in range(N)]",
+           "        At = [((1 - eta) * A[i][j] + eta * G[i][j]) for j in range(N)]", ("verify_organoid_adaptive_model.py",),
+           "diagonal / forbidden edges stay zero"),
+    Mutant("on3_inter_weight_wrong", "ON3", ONM + "adaptive_model.py", "                A[i][j] = gamma * c / (N - n)",
+           "                A[i][j] = gamma * c / (N - n - 1)", ("verify_organoid_adaptive_model.py",), "inter weight 1/5"),
 )
 
 
