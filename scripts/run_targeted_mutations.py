@@ -228,6 +228,15 @@ MUTANTS: Tuple[Mutant, ...] = (
     Mutant("mu1_unequal_times_accepted", "MU1", MK, "    if t1 != t2:", "    if False:", ("verify_muonium_kinematics.py",), "equal flight times scope"),
     Mutant("mu1_eta_zero_denominator_invented", "MU1", MK, "    if den == 0:\n        return None", "    if den == 0:\n        return 0",
            ("verify_muonium_kinematics.py",), "eta undefined, not invented"),
+    Mutant("mu2_survival_ignored_in_weights", "MU2", MF, "        return [c.weight * c.transmission * c.efficiency * self.survival(c.v) for c in self.classes]",
+           "        return [c.weight * c.transmission * c.efficiency for c in self.classes]", ("verify_muonium_forward.py",),
+           "detected mixture includes survival"),
+    Mutant("mu2_phase_reported_for_zero_contrast", "MU2", MF, "        if F is None or abs(F) <= tol:\n            return None",
+           "        if F is None:\n            return None", ("verify_muonium_forward.py",), "no arg(0)"),
+    Mutant("mu2_transmission_guard_removed", "MU2", MF, "                if c.transmission * (1 + c.contrast) > 1 + 1e-15:", "                if False:",
+           ("verify_muonium_forward.py",), "A (1 + C) <= 1"),
+    Mutant("mu2_bin_time_not_applied", "MU2", MF, "            out.append(b.t * self.background + b.t * self.rate * W * (1 + mod))",
+           "            out.append(self.background + self.rate * W * (1 + mod))", ("verify_muonium_forward.py",), "per-bin measurement times"),
 )
 
 

@@ -21,7 +21,7 @@ eine präzise Schätzung.
 |---|---|---|
 | MU0 | Quellenregister, Anschlussinventar, unabhängige Herleitungen | ✅ erledigt |
 | MU1 | Kinematik, Einheiten, Geltungsbereich | ✅ erledigt |
-| MU2 | Endliche Geschwindigkeitsmischung und Messoperator | ⬜ offen |
+| MU2 | Endliche Geschwindigkeitsmischung und Messoperator | ✅ erledigt |
 | MU3 | Count-Likelihood und Schätzdiagnostik | ⬜ offen |
 | MU4 | Identifizierbarkeit und Interventionen | ⬜ offen |
 | MU5 | Design und bedingte Abdeckung | ⬜ offen |
@@ -132,4 +132,12 @@ Kalibrierung (nicht zur Gravitation) nutzen dürfte.
 Code: `muonium/kinematics.py`. Prüfung: `verify_muonium_kinematics.py` (math) **7/7** — MU-C01–C05, MU-C14; ungleiche Flugzeiten abgelehnt, η-Nenner null → undefiniert (nicht erfunden), ungültige Geometrie, nicht endliche Eingaben; negative $a$ zulässig; Phase per J2-Dimensionsprüfung dimensionslos.
 
 Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv; jede MU-Prüfung importiert nur MU-Module bis zu ihrem eigenen Paket) — `--category all` **122/122** bestanden, 0 übersprungen, 13 min 12 s; `--category links` 0 kaputt.
+
+## MU2 — Endliche Geschwindigkeitsmischung und Messoperator (erledigt)
+
+Code: `muonium/forward.py`. Prüfung: `verify_muonium_forward.py` (math) **7/7** — MU-C06, MU-C07, MU-C16; Nullsignal, $F=0$ ohne `arg(0)`, $C=0$/$C=1$, Messzeit je Bin (Gesamtzeit nicht je Bin wiederverwendet), unzulässige Gewichte, Einzelgeschwindigkeits-Grenzfall, Phase bei mittlerer Geschwindigkeit ≠ Mischung.
+
+**Korrektur vor dem Commit:** `VelocityClass` hatte die Voreinstellungen $A=1$, $C=1$ — per Konstruktion eine Verletzung von $A(1+C)\le1$, die das Modell zu Recht ablehnte. Transmission und Kontrast sind jetzt Pflichtangaben ohne Voreinstellung.
+
+Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
 

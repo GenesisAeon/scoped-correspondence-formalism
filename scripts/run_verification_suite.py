@@ -144,6 +144,7 @@ _EXPLICIT_CATEGORY = {
     # counts and analytic counterexamples only -- the real beam data
     # (MU-S5, license InC-NC) is deferred and never read here.
     "verify_muonium_kinematics.py": "math",
+    "verify_muonium_forward.py": "math",
 }
 
 
