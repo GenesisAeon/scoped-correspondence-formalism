@@ -155,6 +155,8 @@ _EXPLICIT_CATEGORY = {
     # cleanly (all_skipped) when they are absent.
     "verify_global_sensitivity.py": "math",
     "verify_galaxy_joint_sensitivity.py": "data",
+    # J8: weighted split conformal (exact controls + synthetic comparison).
+    "verify_weighted_conformal.py": "math",
 }
 
 

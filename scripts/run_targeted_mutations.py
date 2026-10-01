@@ -284,6 +284,14 @@ MUTANTS: Tuple[Mutant, ...] = (
     Mutant("j7_joint_transform_skips_test_rows", "J7", GJ, "                         test_rows=_transform(split.test_rows, alpha_D, i_ref, i_new))",
            "                         test_rows=split.test_rows)", ("verify_galaxy_joint_sensitivity.py",),
            "same transformation on train AND test rows (reference scenario reproduces the existing evaluation)"),
+    Mutant("j8_test_mass_dropped", "J8", WC, "    total = sum(ws) + tw\n", "    total = sum(ws)\n", ("verify_weighted_conformal.py",),
+           "plan §9: Testpunktmasse weglassen (weighted variant)"),
+    Mutant("j8_clipping_inherits_guarantee", "J8", WC,
+           '    status = ("inherited_under_stated_assumptions" if weight_provenance == "known_density_ratio" and clip_at is None',
+           '    status = ("inherited_under_stated_assumptions" if weight_provenance == "known_density_ratio"',
+           ("verify_weighted_conformal.py",), "clipping is a procedure change"),
+    Mutant("j8_overlap_allowed", "J8", WC, "    if set(train_ids) & set(calibration_ids):", "    if False:", ("verify_weighted_conformal.py",),
+           "training/calibration separation"),
 )
 
 

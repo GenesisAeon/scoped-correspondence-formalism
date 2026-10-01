@@ -1,0 +1,50 @@
+{
+  "n_passed": 7,
+  "n_total": 7,
+  "results": {
+    "jc15_quantiles_and_test_mass": {
+      "quantiles": [
+        "3",
+        "+inf",
+        "2"
+      ]
+    },
+    "jc16_full_enumeration_with_production_quantile": {
+      "unweighted": "40951/100000",
+      "weighted": "1",
+      "unbounded": "89991/100000",
+      "reading": "coverage gain bought with mostly unbounded intervals -- coverage, width and unboundedness side by side"
+    },
+    "jc17_concept_shift": {
+      "quantile": 0,
+      "coverage": 0
+    },
+    "input_validation_and_separation": {
+      "validation": "ok"
+    },
+    "guarantee_inheritance_and_json": {
+      "statuses": [
+        "inherited_under_stated_assumptions",
+        "not_inherited_estimated_weights",
+        "not_inherited_procedure_changed"
+      ]
+    },
+    "conformal_inf_wording_corrected": {
+      "wording": "corrected"
+    },
+    "comparison_fixed_adaptive_weighted": {
+      "mean_coverage": {
+        "fixed": 0.8498666666666667,
+        "weighted": 0.9099333333333334,
+        "aci": 0.8903333333333334
+      },
+      "se": {
+        "fixed": 0.003677638393669145,
+        "weighted": 0.0029931148539892867,
+        "aci": 0.0010235066978820607
+      },
+      "mean_unbounded_fraction_weighted": 0.0,
+      "reading": "comparison under ONE pre-declared shift; ACI targets long-run sequential coverage, a different guarantee"
+    }
+  }
+}

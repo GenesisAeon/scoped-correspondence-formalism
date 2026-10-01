@@ -76,3 +76,10 @@ sollten mindestens diese Stellen im Volltext abgeglichen werden:
 - [ ] `epistemic/reporting.report_to_json` erlaubt NaN/Infinity (J0-Befund
   B2): auf `allow_nan=False` umstellen? Würde bestehende Berichte
   betreffen.
+- [ ] `validation/conformal.calibrate_split_conformal` (J8-Befund): Für
+  α ∈ {0,45; 0,7; 0,85; 0,95; 0,99} (geprüft n ≤ 5000) ergibt
+  `ceil((n+1)*(1-alpha))` bei ganzzahligem exaktem Produkt einen um 1 zu
+  großen Index, weil der Float α nicht das gemeinte Dezimal-α ist. Wirkung
+  nur konservativ (breitere Intervalle, Garantie unverletzt); übliche α
+  (0,05; 0,1; 0,2 …) unbetroffen. Option: α zusätzlich als `Fraction`
+  oder Dezimalstring annehmen (wie im J8-Modul).

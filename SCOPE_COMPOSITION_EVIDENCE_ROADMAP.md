@@ -32,7 +32,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | B | J5 | Exakte Intervallnachweise | J4 | ✅ erledigt |
 | C | J6 | Begrenzte strukturelle Identifizierbarkeit | J2/J4 | ✅ erledigt |
 | C | J7 | Gemeinsame Sensitivität (Sobol) | J1/J6 | ✅ erledigt |
-| C | J8 | Gewichtetes Split Conformal | J1/J2 | ⬜ offen |
+| C | J8 | Gewichtetes Split Conformal | J1/J2 | ✅ erledigt |
 | D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ⬜ offen |
 | D | J10 | Geprüfte Standardisierung/Transport | J9 | ⬜ offen |
 | E | J11 | Vorhandene Reduktionsschranken als Verträge | J4/J5 | ✅ erledigt |
@@ -615,6 +615,30 @@ fügt nur Prüfungen hinzu.
 Quellen S11/S12: DOIs lösen auf (geprüft 2026-10-01); Volltextabgleich der Normierung im Backlog.
 
 Regression: gemeinsamer Lauf über den Stand mit J7–J10 und J12 (additiv; die J7-Prüfungen importieren nur J7-Module und Bestand) — `--category all` **129/129** bestanden, 0 übersprungen, 13 min 38 s; `--category links` 0 kaputt. Gezielte Mutanten J7: 4/4 erkannt.
+
+## J8 — Gewichtetes Split Conformal (erledigt)
+
+Dokumentation: [`docs/weighted_conformal.md`](docs/weighted_conformal.md).
+Code: `validation/weighted_conformal.py` (Testpunktmasse bei $+\infty$,
+exakt für `Fraction`, Garantiestatus: geerbt nur mit bekannten Gewichten
+und ohne Clipping; Trennung Training/Kalibrierung; ganze reelle Gerade
+als expliziter Marker). Docstring-Korrektur in `validation/conformal.py`
+(`+inf` = ganze reelle Gerade, nicht leer; Plan §14).
+
+Prüfung: `verify_weighted_conformal.py` (math) **7/7** — J-C15, J-C16
+(32 Fälle mit der Produktionsfunktion: $40951/100000$ / 1 /
+$89991/100000$), J-C17, Eingabevalidierung, Garantievererbung, korrigierte
+Formulierung, vorab festgelegter Vergleich (Seed 2, 300 Wiederholungen):
+fest 0,850, gewichtet 0,910, ACI 0,890 bei Ziel 0,90.
+
+**Befund am bestehenden `conformal.py` (nicht geändert):** Float-α
+verschiebt `ceil((n+1)(1-alpha))` für α ∈ {0,45; 0,7; 0,85; 0,95; 0,99}
+bei ganzzahligem exaktem Produkt um +1 — nur konservativ; Entscheidung in
+[`DEEP_RESEARCH_BACKLOG.md`](DEEP_RESEARCH_BACKLOG.md).
+
+Quelle S13: arXiv-Eintrag erreichbar (HTTP 200); Gleichstandskonvention oben festgelegt, Volltextabgleich im Backlog.
+
+Regression: gemeinsamer Lauf J7–J10/J12 (additiv) — `--category all` **129/129**, `--category links` 0 kaputt. Gezielte Mutanten J8: 3/3 erkannt.
 
 ## Einbindung der Followups vom 2026-10-01
 

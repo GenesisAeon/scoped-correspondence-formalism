@@ -62,8 +62,10 @@ def calibrate_split_conformal(
 
         ``k = ceil((n + 1) * (1 - alpha))``.
 
-        If ``k == n + 1``, returns ``+inf`` (empty finite interval; Lei et
-        al. Algorithm 2 / Theorem 2).
+        If ``k == n + 1``, returns ``+inf``: there is no finite bound, and
+        the resulting prediction interval is the WHOLE REAL LINE -- not an
+        empty interval (Lei et al. Algorithm 2 / Theorem 2; wording
+        corrected in J8, SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md).
 
     Why the naive quantile breaks coverage
     --------------------------------------
