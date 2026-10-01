@@ -73,6 +73,7 @@ COMP = "src/scoped_correspondence/correspondence/composition.py"
 DOM = "src/scoped_correspondence/correspondence/domains.py"
 RI = "src/scoped_correspondence/assurance/rational_intervals.py"
 SC = "src/scoped_correspondence/assurance/scope_certification.py"
+CA = "src/scoped_correspondence/closure/contract_adapter.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -178,6 +179,23 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_validated_scopes.py",), "x^2 on [-1,2] is [0,4]"),
     Mutant("j5_lower_side_uses_upper_test", "J5", SC, "        if (enc.hi <= eps) if side == \"upper\" else (enc.lo >= eps):",
            "        if (enc.hi <= eps):", ("verify_validated_scopes.py",), "side of the claim"),
+    # --- J11 ------------------------------------------------------------------
+    Mutant("j11_inf_norm_uses_columns", "J11", CA, "    r_inf = max(sum(abs(v) for v in row) for row in resid)  # max absolute ROW sum",
+           "    r_inf = max(sum(abs(resid[i][j]) for i in range(len(resid))) for j in range(len(resid[0])))",
+           ("verify_reduction_contracts.py",), "matrix inf-norm is the max absolute ROW sum"),
+    Mutant("j11_tv_not_halved", "J11", CA, "    exact_bound = l1 / 2 if contract.norm == \"TV\" else l1",
+           "    exact_bound = l1", ("verify_reduction_contracts.py",), "plan §9/§17: TV/L1 factor two"),
+    Mutant("j11_initial_error_dropped", "J11", CA, "    l1 = e0 + k * r_inf", "    l1 = k * r_inf",
+           ("verify_reduction_contracts.py",), "initial error enters the bound"),
+    Mutant("j11_orientation_check_removed", "J11", CA,
+           "            bad.append(f\"{label} matrix is not {'a generator' if contract.continuous_time else 'row-stochastic'}{hint}\")",
+           "            pass", ("verify_reduction_contracts.py",), "orientation of all matrices"),
+    Mutant("j11_tv_lifting_guard_removed", "J11", CA, "    if contract.norm == \"TV\" and not (lifting_stochastic and p0_prob):",
+           "    if False:", ("verify_reduction_contracts.py",), "stochastic lifting condition for TV"),
+    Mutant("j11_float_inputs_promoted", "J11", CA, "    if not _all_exact(Pi, A, P, pi0, p0):", "    if False:",
+           ("verify_reduction_contracts.py",), "numerical bound vs rigorous proof"),
+    Mutant("j11_hoelder_constant_wrong", "J11", CA, "    L = max(abs(w) for w in f) * (2 if contract.norm == \"TV\" else 1)",
+           "    L = sum(abs(w) for w in f) / len(f)", ("verify_reduction_contracts.py",), "observation Lipschitz certificate"),
 )
 
 

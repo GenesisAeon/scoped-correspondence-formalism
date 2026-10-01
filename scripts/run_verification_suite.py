@@ -135,6 +135,9 @@ _EXPLICIT_CATEGORY = {
     "verify_correspondence_contracts.py": "math",
     # J5: exact rational interval certification over boxes.
     "verify_validated_scopes.py": "math",
+    # J11: existing Michel-Siegle reduction bounds as contracts (exact
+    # rational examples incl. closure.error_bounds.paper_example_matrices).
+    "verify_reduction_contracts.py": "math",
 }
 
 

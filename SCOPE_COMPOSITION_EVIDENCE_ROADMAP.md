@@ -35,7 +35,7 @@ Vorbereitung geändert“), nicht ungeprüft übernommen.
 | C | J8 | Gewichtetes Split Conformal | J1/J2 | ⬜ offen |
 | D | J9 | Endliche SCMs, interventionelle Abstraktion | J4 | ⬜ offen |
 | D | J10 | Geprüfte Standardisierung/Transport | J9 | ⬜ offen |
-| E | J11 | Vorhandene Reduktionsschranken als Verträge | J4/J5 | ⬜ offen |
+| E | J11 | Vorhandene Reduktionsschranken als Verträge | J4/J5 | ✅ erledigt |
 | E | J12 | CLI, Fähigkeitsbilanz, Abschlussregression | alle | ⬜ offen |
 
 Geplante Reihenfolge: J0 → J1 → J2 → J3 (Basissatz) → J4 → J5 → J11 → J6
@@ -495,6 +495,51 @@ Quelle S08: offizielle IntervalArithmetic.jl-Doku erreichbar (HTTP 200);
 kein Pflichtimport.
 
 Regression: gemeinsamer Lauf über den Stand mit J5, J11 und J6 (alle additiv; J5-Prüfungen importieren weder J11- noch J6-Module) — `--category all` **115/115** bestanden, 0 übersprungen, 12 min 17 s; `--category links` 0 kaputt.
+
+## J11 — Vorhandene Reduktionsschranken als Verträge (erledigt, vor J6 gezogen)
+
+Dokumentation: [`docs/reduction_contracts.md`](docs/reduction_contracts.md).
+Code: `closure/contract_adapter.py`; `closure/error_bounds.py`
+unverändert und weiterhin die einzige Reduktionsimplementierung.
+
+- Die bestehende Float-Schranke wird aufgerufen und als
+  `floating_point_estimate` berichtet; nur bei exakten Eingaben und
+  exakt geprüften Voraussetzungen (Thm 4.3 / 5.3) wird dieselbe
+  geschlossene Formel zusätzlich rational ausgewertet und als `proved`
+  geführt; bei diskreten exakten Eingaben wird außerdem der tatsächliche
+  Fehler exakt berechnet.
+- Geprüft: Zeilenkonvention/Orientierung (Hinweis auf Transposition statt
+  stiller Korrektur), Formen, $\pi_0$ als Wahrscheinlichkeitsvektor,
+  stochastisches Lifting, Anfangsfehler, Uhr/Horizont; TV nur für
+  Differenzen von Wahrscheinlichkeitsvektoren.
+- `reduction_link` + `observation_link` schließen über die
+  J4-Komposition an eine Beobachtungsgröße an (exaktes Hölder-Zertifikat).
+
+**Befund:** Die bestehende `transient_reduction_bound` gibt TV als halbe
+L1-Schranke aus, ohne zu prüfen, dass Lifting und $p_0$
+Wahrscheinlichkeiten sind. Im Adapter abgefangen; die bestehende Funktion
+bleibt unverändert (additive Regel).
+
+Prüfung: `verify_reduction_contracts.py` (math) **8/8** — J-C22 (L1
+$11/50\le2/5$, TV $11/100\le1/5$, Float-Funktion stimmt überein),
+bestehender echter Reduktionsfall `paper_example_matrices` (3 → 2;
+$\lVert\Pi A-AP\rVert_\infty=1/4$, Schranke 1 bei $k=4$, exakter Fehler
+darunter) mit vollständigem Vertrag, zusammengesetzter
+Beobachtungsanschluss ($f=(0,1,2)$: Schranke 2, exakter
+Beobachtungsfehler darunter), inkompatible Uhren und Zwischenzustände,
+transponierte Matrix, falsche Lifting-Form, nicht stochastisches Lifting
+(L1 ja, TV abgelehnt), exakter Anfangsfehler, CTMC-Fall, Float-Eingaben
+nie `proved`. **Gezielte Mutanten:** 7/7 durch Assertions erkannt.
+
+**Korrektur innerhalb von J11, vor dem Commit:** Der Adapter rief die
+bestehende Float-Funktion zunächst auch bei bestimmten Strukturverletzungen
+auf (Schutzbedingung über Teilstrings der Meldung — zu fragil); bei einer
+falschen Lifting-Form führte das zu einer Ausnahme. Jetzt: bei **jeder**
+Verletzung kein Aufruf.
+
+Quelle S16: arXiv-Eintrag (HTTP 200) und DOI (Weiterleitung) erreichbar.
+
+Regression: gemeinsamer Lauf über den Stand mit J5, J11 und J6 (additiv; die J11-Prüfung importiert kein J6-Modul) — `--category all` **115/115**, `--category links` 0 kaputt.
 
 ## Einbindung der Followups vom 2026-10-01
 
