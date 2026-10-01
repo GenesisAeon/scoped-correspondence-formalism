@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 83,
+  "n_mutants": 89,
   "counts": {
-    "killed": 82,
+    "killed": 88,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 82,
+  "killed_by_assertion": 88,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "82/82",
+  "kill_ratio_excluding_equivalent": "88/88",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -34,7 +34,9 @@
     "verify_weighted_conformal.py": "pass",
     "verify_causal_abstraction.py": "pass",
     "verify_finite_causal_models.py": "pass",
-    "verify_scoped_transportability.py": "pass"
+    "verify_scoped_transportability.py": "pass",
+    "verify_polyhedral_observation_pilot.py": "pass",
+    "verify_stellar_pulse_observation.py": "pass"
   },
   "mutants": [
     {
@@ -1288,7 +1290,97 @@
         "verify_scoped_transportability.py: fail ['']"
       ],
       "seconds": 2.09
+    },
+    {
+      "id": "tp_genus_without_premises",
+      "package": "TP1",
+      "file": "src/scoped_correspondence/validation/polyhedral_observation_pilot.py",
+      "expected": "no genus statement without manifold premises",
+      "targets": [
+        "verify_polyhedral_observation_pilot.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_polyhedral_observation_pilot.py: fail ['FAIL  tp_c01_euler_without_genus_overreach: without circle vertex links no genus statement (e.g. two complexes glued at a singular vertex)']"
+      ],
+      "seconds": 2.34
+    },
+    {
+      "id": "tp_components_ignored",
+      "package": "TP1",
+      "file": "src/scoped_correspondence/validation/polyhedral_observation_pilot.py",
+      "expected": "refined observation splits the fibre",
+      "targets": [
+        "verify_polyhedral_observation_pilot.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_polyhedral_observation_pilot.py: fail ['FAIL  tp_c02_coarse_fibre_shared_refined_split: refinement splits the shared coarse fibre']"
+      ],
+      "seconds": 2.14
+    },
+    {
+      "id": "tp_coplanarity_rounded",
+      "package": "TP1",
+      "file": "src/scoped_correspondence/validation/polyhedral_observation_pilot.py",
+      "expected": "exact mode never rounds",
+      "targets": [
+        "verify_polyhedral_observation_pilot.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_polyhedral_observation_pilot.py: fail ['FAIL  tp_c04_exact_coplanarity: a 1e-12 deviation is NOT rounded onto the plane in exact mode']"
+      ],
+      "seconds": 2.02
+    },
+    {
+      "id": "sk_alpha_equals_beta_limit_wrong",
+      "package": "SK1",
+      "file": "src/scoped_correspondence/validation/stellar_pulse_observation.py",
+      "expected": "continuous limit alpha = beta",
+      "targets": [
+        "verify_stellar_pulse_observation.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_stellar_pulse_observation.py: fail ['FAIL  sk_c01_release_pulse: alpha = beta = 2.0 is the continuous limit']"
+      ],
+      "seconds": 2.2
+    },
+    {
+      "id": "sk_peak_time_wrong",
+      "package": "SK1",
+      "file": "src/scoped_correspondence/validation/stellar_pulse_observation.py",
+      "expected": "peak at ln 2",
+      "targets": [
+        "verify_stellar_pulse_observation.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_stellar_pulse_observation.py: fail ['FAIL  sk_c01_release_pulse: peak at t = ln 2']"
+      ],
+      "seconds": 2.19
+    },
+    {
+      "id": "sk_shape_terms_ignored",
+      "package": "SK2",
+      "file": "src/scoped_correspondence/validation/stellar_pulse_observation.py",
+      "expected": "unknown spectral shape removes identifiability",
+      "targets": [
+        "verify_stellar_pulse_observation.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_stellar_pulse_observation.py: fail ['FAIL  sk_c04_two_known_extinctions: unknown per-band shape terms: not identifiable again']"
+      ],
+      "seconds": 2.09
     }
   ],
-  "composition": "merged from runs of the same runner: 68 mutants, 4 mutants, 3 mutants, 4 mutants, 4 mutants"
+  "composition": "merged from runs of the same runner: 83 mutants, 6 mutants"
 }

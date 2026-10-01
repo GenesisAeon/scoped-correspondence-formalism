@@ -167,6 +167,7 @@ _EXPLICIT_CATEGORY = {
     # Candidate pilots (CANDIDATE_PILOTS_ROADMAP.md): exact graph/geometry and
     # analytic null-model checks; no real data.
     "verify_polyhedral_observation_pilot.py": "math",
+    "verify_stellar_pulse_observation.py": "math",
 }
 
 

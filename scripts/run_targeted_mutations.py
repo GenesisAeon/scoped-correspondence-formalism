@@ -91,6 +91,7 @@ AB = "src/scoped_correspondence/causal/abstraction.py"
 SDG = "src/scoped_correspondence/causal/selection_diagrams.py"
 TR = "src/scoped_correspondence/causal/transport.py"
 PO = "src/scoped_correspondence/validation/polyhedral_observation_pilot.py"
+SP = "src/scoped_correspondence/validation/stellar_pulse_observation.py"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -310,13 +311,19 @@ MUTANTS: Tuple[Mutant, ...] = (
            '    premises["source_quantities_interventional"] = True', ("verify_scoped_transportability.py",), "observational quantities are not interventional"),
     Mutant("j10_support_unchecked", "J10", TR, "    premises[\"support\"] = not missing", "    premises[\"support\"] = True",
            ("verify_scoped_transportability.py",), "missing support"),
-    # --- candidate pilots (TP1) ----------------------------------------
+    # --- candidate pilots (TP1, SK1-SK3) ----------------------------------------
     Mutant("tp_genus_without_premises", "TP1", PO, "    if not (closed and connected and orientable and vertex_links_are_circles):\n        return None",
            "    if False:\n        return None", ("verify_polyhedral_observation_pilot.py",), "no genus statement without manifold premises"),
     Mutant("tp_components_ignored", "TP1", PO, "    return coarse_observation(g) + (g.components(),)", "    return coarse_observation(g) + (1,)",
            ("verify_polyhedral_observation_pilot.py",), "refined observation splits the fibre"),
     Mutant("tp_coplanarity_rounded", "TP1", PO, "                if det3([d[i], d[j], d[k]]) != 0:", "                if abs(det3([d[i], d[j], d[k]])) > Fraction(1, 10 ** 9):",
            ("verify_polyhedral_observation_pilot.py",), "exact mode never rounds"),
+    Mutant("sk_alpha_equals_beta_limit_wrong", "SK1", SP, "        E = alpha * t * math.exp(-alpha * t)", "        E = t * math.exp(-alpha * t)",
+           ("verify_stellar_pulse_observation.py",), "continuous limit alpha = beta"),
+    Mutant("sk_peak_time_wrong", "SK1", SP, "    return math.log(beta / alpha) / (beta - alpha)", "    return math.log(alpha / beta) / (beta - alpha)",
+           ("verify_stellar_pulse_observation.py",), "peak at ln 2"),
+    Mutant("sk_shape_terms_ignored", "SK2", SP, "        if unknown_shape_terms:", "        if False:",
+           ("verify_stellar_pulse_observation.py",), "unknown spectral shape removes identifiability"),
 )
 
 

@@ -1,0 +1,27 @@
+{
+  "n_passed": 4,
+  "n_total": 4,
+  "results": {
+    "sk_c01_release_pulse": {
+      "t_peak": 0.6931471805599453,
+      "state_at_peak": [
+        0.25,
+        0.5,
+        0.25
+      ]
+    },
+    "sk_c02_single_band_degeneracy": {
+      "rank_single_band": 1
+    },
+    "sk_c04_two_known_extinctions": {
+      "known_k_rank": 2,
+      "unknown_shape_rank": 2,
+      "n_params_unknown_shape": 4
+    },
+    "sk_c03_wind_scaling": {
+      "invariant": true,
+      "luminosity_factor": 16,
+      "note": "algebraic invariance only; spectral identity not claimed"
+    }
+  }
+}
