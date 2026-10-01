@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 117,
+  "n_mutants": 119,
   "counts": {
-    "killed": 116,
+    "killed": 118,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 116,
+  "killed_by_assertion": 118,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "116/116",
+  "kill_ratio_excluding_equivalent": "118/118",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -1719,7 +1719,7 @@
       "detail": [
         "verify_directed_information_core.py: fail ['FAIL  review_r4_nonfinite_mass: non-finite mass / overflow must be refused: {((0,), (0,)): 0.5, ((1,), (1,)): nan}']"
       ],
-      "seconds": 2.02
+      "seconds": 1.92
     },
     {
       "id": "rv_r4_broja_late_failure",
@@ -1734,7 +1734,7 @@
       "detail": [
         "verify_broja_pid_core.py: fail ['FAIL review_r4_nonfinite_early: AssertionError: expected an early finiteness error, got: broja_pid_bivariate: total mass overflows']"
       ],
-      "seconds": 2.69
+      "seconds": 2.59
     },
     {
       "id": "rv_r5_feature_count_skipped",
@@ -1810,7 +1810,37 @@
         "verify_organoid_decoders.py: fail ['PASS  on_c20_leakage']"
       ],
       "seconds": 1.99
+    },
+    {
+      "id": "pmf_di_check_skipped",
+      "package": "PMF",
+      "file": "src/scoped_correspondence/observation/directed_information.py",
+      "expected": "doubled mass refused in pmf mode",
+      "targets": [
+        "verify_information_input_modes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_information_input_modes.py: fail ['FAIL  di_modes: doubled mass refused in pmf mode']"
+      ],
+      "seconds": 2.05
+    },
+    {
+      "id": "pmf_broja_exact_uses_tolerance",
+      "package": "PMF",
+      "file": "src/scoped_correspondence/information_decomposition/broja.py",
+      "expected": "exact input: no float tolerance",
+      "targets": [
+        "verify_information_input_modes.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_information_input_modes.py: fail ['FAIL  broja_modes: exact input: no tolerance']"
+      ],
+      "seconds": 2.19
     }
   ],
-  "composition": "full registry run (116) after Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331; conformal_test_point_mass_dropped retargeted to the exact-rank line and re-run alone; follow-up review 637bc1c: rv_f1_numpy_int_not_converted added and 4 affected mutants re-run (conformal_test_point_mass_dropped, rv_r3, rv_f1, rv_e4)"
+  "composition": "full registry run (116) after Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331; conformal_test_point_mass_dropped retargeted to the exact-rank line and re-run alone; follow-up review 637bc1c: rv_f1_numpy_int_not_converted added and 4 affected mutants re-run (conformal_test_point_mass_dropped, rv_r3, rv_f1, rv_e4); PMF input mode: pmf_di_check_skipped, pmf_broja_exact_uses_tolerance added (run alone)"
 }

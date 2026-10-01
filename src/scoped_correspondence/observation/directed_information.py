@@ -272,6 +272,8 @@ class DirectedInformationReport:
     n: int
     method: str = "massey_directed_information"
     source: str = SOURCE
+    input_mode: str = "weights"
+    input_total_mass: Optional[float] = None  # total of the masses as passed (before normalisation)
 
     def as_dict(self) -> Dict[str, Any]:
         d = asdict(self)
@@ -284,8 +286,35 @@ class DirectedInformationReport:
         return float(self.I_mutual - self.I_directed)
 
 
+PMF_TOL = 1e-12
+INPUT_MODES = ("weights", "pmf")
+
+
+def _input_total(joint: JointSequences, input_mode: str):
+    """Total mass as passed; in ``pmf`` mode it must be 1 -- EXACTLY for
+    int/Fraction masses, within ``PMF_TOL`` (math.fsum) for floats."""
+    from fractions import Fraction
+
+    if input_mode not in INPUT_MODES:
+        raise ScopeViolationError(f"directed_information: input_mode must be one of {INPUT_MODES}; got {input_mode!r}")
+    masses = list(joint.values())
+    exact = all(isinstance(m, (int, Fraction)) and not isinstance(m, bool) for m in masses)
+    total = sum(Fraction(m) for m in masses) if exact else math.fsum(float(m) for m in masses)
+    if input_mode == "pmf":
+        if exact and total != 1:
+            raise ScopeViolationError(f"directed_information: input_mode='pmf' needs exact total mass 1; got {total}")
+        if not exact and abs(total - 1.0) > PMF_TOL:
+            raise ScopeViolationError(
+                f"directed_information: input_mode='pmf' needs total mass 1 within {PMF_TOL}; got {total!r} "
+                "(use input_mode='weights' for unnormalised weights)"
+            )
+    return float(total)
+
+
 def directed_information(
     joint_sequences: JointSequences,
+    *,
+    input_mode: str = "weights",
 ) -> DirectedInformationReport:
     """Compute I(X^n → Y^n) = Σ_i I(X^i ; Y_i | Y^{i-1}).
 
@@ -305,8 +334,18 @@ def directed_information(
     This is Massey directed information.  It is **not** the same formula as
     ``EI_q`` or PID unique/redundancy/synergy atoms; those are separate
     constructions under ``information_decomposition`` and are not linked here.
+
+    ``input_mode`` (2026-10-01, recommendation of SCF_FOLLOWUP_REVIEW_637bc1c):
+    ``"weights"`` (default, unchanged) renormalises finite non-negative
+    weights -- scaling all weights by one positive factor leaves the result
+    unchanged; ``"pmf"`` requires a probability distribution (exact total 1 for
+    int/Fraction masses, ``|total - 1| <= PMF_TOL`` for floats) and refuses
+    anything else. Both modes refuse non-finite and negative masses. Within the
+    float tolerance the masses are renormalised technically; the original
+    total is reported as ``input_total_mass``.
     """
-    j = _normalize_joint(joint_sequences)
+    j = _normalize_joint(joint_sequences)  # validates finiteness, sign, keys
+    total_in = _input_total(joint_sequences, input_mode)
     n = len(next(iter(j))[0])
     summands = tuple(
         conditional_mutual_information_summand(j, i) for i in range(1, n + 1)
@@ -329,6 +368,8 @@ def directed_information(
         I_mutual=i_mut,
         summands=summands,
         n=n,
+        input_mode=input_mode,
+        input_total_mass=total_in,
     )
 
 

@@ -86,11 +86,16 @@ Stand nach Followup-Review-Fix `SCF_REVIEW_J_SERIES_6b3a331_CLAUDE.md`, 2026-10-
 Gegenbeispielen bestätigt und Empfehlungen gegeben; diese sind umgesetzt
 (rückgängig machbar, je mit Regressionstest und Mutant).
 
-- [~] **DI/BROJA normalisieren still** (ON0-Befund B1). *Umgesetzt:* nicht
-  endliche Massen und überlaufende Summen werden früh abgelehnt (R4; vorher
-  verschwand eine NaN-Masse in `directed_information` still). *Offen:* ein
-  strikter PMF-Modus neben dem dokumentierten Gewichtsmodus — das wäre eine
-  API-Änderung mit Migration der Aufrufer; Standardverhalten unverändert.
+- [x] **DI/BROJA normalisieren still** (ON0-Befund B1).
+  - *R4 umgesetzt:* Nicht endliche Massen und überlaufende Summen werden
+    früh abgelehnt. Vorher verschwand eine NaN-Masse in
+    `directed_information` stillschweigend.
+  - *PMF-Modus umgesetzt (2026-10-01):* nach der Empfehlung des Folgereviews
+    `SCF_FOLLOWUP_REVIEW_637bc1c` §5 als zusätzlich wählbarer Modus
+    `input_mode="pmf"`.
+    - Exakte Eingaben müssen genau 1 ergeben, Floats 1 ± 1e‑12.
+    - Standard bleibt `"weights"`, keine Aufrufer-Migration nötig.
+    - Der Bericht nennt `input_mode` und `input_total_mass`.
 - [x] **`transient_reduction_bound`** (R1/R2 + TV-Vertrag): falsche
   Nullschranke im allgemeinen CTMC-Zweig behoben (`expm1`, Grenzfall
   φ(t,0)=t); volle Dynamik muss Markov sein (P zeilenstochastisch, Q

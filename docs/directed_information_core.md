@@ -75,6 +75,27 @@ I(X^n\to Y^n)=I(X^n;Y^n)=n\bigl(1-H(p)\bigr)
 - Does **not** edit `observation/core.py` or package-root `__init__.py`.
 - Does **not** edit `FORMALISM.md`.
 
+## Input modes (2026-10-01)
+
+`directed_information(joint, *, input_mode="weights" | "pmf")`. The modes
+follow the follow-up review `SCF_FOLLOWUP_REVIEW_637bc1c` §5.
+
+- **`"weights"`** (default, unchanged behaviour):
+  - Finite, non-negative weights are renormalised.
+  - Scaling all weights by one positive factor leaves the result unchanged.
+- **`"pmf"`**: the input must be a probability distribution.
+  - For `int`/`Fraction` masses the total must be exactly 1.
+  - For float masses the total must satisfy `|total − 1| ≤ PMF_TOL = 1e-12`,
+    computed with `math.fsum`.
+  - Anything else raises `ScopeViolationError`.
+- **Both modes:**
+  - Non-finite, negative and zero-total inputs are refused (since the
+    review fix R4, non-finite masses no longer vanish silently).
+  - The report carries `input_mode` and `input_total_mass`, the total as
+    passed.
+
+Checks: `verification/verify_information_input_modes.py`.
+
 ## Verification
 
 `verification/verify_directed_information_core.py` checks the BSC identities, non-negativity of summands, Massey inequality, and that forbidden files are untouched in the delivery tree.

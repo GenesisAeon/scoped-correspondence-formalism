@@ -132,6 +132,34 @@ def _i_y_r1_given_r2(q: np.ndarray) -> float:
     return float(hy_r2 - hy_r1r2)
 
 
+PMF_TOL = 1e-12
+INPUT_MODES = ("weights", "pmf")
+
+
+def _input_total(joint_r1r2y, input_mode: str) -> float:
+    from fractions import Fraction
+    import math
+
+    if input_mode not in INPUT_MODES:
+        raise ScopeViolationError(f"broja_pid_bivariate: input_mode must be one of {INPUT_MODES}; got {input_mode!r}")
+    flat = np.asarray(joint_r1r2y, dtype=object).ravel().tolist()
+    exact = all(isinstance(m, (int, Fraction)) and not isinstance(m, (bool, np.bool_)) for m in flat)
+    if not exact:
+        # called AFTER _validate_joint: finiteness, sign and overflow are already checked there
+        total = math.fsum(float(m) for m in flat)
+    else:
+        total = sum(Fraction(m) for m in flat)
+    if input_mode == "pmf":
+        if exact and total != 1:
+            raise ScopeViolationError(f"broja_pid_bivariate: input_mode='pmf' needs exact total mass 1; got {total}")
+        if not exact and abs(total - 1.0) > PMF_TOL:
+            raise ScopeViolationError(
+                f"broja_pid_bivariate: input_mode='pmf' needs total mass 1 within {PMF_TOL}; got {total!r} "
+                "(use input_mode='weights' for unnormalised weights)"
+            )
+    return float(total)
+
+
 def _validate_joint(joint_r1r2y: np.ndarray) -> np.ndarray:
     j = np.asarray(joint_r1r2y, dtype=float)
     if j.ndim != 3:
@@ -403,6 +431,8 @@ class BivariatePIDReport:
     unq1_optima: Tuple[float, ...] = ()
     unq2_optima: Tuple[float, ...] = ()
     converged: bool = True
+    input_mode: str = "weights"
+    input_total_mass: Optional[float] = None  # total of the joint as passed (before normalisation)
 
     def as_dict(self) -> Dict[str, Any]:
         d = asdict(self)
@@ -429,8 +459,15 @@ def broja_pid_bivariate(
     n_starts: int = DEFAULT_N_STARTS,
     tol: float = DEFAULT_TOL,
     rng: Optional[np.random.Generator] = None,
+    input_mode: str = "weights",
 ) -> BivariatePIDReport:
     """Compute BROJA bivariate PID atoms for joint p(r1, r2, y).
+
+    ``input_mode`` (2026-10-01, recommendation of SCF_FOLLOWUP_REVIEW_637bc1c):
+    ``"weights"`` (default, unchanged) renormalises finite non-negative
+    weights; ``"pmf"`` requires total mass 1 -- exactly for nested int/Fraction
+    input, within ``PMF_TOL`` (math.fsum) for floats -- and refuses anything
+    else. The original total is reported as ``input_total_mass``.
 
     Solves the Bertschinger et al. (2014) convex programs
 
@@ -462,7 +499,8 @@ def broja_pid_bivariate(
         raise ScopeViolationError(
             f"broja_pid_bivariate: n_starts must be ≥ 3 (got {n_starts})"
         )
-    p = _validate_joint(joint_r1r2y)
+    p = _validate_joint(joint_r1r2y)  # finiteness, sign, overflow (R4) first
+    total_in = _input_total(joint_r1r2y, input_mode)
     if rng is None:
         rng = np.random.default_rng(1729)
 
@@ -510,6 +548,8 @@ def broja_pid_bivariate(
         unq1_optima=tuple(float(v) for v in optima1),
         unq2_optima=tuple(float(v) for v in optima2),
         converged=True,
+        input_mode=input_mode,
+        input_total_mass=total_in,
     )
     report.assert_pid_sum(atol=max(tol * 10, 1e-4))
     return report

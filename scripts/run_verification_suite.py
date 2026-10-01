@@ -171,6 +171,8 @@ _EXPLICIT_CATEGORY = {
     # Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331 §8: delivered MU/candidate
     # oracle values cross-checked against production code (no real data).
     "verify_mu_candidate_oracle_crosscheck.py": "math",
+    # Optional strict PMF input mode for DI/BROJA (SCF_FOLLOWUP_REVIEW_637bc1c §5).
+    "verify_information_input_modes.py": "math",
     # Organoid networks (ORGANOID_NETWORK_ROADMAP.md, ON1-ON7): synthetic
     # controls and benchmark; real data (ON6b) behind data gates.
     "verify_organoid_observation_controls.py": "math",

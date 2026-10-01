@@ -1,0 +1,13 @@
+{
+  "n_passed": 2,
+  "n_total": 2,
+  "results": {
+    "di_modes": {
+      "I_directed": 0.1887218755408675
+    },
+    "broja_modes": {
+      "xor_synergy": 1.0,
+      "copy_redundancy": 1.0
+    }
+  }
+}

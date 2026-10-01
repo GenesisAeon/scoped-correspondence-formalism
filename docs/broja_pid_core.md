@@ -77,6 +77,25 @@ BROJA agrees with Blackwell on the unique bits; Williams-Beer \(I_{\min}\) redun
   `__init__.py`, `information_decomposition/core.py`, `FORMALISM.md`,
   `pid_redundancy_bottleneck.md`.
 
+## Input modes (2026-10-01)
+
+`broja_pid_bivariate(joint, ..., input_mode="weights" | "pmf")`. The modes
+follow the follow-up review `SCF_FOLLOWUP_REVIEW_637bc1c` §5.
+
+- **`"weights"`** (default, unchanged behaviour):
+  - Finite, non-negative weights are renormalised.
+  - A doubled mass gives the same atoms.
+- **`"pmf"`**:
+  - Nested `int`/`Fraction` input must sum to exactly 1.
+  - Float input must sum to 1 within `PMF_TOL = 1e-12`, computed with
+    `math.fsum`.
+- **Both modes:**
+  - Non-finite masses, negative masses and overflowing totals are refused
+    first (review fix R4).
+  - The report carries `input_mode` and `input_total_mass`.
+
+Checks: `verification/verify_information_input_modes.py`.
+
 ## Verification
 
 ```bash
