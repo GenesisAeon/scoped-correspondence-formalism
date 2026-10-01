@@ -1,0 +1,92 @@
+{
+  "passed": 17,
+  "total": 17,
+  "failed": [],
+  "results": {
+    "MU-C01": {
+      "delta": "1/10",
+      "eta": "2/21",
+      "eta_undefined_at_delta": -2
+    },
+    "MU-C02": {
+      "second_difference": "11/81",
+      "aT2": "11/81",
+      "single_path_drop": "11/162"
+    },
+    "MU-C03": {
+      "L": 0.009592,
+      "drop_tau": 2.3740200000000003e-11,
+      "rel": 1.8992160000000002e-10,
+      "phase": 0.011933126066360386,
+      "surv": 0.01831563888873418,
+      "dphi": 0.00011933126066360386,
+      "shift": 1.899216e-12
+    },
+    "MU-C04": {
+      "survival_2T_at_T_2tau": "exp(-4)",
+      "T_opt": "2 tau",
+      "condition": "fixed incoming budget, time-independent contrast"
+    },
+    "MU-C05": {
+      "a_fit_over_a_true": "10201/10000",
+      "percent_error": "2.01"
+    },
+    "MU-C06": {
+      "E_inv_v2": "5/8",
+      "inv_E_v_sq": "4/9",
+      "counterphase_contrast": 0
+    },
+    "MU-C07": {
+      "detected_weights": [
+        "1/3",
+        "2/3"
+      ]
+    },
+    "MU-C08": {
+      "nll_0_0": 0,
+      "nll_pos_0": "inf",
+      "deviance_equals_twice_nll_minus_saturated": true
+    },
+    "MU-C09": {
+      "rank_one_time": 1,
+      "rank_two_times": 2,
+      "A": "1",
+      "b": "2"
+    },
+    "MU-C10": {
+      "rank_three_params_many_times": 2
+    },
+    "MU-C11": {
+      "even_offset_cancels": true,
+      "odd_bias_remains": true
+    },
+    "MU-C12": {
+      "I_phi_four_step": "8",
+      "I_phi_quadrature": "16"
+    },
+    "MU-C13": {
+      "events_for_1pct": 573265035.1353948,
+      "equivalent_grating_shift_m": 1.899216e-12
+    },
+    "MU-C14": {
+      "alias_step": "d/T^2",
+      "phase_shift": "2 pi"
+    },
+    "MU-C15": {
+      "local_arcsin_inverse": true,
+      "global_alias": "pi - phi"
+    },
+    "MU-C16": {
+      "fisher_information": 0,
+      "reason": "no contrast"
+    },
+    "MU-C17": {
+      "common_alias_turns": [
+        1,
+        4
+      ]
+    }
+  },
+  "imports_scf": false,
+  "companion_oracle_available": false
+}
