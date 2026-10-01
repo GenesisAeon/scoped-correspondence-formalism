@@ -19,6 +19,7 @@
   "train_fraction": 0.8,
   "n_runs": 6,
   "base_seed": 20261001,
+  "protocol": "paired_v2",
   "outputs": [
     2,
     3,

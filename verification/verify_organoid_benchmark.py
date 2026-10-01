@@ -8,6 +8,7 @@ synthetic benchmark and evidence report -- deterministic INVARIANTS only.
   c = 8/11) gives identical runs;
 - observation does not change the system (full vs sum: same adapted A);
 - eta = 0 leaves A unchanged (frozen condition: Delta = 0 exactly);
+- paired protocol (frozen and refitted decoder on the SAME test trials);
 - drift counterexample: invertible sensor remap with frozen weights -- the
   refitted decoder keeps its score, the frozen one is lower in every run;
 - evidence records use only allowed vocabulary combinations; real-data
@@ -87,10 +88,31 @@ def check_observation_and_eta_zero():
 
 
 def check_drift_counterexample():
+    """Fixed example of THIS configuration (Followup-Review §5.2): unchanged
+    information under an invertible remap does NOT force bit-equal accuracy of
+    two independently drawn finite samples -- the equality below holds here
+    because both scores are 1.0. The general mechanistic statement (identical
+    predictions after identically permuting training and test features) is
+    checked in verify_organoid_decoders.py (review_r5_decoder_inputs)."""
     runs = report()["conditions"]["M3_separate_full_drift_frozen_weights"]["runs"]
-    require(all(x["after_refitted"] == x["before"] for x in runs), "refitted decoder keeps its score after the invertible remap")
-    require(all(x["after_frozen"] < x["after_refitted"] for x in runs), "frozen decoder is lower in every run")
+    require(all(x["after_refitted"] == x["before"] == 1.0 for x in runs), "fixed example: refitted 1.0 before and after the remap")
+    require(all(x["after_frozen"] < x["after_refitted"] for x in runs), "frozen decoder lower in every run on the SAME test trials")
     return {"after_frozen": [x["after_frozen"] for x in runs]}
+
+
+def check_paired_protocol():
+    """Followup-Review §5.1: frozen and refitted decoders are scored on the
+    same later-epoch test trials; train/test ids are recorded and disjoint."""
+    r = report()
+    require(r["config"]["protocol"] == "paired_v2", "paired protocol declared in the configuration")
+    for cond in r["conditions"].values():
+        for x in cond["runs"]:
+            a = x["split_ids"]["after"]
+            require(a["test_ids"] and not set(a["train_ids"]) & set(a["test_ids"]), "after-epoch split disjoint and non-empty")
+            require(abs(x["frozen_minus_refitted_paired"] - (x["after_frozen"] - x["after_refitted"])) < 1e-15, "paired difference recorded")
+    require(raises(lambda: run_benchmark(replace(BenchmarkConfig(), protocol="independent_v1"), CONFIG)),
+            "an undeclared/old protocol is refused (config mismatch or unsupported protocol)")
+    return {"protocol": "paired_v2"}
 
 
 def check_records():
@@ -107,7 +129,7 @@ def check_records():
     return {"n_records": len(recs)}
 
 
-CHECKS = [check_predeclared_config, check_determinism_and_identical_operator, check_observation_and_eta_zero,
+CHECKS = [check_predeclared_config, check_determinism_and_identical_operator, check_observation_and_eta_zero, check_paired_protocol,
           check_drift_counterexample, check_records]
 
 

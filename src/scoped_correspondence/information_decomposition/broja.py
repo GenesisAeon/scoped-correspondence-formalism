@@ -138,10 +138,16 @@ def _validate_joint(joint_r1r2y: np.ndarray) -> np.ndarray:
         raise ScopeViolationError(
             f"broja_pid_bivariate: joint must be 3-D (n1,n2,ny); got shape {j.shape}"
         )
+    # Followup-Review-Fix R4: refuse NaN/inf early instead of failing later in
+    # the optimiser with a misleading message.
+    if not np.all(np.isfinite(j)):
+        raise ScopeViolationError("broja_pid_bivariate: joint has non-finite mass")
     if np.any(j < -1e-12):
         raise ScopeViolationError("broja_pid_bivariate: joint has negative mass")
     j = np.maximum(j, 0.0)
     s = j.sum()
+    if not np.isfinite(s):
+        raise ScopeViolationError("broja_pid_bivariate: total mass overflows")
     if s <= 0:
         raise ScopeViolationError("broja_pid_bivariate: joint has zero total mass")
     j = j / s

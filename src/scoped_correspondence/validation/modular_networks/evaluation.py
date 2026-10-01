@@ -120,6 +120,11 @@ class BenchmarkConfig:
     train_fraction: float = 0.8
     n_runs: int = 6
     base_seed: int = 20261001
+    # "paired_v2" (Followup-Review §5.1, 2026-10-01): per later epoch ONE
+    # dataset and ONE split; the refitted decoder is trained on its training
+    # part and BOTH decoders are scored on the same test trials. The earlier
+    # "independent_v1" protocol drew separate data/splits for the two decoders.
+    protocol: str = "paired_v2"
     outputs: Tuple[int, ...] = DEFAULT_OUTPUTS
     conditions: Tuple[Condition, ...] = (
         Condition("M3_separate_full_frozen", 3, 0.25, (0, 4), "full", 0.0),
@@ -189,27 +194,37 @@ def run_condition(cfg: BenchmarkConfig, cond: Condition, run: int) -> Dict[str, 
     B = input_matrix(cfg.N, cond.inputs, cfg.amplitude)
     rng_dec, rng_test = np.random.default_rng(seeds["decoder"]), np.random.default_rng(seeds["test"])
 
-    def evaluate(A, drift, frozen=None):
+    if cfg.protocol != "paired_v2":
+        raise ScopeViolationError(f"unsupported evaluation protocol {cfg.protocol!r}")
+
+    def epoch(A, drift, tag):
+        """One dataset and one split per epoch; trial and split ids recorded."""
         X, y = _dataset(A, B, cfg, cond, rng_test, drift)
         tr, te = _split(len(y), cfg.train_fraction, rng_dec)
-        check_split([f"trial{i}" for i in tr], [f"trial{i}" for i in te])
-        dec = frozen if frozen is not None else NearestMeanDecoder().fit(X[tr], [y[i] for i in tr])
-        pred = dec.predict(X[te])
-        return balanced_accuracy([y[i] for i in te], pred), dec
+        ids_tr, ids_te = [f"{tag}:trial{i}" for i in tr], [f"{tag}:trial{i}" for i in te]
+        check_split(ids_tr, ids_te)
+        refit = NearestMeanDecoder().fit(X[tr], [y[i] for i in tr])
+        return X, y, tr, te, refit, {"epoch": tag, "train_ids": ids_tr, "test_ids": ids_te}
 
-    before, dec_before = evaluate(A0, "none")
+    def score(dec, X, y, te):
+        return balanced_accuracy([y[i] for i in te], dec.predict(X[te]))
+
+    Xb, yb, _, teb, dec_before, split_before = epoch(A0, "none", "before")
+    before = score(dec_before, Xb, yb, teb)
     if cond.eta > 0:
         A1, hist = adapt(A0, B, _cfg_shim(cfg, cond), (np.array([1.0, 0.0]), np.array([0.0, 1.0])),
                          np.random.default_rng(seeds["adaptation"]), cfg.n_adapt_trials, mask)
     else:
         A1, hist = A0.copy(), []
-    after_refit, _ = evaluate(A1, cond.drift)
-    after_frozen, _ = evaluate(A1, cond.drift, frozen=dec_before)
+    Xa, ya, _, tea, dec_after, split_after = epoch(A1, cond.drift, "after")
+    after_refit = score(dec_after, Xa, ya, tea)
+    after_frozen = score(dec_before, Xa, ya, tea)  # SAME test trials as the refitted decoder
     if not np.allclose(A1.sum(axis=1), cfg.gamma):
         raise ScopeViolationError("budget violated")
     inter = [float(x) for x in hist[-1]] if hist else None
     return {"run": run, "seeds": seeds, "before": before, "after_refitted": after_refit, "after_frozen": after_frozen,
-            "delta_refitted": after_refit - before, "A_after_hash": hashlib.sha256(np.round(A1, 12).tobytes()).hexdigest()[:16],
+            "delta_refitted": after_refit - before, "frozen_minus_refitted_paired": after_frozen - after_refit,
+            "split_ids": {"before": split_before, "after": split_after}, "A_after_hash": hashlib.sha256(np.round(A1, 12).tobytes()).hexdigest()[:16],
             "final_inter_fraction_mean": (float(np.mean(inter)) if inter else None)}
 
 

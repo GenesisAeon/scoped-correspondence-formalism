@@ -1,7 +1,7 @@
 {
   "milestone": 22,
   "name": "directed_information",
-  "timestamp_local": "2026-09-27T11:48:27",
+  "timestamp_local": "2026-10-01T20:12:31",
   "platform": "Windows-10-10.0.19045-SP0",
   "python": "3.11.9",
   "checks": [
@@ -11,6 +11,14 @@
       "detail": {
         "H_1_4": 0.8112781244591328,
         "H_1_4_analytic": 0.8112781244591329
+      }
+    },
+    {
+      "name": "review_r4_nonfinite_mass",
+      "ok": true,
+      "detail": {
+        "refused": 5,
+        "weights_mode_I_directed": 1.0
       }
     },
     {
@@ -68,8 +76,8 @@
       }
     }
   ],
-  "count": 4,
-  "passed": 4,
+  "count": 5,
+  "passed": 5,
   "failed": 0,
   "key_numbers": {
     "H_1_4": 0.8112781244591328,

@@ -1,12 +1,19 @@
 {
-  "n_passed": 5,
-  "n_total": 5,
+  "n_passed": 7,
+  "n_total": 7,
   "results": {
     "on_c09_on_c10_scores_are_not_information": {
       "frozen": 0.0,
       "refitted": 1.0,
       "accuracy": 0.9,
       "balanced": 0.5
+    },
+    "review_r3_sign_flip_nonfinite": {
+      "refused": 7
+    },
+    "review_r5_decoder_inputs": {
+      "refusals": 5,
+      "permutation_equivariance": true
     },
     "on_c13_xor_linear_limit": {
       "linear": "3/4",

@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "kind": "independent_planning_controls",
+  "not_production_tests": true,
+  "date": "2026-10-01",
+  "counts": {
+    "passed": 29,
+    "failed": 0
+  },
+  "cases": [
+    {
+      "id": "MU-C01",
+      "title": "delta and Eotvos parameter",
+      "passed": true,
+      "values": {
+        "delta": "1/10",
+        "eta": "2/21"
+      }
+    },
+    {
+      "id": "MU-C02",
+      "title": "three-plane finite difference",
+      "passed": true,
+      "values": {
+        "displacement_m_exact": "118701/625000000000000"
+      }
+    },
+    {
+      "id": "MU-C03",
+      "title": "SI reference values; illustrative inputs",
+      "passed": true,
+      "values": {
+        "tau_s": 2.2e-06,
+        "T_s": 4.4e-06,
+        "pitch_m": 1e-07,
+        "v_m_per_s": 2180.0,
+        "gap_m": 0.009592,
+        "one_lifetime_sag_pm": 23.740199999999998,
+        "relative_displacement_pm": 189.92159999999998,
+        "phase_rad": 0.011933126066360385
+      }
+    },
+    {
+      "id": "MU-C04",
+      "title": "survival and conditional design optimum",
+      "passed": true,
+      "values": {
+        "survival": 0.01831563888873418,
+        "optimal_T_over_tau": 2,
+        "sigma_factors_x_1_2_3": [
+          2.718281828459045,
+          1.8472640247326626,
+          2.23172632479863
+        ]
+      }
+    },
+    {
+      "id": "MU-C05",
+      "title": "unit covariance and velocity-calibration bias",
+      "passed": true,
+      "values": {
+        "relative_bias_for_1pct_velocity_error": 0.0201
+      }
+    },
+    {
+      "id": "MU-C06",
+      "title": "averaging velocities and averaging phases fail",
+      "passed": true,
+      "values": {
+        "mean_inverse_v_squared": "5/8",
+        "inverse_mean_v_squared": "4/9",
+        "cancelling_phasor_modulus": 6.123233995736766e-17
+      }
+    },
+    {
+      "id": "MU-C07",
+      "title": "decay changes detected velocity distribution",
+      "passed": true,
+      "values": {
+        "detected_weights": [
+          0.3333333333333333,
+          0.6666666666666666
+        ],
+        "detected_mean_inverse_v_squared": 0.5
+      }
+    },
+    {
+      "id": "MU-C08",
+      "title": "Poisson boundary and likelihood-ratio deviance",
+      "passed": true,
+      "values": {
+        "nll_zero_zero": 0,
+        "nll_positive_zero": "infinity",
+        "deviance_zero_two": 4
+      }
+    },
+    {
+      "id": "MU-C09",
+      "title": "unwrapped phase: offset degeneracy and two times",
+      "passed": true,
+      "values": {
+        "single_time_rank": 1,
+        "two_time_rank": 2,
+        "recovered_A_b": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "MU-C10",
+      "title": "gravity-like nuisance survives multiple flight times",
+      "passed": true,
+      "values": {
+        "rank": 2,
+        "parameter_count": 3
+      }
+    },
+    {
+      "id": "MU-C11",
+      "title": "reversal removes even but retains odd nuisance",
+      "passed": true,
+      "values": {
+        "phases_without_nuisance": [
+          0.013,
+          0.007
+        ],
+        "inferred_with_odd_nuisance": 0.005
+      }
+    },
+    {
+      "id": "MU-C12",
+      "title": "scan-dependent Fisher information at known phase",
+      "passed": true,
+      "values": {
+        "expected_counts_four_steps": [
+          120.0,
+          100.0,
+          80.0,
+          100.0
+        ],
+        "I_phi_four_steps": 8,
+        "I_phi_quadrature": 16
+      }
+    },
+    {
+      "id": "MU-C13",
+      "title": "ideal local sensitivity; no exposure forecast",
+      "passed": true,
+      "values": {
+        "detected_signal_events_for_1pct": 573265035.1353949,
+        "phase_1pct_rad": 0.00011933126066360385,
+        "alignment_1pct_m": 1.899216e-12,
+        "relative_bias_one_pm_alignment": 0.005265330536389752
+      }
+    },
+    {
+      "id": "MU-C14",
+      "title": "single-time likelihood aliases",
+      "passed": true,
+      "values": {
+        "acceleration_alias_step_m_per_s2": 5165.289256198347
+      }
+    },
+    {
+      "id": "MU-C15",
+      "title": "signed quadrature readout on declared local branch",
+      "passed": true,
+      "values": {
+        "injected_phase": 0.03,
+        "recovered_local_phase": 0.029999999999999916
+      }
+    },
+    {
+      "id": "MU-C16",
+      "title": "zero contrast gives no acceleration information",
+      "passed": true,
+      "values": {
+        "fisher_information": 0
+      }
+    },
+    {
+      "id": "MU-C17",
+      "title": "two commensurate flight times retain global phase aliases",
+      "passed": true,
+      "values": {
+        "K_multipliers": [
+          1,
+          4
+        ],
+        "phase_alias_step": 6.283185307179586
+      }
+    },
+    {
+      "id": "TP-C01",
+      "title": "Euler arithmetic conditional on manifold assumptions",
+      "passed": true,
+      "values": {
+        "chi": -4,
+        "conditional_genus": 3
+      }
+    },
+    {
+      "id": "TP-C02",
+      "title": "same graph counts and degrees; nonisomorphic graphs",
+      "passed": true,
+      "values": {
+        "component_sizes_C8": [
+          8
+        ],
+        "component_sizes_two_C4": [
+          4,
+          4
+        ]
+      }
+    },
+    {
+      "id": "TP-C03",
+      "title": "order-four rotoreflection is not a proper rotation",
+      "passed": true,
+      "values": {
+        "generator_determinant": -1,
+        "order": 4
+      }
+    },
+    {
+      "id": "TP-C04",
+      "title": "exact coplanarity versus tiny violation",
+      "passed": true,
+      "values": {
+        "nonzero_determinant": "1/1000000000000"
+      }
+    },
+    {
+      "id": "SK-C01",
+      "title": "triggered release-relaxation control; not a stellar model",
+      "passed": true,
+      "values": {
+        "peak_time": 0.6931471805599453,
+        "fuel_at_peak": 0.25,
+        "stored_energy_at_peak": 0.5,
+        "emitted_energy_at_peak": 0.25
+      }
+    },
+    {
+      "id": "SK-C02",
+      "title": "one-band extinction-luminosity degeneracy",
+      "passed": true,
+      "values": {
+        "L_tau_pairs": [
+          [
+            1,
+            0
+          ],
+          [
+            2.718281828459045,
+            1
+          ]
+        ],
+        "same_normalized_flux": 1
+      }
+    },
+    {
+      "id": "SK-C03",
+      "title": "toy transformed-radius scaling at fixed temperature, wind speed and clumping",
+      "passed": true,
+      "values": {
+        "radius_factor": 4,
+        "luminosity_factor": 16,
+        "mass_loss_factor": 8,
+        "transformed_radius_factor": 1
+      }
+    },
+    {
+      "id": "SK-C04",
+      "title": "two calibrated bands can break the simplest extinction degeneracy",
+      "passed": true,
+      "values": {
+        "rank_distinct_coefficients": 2,
+        "rank_equal_coefficients": 1
+      }
+    },
+    {
+      "id": "SA-C01",
+      "title": "stationary toy Rossby phase speed does not select growth",
+      "passed": true,
+      "values": {
+        "k": 6,
+        "omega": 0
+      }
+    },
+    {
+      "id": "SA-C02",
+      "title": "Fourier magnitude is rotation-invariant; phase is not",
+      "passed": true,
+      "values": {
+        "abs_mode_6": 0.10000000000000002,
+        "phase_shift_rad": -1.0199999999999996
+      }
+    },
+    {
+      "id": "SA-C03",
+      "title": "quarter-domain boundary excludes m=6",
+      "passed": true,
+      "values": {
+        "m6_allowed": false,
+        "m8_allowed": true
+      }
+    },
+    {
+      "id": "SA-C04",
+      "title": "sampling alias is not physical mode identity",
+      "passed": true,
+      "values": {
+        "sample_count": 12,
+        "aliased_modes": [
+          6,
+          18
+        ],
+        "max_difference": 0.0
+      }
+    }
+  ],
+  "limits": [
+    "No SCF production code imported.",
+    "No real experimental data used.",
+    "No confidence-interval coverage study performed.",
+    "No polyhedral embedding certified.",
+    "No stellar or planetary simulation validated."
+  ]
+}

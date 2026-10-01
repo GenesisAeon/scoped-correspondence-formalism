@@ -1,6 +1,6 @@
 {
-  "n_passed": 5,
-  "n_total": 5,
+  "n_passed": 6,
+  "n_total": 6,
   "results": {
     "on_c11_hebb_row": {
       "row2": [
@@ -8,6 +8,9 @@
         "0",
         "1/12"
       ]
+    },
+    "review_hebb_input_domain": {
+      "refusals": 7
     },
     "on_c12_eta_zero_and_contraction": {
       "bound": "3/4",

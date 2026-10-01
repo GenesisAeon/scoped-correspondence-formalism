@@ -95,7 +95,45 @@ def check_buffer_pilot_report_exports_and_exact_fraction_preserved():
     return {"mode_b_worst_case_cost": j["worst_case_cost"], "fraction_serialization": frac_parsed["value"]}
 
 
+def check_review_e3_nonfinite_schema():
+    """Followup-Review-Fix E3 (SCF_REVIEW_J_SERIES_6b3a331): a float NaN used to
+    be emitted as a bare `NaN` token (invalid JSON). Now: NaN refused,
+    +/-inf as explicit markers, strict JSON -- also in nested fields."""
+    import dataclasses as _dc
+
+    @_dc.dataclass
+    class _Example:
+        value: float
+
+    @_dc.dataclass
+    class _Nested:
+        bounds: tuple
+        inner: _Example
+        table: dict
+        unknown: object = None
+
+    try:
+        report_to_json(_Example(float("nan")))
+        raise AssertionError("top-level NaN must be refused")
+    except ValueError:
+        pass
+    for bad in (_Nested((0.0, float("nan")), _Example(1.0), {}), _Nested((), _Example(float("nan")), {}),
+                _Nested((), _Example(1.0), {"a": float("nan")})):
+        try:
+            report_to_json(bad)
+            raise AssertionError(f"nested NaN must be refused: {bad}")
+        except ValueError:
+            pass
+    s = report_to_json(_Nested((float("-inf"), float("inf")), _Example(2.5), {"upper": float("inf")}))
+    parsed = json.loads(s, parse_constant=lambda c: (_ for _ in ()).throw(AssertionError(f"bare {c} token")))
+    require(parsed["bounds"] == [{"__nonfinite__": "-inf"}, {"__nonfinite__": "+inf"}], parsed["bounds"])
+    require(parsed["table"]["upper"] == {"__nonfinite__": "+inf"} and parsed["inner"]["value"] == 2.5, parsed)
+    require(parsed["unknown"] is None, "unknown stays null, never 0")
+    return {"unbounded_marker": parsed["bounds"], "nan": "refused"}
+
+
 CHECKS = [
+    check_review_e3_nonfinite_schema,
     check_correspondence_adapter_report_exports_json_and_markdown,
     check_macro_observability_adapter_reports_export_two_separate_evidence_kinds,
     check_buffer_pilot_report_exports_and_exact_fraction_preserved,

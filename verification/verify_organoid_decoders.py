@@ -116,7 +116,43 @@ def check_on_c20_leakage():
     return {"train_mean": 1.0, "leaked_mean": 34.0}
 
 
-CHECKS = [check_on_c09_on_c10_scores_are_not_information, check_on_c13_xor_linear_limit, check_on_c17_replication_unit,
+def check_review_r3_sign_flip_nonfinite():
+    """Followup-Review-Fix R3: sign_flip_test([nan, 1, 1]) returned p = 0."""
+    nan, inf = float("nan"), float("inf")
+    for bad in ([nan, 1.0, 1.0], [1.0, nan, 1.0], [1.0, 1.0, nan], [inf, 1, 1], [1, -inf, 1], [1, 1, inf], [True, 1, 1]):
+        require(raises(lambda: sign_flip_test(bad)), f"must refuse {bad}")
+    require(sign_flip_test([0, 0, 0]) == 1, "[0,0,0] -> 1")
+    require(sign_flip_test([1, 1, 1]) == F(1, 4), "[1,1,1] -> 1/4")
+    require(sign_flip_test([1] * 5) == F(1, 16), "five equal positives -> 1/16")
+    require(sign_flip_test([F(1, 3), F(1, 3)]) == F(1, 2), "exact Fractions stay exact")
+    for d in ([0.3, -0.1, 0.7], [1, 2, 3, 4], [F(1, 7), -F(2, 7), F(3, 7)]):
+        require(sign_flip_test(d) > 0, "with finite data p = 0 is impossible (observed pattern counted)")
+    return {"refused": 7}
+
+
+def check_review_r5_decoder_inputs():
+    """Followup-Review-Fix R5: predict() accepted NaN features and repaired a
+    missing feature by broadcasting."""
+    d = NearestMeanDecoder().fit([[0.0, 0.0], [1.0, 1.0]], [0, 1])
+    require(raises(lambda: d.predict([[float("nan"), float("nan")]])), "NaN features refused")
+    require(raises(lambda: d.predict([[0.0]])), "missing feature refused (no broadcasting)")
+    require(raises(lambda: d.predict([[0.0, 0.0, 0.0]])), "too many features refused")
+    require(raises(lambda: d.predict([0.0, 0.0])), "1-D input refused")
+    require(raises(lambda: NearestMeanDecoder().predict([[0.0, 0.0]])), "prediction before fit refused")
+    require(d.predict([[0.1, 0.0], [0.9, 1.0]]) == [0, 1], "valid two-feature input")
+    require(d.predict(np.zeros((0, 2))) == [], "empty (0, d) input returns []")
+    # the intended sensor permutation still works on COMPLETE data
+    rng = np.random.default_rng(5)
+    X = np.vstack([rng.normal(0, 0.3, (20, 3)) + [1, 0, 0], rng.normal(0, 0.3, (20, 3)) + [0, 1, 0]])
+    y = [0] * 20 + [1] * 20
+    perm = [2, 0, 1]
+    a = NearestMeanDecoder().fit(X, y).predict(X)
+    b = NearestMeanDecoder().fit(X[:, perm], y).predict(X[:, perm])
+    require(a == b, "permutation-equivariant decoder: identical predictions on identically permuted data")
+    return {"refusals": 5, "permutation_equivariance": True}
+
+
+CHECKS = [check_on_c09_on_c10_scores_are_not_information, check_review_r3_sign_flip_nonfinite, check_review_r5_decoder_inputs, check_on_c13_xor_linear_limit, check_on_c17_replication_unit,
           check_on_c18_on_c19_group_comparison, check_on_c20_leakage]
 
 

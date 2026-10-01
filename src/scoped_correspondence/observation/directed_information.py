@@ -140,6 +140,12 @@ def _normalize_joint(joint: JointSequences) -> Dict[
                 f"atoms; saw n={n_ref} and n={n}"
             )
         m = float(mass)
+        # Followup-Review-Fix R4: NaN fails both comparisons below and would be
+        # dropped silently; non-finite masses are invalid, not "zero weight".
+        if not math.isfinite(m):
+            raise ScopeViolationError(
+                f"directed_information: non-finite mass {m!r} at {key!r}"
+            )
         if m < -_EPS:
             raise ScopeViolationError(
                 f"directed_information: negative mass {m!r} at {key!r}"
@@ -152,6 +158,10 @@ def _normalize_joint(joint: JointSequences) -> Dict[
                 + m
             )
             total += m
+    if not math.isfinite(total):
+        raise ScopeViolationError(
+            "directed_information: total mass overflows (non-finite sum of finite weights)"
+        )
     if total <= _EPS:
         raise ScopeViolationError(
             "directed_information: joint_sequences has total mass ≈ 0"

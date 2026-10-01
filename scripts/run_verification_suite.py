@@ -168,6 +168,9 @@ _EXPLICIT_CATEGORY = {
     # analytic null-model checks; no real data.
     "verify_polyhedral_observation_pilot.py": "math",
     "verify_stellar_pulse_observation.py": "math",
+    # Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331 §8: delivered MU/candidate
+    # oracle values cross-checked against production code (no real data).
+    "verify_mu_candidate_oracle_crosscheck.py": "math",
     # Organoid networks (ORGANOID_NETWORK_ROADMAP.md, ON1-ON7): synthetic
     # controls and benchmark; real data (ON6b) behind data gates.
     "verify_organoid_observation_controls.py": "math",

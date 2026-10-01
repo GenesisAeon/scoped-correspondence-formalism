@@ -102,6 +102,22 @@ def hebb_update(A, pre_post_pairs: Sequence[Tuple[Sequence, Sequence]], mask, et
     N = len(A)
     if not pre_post_pairs:
         raise ScopeViolationError("need training activity")
+    # Public-API domain (Followup-Review §5.3): validate the caller's mask,
+    # weights, activities and gamma; the model RULE itself is unchanged.
+    if not (0 < gamma < 1):
+        raise ScopeViolationError("gamma must lie in (0, 1)")
+    if any(len(r) != N for r in A) or len(mask) != N or any(len(r) != N for r in mask):
+        raise ScopeViolationError("A and mask must be square N x N")
+    if any(m not in (0, 1) for r in mask for m in r) or any(mask[i][i] for i in range(N)):
+        raise ScopeViolationError("mask entries must be 0/1 with a zero diagonal (no self-loops)")
+    for v in (x for r in A for x in r):
+        if isinstance(v, bool) or not math.isfinite(float(v)) or v < 0:
+            raise ScopeViolationError("weights must be finite and non-negative")
+    for pre, post in pre_post_pairs:
+        if len(pre) != N or len(post) != N:
+            raise ScopeViolationError("activity vectors must have length N")
+        if any(isinstance(v, bool) or not math.isfinite(float(v)) or v < 0 for v in list(pre) + list(post)):
+            raise ScopeViolationError("activities must be finite and non-negative")
     G = [[0] * N for _ in range(N)]
     for pre, post in pre_post_pairs:
         for i in range(N):

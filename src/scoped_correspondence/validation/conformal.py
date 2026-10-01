@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import asdict, dataclass
+from fractions import Fraction
 from typing import Any, Dict, Optional, Sequence, Tuple
 
 from scoped_correspondence.errors import ScopeViolationError
@@ -40,9 +41,40 @@ _DEFAULT_ASSUMPTIONS: Tuple[str, ...] = (
 )
 
 
+def _exact_alpha(alpha) -> Fraction:
+    """alpha semantics (Followup-Review-Fix E4, SCF_REVIEW_J_SERIES_6b3a331):
+
+    - ``Fraction`` / ``int``: exact.
+    - decimal string such as ``"0.7"``: the exact decimal value (7/10).
+    - ``float``: its exact BINARY value, ``Fraction(alpha)``. ``0.7`` is
+      slightly below 7/10, so for n = 9 the rank is ceil(10 * 0.3000...04) = 4,
+      while decimal 7/10 gives 3. The float result is conservative here, but no
+      general statement about all floats follows -- pass ``Fraction(7, 10)`` or
+      ``"0.7"`` to mean the decimal level.
+
+    No rounding or epsilon shift before ``ceil`` (that could move true values
+    above a rank boundary down)."""
+    if isinstance(alpha, bool):
+        raise ScopeViolationError("alpha must be a number, not bool")
+    if isinstance(alpha, (Fraction, int)):
+        return Fraction(alpha)
+    if isinstance(alpha, str):
+        try:
+            return Fraction(alpha.strip())
+        except (ValueError, ZeroDivisionError):
+            raise ScopeViolationError(f"alpha string {alpha!r} is not a decimal/rational number") from None
+    try:
+        f = float(alpha)
+    except (TypeError, ValueError):
+        raise ScopeViolationError(f"unsupported alpha {alpha!r}") from None
+    if not math.isfinite(f):
+        raise ScopeViolationError(f"alpha must be finite; got {alpha!r}")
+    return Fraction(f)
+
+
 def calibrate_split_conformal(
     residuals: Sequence[float],
-    alpha: float,
+    alpha,
 ) -> float:
     """Return the split-conformal quantile ``q`` from calibration residuals.
 
@@ -78,7 +110,8 @@ def calibrate_split_conformal(
     and ceiling (Lei et al. 2018). Omitting it can undercover in finite
     samples even when residuals are i.i.d.
     """
-    if not (0.0 < float(alpha) < 1.0):
+    a = _exact_alpha(alpha)
+    if not (0 < a < 1):
         raise ScopeViolationError(
             f"calibrate_split_conformal: alpha must be in (0, 1); got {alpha!r}"
         )
@@ -95,7 +128,8 @@ def calibrate_split_conformal(
                 f"got {r!r}"
             )
 
-    k = int(math.ceil((n + 1) * (1.0 - float(alpha))))
+    # Exact rank (Followup-Review-Fix E4): no float rounding, no epsilon.
+    k = math.ceil((n + 1) * (1 - a))
     if k < 1:
         # Degenerate alpha→1 edge; still refuse rather than invent a quantile.
         raise ScopeViolationError(

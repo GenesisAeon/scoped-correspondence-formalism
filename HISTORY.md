@@ -28,6 +28,29 @@ gezielte Mutanten 105 (104 per Inhaltsassertion getötet, 1 vorregistriert
 äquivalent; [Bericht](verification/targeted_mutations_report.json)). Offene
 Quellenfragen und Entscheidungen: [DEEP_RESEARCH_BACKLOG.md](DEEP_RESEARCH_BACKLOG.md).
 
+**Externe Review `SCF_REVIEW_J_SERIES_6b3a331` (2026-10-01)**, gleicher Tag,
+Commit `Followup-Review-Fix`:
+
+- **Befunde:** R1 bis R5 sowie E3 und E4 wurden unverändert reproduziert und
+  behoben, jeder mit einem Regressionstest auf das exakte Gegenbeispiel.
+  - R1 und R2: falsche Schranken in `closure/error_bounds.py`, einem Modul
+    von vor der J-Serie.
+  - R3 und R5: ungültige Eingaben in den ON-Decodern.
+  - R4: NaN-Masse in DI bzw. BROJA.
+  - E3: striktes JSON.
+  - E4: exaktes α.
+- **Methodik:** Die Punkte §5.1 bis §5.3 sind umgesetzt. Das gepaarte
+  Benchmark-Protokoll ändert nur die eingefrorenen Werte.
+- **Nachlieferung:** Das MU-/Kandidaten-Oracle wurde gegen die Produktion
+  geprüft.
+- **Stand danach:**
+  - `--category all` 139/139;
+  - Linkprüfung 0 defekt;
+  - Mutanten 116 (115 getötet, 1 vorregistriert äquivalent). Ein
+    J3-Mutant wurde nach der E4-Änderung auf die neue Rangzeile umgezielt.
+- Details: Abschnitt „Followup-Review-Fix“ in
+  [ORGANOID_NETWORK_ROADMAP.md](ORGANOID_NETWORK_ROADMAP.md).
+
 ## Aktueller Stand (2026-09-20)
 
 Seit dem 16. September 2026 ist dieses Repository ein **installierbares

@@ -5,7 +5,9 @@ Implements the L1 transient / stationary error bounds of Michel & Siegle,
 Performance Evaluation 2024 (DOI 10.1016/j.peva.2024.102464;
 arXiv:2403.07618).
 
-Primary formulas (paper numbering on arXiv:2403.07618v2 / published PEVA):
+Primary formulas (paper numbering as in arXiv:2403.07618v3, 6 Aug 2024 --
+the extended version; checked 2026-10-01: Theorem 4 = DTMC bounds, §3.1;
+Theorem 5 = CTMC bounds, §3.2):
 
 * **Theorem 4** (DTMC). With error ``e_k^T = π_0^T Π^k A − p_0^T P^k``:
   - (4.1) precise sum form with ⟨|π_j|, |ΠA−AP| 1⟩;
@@ -38,6 +40,20 @@ residuals, and spaces therefore differ; when the residual is zero (dynamic-
 exact aggregation, Def. 8 / Cor. 7) both give bound 0 for zero initial error.
 See ``compare_to_propagated_error_bound`` and docs/error_bounds_core.md.
 
+Scope of the transient bounds (Followup-Review-Fix R1/R2, 2026-10-01):
+the reduced side (``A``, ``Π``/``Θ``, ``π_0``) may be general finite, but the
+FULL dynamics must be a Markov chain -- ``P`` square row-stochastic,
+``Q`` a square CTMC generator -- because the proofs use
+``||x P||_1 ≤ ||x||_1`` resp. ``||x e^{Qt}||_1 ≤ ||x||_1``. Other inputs are
+refused (``ScopeViolationError``); arbitrary full linear dynamics would need
+additional amplification factors. ``norm="TV"`` additionally requires a
+probability contract: stochastic lifting ``A``, probability vectors ``π_0``
+and ``p_0`` and Markov reduced dynamics, so that both compared vectors are
+probability distributions. The general CTMC branch uses
+``φ(t, κ) = expm1(tκ)/κ`` with the continuous limit ``φ(t, 0) = t``
+(no zero bound when the reduced dynamics vanish). Float evaluation, not an
+interval-rigorous bound.
+
 Does **not** import or mix with ``generator_lumpability`` (M11).
 """
 
@@ -55,7 +71,7 @@ ArrayLike = Union[np.ndarray, Sequence[Sequence[float]], Sequence[float]]
 SOURCE = (
     "Michel & Siegle, Formal Error Bounds for the State Space Reduction of "
     "Markov Chains, Performance Evaluation 2024; "
-    "DOI 10.1016/j.peva.2024.102464; arXiv:2403.07618"
+    "DOI 10.1016/j.peva.2024.102464; arXiv:2403.07618 (v3, 6 Aug 2024)"
 )
 
 # Paper theorem / equation tags used in ReductionErrorBound.theorem_ref
@@ -209,6 +225,52 @@ def _l1_bound_to_requested_norm(l1_bound: float, norm: str) -> float:
     raise ScopeViolationError(f"norm must be 'L1' or 'TV'; got {norm!r}")
 
 
+def _require_markov_full(full: np.ndarray, continuous_time: bool) -> None:
+    if full.shape[0] != full.shape[1]:
+        raise ScopeViolationError(f"full dynamics must be square; got {full.shape}")
+    if continuous_time:
+        if not is_generator(full):
+            raise ScopeViolationError(
+                "full Q must be a CTMC generator (rows sum to 0, off-diagonal >= 0); "
+                "the transient bound uses ||x e^{Qt}||_1 <= ||x||_1"
+            )
+    elif not is_row_stochastic(full):
+        raise ScopeViolationError(
+            "full P must be row-stochastic (row convention p_{k+1} = p_k P); "
+            "the transient bound uses ||x P||_1 <= ||x||_1"
+        )
+
+
+def _require_tv_contract(red: np.ndarray, a: np.ndarray, pi: np.ndarray, p: np.ndarray,
+                         continuous_time: bool) -> None:
+    reduced_markov = is_generator(red) if continuous_time else is_row_stochastic(red)
+    if not (is_row_stochastic(a) and is_probability_vector(pi) and is_probability_vector(p) and reduced_markov):
+        raise ScopeViolationError(
+            "norm='TV' needs a probability contract: row-stochastic A, probability "
+            "vectors pi0 and p0, and Markov reduced dynamics; use norm='L1' for the "
+            "general reduction"
+        )
+
+
+def _phi_ctmc(t: float, kappa: float) -> float:
+    """int_0^t e^{kappa s} ds = expm1(t kappa)/kappa, continuous limit t at kappa = 0."""
+    if kappa == 0.0:
+        return float(t)
+    return float(np.expm1(t * kappa) / kappa)
+
+
+def _geom_dtmc(k: int, r: float) -> float:
+    """sum_{j<k} r^j, evaluated without cancellation near r = 1."""
+    if k == 0:
+        return 0.0
+    x = r - 1.0
+    if x == 0.0:
+        return float(k)
+    if r == 0.0:
+        return 1.0
+    return float(np.expm1(k * np.log1p(x)) / x)
+
+
 def transient_reduction_bound(
     Pi_or_Theta: ArrayLike,
     A: ArrayLike,
@@ -269,6 +331,9 @@ def transient_reduction_bound(
 
     e0 = initial_error_l1(pi, a, p)
     r_inf = residual_inf_norm(red, a, full)
+    _require_markov_full(full, continuous_time)
+    if norm == "TV":
+        _require_tv_contract(red, a, pi, p, continuous_time)
     pi_l1 = vector_l1_norm(pi)
 
     if continuous_time:
@@ -282,15 +347,13 @@ def transient_reduction_bound(
                 theorem_ref=THM5_3,
                 assumptions=(
                     "Θ is a CTMC generator; π0 is a probability vector; "
-                    "A, Q arbitrary finite; bound on ||e_t||_1 (Thm 5.3)"
+                    "A arbitrary finite; full Q a CTMC generator (checked); bound on ||e_t||_1 (Thm 5.3)"
                 ),
             )
         # Theorem 5 item 2
         theta_inf = matrix_inf_norm(red)
-        if theta_inf == 0.0:
-            l1 = e0  # no dynamics in reduced model
-        else:
-            l1 = e0 + pi_l1 * r_inf * (np.exp(float(h) * theta_inf) - 1.0) / theta_inf
+        # phi(t, 0) = t: vanishing reduced dynamics do NOT freeze the full chain
+        l1 = e0 + pi_l1 * r_inf * _phi_ctmc(float(h), theta_inf)
         return ReductionErrorBound(
             horizon=float(h),
             bound=_l1_bound_to_requested_norm(float(l1), norm),
@@ -298,7 +361,7 @@ def transient_reduction_bound(
             theorem_ref=THM5_2,
             assumptions=(
                 "general Θ (item 2); uses ||e^{Θu}||_∞ ≤ e^{u||Θ||_∞} (Lemma 2); "
-                "bound on ||e_t||_1"
+                "full Q a CTMC generator (checked); bound on ||e_t||_1"
             ),
         )
 
@@ -314,15 +377,12 @@ def transient_reduction_bound(
             theorem_ref=THM4_3,
             assumptions=(
                 "Π is row-stochastic; π0 is a probability vector; "
-                "A, P arbitrary finite; bound on ||e_k||_1 (Thm 4.3)"
+                "A arbitrary finite; full P row-stochastic (checked); bound on ||e_k||_1 (Thm 4.3)"
             ),
         )
     # Theorem 4 item 2
     pi_inf = matrix_inf_norm(red)
-    if abs(pi_inf - 1.0) < 1e-15:
-        geom = float(k)
-    else:
-        geom = (pi_inf**k - 1.0) / (pi_inf - 1.0) if k > 0 else 0.0
+    geom = _geom_dtmc(k, pi_inf)
     l1 = e0 + pi_l1 * r_inf * geom
     return ReductionErrorBound(
         horizon=float(k),
@@ -331,7 +391,7 @@ def transient_reduction_bound(
         theorem_ref=THM4_2,
         assumptions=(
             "general Π (item 2); uses ||π_{k-1}||_1 ≤ ||π0||_1 ||Π||_∞^{k-1}; "
-            "bound on ||e_k||_1"
+            "full P row-stochastic (checked); bound on ||e_k||_1"
         ),
     )
 
@@ -371,6 +431,13 @@ def stationary_reduction_bound(
         raise ScopeViolationError("pi length must match Π dimension")
 
     r_inf = residual_inf_norm(red, a, full)
+    # The L1 inequality is algebraic (πAP − πA = π(AP − ΠA) + (πΠ − π)A) and
+    # holds for any finite matrices; only the TV reading needs both compared
+    # vectors to be probability distributions.
+    if norm == "TV" and not (is_row_stochastic(a) and is_probability_vector(piv) and is_row_stochastic(full)):
+        raise ScopeViolationError(
+            "norm='TV' needs row-stochastic A and P and a probability vector pi; use norm='L1'"
+        )
     # ||π^T Π − π^T||_1
     pi_stat_defect = vector_l1_norm(piv @ red - piv)
 

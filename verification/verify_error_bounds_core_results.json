@@ -2,7 +2,7 @@
   "checks": {
     "compatibility_core_call": {
       "data": {
-        "SOURCE": "Michel & Siegle, Formal Error Bounds for the State Space Reduction of Markov Chains, Performance Evaluation 2024; DOI 10.1016/j.peva.2024.102464; arXiv:2403.07618",
+        "SOURCE": "Michel & Siegle, Formal Error Bounds for the State Space Reduction of Markov Chains, Performance Evaluation 2024; DOI 10.1016/j.peva.2024.102464; arXiv:2403.07618 (v3, 6 Aug 2024)",
         "exact_closure_error": 0.0,
         "exact_michel_bound": 0.0,
         "paper_compare": {
@@ -41,6 +41,24 @@
       },
       "ok": true
     },
+    "review_r1_ctmc_zero_dynamics": {
+      "data": {
+        "actual": 1.2642411176571153,
+        "bound_kappa_0.0": 2.0,
+        "bound_kappa_1e-20": 2.0,
+        "ordinary_actual": 2.9825229461161604,
+        "ordinary_bound": 5.154845485377136
+      },
+      "ok": true
+    },
+    "review_r2_full_markov_and_tv_contract": {
+      "data": {
+        "general_l1_actual": 0.3125,
+        "general_l1_bound": 2.2195,
+        "stationary_l1_any_P": 1.0
+      },
+      "ok": true
+    },
     "stationary_cor10": {
       "data": {
         "bound_L1": 0.25,
@@ -53,12 +71,12 @@
       "ok": true
     }
   },
-  "count": 4,
+  "count": 6,
   "failed": 0,
   "milestone": "M21",
-  "passed": 4,
+  "passed": 6,
   "platform": "Windows-10-10.0.19045-SP0",
   "python": "3.11.9",
-  "timestamp": "2026-09-27T11:49:20",
+  "timestamp": "2026-10-01T20:12:29",
   "title": "Formal Reduction Error Bounds"
 }

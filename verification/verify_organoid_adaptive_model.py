@@ -135,7 +135,26 @@ def check_masks_budget_and_frozen_weights():
             "note": "Hebb keeps row sums, not c; the drift is reported, not asserted in a direction"}
 
 
-CHECKS = [check_on_c11_hebb_row, check_on_c12_eta_zero_and_contraction, check_on_c22_budget,
+def check_review_hebb_input_domain():
+    """Followup-Review §5.3: a caller-supplied mask with a 1 on the diagonal
+    used to create self-loops; invalid masks, weights, activities and gamma
+    are now refused (the model rule is unchanged)."""
+    A = [[F(0), F(1, 2), F(0)], [F(1, 4), F(0), F(1, 4)], [F(0), F(1, 2), F(0)]]
+    ok_mask = [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
+    act = [((1, 1, 1), (1, 1, 1))]
+    diag_mask = [[1, 1, 0], [1, 0, 1], [0, 1, 0]]
+    require(raises(lambda: hebb_update(A, act, diag_mask, F(1, 2), F(1, 2))), "diagonal 1 in the mask refused")
+    require(raises(lambda: hebb_update(A, act, [[0, 2, 0], [1, 0, 1], [0, 1, 0]], F(1, 2), F(1, 2))), "mask values other than 0/1")
+    require(raises(lambda: hebb_update(A, act, [[0, 1], [1, 0]], F(1, 2), F(1, 2))), "mask shape")
+    require(raises(lambda: hebb_update(A, [((1, -1, 1), (1, 1, 1))], ok_mask, F(1, 2), F(1, 2))), "negative activity")
+    require(raises(lambda: hebb_update(A, [((1, float("nan"), 1), (1, 1, 1))], ok_mask, F(1, 2), F(1, 2))), "non-finite activity")
+    require(raises(lambda: hebb_update([[0, -1, 0], [1, 0, 1], [0, 1, 0]], act, ok_mask, F(1, 2), F(1, 2))), "negative weight")
+    require(raises(lambda: hebb_update(A, act, ok_mask, F(1, 2), F(3, 2))), "gamma outside (0, 1)")
+    require(hebb_update(A, act, ok_mask, F(1, 2), F(1, 2))[1] == [F(1, 4), 0, F(1, 4)], "valid call unchanged")
+    return {"refusals": 7}
+
+
+CHECKS = [check_on_c11_hebb_row, check_review_hebb_input_domain, check_on_c12_eta_zero_and_contraction, check_on_c22_budget,
           check_on_c23_identical_operator_under_module_names, check_masks_budget_and_frozen_weights]
 
 

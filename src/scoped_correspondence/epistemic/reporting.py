@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 from fractions import Fraction
 from typing import Any, Optional
 
@@ -24,6 +25,13 @@ from typing import Any, Optional
 def _serialize_value(v: Any) -> Any:
     if isinstance(v, Fraction):
         return {"__fraction__": True, "numerator": v.numerator, "denominator": v.denominator}
+    if isinstance(v, float) and not math.isfinite(v):
+        # Followup-Review-Fix E3 (SCF_REVIEW_J_SERIES_6b3a331): unbounded is a
+        # legitimate value and gets an explicit marker; NaN is invalid (unknown
+        # belongs in the data model as None), never a bare NaN token or 0.
+        if math.isnan(v):
+            raise ValueError("report contains NaN: invalid value -- use None for unknown, a marker for unbounded")
+        return {"__nonfinite__": "+inf" if v > 0 else "-inf"}
     if dataclasses.is_dataclass(v) and not isinstance(v, type):
         return _serialize_dataclass(v)
     if isinstance(v, (tuple, list)):
@@ -43,8 +51,14 @@ def report_to_json(report: Any, *, indent: int = 2) -> str:
     """Serialize any epistemic report dataclass to JSON. `Fraction`
     values are serialized as exact `{numerator, denominator}` objects,
     never coerced to a lossy float; everything else falls back to
-    `str(...)` only if `json` cannot represent it directly."""
-    return json.dumps(_serialize_dataclass(report), indent=indent, default=str)
+    `str(...)` only if `json` cannot represent it directly.
+
+    Schema for non-finite floats (Followup-Review-Fix E3, 2026-10-01; the
+    output is strict JSON, ``allow_nan=False``): ``+inf``/``-inf`` become
+    ``{"__nonfinite__": "+inf" | "-inf"}`` (unbounded); NaN raises
+    ``ValueError`` (invalid). Migration: before this fix a NaN/inf float was
+    emitted as a bare ``NaN``/``Infinity`` token, which is not valid JSON."""
+    return json.dumps(_serialize_dataclass(report), indent=indent, default=str, allow_nan=False)
 
 
 def _markdown_value(v: Any, depth: int = 0) -> str:

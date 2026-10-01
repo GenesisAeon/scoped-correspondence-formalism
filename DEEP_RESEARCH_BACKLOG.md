@@ -10,11 +10,15 @@ Lizenz: CC BY 4.0.
 
 ## A. Fehlende Artefakte (keine Recherche, sondern Nachlieferung)
 
-- [ ] **Begleitskript `independent_controls.py`** zum Myonium-Plan und
-  zur Kandidatenbewertung („29/29“: 17 MU- + 12 TP/SK/SA-Gruppen). Liegt
-  nicht im Eingangsordner. Ohne es sind die MU-/Kandidatenwerte nur durch
-  eigene Herleitung abgesichert (MU: 17/17 eigen). *Wartet:* nichts
-  blockiert, aber der Zweitabgleich fehlt.
+- [x] **Begleitskript `independent_controls.py`** zum Myonium-Plan und zur
+  Kandidatenbewertung — nachgeliefert mit dem Review (2026-10-01) in
+  `SCF_MYONIUM_UND_KANDIDATEN_CLAUDE_PAKET.zip` (SHA-256 geprüft, frischer
+  Lauf 29/29 identisch). Gegenprobe gegen die **Produktion**:
+  [`verify_mu_candidate_oracle_crosscheck.py`](verification/verify_mu_candidate_oracle_crosscheck.py)
+  — 21 Gruppen stimmen (13 MU, 4 TP, 4 SK; rel. 1e-12, MU-C02 exakt);
+  MU-C07/C11/C15/C17 ohne direkte Produktions-API (nur eigene Herleitung),
+  SA-C01..C04 nicht anwendbar (SA0 nur Dokumentation). Kein Widerspruch zu
+  den eigenen MU-Werten.
 
 ## B. Myonium (MU-Serie)
 
@@ -78,23 +82,27 @@ sollten mindestens diese Stellen im Volltext abgeglichen werden:
 
 ## E. Entscheidungen für Johann (keine Recherche)
 
-- [ ] `observation/directed_information.directed_information` und
-  `information_decomposition/broja.broja_pid_bivariate` normalisieren nicht
-  normierte Eingaben still (ON0-Befund B1). Die ON-Adapter prüfen selbst;
-  sollen die bestehenden Funktionen strikter werden?
+Stand nach Followup-Review-Fix `SCF_REVIEW_J_SERIES_6b3a331_CLAUDE.md`, 2026-10-01: Das Review hat drei der vier Punkte mit konkreten
+Gegenbeispielen bestätigt und Empfehlungen gegeben; diese sind umgesetzt
+(rückgängig machbar, je mit Regressionstest und Mutant).
 
-- [ ] `closure/error_bounds.transient_reduction_bound` rechnet TV als halbe
-  L1-Schranke ohne Prüfung, dass Lifting und $p_0$ Wahrscheinlichkeiten
-  sind (J11-Befund). Im J11-Adapter abgefangen; soll die bestehende
-  Funktion selbst eine Prüfung bekommen (verändert ein verifiziertes
-  Modul)?
-- [ ] `epistemic/reporting.report_to_json` erlaubt NaN/Infinity (J0-Befund
-  B2): auf `allow_nan=False` umstellen? Würde bestehende Berichte
-  betreffen.
-- [ ] `validation/conformal.calibrate_split_conformal` (J8-Befund): Für
-  α ∈ {0,45; 0,7; 0,85; 0,95; 0,99} (geprüft n ≤ 5000) ergibt
-  `ceil((n+1)*(1-alpha))` bei ganzzahligem exaktem Produkt einen um 1 zu
-  großen Index, weil der Float α nicht das gemeinte Dezimal-α ist. Wirkung
-  nur konservativ (breitere Intervalle, Garantie unverletzt); übliche α
-  (0,05; 0,1; 0,2 …) unbetroffen. Option: α zusätzlich als `Fraction`
-  oder Dezimalstring annehmen (wie im J8-Modul).
+- [~] **DI/BROJA normalisieren still** (ON0-Befund B1). *Umgesetzt:* nicht
+  endliche Massen und überlaufende Summen werden früh abgelehnt (R4; vorher
+  verschwand eine NaN-Masse in `directed_information` still). *Offen:* ein
+  strikter PMF-Modus neben dem dokumentierten Gewichtsmodus — das wäre eine
+  API-Änderung mit Migration der Aufrufer; Standardverhalten unverändert.
+- [x] **`transient_reduction_bound`** (R1/R2 + TV-Vertrag): falsche
+  Nullschranke im allgemeinen CTMC-Zweig behoben (`expm1`, Grenzfall
+  φ(t,0)=t); volle Dynamik muss Markov sein (P zeilenstochastisch, Q
+  Generator), sonst `ScopeViolationError`; TV nur mit Wahrscheinlichkeits-
+  vertrag; Quellenfassung auf arXiv v3 korrigiert. Allgemeine L1-Reduktion
+  bleibt unterstützt. Siehe `docs/error_bounds_core.md`.
+- [x] **`report_to_json`** (E3): striktes JSON (`allow_nan=False`); ±∞ als
+  Marker `{"__nonfinite__": "+inf"|"-inf"}` (unbeschränkt), NaN abgelehnt
+  (ungültig; „unbekannt“ gehört als `None` ins Datenmodell). Migration: vorher
+  nacktes `NaN`/`Infinity` (kein gültiges JSON); die Audit-CLI erzeugt keine
+  solchen Werte.
+- [x] **`calibrate_split_conformal`** (E4): α als `Fraction`, `int` oder
+  Dezimalstring exakt; Float-α bedeutet seinen exakten Binärwert (Rang exakt
+  per `Fraction`, kein Epsilon). `0.7` → q = 4 (unverändert), `Fraction(7,10)`
+  bzw. `"0.7"` → q = 3. Für Float-Eingaben im Scan n ≤ 59 keine Rangänderung.

@@ -1,7 +1,18 @@
 {
-  "n_passed": 3,
-  "n_total": 3,
+  "n_passed": 4,
+  "n_total": 4,
   "results": {
+    "review_e3_nonfinite_schema": {
+      "unbounded_marker": [
+        {
+          "__nonfinite__": "-inf"
+        },
+        {
+          "__nonfinite__": "+inf"
+        }
+      ],
+      "nan": "refused"
+    },
     "correspondence_adapter_report_exports_json_and_markdown": {
       "json_len": 849,
       "markdown_has_all_axes": true

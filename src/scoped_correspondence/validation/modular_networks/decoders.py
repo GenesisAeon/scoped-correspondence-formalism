@@ -79,7 +79,26 @@ class NearestMeanDecoder:
         self.means = {c: Z[[i for i, t in enumerate(y) if t == c]].mean(axis=0) for c in sorted(set(y))}
         return self
 
+    @property
+    def n_features(self) -> Optional[int]:
+        return None if self.std is None else int(self.std.mean.shape[0])
+
     def predict(self, X):
+        """Followup-Review-Fix R5: requires a fitted decoder and a finite 2-D
+        matrix with exactly the trained number of features -- no NumPy
+        broadcasting that would silently fill missing sensors. An empty input
+        of shape (0, d) returns []."""
+        if self.std is None or not self.means:
+            raise ScopeViolationError("decoder is not fitted")
+        X = np.asarray(X, dtype=float)
+        if X.ndim != 2:
+            raise ScopeViolationError(f"prediction input must be a 2-D (n, d) matrix; got shape {X.shape}")
+        if X.shape[1] != self.n_features:
+            raise ScopeViolationError(f"expected {self.n_features} features, got {X.shape[1]} (no broadcasting of missing sensors)")
+        if not np.all(np.isfinite(X)):
+            raise ScopeViolationError("prediction features must be finite")
+        if X.shape[0] == 0:
+            return []
         Z = self.std.transform(X)
         keys = list(self.means)
         return [keys[int(np.argmin([np.sum((z - self.means[k]) ** 2) for k in keys]))] for z in Z]
@@ -157,12 +176,34 @@ def group_mean_and_sem2(values: Sequence) -> Tuple:
     return m, s2 / n
 
 
+def _finite_real(d, what: str):
+    """Allowed: int, Fraction, finite float (incl. NumPy scalars). bool and
+    non-finite values are refused; exact inputs are NOT converted to float."""
+    if isinstance(d, (bool, np.bool_)):
+        raise ScopeViolationError(f"{what}: bool is not a numeric difference")
+    if isinstance(d, (int, Fraction, np.integer)):
+        return d
+    if isinstance(d, (float, np.floating)):
+        if not math.isfinite(float(d)):
+            raise ScopeViolationError(f"{what}: non-finite value {d!r} (no silent exclusion of preparations)")
+        return d
+    raise ScopeViolationError(f"{what}: unsupported type {type(d).__name__}")
+
+
 def sign_flip_test(differences: Sequence) -> Fraction:
     """Exact two-sided sign-flip p-value for paired preparation-level
-    differences (all 2^n sign patterns; n <= 20)."""
+    differences (all 2^n sign patterns; n <= 20).
+
+    Interpretation requires sign exchangeability of the differences under the
+    null hypothesis (e.g. randomised assignment); full enumeration does not
+    make that assumption true. Non-finite differences are refused
+    (Followup-Review-Fix R3: NaN used to give p = 0); any exclusion rule must
+    be applied and reported beforehand. With finite data, p >= 2^-(n-1) > 0
+    because the observed sign pattern and its negation are counted."""
     n = len(differences)
     if n == 0 or n > 20:
         raise ScopeViolationError("sign-flip test needs 1..20 preparation-level differences")
+    differences = [_finite_real(d, "sign_flip_test") for d in differences]
     obs = abs(sum(differences))
     hits = sum(1 for signs in itertools.product((1, -1), repeat=n) if abs(sum(s * d for s, d in zip(signs, differences))) >= obs)
     return Fraction(hits, 2 ** n)

@@ -213,8 +213,37 @@ def check_coverage_kind_frozen():
     }
 
 
+def check_review_e4_exact_alpha():
+    """Followup-Review-Fix E4 (SCF_REVIEW_J_SERIES_6b3a331): n = 9, residuals 1..9.
+
+    Hand derivation: decimal alpha = 7/10 -> k = ceil(10 * 3/10) = 3 -> q = 3.
+    Float 0.7 is the binary value 0.69999999999999995559..., so
+    1 - alpha = 0.30000000000000004440... and k = ceil(3.0000000000000004...) = 4.
+    Both are exact statements about their inputs; the float one is conservative
+    here, which is not a general statement about all floats.
+    """
+    from fractions import Fraction
+
+    res = list(range(1, 10))
+    require(Fraction(0.7) < Fraction(7, 10), "the float 0.7 lies below 7/10")
+    near(calibrate_split_conformal(res, 0.7), 4.0)
+    near(calibrate_split_conformal(res, Fraction(7, 10)), 3.0)
+    near(calibrate_split_conformal(res, "0.7"), 3.0)
+    near(calibrate_split_conformal(res, " 7/10 "), 3.0)
+    for bad in ("seven", True, float("nan"), "1", Fraction(0)):
+        try:
+            calibrate_split_conformal(res, bad)
+        except ScopeViolationError:
+            continue
+        raise AssertionError(f"alpha {bad!r} must be refused")
+    # whole-real-line case stays legitimate: n = 1, alpha = 1/4 -> k = ceil(2 * 3/4) = 2 = n + 1
+    require(math.isinf(calibrate_split_conformal([5.0], Fraction(1, 4))), "k = n + 1 gives +inf (whole line)")
+    return {"float_0_7_q": 4.0, "decimal_7_10_q": 3.0}
+
+
 CHECKS = [
     ("example_a_q3_interval_7_13", check_example_a),
+    ("review_e4_exact_alpha", check_review_e4_exact_alpha),
     ("example_b_q4_interval_6_14", check_example_b),
     ("VAL-CONF-LEAK-001", check_val_conf_leak_001),
     ("coverage_kind_marginal_exchangeable", check_coverage_kind_frozen),

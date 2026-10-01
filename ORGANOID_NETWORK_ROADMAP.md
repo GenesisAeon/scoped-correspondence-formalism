@@ -225,7 +225,8 @@ normierter Joints (die bestehenden Funktionen würden still normieren).
 
 `validation/modular_networks/evaluation.py` +
 [`configs/organoid_minimal.json`](configs/organoid_minimal.json)
-(Konfigurations-ID `e5c9921b5aa974ad`, vor der Auswertung gespeichert;
+(Konfigurations-ID `e5017540ea171f9d` seit dem Review-Fix — Protokoll
+`paired_v2`; ursprünglich `e5c9921b5aa974ad`; vor der Auswertung gespeichert;
 abweichende oder fehlende Konfiguration → Abbruch). Sieben vorab
 deklarierte Bedingungen × 6 Läufe (Lauf = Einheit, getrennte Seeds für
 Topologie/Adaptation/Decoder/Test), Kontrast Δ = balanced Accuracy nach −
@@ -241,15 +242,20 @@ voll vs. Summe), η=0 ohne Anpassung, Drift-Gegenbeispiel, Vokabular.
 
 **Deskriptive Ergebnisse (kein Gate, keine Siegerbehauptung):**
 
+Protokoll `paired_v2` (Review §5.1): pro späterer Epoche ein Datensatz und
+ein Split; beide Decoder auf **denselben** Testversuchen. Δ und „neu
+trainiert“ sind dadurch unverändert; die eingefrorenen Werte änderten sich
+(alter Wert unter `independent_v1` in Klammern).
+
 | Bedingung | Δ (Mittel ± SEM, 6 Läufe) | eingefroren nach | neu trainiert nach |
 |---|---|---|---|
-| M3, getrennte Eingänge, voll, η=0 | 0 ± 0 | 1,00 | 1,00 |
-| M3, getrennt, voll, angepasst | −0,092 ± 0,055 | 0,55 | 0,91 |
-| M3, geteilte Eingänge (ein Modul), angepasst | +0,354 ± 0,086 | 0,50 | 0,88 |
-| M3, getrennt, Summenbeobachtung, angepasst | +0,329 ± 0,076 | 0,50 | 0,88 |
-| M1 uniform, angepasst | +0,356 ± 0,086 | 0,50 | 0,88 |
-| M3, c = 8/11 (= M1-Matrix), angepasst | +0,356 ± 0,086 | 0,50 | 0,88 |
-| M3, getrennt, η=0, Sensor-Umordnung | 0 ± 0 | 0,63 | 1,00 |
+| M3, getrennte Eingänge, voll, η=0 | 0 ± 0 | 1,00 (1,00) | 1,00 |
+| M3, getrennt, voll, angepasst | −0,092 ± 0,055 | 0,59 (0,55) | 0,91 |
+| M3, geteilte Eingänge (ein Modul), angepasst | +0,354 ± 0,086 | 0,51 (0,50) | 0,88 |
+| M3, getrennt, Summenbeobachtung, angepasst | +0,329 ± 0,076 | 0,50 (0,50) | 0,88 |
+| M1 uniform, angepasst | +0,356 ± 0,086 | 0,51 (0,50) | 0,88 |
+| M3, c = 8/11 (= M1-Matrix), angepasst | +0,356 ± 0,086 | 0,51 (0,50) | 0,88 |
+| M3, getrennt, η=0, Sensor-Umordnung | 0 ± 0 | 0,66 (0,63) | 1,00 |
 
 Lesart: Die Δ-Unterschiede folgen hier vor allem dem **Ausgangsniveau**
 (getrennte Eingänge starten bei 1,0 = Decke, geteilte nahe Zufall) — genau
@@ -304,3 +310,28 @@ Keine Drei-Modul-, Kritikalitäts-, Lern- oder Kausalitätsbehauptung.
 
 Vor den ON-Commits (Arbeitsstand ON0–ON7): `--category all` → **138/138 bestanden** (131 vorher + 7 neue ON-Prüfskripte, 13 min);
 `--category links` → 0 defekte relative Links (378 geprüft). Gezielte Mutanten: **16/16** ON-Mutanten durch Inhaltsassertion getötet (Bericht danach 105 Mutanten: 104 getötet, 1 vorregistriert äquivalent); ein Masken-Mutant deckte eine Testlücke auf (siehe ON3).
+
+## Followup-Review-Fix `SCF_REVIEW_J_SERIES_6b3a331` (2026-10-01)
+
+Review: [`prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_J_SERIES_6b3a331_CLAUDE.md`](prompts/Answers/nicht_stationäre_Treiber/SCF_REVIEW_J_SERIES_6b3a331_CLAUDE.md).
+Alle Gegenfälle zuerst unverändert am Commit `6b3a331` reproduziert
+(R1 Schranke 0 vs. Fehler 1,264; R2 2 vs. 3; R3 p = 0; R4 NaN-Masse
+verschwunden; R5 `[0]`/`[0]`; E3 nacktes `NaN`; E4 q = 4).
+
+| Befund | Ort | Reparatur | Regression |
+|---|---|---|---|
+| R1 | `closure/error_bounds.py` | φ(t,0)=t, `expm1`; Beispiel jetzt Schranke 2 ≥ 1,264 | `verify_error_bounds_core.py` (review_r1) |
+| R2 | ebd. | volle Dynamik muss Markov sein; TV-Vertrag; Quelle arXiv v3 | ebd. (review_r2) |
+| R3 | `modular_networks/decoders.py` | `sign_flip_test` lehnt NaN/±inf/bool ab; Austauschbarkeit als Voraussetzung dokumentiert | `verify_organoid_decoders.py` |
+| R4 | `observation/directed_information.py`, `information_decomposition/broja.py` | frühe Endlichkeits-/Überlaufprüfung | `verify_directed_information_core.py`, `verify_broja_pid_core.py` |
+| R5 | `modular_networks/decoders.py` | `predict` verlangt Fit, 2-D, endlich, exakte Featurezahl | `verify_organoid_decoders.py` |
+| E3 | `epistemic/reporting.py` | striktes JSON, ±∞-Marker, NaN abgelehnt | `verify_epistemic_reporting.py` |
+| E4 | `validation/conformal.py` | exaktes α (Fraction/Dezimalstring), Float = Binärwert | `verify_conformal_prediction_core.py` |
+| §5.1 | `modular_networks/evaluation.py` | gepaartes Protokoll `paired_v2`, Split-IDs gespeichert | `verify_organoid_benchmark.py` |
+| §5.2 | ebd. / Decoder | Drift-Prüfung als festes Beispiel; mechanistische Permutationskontrolle | `verify_organoid_benchmark.py`, `verify_organoid_decoders.py` |
+| §5.3 | `modular_networks/adaptive_model.py` | Maske/Gewichte/Aktivitäten/γ von `hebb_update` geprüft | `verify_organoid_adaptive_model.py` |
+| §8 | MU-/Kandidaten-Oracle | Gegenprobe gegen Produktion (21 Gruppen) | `verify_mu_candidate_oracle_crosscheck.py` |
+
+Gezielte Mutanten zu R1–R5, E3, E4, §5.3: 11/11 per Inhaltsassertion
+getötet. ON6b bleibt ohne geeignete reale Daten blockiert. Ein Volltextaudit
+der übrigen Backlog-Quellen ist damit nicht ersetzt.

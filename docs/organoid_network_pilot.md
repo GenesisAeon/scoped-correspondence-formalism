@@ -27,7 +27,10 @@ python scripts/run_organoid_network_pilot.py --scenario real --data DIR   # bloc
 `configs/organoid_minimal.json` ist die vorab deklarierte Konfiguration
 des Benchmarks: N = 12, γ = 0,8, ℓ = 0,5, 12 Modellschritte, Fenster 6–12,
 σ = 0,15, Eingangsamplitude 0,6, 40 Anpassungsversuche, 50 Versuche je
-Reiz, 80/20-Split, 6 Läufe, sieben Bedingungen. Eine abweichende
+Reiz, 80/20-Split, 6 Läufe, sieben Bedingungen und das Auswertungsprotokoll
+`paired_v2`. Bei diesem Protokoll werden eingefrorener und neu trainierter
+Decoder pro Epoche auf denselben Testversuchen bewertet, und die Split-IDs
+werden gespeichert (seit dem Review-Fix vom 2026-10-01). Eine abweichende
 Konfiguration wird beim Lauf abgewiesen.
 
 ## Lesart der Ergebnisse
