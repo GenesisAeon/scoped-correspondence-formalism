@@ -164,6 +164,9 @@ _EXPLICIT_CATEGORY = {
     "verify_scoped_transportability.py": "math",
     # J12: demo CLI for the six mandatory demonstrations.
     "verify_scope_evidence_demo.py": "math",
+    # Candidate pilots (CANDIDATE_PILOTS_ROADMAP.md): exact graph/geometry and
+    # analytic null-model checks; no real data.
+    "verify_polyhedral_observation_pilot.py": "math",
 }
 
 
