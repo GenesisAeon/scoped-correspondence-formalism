@@ -1,14 +1,14 @@
 {
   "plan": "SCF_SCOPE_COMPOSITION_EVIDENCE_IMPLEMENTATION_PLAN.md section 9",
   "python": "3.11.9",
-  "n_mutants": 47,
+  "n_mutants": 68,
   "counts": {
-    "killed": 46,
+    "killed": 67,
     "equivalent_or_unresolved": 1
   },
-  "killed_by_assertion": 46,
+  "killed_by_assertion": 67,
   "killed_by_error_only": 0,
-  "kill_ratio_excluding_equivalent": "46/46",
+  "kill_ratio_excluding_equivalent": "67/67",
   "working_tree_unchanged": true,
   "note": "A high kill ratio is not a completeness guarantee; invalid/timeout are not detections.",
   "baseline_targets": {
@@ -21,7 +21,14 @@
     "verify_metamorphic_relations.py": "pass",
     "verify_reduction_contracts.py": "pass",
     "verify_structural_identifiability.py": "pass",
-    "verify_validated_scopes.py": "pass"
+    "verify_validated_scopes.py": "pass",
+    "verify_muonium_design.py": "pass",
+    "verify_muonium_evidence.py": "pass",
+    "verify_muonium_forward.py": "pass",
+    "verify_muonium_identifiability.py": "pass",
+    "verify_muonium_kinematics.py": "pass",
+    "verify_muonium_likelihood.py": "pass",
+    "verify_muonium_pilot_cli.py": "pass"
   },
   "mutants": [
     {
@@ -733,6 +740,324 @@
         "registered reason: (c/lam)*(lam*x0) == c*x0 holds algebraically for EVERY lam > 0, and positivity is enforced before; inside the J-C12 family the exact check cannot evaluate to False, so 'always True' is behaviourally equivalent (the check documents, it cannot fail)"
       ],
       "seconds": 2.09
+    },
+    {
+      "id": "mu1_single_path_factor_used_as_relative",
+      "package": "MU1",
+      "file": "src/scoped_correspondence/muonium/kinematics.py",
+      "expected": "relative displacement aT^2 vs single path aT^2/2",
+      "targets": [
+        "verify_muonium_kinematics.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_kinematics.py: fail ['FAIL  mu_c02_second_difference_exact: z(2T)-2z(T)+z(0) = aT^2']"
+      ],
+      "seconds": 1.94
+    },
+    {
+      "id": "mu1_survival_one_transit",
+      "package": "MU1",
+      "file": "src/scoped_correspondence/muonium/kinematics.py",
+      "expected": "survival over 2T",
+      "targets": [
+        "verify_muonium_kinematics.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_kinematics.py: fail ['FAIL  mu_c03_reference_table: survival: 0.1353352832366127 vs 0.0183156388887342']"
+      ],
+      "seconds": 1.97
+    },
+    {
+      "id": "mu1_unequal_times_accepted",
+      "package": "MU1",
+      "file": "src/scoped_correspondence/muonium/kinematics.py",
+      "expected": "equal flight times scope",
+      "targets": [
+        "verify_muonium_kinematics.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_kinematics.py: fail ['FAIL  scope_rejections: unequal flight times are rejected']"
+      ],
+      "seconds": 2.09
+    },
+    {
+      "id": "mu1_eta_zero_denominator_invented",
+      "package": "MU1",
+      "file": "src/scoped_correspondence/muonium/kinematics.py",
+      "expected": "eta undefined, not invented",
+      "targets": [
+        "verify_muonium_kinematics.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_kinematics.py: fail ['FAIL  mu_c01_delta_eta: a_mu = -g_ref: eta undefined (None), not an invented number']"
+      ],
+      "seconds": 2.11
+    },
+    {
+      "id": "mu2_survival_ignored_in_weights",
+      "package": "MU2",
+      "file": "src/scoped_correspondence/muonium/forward.py",
+      "expected": "detected mixture includes survival",
+      "targets": [
+        "verify_muonium_forward.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_forward.py: fail ['FAIL  single_velocity_limit: W = A * survival (A = 1/2, eps = 1)']"
+      ],
+      "seconds": 2.03
+    },
+    {
+      "id": "mu2_phase_reported_for_zero_contrast",
+      "package": "MU2",
+      "file": "src/scoped_correspondence/muonium/forward.py",
+      "expected": "no arg(0)",
+      "targets": [
+        "verify_muonium_forward.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_forward.py: fail ['FAIL  mu_c06_mixture_is_not_mean_velocity: counter-phase contrast 0; phase undefined, not pi/2']"
+      ],
+      "seconds": 1.97
+    },
+    {
+      "id": "mu2_transmission_guard_removed",
+      "package": "MU2",
+      "file": "src/scoped_correspondence/muonium/forward.py",
+      "expected": "A (1 + C) <= 1",
+      "targets": [
+        "verify_muonium_forward.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_forward.py: fail ['FAIL  invalid_inputs: A (1 + C) <= 1 for a probability']"
+      ],
+      "seconds": 1.98
+    },
+    {
+      "id": "mu2_bin_time_not_applied",
+      "package": "MU2",
+      "file": "src/scoped_correspondence/muonium/forward.py",
+      "expected": "per-bin measurement times",
+      "targets": [
+        "verify_muonium_forward.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_forward.py: fail ['FAIL  null_signal: counts = background only']"
+      ],
+      "seconds": 1.97
+    },
+    {
+      "id": "mu3_artificial_floor",
+      "package": "MU3",
+      "file": "src/scoped_correspondence/muonium/likelihood.py",
+      "expected": "no artificial positive floor",
+      "targets": [
+        "verify_muonium_likelihood.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_likelihood.py: fail ['FAIL  mu_c08_null_cases_and_deviance: NLL(n>0;0) = inf: no artificial floor']"
+      ],
+      "seconds": 2.53
+    },
+    {
+      "id": "mu3_zero_count_deviance_term",
+      "package": "MU3",
+      "file": "src/scoped_correspondence/muonium/likelihood.py",
+      "expected": "zero-count deviance term 2 lambda",
+      "targets": [
+        "verify_muonium_likelihood.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_likelihood.py: fail ['FAIL  mu_c08_null_cases_and_deviance: deviance = 2 (NLL - saturated) at n=0, lambda=2.5']"
+      ],
+      "seconds": 2.53
+    },
+    {
+      "id": "mu3_modes_collapsed",
+      "package": "MU3",
+      "file": "src/scoped_correspondence/muonium/likelihood.py",
+      "expected": "all modes reported",
+      "targets": [
+        "verify_muonium_likelihood.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_likelihood.py: fail ['FAIL  mu_c14_all_alias_modes_reported: three alias modes expected in the range, got [5166.306122435809]']"
+      ],
+      "seconds": 2.67
+    },
+    {
+      "id": "mu3_noninteger_counts_accepted",
+      "package": "MU3",
+      "file": "src/scoped_correspondence/muonium/likelihood.py",
+      "expected": "raw integer counts only",
+      "targets": [
+        "verify_muonium_likelihood.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_likelihood.py: fail ['FAIL  mu_c08_null_cases_and_deviance: negative, non-integer or boolean counts rejected']"
+      ],
+      "seconds": 2.52
+    },
+    {
+      "id": "mu4_parity_odd_dropped",
+      "package": "MU4",
+      "file": "src/scoped_correspondence/muonium/identifiability.py",
+      "expected": "odd bias stays with gravity",
+      "targets": [
+        "verify_muonium_identifiability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_identifiability.py: fail ['FAIL  5_mu_c11_reversal_parity: odd bias stays with gravity']"
+      ],
+      "seconds": 2.92
+    },
+    {
+      "id": "mu4_calibration_linear",
+      "package": "MU4",
+      "file": "src/scoped_correspondence/muonium/identifiability.py",
+      "expected": "(1+e)^2 exactly",
+      "targets": [
+        "verify_muonium_identifiability.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_identifiability.py: fail ['FAIL  6_velocity_calibration: 1 % velocity error -> 2.01 % acceleration error']"
+      ],
+      "seconds": 2.48
+    },
+    {
+      "id": "mu5_scan_information_wrong_trig",
+      "package": "MU5",
+      "file": "src/scoped_correspondence/muonium/design.py",
+      "expected": "Fisher information of the scan",
+      "targets": [
+        "verify_muonium_design.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_design.py: fail ['FAIL  mu_c12_scan_vs_quadrature: I_phi 8 vs 16, got 8.333333333333334, 5.99903913064743e-32']"
+      ],
+      "seconds": 14.11
+    },
+    {
+      "id": "mu5_pseudo_inverse",
+      "package": "MU5",
+      "file": "src/scoped_correspondence/muonium/design.py",
+      "expected": "no pseudo-inverse",
+      "targets": [
+        "verify_muonium_design.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_design.py: fail ['FAIL  singular_fisher_not_pseudo_inverted: one flight time + free offset: singular, no variance bound']"
+      ],
+      "seconds": 13.53
+    },
+    {
+      "id": "mu5_budget_decay_ignored",
+      "package": "MU5",
+      "file": "src/scoped_correspondence/muonium/design.py",
+      "expected": "named budget: T_opt = 2 tau",
+      "targets": [
+        "verify_muonium_design.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_design.py: fail ['FAIL  mu_c04_budget_named_optimum: incoming budget: optimum at 2 tau, got 4.0 tau']"
+      ],
+      "seconds": 13.33
+    },
+    {
+      "id": "mu5_bound_touch_hidden",
+      "package": "MU5",
+      "file": "src/scoped_correspondence/muonium/design.py",
+      "expected": "intervals ending at search bounds are flagged",
+      "targets": [
+        "verify_muonium_design.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_design.py: fail ['FAIL  coverage_study: non-identifiable joint fit: every interval reaches the search bounds (0/40)']"
+      ],
+      "seconds": 14.06
+    },
+    {
+      "id": "mu6_synthetic_labelled_empirical",
+      "package": "MU6",
+      "file": "src/scoped_correspondence/muonium/evidence.py",
+      "expected": "synthetic results are not empirical",
+      "targets": [
+        "verify_muonium_evidence.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_evidence.py: fail ['FAIL  vocabulary_mapping: synthetic -> numerical_sample / synthetic_only']"
+      ],
+      "seconds": 1.94
+    },
+    {
+      "id": "mu6_real_data_marked_passed",
+      "package": "MU6",
+      "file": "src/scoped_correspondence/muonium/evidence.py",
+      "expected": "a skipped data check is never passed",
+      "targets": [
+        "verify_muonium_evidence.py",
+        "verify_muonium_pilot_cli.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_evidence.py: fail ['FAIL  real_data_branch_deferred_not_passed: real-data check is skipped/deferred, never passed']",
+        "verify_muonium_pilot_cli.py: fail ['FAIL  ideal: real-data branch is skipped, not passed']"
+      ],
+      "seconds": 19.03
+    },
+    {
+      "id": "mu7_headline_overclaims",
+      "package": "MU7",
+      "file": "scripts/run_muonium_pilot.py",
+      "expected": "no overclaiming headline",
+      "targets": [
+        "verify_muonium_pilot_cli.py"
+      ],
+      "status": "killed",
+      "kill_kind": "assertion",
+      "detail": [
+        "verify_muonium_pilot_cli.py: fail ['FAIL  ideal: neutral headline: Einstein widerlegt? synthetic ideal']"
+      ],
+      "seconds": 16.44
     }
-  ]
+  ],
+  "composition": "merged from runs of the same runner: 47 mutants, 21 mutants"
 }

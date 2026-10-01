@@ -1,0 +1,36 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "ideal": {
+      "best": 6.929119881300018
+    },
+    "aliases": {
+      "modes": [
+        6.9296774809568635,
+        5172.217135159032,
+        10337.507001297576
+      ]
+    },
+    "offset": {
+      "identifiable": [
+        "K a + phi0"
+      ]
+    },
+    "reversal": {
+      "identifiable": [
+        "A + declared_odd_disturbance"
+      ]
+    },
+    "velocity_mixture": {
+      "bias": -5.275893333487395
+    },
+    "explicit_parameter_space": {
+      "range": {
+        "a_max": 20.0,
+        "a_min": 0.0,
+        "unit": "m/s^2"
+      }
+    }
+  }
+}

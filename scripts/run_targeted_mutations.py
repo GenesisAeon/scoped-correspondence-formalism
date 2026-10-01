@@ -264,6 +264,8 @@ MUTANTS: Tuple[Mutant, ...] = (
     Mutant("mu6_real_data_marked_passed", "MU6", ME, '    return {"check": "muonium_real_beam_data", "result": "skipped",',
            '    return {"check": "muonium_real_beam_data", "result": "passed",', ("verify_muonium_evidence.py", "verify_muonium_pilot_cli.py"),
            "a skipped data check is never passed"),
+    Mutant("mu7_headline_overclaims", "MU7", MP, '    out["headline"] = f"synthetic {scenario} scenario of an idealised model -- no statement about measured muonium gravity"',
+           '    out["headline"] = f"Einstein widerlegt? synthetic {scenario}"', ("verify_muonium_pilot_cli.py",), "no overclaiming headline"),
 )
 
 

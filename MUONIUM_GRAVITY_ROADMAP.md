@@ -26,7 +26,7 @@ eine präzise Schätzung.
 | MU4 | Identifizierbarkeit und Interventionen | ✅ erledigt |
 | MU5 | Design und bedingte Abdeckung | ✅ erledigt |
 | MU6 | Evidenzadapter, optionales Realdatenfenster | ✅ erledigt |
-| MU7 | CLI, Fähigkeitsbilanz, Abschluss | ⬜ offen |
+| MU7 | CLI, Fähigkeitsbilanz, Abschluss | ✅ erledigt |
 
 **Einordnung in die Gesamtreihenfolge** (siehe
 [`SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md`](SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md),
@@ -164,4 +164,10 @@ Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--cate
 Code: `muonium/evidence.py`. Prüfung: `verify_muonium_evidence.py` (math) **4/4** — Abbildung auf bestehende Evidenzvokabulare, `record_kind` trennt reale Quelle / synthetische Messung / Prognose, Quellenangabe ohne Gravitationswert, Standard-JSON; Realdatenzweig `deferred` (Lizenz InC-NC, Schema ungeprüft) und als `skipped` ausgewiesen — kein Decoder gegen ein geratenes Schema.
 
 Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122**, `--category links` 0 kaputt.
+
+## MU7 — CLI, Fähigkeitsbilanz, Abschluss (erledigt)
+
+Code: `scripts/run_muonium_pilot.py`; Fachdokument [`docs/muonium_gravity.md`](docs/muonium_gravity.md). Prüfung: `verify_muonium_pilot_cli.py` (math) **6/6** — alle fünf Szenarien (`ideal`, `aliases`, `offset`, `reversal`, `velocity_mixture`), expliziter Parameterraum, Seed, Standard-JSON, neutrale Überschrift ohne Widerlegungs- oder Messbehauptung.
+
+Regression: gemeinsamer Lauf über den Stand mit MU1–MU7 (additiv) — `--category all` **122/122** bestanden, 13 min 12 s; `--category links` 0 kaputt. **Gezielte Mutanten MU1–MU7: 21/21 durch Assertions erkannt**; konsolidierter Bericht `verification/targeted_mutations_report.json`: 68 Mutanten (J0–J6 + MU), 67 erkannt, 1 vorab begründet äquivalent (67/67).
 
