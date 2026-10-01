@@ -21,7 +21,7 @@ ist zulässig.
 | Paket | Inhalt | Status |
 |---|---|---|
 | ON0 | Quellen, Umfang, API-Audit, Handkontrollen | ✅ erledigt (dieser Commit) |
-| ON1 | Exakte Beobachtungs- und Strukturkontrollen ($W(\delta)$, Voll-/Summenbeobachter) | ⬜ offen |
+| ON1 | Exakte Beobachtungs- und Strukturkontrollen ($W(\delta)$, Voll-/Summenbeobachter) | ✅ erledigt |
 | ON2 | Messrauschen und endliche Kanäle | ⬜ offen |
 | ON3 | Begrenzte adaptive Dynamik (N=12, Module, Hebb-Regel) | ⬜ offen |
 | ON4 | Decoder und hierarchischer Vergleich | ⬜ offen |
@@ -126,3 +126,22 @@ Werte 0…4 sind die einfachste Belegung, die beide Sollwerte exakt ergibt
 - [x] keine J-Abhängigkeit erfunden (nur tatsächlich vorhandene Bausteine)
 - [x] unabhängige Werte stimmen (23/23 eigen, 23/23 Beilage)
 - [x] keine Produktions-API in diesem Paket
+
+## ON1 — Exakte Beobachtungs- und Strukturkontrollen (erledigt)
+
+`validation/modular_networks/observation_controls.py`: $W(\delta)$ exakt
+(Fraction), Voll-, Summen- und permutierter Beobachter, exakte
+Information im rauschfreien Modell (0 oder 1 Bit), Anschluss an die
+vorhandene H3-Faser (`observation_fiber`). Funktion, Beobachtung und
+Stimuluslabel sind getrennte Eingaben. Floats werden im exakten Modus
+abgewiesen (Rauschen gehört nach ON2).
+
+[`verify_organoid_observation_controls.py`](verification/verify_organoid_observation_controls.py)
+4/4: ON-C01–C03; δ ∉ [0,1], falsche Dimension, nicht endliche Eingabe,
+Float-δ abgewiesen; δ = 10⁻⁹ liefert rauschfrei 1 Bit — ausdrücklich
+**keine** biologische Kippschwelle.
+
+## Regression
+
+Vor den ON-Commits (Arbeitsstand ON0–ON7): `--category all` → **138/138 bestanden** (131 vorher + 7 neue ON-Prüfskripte, 13 min);
+`--category links` → 0 defekte relative Links (378 geprüft). Gezielte Mutanten: **16/16** ON-Mutanten durch Inhaltsassertion getötet (Bericht danach 105 Mutanten: 104 getötet, 1 vorregistriert äquivalent); ein Masken-Mutant deckte eine Testlücke auf (siehe ON3).

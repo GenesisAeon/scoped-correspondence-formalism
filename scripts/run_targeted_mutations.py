@@ -92,6 +92,7 @@ SDG = "src/scoped_correspondence/causal/selection_diagrams.py"
 TR = "src/scoped_correspondence/causal/transport.py"
 PO = "src/scoped_correspondence/validation/polyhedral_observation_pilot.py"
 SP = "src/scoped_correspondence/validation/stellar_pulse_observation.py"
+ONM = "src/scoped_correspondence/validation/modular_networks/"
 
 #: The registry. Plan-mandated classes (section 9): invert an inequality;
 #: drop the time factor in T4; drop a Lipschitz factor (J4); drop the test
@@ -324,6 +325,13 @@ MUTANTS: Tuple[Mutant, ...] = (
            ("verify_stellar_pulse_observation.py",), "peak at ln 2"),
     Mutant("sk_shape_terms_ignored", "SK2", SP, "        if unknown_shape_terms:", "        if False:",
            ("verify_stellar_pulse_observation.py",), "unknown spectral shape removes identifiability"),
+    # --- organoid networks (ON1-ON7) ---------------------------------------------
+    Mutant("on1_sum_observer_full", "ON1", ONM + "observation_controls.py", "    return sum(y, Fraction(0))", "    return tuple(y)",
+           ("verify_organoid_observation_controls.py",), "sum observer carries 0 bit"),
+    Mutant("on1_float_delta_accepted", "ON1", ONM + "observation_controls.py",
+           "    if isinstance(x, bool) or isinstance(x, float) or not isinstance(x, (int, Fraction)):",
+           "    if isinstance(x, bool) or not isinstance(x, (int, float, Fraction)):", ("verify_organoid_observation_controls.py",),
+           "noisy floats are not exact"),
 )
 
 
