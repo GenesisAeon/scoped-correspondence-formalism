@@ -6,6 +6,28 @@ chronologisch gewachsene Historie — jede Behauptung hier ist an einen
 Commit, ein Review-Dokument oder einen `verify_*.py`-Lauf gebunden.
 Nichts wurde beim Verschieben inhaltlich verändert oder gekürzt.
 
+## Branch `j-series` (2026-10-01, noch nicht in `master` gemergt)
+
+Auf dem Branch `j-series` (Merge-Entscheidung bei Johann) wurden in einer
+Sitzung vier Serien nach der Paket-pro-Commit-Disziplin umgesetzt, jede mit
+eigener Roadmap, handhergeleiteten Kontrollen und gezielten Mutanten:
+
+- **J0–J12** Scope, Komposition und Evidenz
+  ([SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md](SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md)).
+- **MU0–MU7** Myonium-Gravitations-Messmodell, synthetisch; echte
+  Strahldaten wegen Lizenz zurückgestellt
+  ([MUONIUM_GRAVITY_ROADMAP.md](MUONIUM_GRAVITY_ROADMAP.md)).
+- **TP/SK/SA** Kandidatenpiloten Polyeder, Sakurai, Saturn
+  ([CANDIDATE_PILOTS_ROADMAP.md](CANDIDATE_PILOTS_ROADMAP.md)).
+- **ON0–ON7** adaptive modulare Netzwerke (organoid-motiviert): synthetischer
+  Kern abgeschlossen, Realdatenzweig blockiert
+  ([ORGANOID_NETWORK_ROADMAP.md](ORGANOID_NETWORK_ROADMAP.md)).
+
+Stand am Ende: `--category all` 138/138, Linkprüfung 0 defekt,
+gezielte Mutanten 105 (104 per Inhaltsassertion getötet, 1 vorregistriert
+äquivalent; [Bericht](verification/targeted_mutations_report.json)). Offene
+Quellenfragen und Entscheidungen: [DEEP_RESEARCH_BACKLOG.md](DEEP_RESEARCH_BACKLOG.md).
+
 ## Aktueller Stand (2026-09-20)
 
 Seit dem 16. September 2026 ist dieses Repository ein **installierbares

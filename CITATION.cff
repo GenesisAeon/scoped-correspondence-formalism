@@ -18,11 +18,19 @@ keywords:
   - information-theory
   - viability-theory
   - scientific-computing
+  - identifiability
+  - causal-inference
+  - uncertainty-quantification
 abstract: >
   A Python library and research methodology for stating formal
   correspondences between mathematical models across domains
   (dynamical systems, information theory including directed
   information / information flow, thermodynamics, viability theory),
   each backed by an independently reproducible verification suite.
+  Includes typed scope/composition contracts, exact interval and
+  identifiability certificates, finite causal abstraction and transport,
+  weighted conformal calibration, and synthetic measurement-model pilots
+  (muonium gravity, adaptive modular networks) with separated evidence
+  and empirical-status reporting.
   Developed with AI assistance (implementation and verification by
   Claude; external reviews by Astra).

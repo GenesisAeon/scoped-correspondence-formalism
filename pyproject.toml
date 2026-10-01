@@ -19,6 +19,9 @@ keywords = [
     "information-theory",
     "viability-theory",
     "scientific-computing",
+    "identifiability",
+    "causal-inference",
+    "uncertainty-quantification",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

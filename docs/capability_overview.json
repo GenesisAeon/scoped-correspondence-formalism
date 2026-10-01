@@ -515,6 +515,45 @@
         "verify_muonium_pilot_cli.py"
       ],
       "known_limits": "Not a measurement of muonium gravity; no LEMING simulation, wave optics or device models"
+    },
+    {
+      "module": "validation/polyhedral_observation_pilot.py",
+      "question": "Which finite observations separate combinatorially different polyhedral complexes, and when does an Euler characteristic give a genus?",
+      "model_class": "Finite incidence graphs, exact rational coordinates",
+      "assumptions": "Declared manifold premises for any genus statement",
+      "evidence_type": "exact finite (TP1)",
+      "verification_scripts": [
+        "verify_polyhedral_observation_pilot.py"
+      ],
+      "known_limits": "Coordinates of the 2026 papers not audited; genus only under declared manifold premises"
+    },
+    {
+      "module": "validation/stellar_pulse_observation.py",
+      "question": "When is a released stored pulse identifiable from one or two photometric bands?",
+      "model_class": "Two-compartment release, linear band operator, wind scaling",
+      "assumptions": "Known extinction law per band; declared shape terms",
+      "evidence_type": "analytic null model (SK1-SK3)",
+      "verification_scripts": [
+        "verify_stellar_pulse_observation.py"
+      ],
+      "known_limits": "No Sakurai data fit; 2023 spectra are not the October-2026 state"
+    },
+    {
+      "module": "validation/modular_networks/",
+      "question": "When do coupling and adaptation of a modular network improve input discriminability, and how much is due to observation and readout?",
+      "model_class": "Bounded two-time-scale network (N=12, M in {1,2,3}), delayed Hebb rule with fixed edge mask, finite channels, nearest-mean decoders",
+      "assumptions": "Fixed total coupling budget, state reset per trial, run = unit of replication",
+      "evidence_type": "exact finite controls (ON-C01..C23) + pre-declared synthetic benchmark",
+      "verification_scripts": [
+        "verify_organoid_observation_controls.py",
+        "verify_organoid_channels.py",
+        "verify_organoid_adaptive_model.py",
+        "verify_organoid_decoders.py",
+        "verify_organoid_information.py",
+        "verify_organoid_benchmark.py",
+        "verify_organoid_pilot_cli.py"
+      ],
+      "known_limits": "Synthetic core only; real organoid data blocked (ON6b); no three-module threshold, no causal or learning claim"
     }
   ]
 }
