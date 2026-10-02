@@ -1,0 +1,17 @@
+{
+  "n_passed": 2,
+  "n_total": 2,
+  "results": {
+    "readme_counts": {
+      "python_files": 167,
+      "subpackages": 26,
+      "modules": 140,
+      "importable_modules": 166,
+      "verification_scripts": 142,
+      "archived_verify_scripts": 2
+    },
+    "module_table_complete": {
+      "top_level_subpackages": 25
+    }
+  }
+}
