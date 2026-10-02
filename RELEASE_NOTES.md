@@ -2,7 +2,37 @@
 
 License: CC BY 4.0.
 
-## 0.42.0a1 (alpha, 2026-10-02)
+## 0.42.0 (first public release, 2026-10-02)
+
+This is the first public release: the repository is public, the package is
+on PyPI and Zenodo archives the release. The **content is that of
+`0.42.0a1`** below; this version only adds the release infrastructure.
+
+- Install with `pip install scoped-correspondence`. No pre-release flag is
+  needed, so other projects can declare SCF as a normal dependency. The
+  development status stays *Alpha*.
+- `.zenodo.json` holds the Zenodo metadata (creator, licence, keywords,
+  `isPartOf` GenesisAeon 10.5281/zenodo.19645351, community `genesisaeon`).
+- `.github/workflows/release.yml`: a tag `v*` runs, in order:
+  1. the math suite, the link check and a tag = package-version check;
+  2. the build and `twine check`;
+  3. the PyPI upload (`PYPI_API_TOKEN`);
+  4. the GitHub release, which Zenodo then archives.
+
+  Trusted Publishing can replace the token after the first release.
+- `pyproject.toml` now uses an SPDX licence expression and explicit
+  `license-files`, replacing the deprecated TOML table form (setuptools
+  warned that builds would break from February 2027).
+- Checked before release:
+  - the wheel and sdist pass `twine check`;
+  - the sdist contains only `src/`, the licences, the README and
+    `pyproject.toml`, without `data/` or `prompts/`;
+  - the installed wheel imports all 166 modules in a fresh Python 3.13
+    environment.
+- `verify_version_metadata.py` now also checks the version in
+  `.zenodo.json`.
+
+## 0.42.0a1 (internal integration tag, 2026-10-02; not published)
 
 This release integrates the branch `j-series` (36 commits since
 `0.41.0a1`). Every package was built in its own commit with hand-derived

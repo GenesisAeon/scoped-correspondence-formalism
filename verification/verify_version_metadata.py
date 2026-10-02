@@ -1,6 +1,6 @@
 """Version metadata consistency (release 0.42.0a1, 2026-10-02).
 
-The package version must agree in pyproject.toml, CITATION.cff and
+The package version must agree in pyproject.toml, CITATION.cff, .zenodo.json and
 ``scoped_correspondence.__version__`` (which had silently stayed at
 0.10.0a1 while the package moved to 0.41.0a1), and RELEASE_NOTES.md must
 have a section for it.
@@ -36,6 +36,10 @@ def check_versions_agree():
     import scoped_correspondence
 
     require(py == cff == scoped_correspondence.__version__, f"pyproject {py}, CITATION {cff}, __version__ {scoped_correspondence.__version__}")
+    zen = json.loads((ROOT / ".zenodo.json").read_text(encoding="utf-8"))
+    require(zen.get("version") == py, f".zenodo.json version {zen.get('version')} != {py}")
+    require(zen.get("license") == "GPL-3.0-or-later" and zen.get("upload_type") == "software", ".zenodo.json licence/type")
+    require(any(c.get("name") for c in zen.get("creators", [])), ".zenodo.json needs at least one creator")
     notes = (ROOT / "RELEASE_NOTES.md").read_text(encoding="utf-8")
     require(f"## {py} " in notes, f"RELEASE_NOTES.md needs a section '## {py} ...'")
     return {"version": py}

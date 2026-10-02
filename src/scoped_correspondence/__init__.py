@@ -237,4 +237,4 @@ __all__ = [
     "unobserved_metarule_breaks_closure",
 ]
 
-__version__ = "0.42.0a1"
+__version__ = "0.42.0"

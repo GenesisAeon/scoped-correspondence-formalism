@@ -9,7 +9,12 @@ Nichts wurde beim Verschieben inhaltlich verändert oder gekürzt.
 ## Branch `j-series` → Release `0.42.0a1` (2026-10-01/02)
 
 Die Integration in `master` ist als Release `0.42.0a1` vorgesehen, siehe
-[RELEASE_NOTES.md](RELEASE_NOTES.md). Den Merge führt Johann aus.
+[RELEASE_NOTES.md](RELEASE_NOTES.md).
+
+- 2026-10-02: Claude hat die Integration auf Johanns OK gemergt (Merge
+  `ea96409`, interner Tag `v0.42.0a1`).
+- Danach wurde das Repo öffentlich gestellt und mit Zenodo verknüpft.
+- Der erste öffentliche Release ist `0.42.0` (PyPI + Zenodo).
 
 **Review-Kette:** `SCF_REVIEW_J_SERIES_6b3a331` → `SCF_FOLLOWUP_REVIEW_637bc1c`
 → `SCF_PMF_REVIEW_51b1a38`. Das letzte Review gab das Merge-GO für
