@@ -1,10 +1,9 @@
 name: Release
 
-# Tag push "v*" -> verify -> build -> PyPI (token) -> GitHub Release.
+# Tag push "v*" -> verify -> build -> PyPI (Trusted Publishing) -> GitHub Release.
 # Zenodo archives the GitHub Release through the repository's Zenodo GitHub
 # integration (metadata from .zenodo.json); no Zenodo token is needed here.
-# After the first release, PyPI Trusted Publishing can replace the token
-# (then: `permissions: id-token: write` and drop `password:`).
+# PyPI upload uses Trusted Publishing (OIDC, no token) since 2026-10-02.
 
 on:
   push:
@@ -50,17 +49,21 @@ jobs:
           path: dist/
 
   publish-pypi:
-    name: Publish to PyPI
+    # PyPI Trusted Publishing (OIDC), registered by Johann 2026-10-02:
+    # owner GenesisAeon, repo scoped-correspondence-formalism, workflow
+    # release.yml, NO environment. Any mismatch makes the upload fail.
+    # The PYPI_API_TOKEN secret is no longer used here.
+    name: Publish to PyPI (Trusted Publishing)
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
 
   github-release:
     name: Create GitHub Release (triggers Zenodo archiving)
