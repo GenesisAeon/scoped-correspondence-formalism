@@ -1,7 +1,7 @@
 {
   "_meta": {
     "purpose": "Compact, machine-readable per-module capability overview: question, model class, assumptions, evidence type, verification scripts, known limits. Written 2026-09-24 in response to Astra's capability-assessment review (prompts/Answers/nicht_stationäre_Treiber/SCF_Faehigkeiten_und_Ausbauplan_2026-09-24.md, Priority 0) as the README's headline claims should only ever summarize what is stated here.",
-    "as_of_commit": "Paket C7 (integrated extension roadmap C0-C7 complete)",
+    "as_of_commit": "Paket J12 (scope/composition/evidence series J0-J12 and muonium MU0-MU7 complete)",
     "schema": [
       "module",
       "question",
@@ -395,6 +395,165 @@
         "verify_sequential_information_pilot.py"
       ],
       "known_limits": "INTEGRATED_EXTENSION_ROADMAP.md Paket C6: the full (p, c, delay, horizon<=5) cross-product panel named in the plan is not exhaustively run -- a representative (p,c) panel at fixed horizon 5 is used instead, demonstrating the same qualitative phenomena (a threshold at c=0.5 when p=0.5, 'measure once then coast forever' when p=0, and that p and 1-p give identical values). See docs/sequential_information_pilot.md."
+    },
+    {
+      "module": "validation/forecast_comparison.py",
+      "question": "Is one model's mean loss lower than another's on the SAME targets, horizons and information sets, and may a DM/HAC reference be used?",
+      "model_class": "Paired loss differences, Bartlett-HAC, Holm on pre-declared families",
+      "assumptions": "Inference only under a DECLARED applicability; series and horizons never pooled",
+      "evidence_type": "exact control (J-C01/J-C02) + NOAA real-data pilot (descriptive primary result)",
+      "verification_scripts": [
+        "verify_forecast_comparison.py",
+        "verify_forecast_comparison_noaa.py"
+      ],
+      "known_limits": "No universal superiority test; 'no significant difference' is not equivalence; NOAA pilot inference only conditional"
+    },
+    {
+      "module": "dimensions/",
+      "question": "Is an expression dimensionally consistent, and which dimensionless groups exist?",
+      "model_class": "Rational dimension vectors, units incl. affine scales, exact null space",
+      "assumptions": "Validated expression trees; semantic kinds are declared",
+      "evidence_type": "exact",
+      "verification_scripts": [
+        "verify_dimensional_analysis.py"
+      ],
+      "known_limits": "Equal dimension is not physical interchangeability; Pi theorem gives no dynamics or prefactor"
+    },
+    {
+      "module": "correspondence/domains.py + contracts.py + composition.py",
+      "question": "Under which scope, clock and error bound may two correspondences be chained, and does an implementation refine a specification?",
+      "model_class": "Exact boxes/finite sets/half-space sets, functional contracts, typed links",
+      "assumptions": "Model ids, coordinates, units and clocks must match; Lipschitz certificate for flow bounds",
+      "evidence_type": "exact (J-C05..J-C08)",
+      "verification_scripts": [
+        "verify_correspondence_contracts.py"
+      ],
+      "known_limits": "Positive constant time factors only; general reactive contracts not implemented"
+    },
+    {
+      "module": "assurance/",
+      "question": "Does a supported rational expression satisfy a bound on a WHOLE box?",
+      "model_class": "Exact rational interval arithmetic, bisection, re-checkable certificates",
+      "assumptions": "Supported expression class only; callbacks are not provable",
+      "evidence_type": "exact (J-C09/J-C10)",
+      "verification_scripts": [
+        "verify_validated_scopes.py"
+      ],
+      "known_limits": "No transcendental functions or ODE flows; sharp bounds may stay undecided under a budget"
+    },
+    {
+      "module": "identifiability/exact_linear.py + structural_reports.py",
+      "question": "Which parameter combinations does an affine observation determine, globally or on a declared domain?",
+      "model_class": "Exact rank / null space / row-space tests; analytic control families",
+      "assumptions": "Positivity or domain assumptions stated explicitly",
+      "evidence_type": "exact + analytic (J-C11..J-C13)",
+      "verification_scripts": [
+        "verify_structural_identifiability.py"
+      ],
+      "known_limits": "No general nonlinear/ODE solver; outside scope: 'unsupported'"
+    },
+    {
+      "module": "validation/global_sensitivity.py + galaxy_joint_sensitivity.py",
+      "question": "How do JOINT input changes move a target, and how is variance apportioned among independent inputs?",
+      "model_class": "Scenario grids (no probabilities), pick-freeze Sobol, galaxy held-out comparison over joint D/i/Upsilon scenarios",
+      "assumptions": "Independent declared marginals with provenance",
+      "evidence_type": "exact reference (J-C14) + seeded estimator + local SPARC data check",
+      "verification_scripts": [
+        "verify_global_sensitivity.py",
+        "verify_galaxy_joint_sensitivity.py"
+      ],
+      "known_limits": "Dependent inputs refused; galaxy result is one galaxy over a declared scenario space, not a population or probability statement"
+    },
+    {
+      "module": "validation/weighted_conformal.py",
+      "question": "Which prediction interval keeps marginal coverage under a KNOWN covariate shift?",
+      "model_class": "Weighted split conformal with test-point mass at +infinity",
+      "assumptions": "P(Y|X) unchanged, Q_X << P_X, known weights, separate training set",
+      "evidence_type": "exact (J-C15..J-C17) + pre-declared synthetic comparison",
+      "verification_scripts": [
+        "verify_weighted_conformal.py"
+      ],
+      "known_limits": "No guarantee under concept shift, estimated or clipped weights; coverage may be bought with unbounded intervals"
+    },
+    {
+      "module": "causal/",
+      "question": "Do two finite causal models agree under declared interventions, and can an effect be transported by standardisation?",
+      "model_class": "Finite acyclic SCMs, exact interventional abstraction, d-separation, one transport rule",
+      "assumptions": "Declared selection diagram and intervention sets",
+      "evidence_type": "exact finite models (J-C18..J-C21, J-C23)",
+      "verification_scripts": [
+        "verify_finite_causal_models.py",
+        "verify_causal_abstraction.py",
+        "verify_scoped_transportability.py"
+      ],
+      "known_limits": "No graph learning, no counterfactual identity, no general transportability/sID solver"
+    },
+    {
+      "module": "closure/contract_adapter.py",
+      "question": "Can an existing Markov reduction bound be used as a contract up to a declared observable?",
+      "model_class": "Michel-Siegle Thm 4.3/5.3 via the existing implementation",
+      "assumptions": "Row convention, stochastic lifting for TV, exact inputs for a proved bound",
+      "evidence_type": "exact evaluation of the existing bound + exact actual error (J-C22, paper example)",
+      "verification_scripts": [
+        "verify_reduction_contracts.py"
+      ],
+      "known_limits": "Float inputs give estimates only; no new reduction theory"
+    },
+    {
+      "module": "muonium/",
+      "question": "Under which assumptions can a count modulation be attributed to an effective muonium acceleration, and which disturbances mimic it?",
+      "model_class": "Idealised three-plane interferometer, finite velocity mixture, Poisson likelihood, Fisher design",
+      "assumptions": "Equal flight times, declared axis, illustrative design values",
+      "evidence_type": "exact/analytic counterexamples + synthetic counts; real beam data deferred (license InC-NC)",
+      "verification_scripts": [
+        "verify_muonium_kinematics.py",
+        "verify_muonium_forward.py",
+        "verify_muonium_likelihood.py",
+        "verify_muonium_identifiability.py",
+        "verify_muonium_design.py",
+        "verify_muonium_evidence.py",
+        "verify_muonium_pilot_cli.py"
+      ],
+      "known_limits": "Not a measurement of muonium gravity; no LEMING simulation, wave optics or device models"
+    },
+    {
+      "module": "validation/polyhedral_observation_pilot.py",
+      "question": "Which finite observations separate combinatorially different polyhedral complexes, and when does an Euler characteristic give a genus?",
+      "model_class": "Finite incidence graphs, exact rational coordinates",
+      "assumptions": "Declared manifold premises for any genus statement",
+      "evidence_type": "exact finite (TP1)",
+      "verification_scripts": [
+        "verify_polyhedral_observation_pilot.py"
+      ],
+      "known_limits": "Coordinates of the 2026 papers not audited; genus only under declared manifold premises"
+    },
+    {
+      "module": "validation/stellar_pulse_observation.py",
+      "question": "When is a released stored pulse identifiable from one or two photometric bands?",
+      "model_class": "Two-compartment release, linear band operator, wind scaling",
+      "assumptions": "Known extinction law per band; declared shape terms",
+      "evidence_type": "analytic null model (SK1-SK3)",
+      "verification_scripts": [
+        "verify_stellar_pulse_observation.py"
+      ],
+      "known_limits": "No Sakurai data fit; 2023 spectra are not the October-2026 state"
+    },
+    {
+      "module": "validation/modular_networks/",
+      "question": "When do coupling and adaptation of a modular network improve input discriminability, and how much is due to observation and readout?",
+      "model_class": "Bounded two-time-scale network (N=12, M in {1,2,3}), delayed Hebb rule with fixed edge mask, finite channels, nearest-mean decoders",
+      "assumptions": "Fixed total coupling budget, state reset per trial, run = unit of replication",
+      "evidence_type": "exact finite controls (ON-C01..C23) + pre-declared synthetic benchmark",
+      "verification_scripts": [
+        "verify_organoid_observation_controls.py",
+        "verify_organoid_channels.py",
+        "verify_organoid_adaptive_model.py",
+        "verify_organoid_decoders.py",
+        "verify_organoid_information.py",
+        "verify_organoid_benchmark.py",
+        "verify_organoid_pilot_cli.py"
+      ],
+      "known_limits": "Synthetic core only; real organoid data blocked (ON6b); no three-module threshold, no causal or learning claim"
     }
   ]
 }

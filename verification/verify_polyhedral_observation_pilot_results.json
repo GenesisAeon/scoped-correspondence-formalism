@@ -1,0 +1,28 @@
+{
+  "n_passed": 4,
+  "n_total": 4,
+  "results": {
+    "tp_c01_euler_without_genus_overreach": {
+      "chi": -4,
+      "genus_if_premises": 3
+    },
+    "tp_c02_coarse_fibre_shared_refined_split": {
+      "coarse_fibre": [
+        "C8",
+        "C4+C4"
+      ],
+      "refined_fibre": [
+        "C8"
+      ],
+      "note": "graph fact only; no polyhedron construction is certified by this"
+    },
+    "tp_c03_rotoreflection": {
+      "order": 4,
+      "det": -1
+    },
+    "tp_c04_exact_coplanarity": {
+      "exact": true,
+      "near_coplanar_detected": true
+    }
+  }
+}

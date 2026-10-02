@@ -1,0 +1,27 @@
+{
+  "n_passed": 4,
+  "n_total": 4,
+  "results": {
+    "vocabulary_mapping": {
+      "synthetic": [
+        "numerical_sample",
+        "synthetic_only"
+      ]
+    },
+    "record_kinds_distinguishable_and_no_gravity_from_source": {
+      "kinds": [
+        "real_source_metadata",
+        "future_projection"
+      ]
+    },
+    "standard_json": {
+      "nll": {
+        "status": "positive_infinity"
+      }
+    },
+    "real_data_branch_deferred_not_passed": {
+      "result": "skipped",
+      "license": "In Copyright - Non-Commercial Use Permitted (rightsstatements.org InC-NC/1.0)"
+    }
+  }
+}

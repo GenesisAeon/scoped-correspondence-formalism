@@ -217,11 +217,101 @@ def check_compatibility_and_core_call():
     }
 
 
+def raises_scope(fn):
+    try:
+        fn()
+    except ScopeViolationError:
+        return True
+    return False
+
+
+def _ctmc_actual_l1(theta, A, Q, pi0, p0, t):
+    """Independent reference: exact matrix exponentials (scipy), no SCF code."""
+    from scipy.linalg import expm
+
+    theta, A, Q = (np.asarray(x, dtype=float) for x in (theta, A, Q))
+    return float(np.abs(np.asarray(pi0) @ expm(theta * t) @ A - np.asarray(p0) @ expm(Q * t)).sum())
+
+
+def check_review_r1_ctmc_zero_dynamics():
+    """Followup-Review-Fix R1 (SCF_REVIEW_J_SERIES_6b3a331): general CTMC branch.
+
+    Theta = (0), A = (1/2, 0), pi0 = (2), p0 = (1, 0), Q = [[-1, 1], [0, 0]], t = 1.
+    Hand derivation: e' = pi(Theta A - A Q) + e Q, ||x e^{Qt}||_1 <= ||x||_1, so
+    B = e0 + ||pi0||_1 ||Theta A - A Q||_inf phi(t, kappa) with phi(t, 0) = t:
+    e0 = 0, ||A Q||_inf = ||(-1/2, 1/2)|| = 1  =>  B = 2 >= 2 (1 - e^-1).
+    Old code returned 0 (also at kappa = 1e-20 by cancellation in exp(x) - 1).
+    """
+    Q = [[-1.0, 1.0], [0.0, 0.0]]
+    A = [[0.5, 0.0]]
+    actual = _ctmc_actual_l1([[0.0]], A, Q, [2.0], [1.0, 0.0], 1.0)
+    near(actual, 2 * (1 - math.exp(-1)), atol=1e-12)
+    out = {"actual": actual}
+    for eps in (0.0, 1e-20):
+        b = transient_reduction_bound([[eps]], A, Q, [2.0], [1.0, 0.0], 1, continuous_time=True)
+        near(b.bound, 2.0, atol=1e-12)
+        require(b.bound >= actual, f"bound {b.bound} must cover the actual error {actual}")
+        out[f"bound_kappa_{eps}"] = b.bound
+    # t = 0: only the initial error
+    near(transient_reduction_bound([[0.0]], A, Q, [2.0], [1.0, 0.0], 0.0, continuous_time=True).bound, 0.0)
+    # vanishing residual in the general branch (pi0 not a probability vector): tight bound 1
+    Qg = [[-1.0, 1.0], [2.0, -2.0]]
+    bz = transient_reduction_bound(Qg, np.eye(2), Qg, [2.0, 0.0], [1.0, 0.0], 3.0, continuous_time=True)
+    near(bz.bound, 1.0)
+    near(_ctmc_actual_l1(Qg, np.eye(2), Qg, [2.0, 0.0], [1.0, 0.0], 3.0), 1.0, atol=1e-12)
+    # ordinary control: Theta = (1), kappa = 1 => B = 2 * 3/2 * (e - 1) = 3 (e - 1)
+    bn = transient_reduction_bound([[1.0]], A, Q, [2.0], [1.0, 0.0], 1.0, continuous_time=True)
+    near(bn.bound, 3 * (math.e - 1), atol=1e-12)
+    an = _ctmc_actual_l1([[1.0]], A, Q, [2.0], [1.0, 0.0], 1.0)
+    require(an <= bn.bound, f"actual {an} must not exceed {bn.bound}")
+    out.update({"ordinary_bound": bn.bound, "ordinary_actual": an})
+    return out
+
+
+def check_review_r2_full_markov_and_tv_contract():
+    """Followup-Review-Fix R2: the full dynamics must be Markov; TV has its own contract.
+
+    Counterexample Pi = (1), A = (1, 0), P = diag(2, 1), pi0 = (1), p0 = (1, 0), k = 2:
+    p_2 = (4, 0), reconstruction (1, 0), actual L1 error 3 > old bound 2.
+    """
+    P_bad = np.diag([2.0, 1.0])
+    p2 = np.array([1.0, 0.0]) @ np.linalg.matrix_power(P_bad, 2)
+    near(np.abs(np.array([1.0, 0.0]) - p2).sum(), 3.0)
+    require(raises_scope(lambda: transient_reduction_bound([[1.0]], [[1.0, 0.0]], P_bad, [1.0], [1.0, 0.0], 2)),
+            "non-stochastic full P must be refused")
+    require(raises_scope(lambda: transient_reduction_bound([[0.0]], [[1.0, 0.0]], [[1.0, -1.0], [0.0, 0.0]], [1.0], [1.0, 0.0],
+                                                           1.0, continuous_time=True)),
+            "invalid generator (negative off-diagonal) must be refused")
+    P_cols = np.array([[0.5, 1.0], [0.5, 0.0]])  # column-stochastic: transposed orientation
+    require(raises_scope(lambda: transient_reduction_bound([[1.0]], [[1.0, 0.0]], P_cols, [1.0], [1.0, 0.0], 1)),
+            "transposed (column-stochastic) P must be refused")
+    # valid general L1 reduction stays supported: Pi not stochastic, A non-stochastic lift
+    P = np.array([[0.5, 0.5], [0.25, 0.75]])
+    Pi, A, pi0, p0 = np.array([[0.9]]), np.array([[0.6, 0.6]]), np.array([1.5]), np.array([1.0, 0.0])
+    b = transient_reduction_bound(Pi, A, P, pi0, p0, 3)
+    actual = max(float(np.abs(pi0 @ np.linalg.matrix_power(Pi, k) @ A - p0 @ np.linalg.matrix_power(P, k)).sum()) for k in (3,))
+    require(actual <= b.bound + 1e-12 and "Theorem 4 (item 2)" in b.theorem_ref, f"general L1: {actual} <= {b.bound}")
+    # TV needs the probability contract
+    require(raises_scope(lambda: transient_reduction_bound(Pi, A, P, pi0, p0, 3, norm="TV")),
+            "TV with non-stochastic lifting must be refused")
+    P0, A0, Pi0 = paper_example_matrices()
+    tv = transient_reduction_bound(Pi0, A0, P0, [1.0, 0.0], [0.5, 0.5, 0.0], 4, norm="TV")
+    near(tv.bound, 0.5)
+    # stationary: L1 is algebraic (any P), TV needs stochastic A, P and probability pi
+    st = stationary_reduction_bound([[1.0]], [[1.0, 0.0]], P_bad, [1.0])
+    near(st.bound, np.abs(np.array([1.0, 0.0]) @ P_bad - np.array([1.0, 0.0])).sum())  # = 1, tight here
+    require(raises_scope(lambda: stationary_reduction_bound([[1.0]], [[1.0, 0.0]], P_bad, [1.0], norm="TV")),
+            "stationary TV with non-stochastic P must be refused")
+    return {"general_l1_bound": b.bound, "general_l1_actual": actual, "stationary_l1_any_P": st.bound}
+
+
 CHECKS = [
     ("paper_dtmc_thm4", check_paper_dtmc_thm4),
     ("ctmc_thm5_exact", check_ctmc_thm5_exact),
     ("stationary_cor10", check_stationary_cor10),
     ("compatibility_core_call", check_compatibility_and_core_call),
+    ("review_r1_ctmc_zero_dynamics", check_review_r1_ctmc_zero_dynamics),
+    ("review_r2_full_markov_and_tv_contract", check_review_r2_full_markov_and_tv_contract),
 ]
 
 

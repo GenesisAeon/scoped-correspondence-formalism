@@ -1,12 +1,13 @@
 {
-  "count": 4,
+  "count": 5,
   "failed": [],
   "milestone": 17,
   "n_failed": 0,
-  "n_passed": 4,
+  "n_passed": 5,
   "ok": true,
   "passed": [
     "two_bit_copy_side_by_side",
+    "review_r4_nonfinite_early",
     "xor_pure_synergy",
     "redundant_copy",
     "scope_and_doi"
@@ -20,6 +21,9 @@
       "synergy": 0.0,
       "unique_source_1": 0.0,
       "unique_source_2": 0.0
+    },
+    "review_r4_nonfinite_early": {
+      "refused": 4
     },
     "scope_and_doi": {
       "doi": "10.3390/e16042161",
@@ -69,6 +73,6 @@
       "unique_source_2": 0.0
     }
   },
-  "timestamp": "2026-09-27T11:47:21+02:00",
+  "timestamp": "2026-10-01T21:02:12+02:00",
   "title": "BROJA bivariate unique information"
 }

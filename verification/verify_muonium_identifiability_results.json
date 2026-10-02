@@ -1,0 +1,42 @@
+{
+  "n_passed": 9,
+  "n_total": 9,
+  "results": {
+    "1_offset_degeneracy": {
+      "symmetry": "(a, phi0) -> (a + c, phi0 - K c)"
+    },
+    "2_and_mu_c09_two_flight_times": {
+      "A_b": [
+        "1",
+        "2"
+      ]
+    },
+    "3_mu_c14_mu_c17_periodic_aliases": {
+      "alias": 5165.289256198346
+    },
+    "4_mu_c10_acceleration_like_disturbance": {
+      "rank": 2
+    },
+    "5_mu_c11_reversal_parity": {
+      "odd_remaining": [
+        "magnetic_gradient"
+      ]
+    },
+    "6_velocity_calibration": {
+      "ratio": "10201/10000"
+    },
+    "7_contrast_loss": {
+      "F": 0.0
+    },
+    "8_selection_bias": {
+      "bias_m_per_s2": -5.275938891183239,
+      "detected_weights": [
+        0.05182498817644403,
+        0.948175011823556
+      ]
+    },
+    "finite_fibre_is_not_a_continuum_proof": {
+      "fibre_size": 3
+    }
+  }
+}

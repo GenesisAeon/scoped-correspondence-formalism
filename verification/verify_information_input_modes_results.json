@@ -1,0 +1,17 @@
+{
+  "n_passed": 3,
+  "n_total": 3,
+  "results": {
+    "di_modes": {
+      "I_directed": 0.1887218755408675
+    },
+    "broja_modes": {
+      "xor_synergy": 1.0,
+      "copy_redundancy": 1.0
+    },
+    "pmf_review_signed_mass": {
+      "signed_exact": "refused",
+      "underflowing_fraction": "refused"
+    }
+  }
+}

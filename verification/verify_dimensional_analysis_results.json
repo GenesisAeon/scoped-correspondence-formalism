@@ -1,0 +1,102 @@
+{
+  "n_passed": 11,
+  "n_total": 11,
+  "results": {
+    "jc03_pendulum_null_space": {
+      "basis": [
+        [
+          2,
+          -1,
+          1
+        ]
+      ],
+      "monomials": [
+        "T^2*g/(l)"
+      ],
+      "g_over_G": {
+        "M": "1",
+        "L": "-2"
+      }
+    },
+    "jc04_reservoir_unit_change_exact_and_module": {
+      "annual": 2.7246644820586106,
+      "daily": 2.7246644820586106,
+      "q_over_k": "5/2",
+      "k_t": "4/5"
+    },
+    "jc04_halo_product_invariance": {
+      "rho_r": 12,
+      "dimension": {
+        "M": "1",
+        "L": "-2"
+      }
+    },
+    "addition_of_different_dimensions_rejected": {
+      "violation": "expr: cannot + [L] and [T]"
+    },
+    "function_arguments_dimensionless": {
+      "exp_T": "expr: argument of exp must be dimensionless, got [T]"
+    },
+    "rational_exponents": {
+      "sqrt_l_over_g": "T"
+    },
+    "singular_empty_and_full_rank_matrices": {
+      "dimless": {
+        "quantities": [
+          "eta",
+          "phi"
+        ],
+        "rank": 0,
+        "nullity": 2,
+        "basis": [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "monomials": [
+          "eta",
+          "phi"
+        ],
+        "note": "Any basis of the same span is equally valid; no dynamics or prefactor is implied."
+      },
+      "full_rank_nullity": 0
+    },
+    "basis_change_compares_spans": {
+      "galaxy_basis": [
+        [
+          2,
+          1,
+          -1,
+          -1,
+          0
+        ],
+        [
+          2,
+          -1,
+          0,
+          0,
+          -1
+        ]
+      ],
+      "monomials": [
+        "V^2*r/(G*M)",
+        "V^2/(r*a0)"
+      ]
+    },
+    "unit_transformations_and_affine_scales": {
+      "25degC_in_K": "298.15",
+      "difference": 25
+    },
+    "energy_vs_torque_semantic_warning": {
+      "warning": "expr: + of equal dimension [M L^2 T^-2] but different kinds 'energy' and 'torque'"
+    },
+    "abstract_dimensionless_scf_quantity": {
+      "eta": "dimensionless"
+    }
+  }
+}

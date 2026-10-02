@@ -116,6 +116,74 @@ _EXPLICIT_CATEGORY = {
     "verify_epistemic_buffer_pilot.py": "math",
     "verify_epistemic_adapters.py": "math",
     "verify_epistemic_reporting.py": "math",
+    # J1 (SCOPE_COMPOSITION_EVIDENCE_ROADMAP.md): exact/synthetic paired
+    # forecast comparison checks (J-C01, J-C02, gates, pairing) -- no real data.
+    "verify_forecast_comparison.py": "math",
+    # J1 real-data adapter: reads data/noaa_global_temp_anomaly_1880_2025.csv
+    # (hash-checked against data/real_data_manifest.json).
+    "verify_forecast_comparison_noaa.py": "data",
+    # J2: exact dimension checks / Buckingham-Pi; reservoir and galaxy
+    # connections are symbolic or synthetic -- no real dataset.
+    "verify_dimensional_analysis.py": "math",
+    # J3: metamorphic relations (synthetic/exact) and the mutation-runner
+    # self-test on a throw-away toy repository. The targeted mutation run
+    # itself (scripts/run_targeted_mutations.py) is deliberately NOT part of
+    # the suite -- every mutant re-runs whole verify scripts.
+    "verify_metamorphic_relations.py": "math",
+    "verify_targeted_mutation_runner.py": "math",
+    # J4: exact domains, functional contracts, typed composition.
+    "verify_correspondence_contracts.py": "math",
+    # J5: exact rational interval certification over boxes.
+    "verify_validated_scopes.py": "math",
+    # J11: existing Michel-Siegle reduction bounds as contracts (exact
+    # rational examples incl. closure.error_bounds.paper_example_matrices).
+    "verify_reduction_contracts.py": "math",
+    # J6: exact affine / analytic structural identifiability reports.
+    "verify_structural_identifiability.py": "math",
+    # MU1-MU7 (MUONIUM_GRAVITY_ROADMAP.md): idealised model, synthetic
+    # counts and analytic counterexamples only -- the real beam data
+    # (MU-S5, license InC-NC) is deferred and never read here.
+    "verify_muonium_kinematics.py": "math",
+    "verify_muonium_forward.py": "math",
+    "verify_muonium_likelihood.py": "math",
+    "verify_muonium_identifiability.py": "math",
+    "verify_muonium_design.py": "math",
+    "verify_muonium_evidence.py": "math",
+    "verify_muonium_pilot_cli.py": "math",
+    # J7: Sobol kernel and joint scenarios (synthetic); the galaxy joint
+    # scenario check reads the LOCAL, uncommitted SPARC files and skips
+    # cleanly (all_skipped) when they are absent.
+    "verify_global_sensitivity.py": "math",
+    "verify_galaxy_joint_sensitivity.py": "data",
+    # J8: weighted split conformal (exact controls + synthetic comparison).
+    "verify_weighted_conformal.py": "math",
+    # J9: finite SCMs and interventional abstraction -- finite exact models only.
+    "verify_finite_causal_models.py": "math",
+    "verify_causal_abstraction.py": "math",
+    # J10: selection diagrams and one checked standardisation rule.
+    "verify_scoped_transportability.py": "math",
+    # J12: demo CLI for the six mandatory demonstrations.
+    "verify_scope_evidence_demo.py": "math",
+    # Candidate pilots (CANDIDATE_PILOTS_ROADMAP.md): exact graph/geometry and
+    # analytic null-model checks; no real data.
+    "verify_polyhedral_observation_pilot.py": "math",
+    "verify_stellar_pulse_observation.py": "math",
+    # Followup-Review-Fix SCF_REVIEW_J_SERIES_6b3a331 §8: delivered MU/candidate
+    # oracle values cross-checked against production code (no real data).
+    "verify_mu_candidate_oracle_crosscheck.py": "math",
+    # Optional strict PMF input mode for DI/BROJA (SCF_FOLLOWUP_REVIEW_637bc1c §5).
+    "verify_information_input_modes.py": "math",
+    # Release metadata consistency (0.42.0a1): pyproject / CITATION / __version__.
+    "verify_version_metadata.py": "math",
+    # Organoid networks (ORGANOID_NETWORK_ROADMAP.md, ON1-ON7): synthetic
+    # controls and benchmark; real data (ON6b) behind data gates.
+    "verify_organoid_observation_controls.py": "math",
+    "verify_organoid_channels.py": "math",
+    "verify_organoid_adaptive_model.py": "math",
+    "verify_organoid_decoders.py": "math",
+    "verify_organoid_information.py": "math",
+    "verify_organoid_benchmark.py": "math",
+    "verify_organoid_pilot_cli.py": "math",
 }
 
 

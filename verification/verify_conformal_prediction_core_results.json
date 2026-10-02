@@ -1,8 +1,8 @@
 {
-  "count": 4,
+  "count": 5,
   "errors": [],
   "failed": 0,
-  "passed": 4,
+  "passed": 5,
   "report": {
     "checks": {
       "VAL-CONF-LEAK-001": {
@@ -80,6 +80,13 @@
           "y_hat": 10.0
         },
         "status": "passed"
+      },
+      "review_e4_exact_alpha": {
+        "detail": {
+          "decimal_7_10_q": 3.0,
+          "float_0_7_q": 4.0
+        },
+        "status": "passed"
       }
     },
     "coverage_kind": "marginal_exchangeable",
@@ -88,7 +95,7 @@
     "platform": "Windows-10-10.0.19045-SP0",
     "python": "3.11.9",
     "source_doi": "10.1080/01621459.2017.1307116",
-    "timestamp": "2026-09-27T11:47:39+02:00",
+    "timestamp": "2026-10-01T20:44:36+02:00",
     "untouched": [
       "src/scoped_correspondence/validation/core.py",
       "FORMALISM.md",

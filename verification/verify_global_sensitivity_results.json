@@ -1,0 +1,88 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "jc14_exact": {
+      "additive": [
+        "1/5",
+        "4/5"
+      ],
+      "product_first": [
+        "3/7",
+        "3/7"
+      ],
+      "product_total": [
+        "4/7",
+        "4/7"
+      ]
+    },
+    "estimator_converges_within_its_errors": {
+      "X+2Y": {
+        "S": [
+          0.1957508475845403,
+          0.8191378912651871
+        ],
+        "ST": [
+          0.19778956261612327,
+          0.8002654491306586
+        ],
+        "se_S": [
+          0.007963346701662946,
+          0.015898518806252294
+        ]
+      },
+      "XY": {
+        "S": [
+          0.42539171193710384,
+          0.43424234467021183
+        ],
+        "ST": [
+          0.5629811335270957,
+          0.5818215286195583
+        ],
+        "se_S": [
+          0.008186950244206948,
+          0.008209266582340667
+        ]
+      },
+      "unclipped_small_sample": {
+        "S": [
+          0.5945075932657486,
+          1.0365277213098936
+        ],
+        "ST": [
+          0.3999995500964762,
+          0.7199098963465498
+        ],
+        "notes": [
+          "some finite-sample estimates lie outside [0, 1]; reported unclipped"
+        ]
+      }
+    },
+    "undefined_and_unsupported": {
+      "constant": "undefined_zero_variance",
+      "dependent": "unsupported"
+    },
+    "y_equals_x_negative_control": {
+      "false_split": [
+        "1/2",
+        "1/2"
+      ],
+      "true_variance": "1/3",
+      "false_variance": "1/6"
+    },
+    "mr7_input_swap_with_labels": {
+      "S_XY": [
+        0.2142807602894327,
+        0.8053058640750549
+      ],
+      "S_YX": [
+        0.8407750933999465,
+        0.21219118317396973
+      ]
+    },
+    "scenario_grid_has_no_probabilities": {
+      "n_points": 9
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "mu_c12_scan_vs_quadrature": {
+      "scan": 8.0,
+      "quadrature": 16.0
+    },
+    "mu_c13_events_for_one_percent": {
+      "N": 573265035.1353948
+    },
+    "mu_c16_no_contrast": {
+      "I": 0.0
+    },
+    "mu_c04_budget_named_optimum": {
+      "T_opt_over_tau": 2.0
+    },
+    "singular_fisher_not_pseudo_inverted": {
+      "single_time_rank": 1,
+      "two_time_rank": 2
+    },
+    "coverage_study": {
+      "correct": {
+        "coverage": 0.9466666666666667,
+        "se": 0.012972906239401267,
+        "reps": 300,
+        "seed": 11
+      },
+      "omitted_offset": {
+        "coverage": 0.0033333333333333335,
+        "se": 0.003327773140415986
+      },
+      "nonidentifiable": {
+        "intervals_touching_bounds": "40/40"
+      },
+      "threshold": "3.84 (asymptotic reference for a regular scalar parameter)"
+    }
+  }
+}

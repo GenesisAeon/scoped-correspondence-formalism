@@ -1,0 +1,28 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "jc18_observation_is_not_intervention": {
+      "P_do_x1": [
+        "1",
+        "1/2"
+      ],
+      "tv": "1/2",
+      "fibre": "2 listed candidates (no claim about all models)"
+    },
+    "correlated_exogenous_representable": {
+      "correlated_support": 2,
+      "independent_support": 4
+    },
+    "validation_errors": {
+      "validation": "ok"
+    },
+    "budget_abort": {
+      "combinations": 64,
+      "budget": 10
+    },
+    "mr8_renaming_invariance": {
+      "cases": 3
+    }
+  }
+}

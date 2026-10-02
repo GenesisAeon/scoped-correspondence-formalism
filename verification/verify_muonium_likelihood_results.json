@@ -1,0 +1,28 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "results": {
+    "mu_c08_null_cases_and_deviance": {
+      "deviance_zero_count": 5.0
+    },
+    "synthetic_expected_values_reproduced": {
+      "a_hat": 1.0233455759071541,
+      "alias_period": 5165.289256198346
+    },
+    "mu_c14_all_alias_modes_reported": {
+      "modes": [
+        1.010823217439061,
+        5166.306122435809,
+        10331.594369310893
+      ],
+      "period": 5165.289256198346
+    },
+    "mu_c15_quadrature_sign_and_local_inverse": {
+      "local_only": true
+    },
+    "bounds_and_failures_visible": {
+      "edge_note": "best mode touches a search bound: an interval ending there is not closed",
+      "failed_runs": 3
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "n_passed": 9,
+  "n_total": 9,
+  "pending_relations": {},
+  "results": {
+    "mr1_unit_change_reservoir": {
+      "cases": 50,
+      "worst_rel_diff": 3.218190258885316e-16
+    },
+    "mr2_markov_permutation_invariance": {
+      "trials": 10,
+      "exact_trials": 5
+    },
+    "mr3_identity_and_associativity": {
+      "identity_worst": 2.6204816094832495e-11,
+      "associativity_worst": 1.4764567346503554e-10,
+      "note": "finite-difference derivatives inside t4_composition_residual; tolerances reflect that"
+    },
+    "mr4_forecast_ab_swap": {
+      "trials": 20,
+      "worst": 0.0
+    },
+    "mr5_conformal_permutation_and_scaling": {
+      "trials": 30
+    },
+    "mr6_weighted_conformal_weight_scaling": {
+      "trials": 40
+    },
+    "mr7_sobol_input_swap_with_labels": {
+      "S_XY": [
+        0.9844779324693801,
+        0.019206879471865255
+      ],
+      "S_YX": [
+        0.014206387025695323,
+        0.9429087966937117
+      ]
+    },
+    "mr8_scm_renaming": {
+      "cases": 4
+    },
+    "no_pending_relations_left": {
+      "pending": {}
+    }
+  }
+}

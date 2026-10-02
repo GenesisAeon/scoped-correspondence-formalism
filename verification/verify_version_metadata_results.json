@@ -1,0 +1,9 @@
+{
+  "n_passed": 1,
+  "n_total": 1,
+  "results": {
+    "versions_agree": {
+      "version": "0.42.0a1"
+    }
+  }
+}

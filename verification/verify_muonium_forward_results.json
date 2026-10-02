@@ -1,0 +1,32 @@
+{
+  "n_passed": 7,
+  "n_total": 7,
+  "results": {
+    "single_velocity_limit": {
+      "phase": 0.011933126066360386
+    },
+    "mu_c06_mixture_is_not_mean_velocity": {
+      "phase_mixture": 0.12358366037575613,
+      "phase_at_mean_v": 0.16218995672932907
+    },
+    "mu_c07_detected_mixture": {
+      "detected": [
+        0.3333333333333333,
+        0.6666666666666666
+      ]
+    },
+    "mu_c16_no_contrast_no_information": {
+      "C0": "no information",
+      "C1_dark_fringe": 2.0
+    },
+    "null_signal": {
+      "W": 0
+    },
+    "measurement_times_per_bin": {
+      "total": 12.0
+    },
+    "invalid_inputs": {
+      "rejections": "ok"
+    }
+  }
+}

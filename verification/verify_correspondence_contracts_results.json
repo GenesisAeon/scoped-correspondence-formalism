@@ -1,0 +1,63 @@
+{
+  "n_passed": 11,
+  "n_total": 11,
+  "results": {
+    "jc05_preimage_scope": {
+      "D12": {
+        "kind": "rational_box",
+        "bounds": [
+          [
+            "0",
+            "1/2"
+          ]
+        ],
+        "empty": false
+      }
+    },
+    "jc06_time_factor_and_horizon": {
+      "c12": "1/4",
+      "H12": "2"
+    },
+    "jc07_flow_versus_field_error": {
+      "flow": "1/2",
+      "field": "9"
+    },
+    "jc08_refinement_direction": {
+      "forward": "proved",
+      "backward": "refuted",
+      "witness": [
+        "-1"
+      ]
+    },
+    "incompatible_interfaces": {
+      "model": "intermediate model differs: 'B' vs 'B2'",
+      "coordinates": "state coordinates differ: ('y',) vs ('y_other',)",
+      "units": "units differ: ('m',) vs ('km',)",
+      "clock": "clocks differ: 't_B' vs 't_B_days'"
+    },
+    "empty_intersection_is_flagged": {
+      "empty": true
+    },
+    "missing_lipschitz_gives_no_flow_bound": {
+      "no_lipschitz": "undecided",
+      "sampled": "observed_pass"
+    },
+    "positive_and_negative_scales": {
+      "neg_preimage": [
+        "0",
+        "1/2"
+      ]
+    },
+    "identity_and_associativity": {
+      "(l1 l2) l3 flow": "11/28",
+      "l1 (l2 l3) flow": "11/28",
+      "note": "equal here by distributivity of constant bounds; may differ in general without violating map associativity"
+    },
+    "supported_domain_classes": {
+      "symbolic_preimage": "halfspace_set"
+    },
+    "report_invariants_and_adapter": {
+      "certificate_id": "caaee1a49b67"
+    }
+  }
+}

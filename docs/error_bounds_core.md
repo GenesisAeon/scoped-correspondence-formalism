@@ -3,7 +3,9 @@
 **Source.** Michel & Siegle, *Formal Error Bounds for the State Space Reduction of
 Markov Chains*, Performance Evaluation **2024**,
 DOI [10.1016/j.peva.2024.102464](https://doi.org/10.1016/j.peva.2024.102464),
-arXiv:[2403.07618](https://arxiv.org/abs/2403.07618).
+arXiv:[2403.07618](https://arxiv.org/abs/2403.07618). Theorem numbering as in
+**v3** (6 August 2024, the extended version; checked 2026-10-01: Theorem 4 =
+DTMC bounds §3.1, Theorem 5 = CTMC bounds §3.2).
 
 This milestone adds `scoped_correspondence.closure.error_bounds` — a **separate**
 module that implements the paper's L1 transient / stationary bounds. It does
@@ -57,9 +59,45 @@ Paper §2.1: vector `‖·‖_1` = absolute sum; matrix `‖·‖_∞` = max abs
 For probability-vector differences, total variation is `TV = (1/2) ‖·‖_1`. Pass
 `norm="TV"` to report the half-L1 bound.
 
+## Scope of the inputs (Followup-Review-Fix R1/R2, 2026-10-01)
+
+These rules follow the external review `SCF_REVIEW_J_SERIES_6b3a331_CLAUDE.md`.
+
+- **Reduced side.** The reduced side may be general finite: the lifting
+  `A`, `Π`/`Θ` and `π_0` are not restricted.
+- **Full dynamics must be a Markov chain.**
+  - `P` must be square and row-stochastic. The row convention is
+    `p_{k+1} = p_k P`.
+  - `Q` must be a square CTMC generator.
+  - The reason: the proofs use `‖xP‖_1 ≤ ‖x‖_1` and `‖x e^{Qt}‖_1 ≤ ‖x‖_1`.
+  - Other inputs raise `ScopeViolationError`.
+  - Review counterexample: `P = diag(2, 1)` with `k = 2` had a true error of
+    3 but an old bound of 2.
+  - Arbitrary full linear dynamics would need extra amplification factors.
+- **`norm="TV"` contract.** TV requires all of the following:
+  - a row-stochastic lifting `A`;
+  - probability vectors `π_0` and `p_0`;
+  - Markov reduced dynamics.
+
+  Then both compared vectors are probability distributions.
+- **Stationary bound (Cor. 10).**
+  - In L1 it holds for any finite matrices, because
+    `πAP − πA = π(AP − ΠA) + (πΠ − π)A` is an algebraic identity.
+  - In TV it additionally needs row-stochastic `A` and `P` and a probability
+    vector `π`.
+- **General CTMC branch.**
+  - It uses `φ(t, κ) = expm1(tκ)/κ` with `κ = ‖Θ‖_∞`.
+  - The continuous limit is `φ(t, 0) = t`.
+  - Previously, `Θ = 0` (and, through cancellation, `Θ = 1e-20`) gave a
+    **zero** bound. For the review example the bound is now 2, against a true
+    error of `2(1 − e^{-1}) ≈ 1.264`.
+  - This is a float evaluation, not an interval-rigorous bound.
+
 ## Degenerate cases
 
 - `horizon = 0` (or `t = 0`) → bound equals the initial error only.
+- `‖Θ‖_∞ = 0` in the general CTMC branch → bound `e_0 + ‖π_0‖_1 ‖ΘA − AQ‖_∞ · t`
+  (vanishing reduced dynamics do not freeze the full chain).
 - `‖ΠA − AP‖_∞ = 0` and matching initial condition → bound `0` (dynamic-exact /
   exact aggregation; Def. 8 / Cor. 7).
 - Exact identity aggregation (`A = I`, `Π = P`) → residual `0`, bound `0`.

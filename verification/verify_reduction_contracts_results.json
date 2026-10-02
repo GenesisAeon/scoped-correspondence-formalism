@@ -1,0 +1,43 @@
+{
+  "n_passed": 8,
+  "n_total": 8,
+  "results": {
+    "jc22_l1_and_tv": {
+      "l1": "2/5",
+      "tv": "1/5",
+      "observed_l1": "11/50"
+    },
+    "existing_reduction_case_full_contract": {
+      "bound": "1",
+      "observed": "5/2048",
+      "hypotheses": [
+        "full matrix rows sum to 1 (row-vector convention)",
+        "reduced matrix rows sum to 1 (row-vector convention)",
+        "pi0 is a probability vector",
+        "lifting A is row-stochastic (each reduced state lifts to a distribution)",
+        "p0 is a probability vector"
+      ]
+    },
+    "composed_observation_link": {
+      "composed_bound": "2",
+      "observable_error": "15/8192"
+    },
+    "orientation_errors_detected": {
+      "violations": [
+        "full matrix is not row-stochastic -- columns sum to the target: possibly transposed (orientation)"
+      ]
+    },
+    "lifting_conditions_and_tv_factor": {
+      "tv_refused": true
+    },
+    "initial_error_enters_exactly": {
+      "bound": "12/5"
+    },
+    "time_scale_and_input_validation": {
+      "ctmc_bound": "1"
+    },
+    "numerical_bound_is_not_a_proof": {
+      "float_bound": 0.40000000000000013
+    }
+  }
+}

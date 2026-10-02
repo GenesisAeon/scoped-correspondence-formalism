@@ -1,0 +1,63 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "data_file": "data/noaa_global_temp_anomaly_1880_2025.csv",
+  "results": {
+    "provenance_matches_manifest": {
+      "file": "data/noaa_global_temp_anomaly_1880_2025.csv",
+      "sha256": "f34a93b449635cb8ffbf180e1cf60f1964ec20cc1283960846cd2b1ae8175afb"
+    },
+    "pairing_complete_and_accounted": {
+      "h1": 65,
+      "h5": 61
+    },
+    "primary_is_descriptive_only": {
+      "h1": {
+        "mean_loss_difference": -0.001853719450796264,
+        "direction": "A_lower_mean_loss",
+        "sentence": "Series 'noaa_global_annual' (origins 1960..2024, n=65), horizon 1, loss squared_error: mean loss difference last_30_years_linear - persistence = -0.00185372 (A_lower_mean_loss). Inference: not_applicable (applicability_not_declared); descriptive comparison only."
+      },
+      "h5": {
+        "mean_loss_difference": -0.012994483127760047,
+        "direction": "A_lower_mean_loss",
+        "sentence": "Series 'noaa_global_annual' (origins 1960..2020, n=61), horizon 5, loss squared_error: mean loss difference last_30_years_linear - persistence = -0.0129945 (A_lower_mean_loss). Inference: not_applicable (applicability_not_declared); descriptive comparison only."
+      }
+    },
+    "conditional_carries_declared_assumption": {
+      "h1": {
+        "dm": -1.044029871780017,
+        "p": 0.2964715693215354,
+        "ci": [
+          -0.005333718883003685,
+          0.001626279981411157
+        ],
+        "lag": 3,
+        "sentence": "Series 'noaa_global_annual' (origins 1960..2024, n=65), horizon 1, loss squared_error: mean loss difference last_30_years_linear - persistence = -0.00185372 (A_lower_mean_loss). Inference: asymptotic normal reference under DECLARED applicability; DM=-1.044, two-sided p=0.2965, 95% CI [-0.00533372, 0.00162628], Bartlett HAC lag 3. Not an equivalence test."
+      },
+      "h5": {
+        "dm": -3.643088670657935,
+        "p": 0.000269385986173821,
+        "ci": [
+          -0.019985451844292405,
+          -0.006003514411227688
+        ],
+        "lag": 4,
+        "sentence": "Series 'noaa_global_annual' (origins 1960..2020, n=61), horizon 5, loss squared_error: mean loss difference last_30_years_linear - persistence = -0.0129945 (A_lower_mean_loss). Inference: asymptotic normal reference under DECLARED applicability; DM=-3.643, two-sided p=0.0002694, 95% CI [-0.0199855, -0.00600351], Bartlett HAC lag 4. Not an equivalence test."
+      }
+    },
+    "mean_losses_match_existing_error_by_horizon_step": {
+      "h1": {
+        "mse_a": 0.011557049779972968,
+        "mse_b": 0.013410769230769231
+      },
+      "h5": {
+        "mse_a": 0.0162219103148629,
+        "mse_b": 0.02921639344262296
+      }
+    },
+    "conditional_dm_matches_independent_numpy_hac": {
+      "h1": -1.044029871780017,
+      "h5": -3.6430886706579355
+    }
+  }
+}

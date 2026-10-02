@@ -1,0 +1,30 @@
+{
+  "n_passed": 4,
+  "n_total": 4,
+  "results": {
+    "on_c01_operator": {
+      "y0": [
+        "3/2",
+        "1/2"
+      ],
+      "y1": [
+        "1/2",
+        "3/2"
+      ]
+    },
+    "on_c02_full_vs_sum_observer": {
+      "I_full": 1,
+      "I_sum": 0,
+      "sum_fibre": [
+        0,
+        1
+      ]
+    },
+    "on_c03_sensor_permutation": {
+      "I_permuted": 1
+    },
+    "rejections": {
+      "rejections": "ok"
+    }
+  }
+}

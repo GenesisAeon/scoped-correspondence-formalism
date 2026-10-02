@@ -1,0 +1,133 @@
+{
+  "passed": 23,
+  "total": 23,
+  "failed": [],
+  "results": {
+    "ON-C01": {
+      "y0": [
+        "3/2",
+        "1/2"
+      ],
+      "y1": [
+        "1/2",
+        "3/2"
+      ],
+      "det": "4 delta"
+    },
+    "ON-C02": {
+      "I_full": 1.0,
+      "I_sum": 0.0,
+      "coarse_fibre": [
+        0,
+        1
+      ]
+    },
+    "ON-C03": {
+      "I_after_sensor_permutation": 1.0
+    },
+    "ON-C04": {
+      "A_star": 0.9213503964748575,
+      "sigma0_delta0": 0.5,
+      "sigma0_delta_pos": 1.0
+    },
+    "ON-C05": {
+      "I": 1.0,
+      "naive_accuracy": 0,
+      "optimal_accuracy": 1
+    },
+    "ON-C06": {
+      "accuracy": "3/4 both",
+      "I_bsc": 0.18872187554086717,
+      "I_z": 0.3112781244591328,
+      "C_z": 0.32192809488736235
+    },
+    "ON-C07": {
+      "I_SY": 1.0,
+      "I_SZ": 0.0
+    },
+    "ON-C08": {
+      "I_SY": 0.0,
+      "I_SY_given_H": 1.0
+    },
+    "ON-C09": {
+      "frozen_decoder": 0,
+      "refitted_decoder": 1,
+      "information_bits": 1.0
+    },
+    "ON-C10": {
+      "accuracy": "9/10",
+      "balanced_accuracy": "1/2",
+      "information": 0
+    },
+    "ON-C11": {
+      "row2": [
+        "5/12",
+        "0",
+        "1/12"
+      ],
+      "row_sums": "1/2"
+    },
+    "ON-C12": {
+      "eta0_preserves": true,
+      "contraction_bound": "3/4"
+    },
+    "ON-C13": {
+      "best_single_affine_accuracy": "3/4",
+      "xor_decoder_accuracy": 1
+    },
+    "ON-C14": {
+      "xor_signature": [
+        0,
+        0,
+        1
+      ],
+      "xor_pid": "synergy 1 bit",
+      "copy_signature": [
+        1,
+        1,
+        1
+      ],
+      "copy_pid": "redundancy 1 bit"
+    },
+    "ON-C15": {
+      "directed_information": 1.0,
+      "given_U": 0.0,
+      "do_A1_changes_B2": false
+    },
+    "ON-C16": {
+      "I_confounded": 1.0,
+      "I_randomised": 0.0
+    },
+    "ON-C17": {
+      "group_SEM2": "1/2",
+      "wrong_pooled_SEM2": "2/499",
+      "assumption": "preparation values 0..4"
+    },
+    "ON-C18": {
+      "p": "1/16"
+    },
+    "ON-C19": {
+      "group_difference": "1/10"
+    },
+    "ON-C20": {
+      "train_mean": 1,
+      "leaked_mean": 34
+    },
+    "ON-C21": {
+      "rejected": [
+        "negative",
+        "not normalised",
+        "non-finite"
+      ]
+    },
+    "ON-C22": {
+      "row_sum": "4/5",
+      "inter_weight": "1/5"
+    },
+    "ON-C23": {
+      "off_diagonal": "4/55",
+      "identical": true
+    }
+  },
+  "imports_scf": false
+}

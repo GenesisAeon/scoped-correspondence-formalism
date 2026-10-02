@@ -180,6 +180,27 @@ def check_scope_and_doi():
     return {"doi": DOI, "source": SOURCE, "huge_alphabet": "refused", "n_starts_lt_3": "refused"}
 
 
+def check_review_r4_nonfinite_early():
+    """Followup-Review-Fix R4: NaN/inf must be refused at validation with a
+    finiteness message, not later as a misleading optimiser error."""
+    for bad_val in (float("nan"), float("inf"), float("-inf")):
+        j = np.full((2, 2, 2), 0.125)
+        j[1, 0, 1] = bad_val
+        try:
+            broja_pid_bivariate(j)
+        except ScopeViolationError as e:
+            require("non-finite" in str(e), f"expected an early finiteness error, got: {e}")
+            continue
+        raise AssertionError(f"non-finite joint must be refused ({bad_val})")
+    try:
+        broja_pid_bivariate(np.full((2, 2, 2), 1e308))
+    except ScopeViolationError as e:
+        require("overflow" in str(e), str(e))
+    else:
+        raise AssertionError("overflowing total mass must be refused")
+    return {"refused": 4}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--json-out", type=Path, default=None)
@@ -187,6 +208,7 @@ def main(argv=None):
 
     checks = [
         ("two_bit_copy_side_by_side", check_two_bit_copy),
+        ("review_r4_nonfinite_early", check_review_r4_nonfinite_early),
         ("xor_pure_synergy", check_xor),
         ("redundant_copy", check_redundant_copy),
         ("scope_and_doi", check_scope_and_doi),

@@ -1,0 +1,30 @@
+{
+  "n_passed": 4,
+  "n_total": 4,
+  "results": {
+    "mu_kinematics": {
+      "MU-C01..C04, C14": "match"
+    },
+    "mu_inference": {
+      "MU-C05, C06, C08..C10, C12, C13, C16": "match"
+    },
+    "candidates": {
+      "TP-C01..C04, SK-C01..C04": "match"
+    },
+    "coverage_accounting": {
+      "production_crosschecked": 21,
+      "not_applicable_SA_documentation_only": [
+        "SA-C01",
+        "SA-C02",
+        "SA-C03",
+        "SA-C04"
+      ],
+      "oracle_only_no_direct_production_api": [
+        "MU-C07",
+        "MU-C11",
+        "MU-C15",
+        "MU-C17"
+      ]
+    }
+  }
+}

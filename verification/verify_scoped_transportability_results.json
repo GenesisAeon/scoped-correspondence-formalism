@@ -1,0 +1,33 @@
+{
+  "n_passed": 6,
+  "n_total": 6,
+  "results": {
+    "jc20_standardisation": {
+      "target": [
+        "3/4",
+        "1/4"
+      ],
+      "effect": "-1/2",
+      "source_effect": "0"
+    },
+    "missing_support": {
+      "outcome": "not_certified_by_this_rule"
+    },
+    "jc21_counter_models": {
+      "target_values": [
+        "1",
+        "1/2"
+      ]
+    },
+    "jc23_graph": {
+      "collider": "ok"
+    },
+    "wrong_edge_removal_direction": {
+      "correct": true,
+      "wrong_direction_detected": true
+    },
+    "premise_failures": {
+      "premise_checks": "ok"
+    }
+  }
+}

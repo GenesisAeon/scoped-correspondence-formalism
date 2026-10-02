@@ -198,8 +198,32 @@ def check_sources_and_scope():
     }
 
 
+def check_review_r4_nonfinite_mass():
+    """Followup-Review-Fix R4 (SCF_REVIEW_J_SERIES_6b3a331): a NaN atom used to
+    fail both the negativity test and ``m > eps`` and was dropped silently,
+    giving a valid-looking report (I_directed = I_mutual = 0)."""
+    bad = [
+        {((0,), (0,)): 0.5, ((1,), (1,)): float("nan")},
+        {((0,), (0,)): float("nan"), ((1,), (1,)): 0.5},
+        {((0,), (0,)): 0.5, ((1,), (1,)): float("inf")},
+        {((0,), (0,)): 0.5, ((1,), (1,)): float("-inf")},
+        {((0,), (0,)): 1e308, ((1,), (1,)): 1e308},  # finite weights, overflowing total
+    ]
+    for j in bad:
+        try:
+            directed_information(j)
+        except ScopeViolationError:
+            continue
+        raise AssertionError(f"non-finite mass / overflow must be refused: {j}")
+    # documented weight mode stays: unnormalised finite weights are renormalised
+    r = directed_information({((0,), (0,)): 2.0, ((1,), (1,)): 2.0})
+    near(r.I_directed, 1.0)
+    return {"refused": len(bad), "weights_mode_I_directed": r.I_directed}
+
+
 CHECKS = [
     ("binary_entropy_H_1_4", check_binary_entropy),
+    ("review_r4_nonfinite_mass", check_review_r4_nonfinite_mass),
     ("bsc_feedback_n2_strict_inequality", check_bsc_feedback_n2),
     ("bsc_no_feedback_equality", check_bsc_no_feedback_equality),
     ("sources_scope_forbidden", check_sources_and_scope),
