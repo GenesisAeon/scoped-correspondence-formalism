@@ -1,5 +1,7 @@
 # Scoped Correspondence Formalism
 
+[![PyPI](https://img.shields.io/pypi/v/scoped-correspondence)](https://pypi.org/project/scoped-correspondence/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23099384.svg)](https://doi.org/10.5281/zenodo.23099384)
 [![License](https://img.shields.io/badge/code-GPLv3--or--later-blue)](LICENSE)
 [![Docs License](https://img.shields.io/badge/docs-CC%20BY%204.0-lightgrey)](LICENSE-DOCS)
 [![Verify](https://github.com/GenesisAeon/scoped-correspondence-formalism/actions/workflows/verify.yml/badge.svg)](.github/workflows/verify.yml)
@@ -173,6 +175,17 @@ either way).
 | [ORGANOID_NETWORK_ROADMAP.md](ORGANOID_NETWORK_ROADMAP.md) | Adaptive modular networks and observable information (ON0–ON7) |
 | [DEEP_RESEARCH_BACKLOG.md](DEEP_RESEARCH_BACKLOG.md) | Open full-text / source questions and pending decisions |
 | [RELEASE_NOTES.md](RELEASE_NOTES.md) | Release notes, behaviour changes and migration notes per version |
+
+## Citing
+
+Please cite SCF through its Zenodo concept DOI, which resolves to the latest
+version:
+[10.5281/zenodo.23099384](https://doi.org/10.5281/zenodo.23099384).
+
+For a specific version, use its version DOI. The DOI for `0.42.0` is
+[10.5281/zenodo.23099385](https://doi.org/10.5281/zenodo.23099385).
+
+Machine-readable citation metadata is in [CITATION.cff](CITATION.cff).
 
 ## License
 
