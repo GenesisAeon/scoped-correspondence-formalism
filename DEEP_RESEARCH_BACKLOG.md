@@ -80,6 +80,18 @@ sollten mindestens diese Stellen im Volltext abgeglichen werden:
   Diagrammquelldaten und etwaiger Rohsignale (MEA-Spikezüge, Versuchslabels,
   Präparat-IDs). *Wartet:* ON6b (sonst `deferred`).
 
+## F. Beobachtungen ohne Befund
+
+- [ ] **`verify_http_range_reader.py` einmal sporadisch 3/4** (2026-10-02,
+  Gesamtregression vor Release `0.42.0a1`).
+  - Das Skript startet einen lokalen Testserver auf 127.0.0.1, also ohne
+    Internet. Modul und Prüfung sind seit Paket B3b unverändert.
+  - 25 Einzelwiederholungen liefen alle durch, die Ursache wurde nicht
+    reproduziert. Welche der vier Prüfungen ausfiel, ist nicht festgehalten,
+    weil die Ergebnisdatei vom nächsten Lauf überschrieben wurde.
+  - Kandidat für eine Härtung (Server-Startsynchronisation, Timeouts), falls
+    es erneut auftritt.
+
 ## E. Entscheidungen für Johann (keine Recherche)
 
 Stand nach Followup-Review-Fix `SCF_REVIEW_J_SERIES_6b3a331_CLAUDE.md`, 2026-10-01: Das Review hat drei der vier Punkte mit konkreten

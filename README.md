@@ -128,7 +128,7 @@ verification scripts actually catch registered errors.
 
 ## Status
 
-`0.41.0a1` (alpha) — the formal-hooks/stable-release milestone from
+`0.42.0a1` (alpha; [release notes](RELEASE_NOTES.md)) — the formal-hooks/stable-release milestone from
 [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) is the one open
 original milestone before a SemVer `1.0`. All checked-in `verify_*.py`
 suites currently pass:
@@ -163,6 +163,7 @@ either way).
 | [CANDIDATE_PILOTS_ROADMAP.md](CANDIDATE_PILOTS_ROADMAP.md) | Candidate pilots: polyhedra, stellar pulse, Saturn (TP/SK/SA) |
 | [ORGANOID_NETWORK_ROADMAP.md](ORGANOID_NETWORK_ROADMAP.md) | Adaptive modular networks and observable information (ON0–ON7) |
 | [DEEP_RESEARCH_BACKLOG.md](DEEP_RESEARCH_BACKLOG.md) | Open full-text / source questions and pending decisions |
+| [RELEASE_NOTES.md](RELEASE_NOTES.md) | Release notes, behaviour changes and migration notes per version |
 
 ## License
 

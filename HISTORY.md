@@ -6,9 +6,16 @@ chronologisch gewachsene Historie — jede Behauptung hier ist an einen
 Commit, ein Review-Dokument oder einen `verify_*.py`-Lauf gebunden.
 Nichts wurde beim Verschieben inhaltlich verändert oder gekürzt.
 
-## Branch `j-series` (2026-10-01, noch nicht in `master` gemergt)
+## Branch `j-series` → Release `0.42.0a1` (2026-10-01/02)
 
-Auf dem Branch `j-series` (Merge-Entscheidung bei Johann) wurden in einer
+Die Integration in `master` ist als Release `0.42.0a1` vorgesehen, siehe
+[RELEASE_NOTES.md](RELEASE_NOTES.md). Den Merge führt Johann aus.
+
+**Review-Kette:** `SCF_REVIEW_J_SERIES_6b3a331` → `SCF_FOLLOWUP_REVIEW_637bc1c`
+→ `SCF_PMF_REVIEW_51b1a38`. Das letzte Review gab das Merge-GO für
+`5c3054f`.
+
+Auf dem Branch `j-series` wurden in einer
 Sitzung vier Serien nach der Paket-pro-Commit-Disziplin umgesetzt, jede mit
 eigener Roadmap, handhergeleiteten Kontrollen und gezielten Mutanten:
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scoped-correspondence"
-version = "0.41.0a1"
+version = "0.42.0a1"
 description = "Formal correspondence contracts between mathematical models, with an independently verified library spanning dynamical systems, information theory (directed information / information flow), thermodynamics, and viability theory."
 readme = "README.md"
 requires-python = ">=3.10"
