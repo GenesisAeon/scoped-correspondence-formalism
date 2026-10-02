@@ -27,7 +27,9 @@ on PyPI and Zenodo archives the release. The **content is that of
   - the wheel and sdist pass `twine check`;
   - the sdist contains only `src/`, the licences, the README and
     `pyproject.toml`, without `data/` or `prompts/`;
-  - the installed wheel imports all 166 modules in a fresh Python 3.13
+  - the installed wheel imports all 166 importable submodules (every
+    Python file except the top-level package itself: 26 subpackages +
+    140 modules; 167 Python files in total) in a fresh Python 3.13
     environment.
 - `verify_version_metadata.py` now also checks the version in
   `.zenodo.json`.
