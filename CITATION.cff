@@ -6,7 +6,7 @@ authors:
   - family-names: "Römer"
     given-names: "Johann"
 repository-code: "https://github.com/GenesisAeon/scoped-correspondence-formalism"
-version: "0.42.0a1"
+version: "0.42.0"
 date-released: "2026-10-02"
 license:
   - GPL-3.0-or-later

@@ -38,6 +38,15 @@ It is simultaneously:
 
 ## Quickstart
 
+Install the package from PyPI:
+
+```bash
+pip install scoped-correspondence
+```
+
+To work on the repository and run the verification suites, install it from
+a checkout instead:
+
 ```bash
 pip install -e .
 python -m pip install -r verification/requirements.txt
@@ -128,7 +137,7 @@ verification scripts actually catch registered errors.
 
 ## Status
 
-`0.42.0a1` (alpha; [release notes](RELEASE_NOTES.md)) — the formal-hooks/stable-release milestone from
+`0.42.0` (alpha status, first public release; [release notes](RELEASE_NOTES.md)) — the formal-hooks/stable-release milestone from
 [ARCHITECTURE_ROADMAP.md](ARCHITECTURE_ROADMAP.md) is the one open
 original milestone before a SemVer `1.0`. All checked-in `verify_*.py`
 suites currently pass:
