@@ -1,0 +1,162 @@
+{
+ "MV-K1 y=0": {
+  "fiber": [
+   [
+    0,
+    0
+   ]
+  ],
+  "f0_values": [
+   "1"
+  ],
+  "point_identified": true,
+  "pristine_claim_values": [
+   true
+  ],
+  "empty_fiber": false
+ },
+ "MV-K1 y=1/2": {
+  "fiber": [
+   [
+    0,
+    1
+   ],
+   [
+    1,
+    0
+   ]
+  ],
+  "f0_values": [
+   "1/2"
+  ],
+  "point_identified": true,
+  "pristine_claim_values": [
+   true
+  ],
+  "empty_fiber": false
+ },
+ "MV-K1 y=1": {
+  "fiber": [
+   [
+    0,
+    2
+   ],
+   [
+    1,
+    1
+   ],
+   [
+    2,
+    0
+   ]
+  ],
+  "f0_values": [
+   "0",
+   "1/2"
+  ],
+  "point_identified": false,
+  "pristine_claim_values": [
+   false,
+   true
+  ],
+  "empty_fiber": false
+ },
+ "MV-K1 y=3/2": {
+  "fiber": [
+   [
+    1,
+    2
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "f0_values": [
+   "0"
+  ],
+  "point_identified": true,
+  "pristine_claim_values": [
+   false
+  ],
+  "empty_fiber": false
+ },
+ "MV-K1 y=2": {
+  "fiber": [
+   [
+    2,
+    2
+   ]
+  ],
+  "f0_values": [
+   "0"
+  ],
+  "point_identified": true,
+  "pristine_claim_values": [
+   false
+  ],
+  "empty_fiber": false
+ },
+ "MV-K1 y=5/2": {
+  "fiber": [],
+  "f0_values": [],
+  "point_identified": false,
+  "pristine_claim_values": [],
+  "empty_fiber": true
+ },
+ "MV-K1 joint": {
+  "n_classes_mean_f0": 6,
+  "n_multisets": 6,
+  "note": "(mean, f0) separates all 6 multisets ONLY for 2 parcels on a 3-point grid; not a general identity"
+ },
+ "MV-K2": {
+  "kernel": "Pop-III-sensitive yield g(0)=2, g(z>=1)=min(z+1,2)",
+  "mean_partition_defect": "1",
+  "mean_worst": [
+   "1",
+   "3/2",
+   [
+    0,
+    2
+   ],
+   [
+    1,
+    1
+   ]
+  ],
+  "multiset_partition_defect": "0"
+ },
+ "MV-K3": {
+  "kernel": "Z-blind saturating yield g(z)=min(z+1,2)",
+  "mean_partition_defect": "1/2",
+  "mean_worst": [
+   "1",
+   "1",
+   [
+    1,
+    1
+   ],
+   [
+    0,
+    2
+   ]
+  ],
+  "multiset_partition_defect": "0"
+ },
+ "MV-K4": {
+  "kernel": "sum-preserving mixing",
+  "mean_partition_defect": "0",
+  "mean_worst": null,
+  "multiset_partition_defect": "0"
+ },
+ "MV-K4 event": {
+  "pristine_present_indices": [
+   0,
+   1,
+   2,
+   3,
+   6
+  ],
+  "union_of_mean_classes": false
+ }
+}
