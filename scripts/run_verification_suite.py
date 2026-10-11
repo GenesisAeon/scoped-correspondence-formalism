@@ -186,6 +186,9 @@ _EXPLICIT_CATEGORY = {
     "verify_organoid_information.py": "math",
     "verify_organoid_benchmark.py": "math",
     "verify_organoid_pilot_cli.py": "math",
+    # Kosmische Vererbung, SCF side (KOSMISCHE_VERERBUNG_SCF_ROADMAP.md, KV1):
+    # exhaustive finite control cases MV-K1..MV-K4, synthetic only.
+    "verify_kv_mean_vs_distribution.py": "math",
 }
 
 

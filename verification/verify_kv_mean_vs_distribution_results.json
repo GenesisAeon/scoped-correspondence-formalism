@@ -1,0 +1,136 @@
+{
+  "n_passed": 10,
+  "n_total": 10,
+  "evidence_kind": "exhaustive_finite",
+  "empirical_status": "synthetic_only",
+  "results": {
+    "k1_fibers_and_identified_f0_sets": {
+      "0": {
+        "fiber": [
+          [
+            0,
+            0
+          ]
+        ],
+        "f0": [
+          "1"
+        ],
+        "point_identified": true
+      },
+      "1/2": {
+        "fiber": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "f0": [
+          "1/2"
+        ],
+        "point_identified": true
+      },
+      "1": {
+        "fiber": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "f0": [
+          "0",
+          "1/2"
+        ],
+        "point_identified": false
+      },
+      "3/2": {
+        "fiber": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "f0": [
+          "0"
+        ],
+        "point_identified": true
+      },
+      "2": {
+        "fiber": [
+          [
+            2,
+            2
+          ]
+        ],
+        "f0": [
+          "0"
+        ],
+        "point_identified": true
+      }
+    },
+    "k1_y1_is_a_set_not_an_interval": {
+      "values": [
+        "0",
+        "1/2"
+      ],
+      "min": "0",
+      "max": "1/2"
+    },
+    "k1_pristine_claim_not_identifiable_at_y1": {
+      "y=1": [
+        false,
+        true
+      ],
+      "y=1/2": [
+        true
+      ]
+    },
+    "k1_empty_fiber_is_mismatch_not_identification": {
+      "notes": [
+        "empty fiber: the observation is incompatible with the declared model space under these assumptions -- this is a mismatch, not a (vacuously good) identification result"
+      ]
+    },
+    "k1_joint_observation_identifies_f0": {
+      "n_joint_classes": 6
+    },
+    "kernels_row_stochastic_and_convention_guard": {
+      "transposed_K2_rejected": true
+    },
+    "k2_pop3_mean_not_lumpable_multiset_exact": {
+      "mean_defect": 1.0,
+      "worst_rows": [
+        2,
+        4
+      ],
+      "multiset_defect": 0.0
+    },
+    "k3_saturation_alone_breaks_mean_sufficiency": {
+      "mean_defect": 0.5,
+      "multiset_defect": 0.0
+    },
+    "k4_exact_mean_dynamics_but_pristine_event_not_observable": {
+      "mean_dynamics_exact": true,
+      "event_union_mean": false,
+      "event_union_multiset": true
+    },
+    "negative_control_mixing_plus_pop3_not_exact_per_action": {
+      "shared_defect": 1.0,
+      "separate_mix_exact": true
+    }
+  }
+}

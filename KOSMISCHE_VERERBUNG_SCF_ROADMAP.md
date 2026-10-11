@@ -21,8 +21,8 @@ Antwort auf [`KOSMISCHE_VERERBUNG_BESTANDSAUFNAHME_UND_PLAN.md`](prompts/Answers
 
 | Paket | Inhalt | Status |
 |---|---|---|
-| KV0 | Quellen, Umfang, API-Audit, Handkontrollen MV-K1–MV-K4 | ✅ erledigt (dieser Commit) |
-| KV1 | `verify_kv_mean_vs_distribution.py`: MV-K1–MV-K4 gegen die Produktions-APIs, mit Negativkontrollen; `docs/kosmische_vererbung_scf.md` | offen |
+| KV0 | Quellen, Umfang, API-Audit, Handkontrollen MV-K1–MV-K4 | ✅ erledigt (`4bb12a9`) |
+| KV1 | `verify_kv_mean_vs_distribution.py`: MV-K1–MV-K4 gegen die Produktions-APIs, mit Negativkontrollen; `docs/kosmische_vererbung_scf.md` | ✅ erledigt (dieser Commit) |
 | KV2 | Linearer Kontrollfall (Plan §8, „exakter linearer Kontrollfall vor nichtlinearer Anwendung“): zwei Reservoire, Bedingung für einen geschlossenen Mittelwert, Gedächtniskern bei weggelassenem Zustand | wartet auf die Schnittstelle (Einheiten, Massen) |
 | KV3 | Adapter für die Ausgaben der Feldtheorie-Seite (V5/V7): Beobachtungsoperator, Fasern auf deren Handfällen | wartet auf Feldtheorie V3/V5 |
 | KV4 | Bericht und Abschluss (V7) | offen |
@@ -95,3 +95,24 @@ Von Hand hergeleitet, dann mit [`verification/plan_controls/kv_series_independen
 - **Einheiten und Massen:** Masse in M☉, Zeit in Myr (Plan §6.1). Pakete ungleicher Masse brauchen einen massengewichteten Mittelwert. Das betrifft KV2 und KV3.
 - **Reaktion der Sternbildung auf lokales Z** (Domänenregel): Erst sie entscheidet, ob ein realistischer Kern eher MV-K2 oder MV-K3 ähnelt.
 - **Beobachtungsoperator** für KV3, laut Plan §6.3 nicht mit Linienstärken gleichzusetzen.
+
+## KV1 — Kontrollfälle gegen die Produktions-APIs (erledigt)
+
+[`verification/verify_kv_mean_vs_distribution.py`](verification/verify_kv_mean_vs_distribution.py): 10/10 Prüfungen, registriert als `math`.
+Es gibt keinen neuen Produktionscode; die vorhandenen APIs reichen für MV-K1–MV-K4 aus.
+Beschreibung: [`docs/kosmische_vererbung_scf.md`](docs/kosmische_vererbung_scf.md).
+
+| Prüfung | Ergebnis |
+|---|---|
+| MV-K1 Fasern und f₀-Mengen für y ∈ {0, ½, 1, 3/2, 2} | wie hergeleitet; nur y=1 nicht punktidentifiziert |
+| MV-K1 y=1 als Menge | {0, ½}; der Mittelpunkt ¼ ist kein identifizierter Wert; Hinweis „NOT point-identified“ |
+| MV-K1 Behauptung „unberührtes Gas“ | y=1: {falsch, wahr}; y=½: identifiziert wahr |
+| MV-K1 leere Faser y=5/2 | als Fehlanpassung markiert, nichts identifiziert |
+| MV-K1 gemeinsame Beobachtung (h, f₀) | 6 Klassen, f₀ überall identifiziert |
+| Konventionsgrenze | alle Kerne zeilenstochastisch; der transponierte K2 (Spaltenkonvention) wird von `check_lumpability` abgelehnt |
+| MV-K2 | Mittelwert-Defekt 1, Klasse h=1, Spalte h=3/2, Zeilen (0,2)/(1,1); Multimenge exakt |
+| MV-K3 | Mittelwert-Defekt ½, Klasse h=1; Multimenge exakt (Gegenmodell ohne Pop-III-Sonderertrag) |
+| MV-K4 | Mittelwert-Dynamik exakt; Ereignis {0,1,2,3,6} keine Vereinigung von Mittelwertklassen (Hinweis gesetzt), unter der Multimenge beobachtbar |
+| Negativkontrolle | Mischung und Pop-III unter **einer** Makroaktion: beide nicht exakt; getrennt deklariert ist die Mischung exakt und Pop-III nicht |
+
+Status: `evidence_kind = exhaustive_finite`, `empirical_status = synthetic_only`.
