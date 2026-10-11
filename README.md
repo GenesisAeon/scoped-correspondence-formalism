@@ -155,7 +155,7 @@ python scripts/run_verification_suite.py --category links  # doc link check
 ```
 
 **Inventory.** 166 importable modules (140 module files in 26 subpackages,
-167 Python files) and 143 `verify_*.py` scripts that try to break them,
+167 Python files) and 144 `verify_*.py` scripts that try to break them,
 plus 2 archived ones the suite no longer runs.
 
 | Count | What it covers |
@@ -164,7 +164,7 @@ plus 2 archived ones the suite no longer runs.
 | 26 subpackages | the 25 top-level areas in the table above, plus `validation/modular_networks` |
 | 140 module files | `*.py` files other than `__init__.py` |
 | 167 Python files | 1 top-level `__init__.py` + 26 subpackage `__init__.py` + 140 module files |
-| 143 `verify_*.py` scripts | under `verification/`; these are what `run_verification_suite.py` runs |
+| 144 `verify_*.py` scripts | under `verification/`; these are what `run_verification_suite.py` runs |
 | 2 archived `verify_*.py` scripts | `archive/2026-09-16-revision-2/` and `reviews/formalism-review-f08-f09/`; kept for history, not run |
 
 `verification/verify_readme_inventory.py` recounts the tree, so these

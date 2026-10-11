@@ -1,0 +1,138 @@
+{
+ "KV2-C1": {
+  "zbar_A": "1/100",
+  "zbar_B": "1/100",
+  "f0_A": "1/2",
+  "f0_B": "0",
+  "identified": false
+ },
+ "KV2-C2 L k=0": {
+  "zbar_A": [
+   "1/100",
+   "1/100",
+   "103/9300",
+   "113/9300"
+  ],
+  "zbar_B": [
+   "1/100",
+   "1/100",
+   "103/9300",
+   "113/9300"
+  ],
+  "equal_all_steps": true,
+  "r_step3": "0"
+ },
+ "KV2-C2 L k=1": {
+  "zbar_A": [
+   "1/100",
+   "1/100",
+   "103/9300",
+   "113/9300"
+  ],
+  "zbar_B": [
+   "1/100",
+   "1/100",
+   "103/9300",
+   "113/9300"
+  ],
+  "equal_all_steps": true,
+  "r_step3": "0"
+ },
+ "KV2-C2 P3 k=0": {
+  "zbar_A": [
+   "1/100",
+   "1/100",
+   "113/9300",
+   "41/3100"
+  ],
+  "zbar_B": [
+   "1/100",
+   "1/100",
+   "103/9300",
+   "113/9300"
+  ],
+  "equal_all_steps": false,
+  "r_step3": "10/113"
+ },
+ "KV2-C2 P3 k=1": {
+  "zbar_A": [
+   "1/100",
+   "1/100",
+   "113/9300",
+   "41/3100"
+  ],
+  "zbar_B": [
+   "1/100",
+   "1/100",
+   "103/9300",
+   "113/9300"
+  ],
+  "equal_all_steps": false,
+  "r_step3": "10/113"
+ },
+ "KV2-C2 S k=0": {
+  "zbar_A": [
+   "1/100",
+   "1/100",
+   "101/9300",
+   "844/72075"
+  ],
+  "zbar_B": [
+   "1/100",
+   "1/100",
+   "17/1550",
+   "286/24025"
+  ],
+  "equal_all_steps": false,
+  "r_step3": "-7/429"
+ },
+ "KV2-C2 S k=1": {
+  "zbar_A": [
+   "1/100",
+   "1/100",
+   "101/9300",
+   "677/57660"
+  ],
+  "zbar_B": [
+   "1/100",
+   "1/100",
+   "17/1550",
+   "286/24025"
+  ],
+  "equal_all_steps": false,
+  "r_step3": "-47/3432"
+ },
+ "KV2-C3 L memory": {
+  "zbar_now_1": "1/100",
+  "zbar_now_2": "1/100",
+  "zbar_next_1": "21/2050",
+  "zbar_next_2": "1/100",
+  "equal_next": false
+ },
+ "KV2-C4 L aggregate k=0": {
+  "same_aggregate_before": true,
+  "same_aggregate_after": true,
+  "aggregate_after": [
+   "9/5",
+   "9/500",
+   "3/50",
+   "13/5000"
+  ]
+ },
+ "KV2-C4 P3 aggregate k=0": {
+  "same_aggregate_after": false
+ },
+ "KV2-C4 L aggregate k=1": {
+  "same_aggregate_before": true,
+  "same_aggregate_after": true,
+  "aggregate_after": [
+   "9/5",
+   "9/500",
+   "3/50",
+   "13/5000"
+  ]
+ },
+ "KV2-C4 P3 aggregate k=1": {
+  "same_aggregate_after": false
+ }
+}

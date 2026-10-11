@@ -1,0 +1,76 @@
+{
+  "n_passed": 5,
+  "n_total": 5,
+  "evidence_kind": "exhaustive_finite",
+  "empirical_status": "synthetic_only",
+  "scope": "declared finite state space and rules L/P3/S only",
+  "results": {
+    "c1_mean_does_not_identify_f0": {
+      "fiber_size": 3,
+      "f0_values": [
+        "0",
+        "1/2"
+      ]
+    },
+    "c2_mean_dynamics_rule_dependent": {
+      "L k=0": {
+        "0": true,
+        "1/200": true,
+        "1/100": true,
+        "3/200": true,
+        "1/50": true
+      },
+      "L k=1": {
+        "0": true,
+        "1/200": true,
+        "1/100": true,
+        "3/200": true,
+        "1/50": true
+      },
+      "P3 k=0": {
+        "0": true,
+        "1/200": true,
+        "1/100": false,
+        "3/200": true,
+        "1/50": true
+      },
+      "P3 k=1": {
+        "0": true,
+        "1/200": true,
+        "1/100": false,
+        "3/200": true,
+        "1/50": true
+      },
+      "S k=0": {
+        "0": true,
+        "1/200": true,
+        "1/100": false,
+        "3/200": true,
+        "1/50": true
+      },
+      "S k=1": {
+        "0": true,
+        "1/200": true,
+        "1/100": false,
+        "3/200": true,
+        "1/50": true
+      }
+    },
+    "c2_hand_values_p3_s": {
+      "r_P3": "10/113",
+      "r_S_k0": "-7/429",
+      "r_S_k1": "-47/3432"
+    },
+    "c3_memory_breaks_mean_sufficiency_even_for_l": {
+      "next_mean_values": [
+        "1/100",
+        "21/2050"
+      ]
+    },
+    "c4_aggregate_state_closes_l_not_p3": {
+      "n_aggregate_classes": 7,
+      "L_closed": true,
+      "P3_closed": false
+    }
+  }
+}

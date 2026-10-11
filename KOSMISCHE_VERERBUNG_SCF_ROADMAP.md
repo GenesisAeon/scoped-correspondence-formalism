@@ -22,8 +22,8 @@ Antwort auf [`KOSMISCHE_VERERBUNG_BESTANDSAUFNAHME_UND_PLAN.md`](prompts/Answers
 | Paket | Inhalt | Status |
 |---|---|---|
 | KV0 | Quellen, Umfang, API-Audit, Handkontrollen MV-K1–MV-K4 | ✅ erledigt (`4bb12a9`) |
-| KV1 | `verify_kv_mean_vs_distribution.py`: MV-K1–MV-K4 gegen die Produktions-APIs, mit Negativkontrollen; `docs/kosmische_vererbung_scf.md` | ✅ erledigt (dieser Commit) |
-| KV2 | Linearer Kontrollfall (Plan §8, „exakter linearer Kontrollfall vor nichtlinearer Anwendung“): zwei Reservoire, Bedingung für einen geschlossenen Mittelwert, Gedächtniskern bei weggelassenem Zustand | wartet auf die Schnittstelle (Einheiten, Massen) |
+| KV1 | `verify_kv_mean_vs_distribution.py`: MV-K1–MV-K4 gegen die Produktions-APIs, mit Negativkontrollen; `docs/kosmische_vererbung_scf.md` | ✅ erledigt (`170469b`) |
+| KV2 | Mittelwertdynamik und f₀-Identifizierbarkeit **getrennt**, mit Gedächtnis (verzögerte Rückgabe), exakter linearer Kontrollfall mit geschlossener Aggregatgleichung (Astras Hinweis 2026-10-12) | ✅ erledigt (dieser Commit) |
 | KV3 | Adapter für die Ausgaben der Feldtheorie-Seite (V5/V7): Beobachtungsoperator, Fasern auf deren Handfällen | wartet auf Feldtheorie V3/V5 |
 | KV4 | Bericht und Abschluss (V7) | offen |
 
@@ -116,3 +116,35 @@ Beschreibung: [`docs/kosmische_vererbung_scf.md`](docs/kosmische_vererbung_scf.m
 | Negativkontrolle | Mischung und Pop-III unter **einer** Makroaktion: beide nicht exakt; getrennt deklariert ist die Mischung exakt und Pop-III nicht |
 
 Status: `evidence_kind = exhaustive_finite`, `empirical_status = synthetic_only`.
+
+## KV2 — Mittelwertdynamik und f₀ getrennt, mit Gedächtnis (erledigt)
+
+Anlass: Astras Hinweis vom 2026-10-12. „Bestimmt der heutige Mittelwert den künftigen?“ und „bestimmt er f₀?“ sind auch im linearen Fall verschiedene Fragen, und verzögerte Rückgaben gehören zum Zustand.
+
+**Modell** (exakt, Fraction):
+- zwei Zonen mit Gas m_i und Metall q_i;
+- Rückgabe-Puffer je Zone (Lebensdauer 1 Schritt);
+- Sternbildung e·m_i aus Gas der Zonenzusammensetzung;
+- Rückgabe R·s bzw. R·s·Z + y(Z)·s;
+- symmetrischer Austausch K.
+- Parameter: e = 1/10, R = 3/10, K = 1/10, z_crit = 10⁻⁵.
+- Regeln: **L** y = 1/100; **P3** y = 3/100 unter z_crit, sonst 1/100; **S** y = R·min(1/30, max(1/25 − Z, 0)).
+- Handkontrollen: [`plan_controls/kv2_independent_controls.py`](verification/plan_controls/kv2_independent_controls.py) (kein SCF-Import).
+- Prüfung: [`verify_kv2_mean_dynamics_and_f0.py`](verification/verify_kv2_mean_dynamics_and_f0.py), 5/5, über Beobachtungsfasern auf einem endlichen, deklarierten Zustandsraum.
+
+**Geschlossene Gleichung für L.** Mit M, Q als Gesamtgas und Gesamtmetall und B_m, B_q als Puffer gilt:
+
+M′ = (1 − e)(M + B_m),  Q′ = (1 − e)(Q + B_q),  B_m′ = R·e·(M + B_m),  B_q′ = R·e·(Q + B_q) + y·e·(M + B_m).
+
+Das ist linear im **Aggregat** (M, Q, B_m, B_q); der Austausch erhält die Summen. Z̄ = Q/M allein ist **kein** vollständiger Zustand, weil B_q dazugehört.
+
+| Fall | Ergebnis (exakt) |
+|---|---|
+| C1 f₀ aus Z̄ | y = 1/100: Faser {(0, 1/50), (1/100, 1/100), (1/50, 0)}; f₀ ∈ {0, ½}: **nicht identifiziert**, unabhängig von der Regel |
+| C2 künftiges Z̄ aus Z̄ (leerer Puffer, 3 Schritte) | L: an jedem beobachteten Wert punktidentifiziert (z. B. 103/9300 nach 2 Schritten). P3: A 41/3100 gegen B 113/9300, r = +10/113. S: r = −7/429 (k = 0), −47/3432 (k = 1). |
+| C3 Gedächtnis (L) | Gleiche Zonen, gleiches Z̄ = 1/100, anderer Puffer: nächstes Z̄ 21/2050 gegen 1/100, **nicht identifiziert** |
+| C4 Aggregat | L: Das Aggregat ist auf dem ganzen deklarierten Raum geschlossen. P3: nicht (A und B haben dasselbe Aggregat, aber verschiedene Folgen). |
+
+**Aussagegrenze:** Alles gilt **unter den untersuchten Regeln und dem deklarierten Zustandsraum**. Ein endliches Gegenbeispiel belegt Nicht-Identifizierbarkeit. Übereinstimmung auf dem endlichen Raum belegt keine allgemeine Eindeutigkeit; für L trägt dafür die Aggregatgleichung oben. Status `exhaustive_finite` / `synthetic_only`.
+
+**KV3 (offen):** Der Adapter für die Feldtheorie-Daten (V5/V5c) läuft nur lokal und wird nicht öffentlich eingecheckt (Astras Empfehlung). Ein konkreter Auszug für SCF wäre eine eigene Veröffentlichungsentscheidung mit Erzeugungsskript, Parametern und Erwartungswerten.

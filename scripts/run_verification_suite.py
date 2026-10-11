@@ -189,6 +189,8 @@ _EXPLICIT_CATEGORY = {
     # Kosmische Vererbung, SCF side (KOSMISCHE_VERERBUNG_SCF_ROADMAP.md, KV1):
     # exhaustive finite control cases MV-K1..MV-K4, synthetic only.
     "verify_kv_mean_vs_distribution.py": "math",
+    # KV2: mean dynamics vs f0 identifiability, with memory (Astra review note 2026-10-12); synthetic only.
+    "verify_kv2_mean_dynamics_and_f0.py": "math",
 }
 
 
